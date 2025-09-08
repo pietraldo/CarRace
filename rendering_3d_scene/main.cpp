@@ -6,9 +6,9 @@
 #include <string>
 #include <cstdlib>
 
-//#include "imgui.h"
-//#include "backends/imgui_impl_glfw.h"
-//#include "backends/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -218,7 +218,7 @@ int main()
 
 void RenderImGui()
 {
-	/*ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
@@ -272,7 +272,7 @@ void RenderImGui()
 	}
 
 	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 GLFWwindow* CreateWindow(int width, int height, const char* title)
@@ -306,14 +306,14 @@ GLFWwindow* CreateWindow(int width, int height, const char* title)
 
 	glEnable(GL_DEPTH_TEST);
 
-	//IMGUI_CHECKVERSION();
-	//ImGui::CreateContext();
-	//ImGuiIO& io = ImGui::GetIO();
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	//// Initialize backends
-	//ImGui_ImplGlfw_InitForOpenGL(window, true);
-	//ImGui_ImplOpenGL3_Init("#version 330");
+	// Initialize backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	return window;
 }
