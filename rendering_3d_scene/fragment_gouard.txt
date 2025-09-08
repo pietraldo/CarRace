@@ -1,0 +1,27 @@
+#version 330 core
+out vec4 FragColor;
+
+in vec4 ourColor;
+in vec4 fposition;
+
+uniform bool fogEnabled;
+
+void main()
+{
+	float fog_maxdist = 40.0;
+    float fog_mindist = 10.0;
+    vec4  fog_colour = vec4(0.0, 0.0, 0.0, 1.0);
+
+    // Calculate fog
+    float dist = length(fposition.xyz);
+    float fog_factor = (fog_maxdist - dist) /
+                      (fog_maxdist - fog_mindist);
+    fog_factor = clamp(fog_factor, 0.0, 1.0);
+
+    vec4 shadedColor = ourColor;
+
+    if(fogEnabled)
+        FragColor = mix(fog_colour, shadedColor, fog_factor);
+    else
+        FragColor = shadedColor;
+}
