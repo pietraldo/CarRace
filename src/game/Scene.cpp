@@ -256,7 +256,7 @@ void Scene::CreateModels()
 	AddTextureModel(spider);*/
 
 
-	Model* car = new Model("C:/Users/pietr/Downloads/ferrari-288-gto/source/ferrari 288 gto/ferrari 288 gto.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
+	Model* car = new Model("../assets/models/ferrari.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
 	AddColorModel(car);
 	//Model* map = new Model("C:/Users/pietr/Downloads/udk0xohj4k-cityislands/City Islands/City Islands.obj", glm::vec3(0, -10, 0), 0.5, glm::vec3(1, 1, 0));
 	//AddTextureModel(map);
