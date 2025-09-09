@@ -60,7 +60,7 @@ void Scene::Update(float deltaTime)
 	//updating direction of the contorl light
 	if (alignLightWithJet)
 	{
-		lightToControl->direction = jet->velocity;
+		//lightToControl->direction = jet->velocity;
 	}
 	else
 	{
@@ -80,7 +80,7 @@ void Scene::Update(float deltaTime)
 		lightToControl->specular = glm::vec3(0.0f);
 	}
 	
-	lightToControl->position = jet->position;
+	//lightToControl->position = jet->position;
 
 
 	UpdateFlashLight();
@@ -164,7 +164,7 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 }
 void Scene::DrawSpotLights(Shader& shader)
 {
-	shader.use();
+	/*shader.use();
 
 	shader.setMat4("projection", GetProjectionMatrix());
 	shader.setMat4("view", GetViewMatrix());
@@ -191,7 +191,7 @@ void Scene::DrawSpotLights(Shader& shader)
 		shader.setMat4("model", modelMatrix);
 
 		flashLightModel->Draw(shader);
-	}
+	}*/
 }
 
 void Scene::DrawModel(Shader& shader, Model& model)
@@ -252,32 +252,32 @@ void Scene::CreateObjects()
 void Scene::CreateModels()
 {
 	//Model ourModel("C:/Users/pietr/Desktop/city/uploads_files_2720101_BusGameMap.obj");
-	Model* spider = new Model("C:/Users/pietr/Downloads/spider/spider.obj", glm::vec3(0, 0, -50), 0.3, glm::vec3(1, 1, 1));
-	AddTextureModel(spider);
+	/*Model* spider = new Model("C:/Users/pietr/Downloads/spider/spider.obj", glm::vec3(0, 0, -50), 0.3, glm::vec3(1, 1, 1));
+	AddTextureModel(spider);*/
 
 
 	Model* car = new Model("C:/Users/pietr/Downloads/ferrari-288-gto/source/ferrari 288 gto/ferrari 288 gto.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
 	AddColorModel(car);
-	Model* map = new Model("C:/Users/pietr/Downloads/udk0xohj4k-cityislands/City Islands/City Islands.obj", glm::vec3(0, -10, 0), 0.5, glm::vec3(1, 1, 0));
-	AddTextureModel(map);
-	Model* flashLightModel = new Model("C:/Users/pietr/Downloads/Flash.obj", glm::vec3(0, 0, 0), 0.1, glm::vec3(1, 1, 0));
-	//AddColorModel(flashLightModel);
-	this->flashLightModel = flashLightModel;
+	//Model* map = new Model("C:/Users/pietr/Downloads/udk0xohj4k-cityislands/City Islands/City Islands.obj", glm::vec3(0, -10, 0), 0.5, glm::vec3(1, 1, 0));
+	//AddTextureModel(map);
+	//Model* flashLightModel = new Model("C:/Users/pietr/Downloads/Flash.obj", glm::vec3(0, 0, 0), 0.1, glm::vec3(1, 1, 0));
+	////AddColorModel(flashLightModel);
+	//this->flashLightModel = flashLightModel;
 
-	Model* jet = new Model("C:/Users/pietr/Downloads/jet/uploads_files_1907948_F+15.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	AddTextureModel(jet);
-	jet->move = true;
-	this->jet = jet;
-	jet->axisOfSymetry = glm::vec3(0, 0, 1);
-	
+	//Model* jet = new Model("C:/Users/pietr/Downloads/jet/uploads_files_1907948_F+15.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
+	//AddTextureModel(jet);
+	//jet->move = true;
+	//this->jet = jet;
+	//jet->axisOfSymetry = glm::vec3(0, 0, 1);
+	//
 
-	
-	Model* alien = new Model("C:/Users/pietr/Downloads/20-alienanimal_obj/Alien Animal.obj", glm::vec3(-15, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	AddColorModel(alien);
+	//
+	//Model* alien = new Model("C:/Users/pietr/Downloads/20-alienanimal_obj/Alien Animal.obj", glm::vec3(-15, 0, 0), 0.5, glm::vec3(1, 1, 0));
+	//AddColorModel(alien);
 
-	Model* tank = new Model("C:/Users/pietr/Downloads/challenger-1-main-battle-tank/source/Challenger 1 Main Battle Tank/Challenger 1 Main Battle Tank.obj",
-		glm::vec3(90, 0, -90), 0.1, glm::vec3(0.4, 1, 0.4), glm::vec3(-90, 0, 0));
-	AddColorModel(tank);
+	//Model* tank = new Model("C:/Users/pietr/Downloads/challenger-1-main-battle-tank/source/Challenger 1 Main Battle Tank/Challenger 1 Main Battle Tank.obj",
+	//	glm::vec3(90, 0, -90), 0.1, glm::vec3(0.4, 1, 0.4), glm::vec3(-90, 0, 0));
+	//AddColorModel(tank);
 }
 void Scene::CreateLights()
 {
@@ -363,32 +363,32 @@ void Scene::CreateCameras()
 void Scene::CreateCubes()
 {
 	// create a few cubes
-	for (int i = 0; i < 60; i++)
-	{
-		glm::vec3 position = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 50);
-		glm::vec3 scale = glm::vec3(rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f);
-		//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-		glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-		//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glm::vec3 rotation = glm::vec3(rand() % 360, rand() % 360, rand() % 360);
-		Cube* cube = new Cube(position, scale, color, rotation);
-		AddCube(cube);
-	}
+	//for (int i = 0; i < 60; i++)
+	//{
+	//	glm::vec3 position = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 50);
+	//	glm::vec3 scale = glm::vec3(rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f);
+	//	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
+	//	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	glm::vec3 rotation = glm::vec3(rand() % 360, rand() % 360, rand() % 360);
+	//	Cube* cube = new Cube(position, scale, color, rotation);
+	//	AddCube(cube);
+	//}
 	//cubes[0]->move = true;
 }
 void Scene::CreateSpheres()
 {
-	int render_radius = 50;
-	// create a few spheres
-	for (int i = 0; i < 40; i++)
-	{
+	//int render_radius = 50;
+	//// create a few spheres
+	//for (int i = 0; i < 40; i++)
+	//{
 
-		glm::vec3 position = glm::vec3(rand() % render_radius - render_radius/2, rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2-50);
-		float radius = rand() % 4;
-		glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-		Sphere* sphere = new Sphere(position, radius, color);
-		AddSphere(sphere);
-	}
+	//	glm::vec3 position = glm::vec3(rand() % render_radius - render_radius/2, rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2-50);
+	//	float radius = rand() % 4;
+	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
+	//	Sphere* sphere = new Sphere(position, radius, color);
+	//	AddSphere(sphere);
+	//}
 }
 
 

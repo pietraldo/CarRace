@@ -179,20 +179,20 @@ int main()
 		
 
 		// setting cameras
-		scene.GetCameras()[1]->Front = glm::normalize(scene.jet->position - scene.GetCameras()[1]->Position);
+		//scene.GetCameras()[1]->Front = glm::normalize(scene.jet->position - scene.GetCameras()[1]->Position);
 		
 		//following camera
-		Camera* followoingCamera = scene.GetCameras()[2] ;
+		//Camera* followoingCamera = scene.GetCameras()[2] ;
 		
-		glm::vec3 direction = glm::normalize(scene.jet->velocity);
-		glm::vec3 desiredPosition = scene.jet->position - direction * 10.0f + glm::vec3(0, 1, 0);
-		glm::vec3 position = followoingCamera->Position;
+		//::vec3 direction = glm::normalize(scene.jet->velocity);
+		//glm::vec3 desiredPosition = scene.jet->position - direction * 10.0f + glm::vec3(0, 1, 0);
+		//glm::vec3 position = followoingCamera->Position;
 		
-		float interpolationSpeed = 2.0f; // wieksze -> kamera szybciej sie rusza
-		position = glm::mix(position, desiredPosition, deltaTime * interpolationSpeed);
+		//float interpolationSpeed = 2.0f; // wieksze -> kamera szybciej sie rusza
+		//position = glm::mix(position, desiredPosition, deltaTime * interpolationSpeed);
 
-		followoingCamera->Position = position;
-		followoingCamera->targetPos = scene.jet->position;
+		//followoingCamera->Position = position;
+		//followoingCamera->targetPos = scene.jet->position;
 
 		
 		

@@ -50,15 +50,15 @@ public:
 	float rotationX = 0.0f;
 	float rotationY = 0.0f;
 
-	bool alignLightWithJet = true;
+	bool alignLightWithJet = false;
 	bool rotateCubes = false;
 	bool moveCubes = false;
 
 	bool sphereGo = false;
 
 	
-	Model* jet;
-	Model* flashLightModel;
+	/*Model* jet;
+	Model* flashLightModel;*/
 
 
 
