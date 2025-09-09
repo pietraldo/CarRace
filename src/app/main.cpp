@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-//
+
 #include "../src/gfx/Shader.h"
 #include "../src/gfx/Camera.h"
 #include "../src/gfx/Model.h"
@@ -73,7 +73,6 @@ int main()
 	Shader lightShader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
 	Shader simpleShader("../assets/shaders/vertex_simple.txt", "../assets/shaders/fragment_simple.txt");
 
-	Shader gouraudShader("C:/Users/pietr/Documents/studia/grafika komputerowa/rendering_3d_scene/rendering_3d_scene/vertex_gouraud.txt", "C:/Users/pietr/Documents/studia/grafika komputerowa/rendering_3d_scene/rendering_3d_scene/fragment_gouard.txt");
 
 	
 
@@ -162,7 +161,7 @@ int main()
 		scene.Update(deltaTime);
 		
 		// setting proper shader
-		Shader& shaderColor = scene.Gouraud ? gouraudShader : ourShader;
+		Shader& shaderColor = ourShader;
 
 		// updating light buffer
 		lightBuffer = scene.LoadLights();
