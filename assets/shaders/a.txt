@@ -1,0 +1,2 @@
+set_source_files_properties(vertex_shader.txt fragment_shader.txt PROPERTIES HEADER_FILE_ONLY TRUE)
+add_custom_target(extra_files ALL SOURCES vertex_shader.txt fragment_shader.txt vertex_shader2.txt fragment_shader2.txt fragment_spider.txt vertex_spider.txt)

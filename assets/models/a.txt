@@ -1,0 +1,1 @@
+add_executable (rendering_3d_scene Cube.cpp Cube.h Sphere.h Sphere.cpp)

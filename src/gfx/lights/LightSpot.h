@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Light.h"
-#include "Constants.h"
+#include "../Constants.h"
 
 #include <glm/glm.hpp>
 

@@ -3,14 +3,14 @@
 #include <iostream>
 #include <vector>
 
-#include "Camera.h"
-#include "Light.h"
-#include "LightPoint.h"
-#include "LightDirectional.h"
-#include "LightSpot.h"
-#include "Cube.h"
-#include "Model.h"
-#include "Sphere.h"
+#include "../gfx/Camera.h"
+#include "../gfx/lights/Light.h"
+#include "../gfx/lights/LightPoint.h"
+#include "../gfx/lights/LightDirectional.h"
+#include "../gfx/lights/LightSpot.h"
+#include "../gfx/Cube.h"
+#include "../gfx/Model.h"
+#include "../gfx/Sphere.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -70,7 +70,7 @@ public:
 	void AddCube(Cube* cube) { cubes.push_back(cube); }
 	void AddSphere(Sphere* sphere) { spheres.push_back(sphere); }
 	void SetActiveCamera(int index);
-	Camera& Scene::GetActiveCamera();
+	Camera& GetActiveCamera();
 	void Update(float deltaTime);
 	void UpdateFlashLight()
 	{

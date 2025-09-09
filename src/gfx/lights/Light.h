@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Constants.h"
+#include "../Constants.h"
 
 struct DirLight {
 	alignas(16)glm::vec3 direction; 

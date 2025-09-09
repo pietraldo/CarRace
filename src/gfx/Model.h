@@ -17,7 +17,7 @@
 #include "../externals/stb_image/stb_image.h"
 
 #include "Shader.h"
-#include "Structs.h"
+#include "../game/Structs.h"
 #include "Mesh.h"
 using namespace std;
 

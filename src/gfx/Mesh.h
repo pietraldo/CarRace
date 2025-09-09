@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
-#include "Structs.h"
+#include "../game/Structs.h"
 
 using namespace std;
 

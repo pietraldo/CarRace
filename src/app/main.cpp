@@ -13,18 +13,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include "Shader.h"
-#include "Camera.h"
-#include "Model.h"
-#include "Scene.h"
-#include "Light.h"
-#include "LightPoint.h"
-#include "LightDirectional.h"
-#include "LightSpot.h"
-#include "Cube.h"
-#include "Constants.h"
-#include "Sphere.h"
+//
+#include "../src/gfx/Shader.h"
+#include "../src/gfx/Camera.h"
+#include "../src/gfx/Model.h"
+#include "../src/game/Scene.h"
+#include "../src/gfx/lights/Light.h"
+#include "../src/gfx/lights/LightPoint.h"
+#include "../src/gfx/lights/LightDirectional.h"
+#include "../src/gfx/lights/LightSpot.h"
+#include "../src/gfx/Cube.h"
+#include "../src/gfx/Constants.h"
+#include "../src/gfx/Sphere.h"
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -67,11 +67,11 @@ int main()
 
 
 	
-	Shader spiderShader("vertex_spider.txt", "fragment_spider.txt");
+	Shader spiderShader("../assets/shaders/vertex_spider.txt", "../assets/shaders/fragment_spider.txt");
 
-	Shader ourShader("vertex_shader.txt", "fragment_shader.txt");
-	Shader lightShader("vertex_shader2.txt", "fragment_shader2.txt");
-	Shader simpleShader("vertex_simple.txt", "fragment_simple.txt");
+	Shader ourShader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
+	Shader lightShader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
+	Shader simpleShader("../assets/shaders/vertex_simple.txt", "../assets/shaders/fragment_simple.txt");
 
 	Shader gouraudShader("C:/Users/pietr/Documents/studia/grafika komputerowa/rendering_3d_scene/rendering_3d_scene/vertex_gouraud.txt", "C:/Users/pietr/Documents/studia/grafika komputerowa/rendering_3d_scene/rendering_3d_scene/fragment_gouard.txt");
 
