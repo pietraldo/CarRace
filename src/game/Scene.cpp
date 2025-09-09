@@ -375,6 +375,15 @@ void Scene::CreateCubes()
 	//	AddCube(cube);
 	//}
 	//cubes[0]->move = true;
+
+	glm::vec3 position = glm::vec3(0,-20,0);
+	glm::vec3 scale = glm::vec3(100,10,100);
+	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
+	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 rotation = glm::vec3(0,0,0);
+	Cube* cube = new Cube(position, scale, color, rotation);
+	AddCube(cube);
 }
 void Scene::CreateSpheres()
 {
