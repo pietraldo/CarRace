@@ -5,6 +5,7 @@
 git clone https://github.com/pietraldo/CarRace
 cd CarRace
 git submodule init
-git submoudle update
+git submodule update
 cmake CMakeLists.txt
 ```
+
