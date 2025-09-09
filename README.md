@@ -9,11 +9,6 @@ git submodule update
 cmake CMakeLists.txt
 ```
 
-
-Jasne — wrzuć to do **README.md** jako sekcję „Struktura projektu”. Poniżej gotowy fragment do skopiowania:
-
----
-
 # Struktura projektu
 
 ```
@@ -127,3 +122,4 @@ Opcjonalnie „headless” testy logiki (bez okna).
 ---
 
 Jeśli chcesz, dorzucę na koniec README krótką sekcję „Build & uruchomienie” (CMake + kopiowanie `assets/` do folderu z `.exe`).
+
