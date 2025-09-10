@@ -11,6 +11,7 @@
 #include "../gfx/Cube.h"
 #include "../gfx/Model.h"
 #include "../gfx/Sphere.h"
+#include "GameObject.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -21,6 +22,8 @@ using namespace std;
 class Scene
 {
 private:
+    vector<GameObject*> gameObjects;
+
 	vector<Light*> lights;
 	vector<Camera*> cameras;
 	vector<Cube*> cubes;
@@ -64,7 +67,7 @@ public:
 
 	glm::mat4 rotateAlign(glm::vec3 v1, glm::vec3 v2);
 
-	Scene() { lights = vector<Light*>(); cameras = vector<Camera*>(); cubes = vector<Cube*>(); };
+	Scene();
 	void AddLight(Light* light) { lights.push_back(light); }
 	void AddCamera(Camera* camera) { cameras.push_back(camera); }
 	void AddCube(Cube* cube) { cubes.push_back(cube); }
@@ -97,7 +100,7 @@ public:
 		return glm::perspective(glm::radians(active_camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 400.0f);
 	}
 
-	void DrawCubes(Shader& shader, unsigned int& cubeVAO);
+	void DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube);
 	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
@@ -118,6 +121,7 @@ public:
 	vector<Sphere*> GetSpheres() { return spheres; }
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
+    vector<GameObject*> GetGameObjects() { return gameObjects; }
 
 	LightBuffer LoadLights();
 };

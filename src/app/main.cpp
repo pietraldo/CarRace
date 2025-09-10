@@ -172,11 +172,6 @@ int main()
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		
-		
-
-		
-
 		// setting cameras
 		//scene.GetCameras()[1]->Front = glm::normalize(scene.jet->position - scene.GetCameras()[1]->Position);
 		
@@ -193,11 +188,12 @@ int main()
 		//followoingCamera->Position = position;
 		//followoingCamera->targetPos = scene.jet->position;
 
+		for(GameObject * gameObj: scene.GetGameObjects())
+		{
+            gameObj->Update(deltaTime);
+			scene.DrawCube(shaderColor, cubeVAO, gameObj->position, gameObj->rotation, gameObj->cube);
+		}
 		
-		
-		
-
-		scene.DrawCubes(shaderColor, cubeVAO);
 		scene.DrawLights(lightShader, lightVAO);
 
 		scene.DrawModels(spiderShader, shaderColor);
@@ -259,9 +255,10 @@ void RenderImGui()
 		ImGui::End();
 	}
 	{
-		ImGui::Begin("Cubes");
-		ImGui::Checkbox("Rotate", &scene.rotateCubes);
-		ImGui::Checkbox("Move", &scene.moveCubes);
+		ImGui::Begin("Cube force");
+		ImGui::SliderFloat("TorqueX", &scene.GetGameObjects()[0]->torque.x, -100, 100);
+		ImGui::SliderFloat("TorqueY", &scene.GetGameObjects()[0]->torque.y, -100, 100);
+		ImGui::SliderFloat("TorqueZ", &scene.GetGameObjects()[0]->torque.z, -100, 100);
 		ImGui::End();
 	}
 	{

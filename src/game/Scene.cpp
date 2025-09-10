@@ -1,6 +1,22 @@
 #include "Scene.h"
 
+Scene::Scene()
+{
+	lights = vector<Light*>(); 
+	cameras = vector<Camera*>(); 
+	cubes = vector<Cube*>(); 
 
+    gameObjects = vector<GameObject*>();
+
+    GameObject* obj = new GameObject(0.1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+    obj->airResistance = 1.0f;
+    gameObjects.push_back(obj);
+
+	Cube* floorCube = new Cube(glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+    GameObject* floor = new GameObject(1, glm::vec3(0), floorCube);
+    
+    gameObjects.push_back(floor);
+}
 
 void Scene::SetActiveCamera(int index)
 {
@@ -23,11 +39,11 @@ Camera& Scene::GetActiveCamera()
 }
 void Scene::Update(float deltaTime)
 {
-	for (Cube* cube : cubes) {
+	/*for (Cube* cube : cubes) {
 		cube->UpdatePosition(deltaTime);
 		cube->rotate = rotateCubes;
 		cube->move = moveCubes;
-	}
+	}*/
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
 			continue;
@@ -86,7 +102,7 @@ void Scene::Update(float deltaTime)
 	UpdateFlashLight();
 }
 
-void Scene::DrawCubes(Shader& shader, unsigned int& cubeVAO)
+void Scene::DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube)
 {
 	shader.use();
 
@@ -95,14 +111,12 @@ void Scene::DrawCubes(Shader& shader, unsigned int& cubeVAO)
 	shader.setVec3("viewPos", active_camera->Position);
 	shader.setBool("fogEnabled", fog);
 
-	for (Cube* cube : cubes)
-	{
-		shader.setMat4("model", cube->GetModelMatrix());
-		shader.setVec3("objectColor", cube->GetColor());
+	
+	shader.setMat4("model", cube->GetModelMatrix(position, rotation));
+	shader.setVec3("objectColor", cube->GetColor());
 
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	glBindVertexArray(cubeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
@@ -376,14 +390,14 @@ void Scene::CreateCubes()
 	//}
 	//cubes[0]->move = true;
 
-	glm::vec3 position = glm::vec3(0,-20,0);
-	glm::vec3 scale = glm::vec3(100,10,100);
-	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 rotation = glm::vec3(0,0,0);
-	Cube* cube = new Cube(position, scale, color, rotation);
-	AddCube(cube);
+	//glm::vec3 position = glm::vec3(0,-20,0);
+	//glm::vec3 scale = glm::vec3(100,10,100);
+	////glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	//glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
+	////glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+	//glm::vec3 rotation = glm::vec3(0,0,0);
+	//Cube* cube = new Cube(position, scale, color, rotation);
+	//AddCube(cube);
 }
 void Scene::CreateSpheres()
 {
