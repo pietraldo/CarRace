@@ -8,7 +8,7 @@ Scene::Scene()
 
     gameObjects = vector<GameObject*>();
 
-    GameObject* obj = new GameObject(0.1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+    GameObject* obj = new GameObject(1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
     obj->airResistance = 1.0f;
     gameObjects.push_back(obj);
 
