@@ -35,7 +35,7 @@ private:
 
 	Camera* active_camera;
 
-	void CreateModels();
+	
 	
 	void CreateCameras();
 	void CreateCubes();
@@ -106,7 +106,7 @@ public:
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
 	void CreateObjects();
-
+	void CreateModels();
 	
 
 	

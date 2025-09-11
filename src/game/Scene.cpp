@@ -245,7 +245,7 @@ void Scene::CreateObjects()
 {
 	CreateCameras();
 	//CreateLights();
-	CreateModels();
+	//CreateModels();
 	CreateCubes();
 	CreateSpheres();
 }

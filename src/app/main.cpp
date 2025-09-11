@@ -59,6 +59,8 @@ int main()
 
     if (Rendering::Initialize() == -1) return -1;
 
+
+	scene->CreateModels();
 	
 	Rendering::camera = &(scene->GetActiveCamera());
 	
