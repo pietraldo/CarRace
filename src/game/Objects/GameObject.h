@@ -3,16 +3,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../gfx/Cube.h"
-
 class GameObject
 {
 public:
 
-    GameObject(float mass, glm::vec3 position, Cube* cube) :
-        mass(mass), position(position), cube(cube)
+    GameObject(float mass, glm::vec3 position, glm::vec3 rotation = glm::vec3(0)) :
+        mass(mass), position(position), rotation(rotation)
     {
-        rotation = glm::vec3(0.0f);
         centerOfMass = glm::vec3(0.0f);
         velocity = glm::vec3(0.0f);
         rotationVelocity = glm::vec3(0.0f);
@@ -39,7 +36,7 @@ public:
     float elasticity;
     float friction;
 
-    Cube* cube;
+    virtual void Draw() = 0;
 
     void Update(float deltaTime);
 };

@@ -25,10 +25,10 @@ file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
 target_sources(carrace PRIVATE ${SRC_HEADERS})
 
 # (opcjonalnie) shadery jako "pliki dodatkowe"
-set(SHADER_FILES
-  ${CMAKE_SOURCE_DIR}/assets/shaders/vertex_shader.txt
-  ${CMAKE_SOURCE_DIR}/assets/shaders/fragment_shader.txt
-)
+#set(SHADER_FILES
+  #${CMAKE_SOURCE_DIR}/assets/shaders/vertex_shader.txt
+  #${CMAKE_SOURCE_DIR}/assets/shaders/fragment_shader.txt
+#)
 target_sources(carrace PRIVATE ${SHADER_FILES})
 
 # Grupowanie w Solution Explorer

@@ -11,7 +11,9 @@
 #include "../gfx/Cube.h"
 #include "../gfx/Model.h"
 #include "../gfx/Sphere.h"
-#include "GameObject.h"
+#include "./Objects/GameObject.h"
+#include "../gfx/Rendering.h"
+#include "./Objects/CubeObejct.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,7 +36,7 @@ private:
 	Camera* active_camera;
 
 	void CreateModels();
-	void CreateLights();
+	
 	void CreateCameras();
 	void CreateCubes();
 	void CreateSpheres();
@@ -58,7 +60,7 @@ public:
 	bool moveCubes = false;
 
 	bool sphereGo = false;
-
+	void CreateLights();
 	
 	/*Model* jet;
 	Model* flashLightModel;*/
@@ -90,15 +92,7 @@ public:
 			flashlight->ambient = glm::vec3(0.0f);
 		}
 	}
-	glm::mat4 GetViewMatrix()
-	{
-		return active_camera->GetViewMatrix();
-	}
 
-	glm::mat4 GetProjectionMatrix()
-	{
-		return glm::perspective(glm::radians(active_camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 400.0f);
-	}
 
 	void DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube);
 	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);

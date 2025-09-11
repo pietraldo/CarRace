@@ -16,3 +16,8 @@ void GameObject::Update(float deltaTime)
     rotationVelocity += angularAcceleration * deltaTime;
     rotation += rotationVelocity * deltaTime;
 }
+
+void GameObject::Draw()
+{
+
+}

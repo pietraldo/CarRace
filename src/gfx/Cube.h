@@ -6,18 +6,14 @@
 
 class Cube
 {
+
 private:
-	glm::vec3 scale;
-	glm::vec3 color;
 
+    static glm::mat4 GetModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 public:
-	Cube(glm::vec3 scale, glm::vec3 color)
-		:scale(scale), color(color)  {
-	};
-	glm::vec3 GetScale() { return scale; }
-	glm::vec3 GetColor() { return color; }
-	glm::mat4 GetModelMatrix(glm::vec3 position, glm::vec3 rotation);
 
-	static float vertices[216];
+    static void Draw(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 color);
+
+    static float vertices[216];
 };
 

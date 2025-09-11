@@ -8,14 +8,17 @@ Scene::Scene()
 
     gameObjects = vector<GameObject*>();
 
-    GameObject* obj = new GameObject(1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+
+    CubeObject* obj =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    //GameObject* obj = new GameObject(1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
     obj->airResistance = 1.0f;
     gameObjects.push_back(obj);
 
-	Cube* floorCube = new Cube(glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
-    GameObject* floor = new GameObject(1, glm::vec3(0), floorCube);
+	CubeObject* floorCube = new CubeObject(1, glm::vec3(0), glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+	/*Cube* floorCube = new Cube(glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+    GameObject* floor = new GameObject(1, glm::vec3(0), floorCube);*/
     
-    gameObjects.push_back(floor);
+    gameObjects.push_back(floorCube);
 }
 
 void Scene::SetActiveCamera(int index)
@@ -102,26 +105,9 @@ void Scene::Update(float deltaTime)
 	UpdateFlashLight();
 }
 
-void Scene::DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube)
-{
-	shader.use();
-
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
-	shader.setBool("fogEnabled", fog);
-
-	
-	shader.setMat4("model", cube->GetModelMatrix(position, rotation));
-	shader.setVec3("objectColor", cube->GetColor());
-
-	glBindVertexArray(cubeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-}
-
 void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
 {
-	shader.use();
+	/*shader.use();
 
 	shader.setMat4("projection", GetProjectionMatrix());
 	shader.setMat4("view", GetViewMatrix());
@@ -141,7 +127,7 @@ void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
 
 		glBindVertexArray(sphereVAO);
 		glDrawElements(GL_TRIANGLES, (Sphere::stackCount-1)*Sphere::sectorCount*6, GL_UNSIGNED_INT, 0);
-	}
+	}*/
 }
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
@@ -159,8 +145,8 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 {
 	shader.use();
 
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
+	shader.setMat4("projection", Rendering::GetProjectionMatrix());
+	shader.setMat4("view", Rendering::GetViewMatrix());
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::POINT)
@@ -211,8 +197,8 @@ void Scene::DrawSpotLights(Shader& shader)
 void Scene::DrawModel(Shader& shader, Model& model)
 {
 	shader.use();
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
+	shader.setMat4("projection", Rendering::GetProjectionMatrix());
+	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", active_camera->Position);
 	shader.setVec3("objectColor", model.color);
 	shader.setBool("fogEnabled", fog);
@@ -258,7 +244,7 @@ glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
 void Scene::CreateObjects()
 {
 	CreateCameras();
-	CreateLights();
+	//CreateLights();
 	CreateModels();
 	CreateCubes();
 	CreateSpheres();
