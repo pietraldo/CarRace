@@ -44,6 +44,12 @@ float lastFrame = 0.0f;
 Scene* scene=nullptr;
 int main()
 {
+    /*BoxCollider box;
+    box.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    box.size = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    vector<glm::vec3> vertices = box.GetVertices(glm::vec3(45.0f, 0,0));*/
+
     scene = new Scene();
 	Rendering::scene = scene;
 	srand(19);
@@ -64,7 +70,7 @@ int main()
 	
 	Rendering::camera = &(scene->GetActiveCamera());
 	
-	
+	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
 
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
@@ -78,6 +84,8 @@ int main()
 		{
 			gameObj->Update(deltaTime);
 		}
+
+		cout << cs.Solve();
 
         Rendering::RenderFrame(scene->GetGameObjects());
 	}

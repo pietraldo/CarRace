@@ -9,14 +9,15 @@ Scene::Scene()
     gameObjects = vector<GameObject*>();
 
 
-    CubeObject* obj =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    //GameObject* obj = new GameObject(1, glm::vec3(0,5,0), new Cube(glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-    obj->airResistance = 1.0f;
-    gameObjects.push_back(obj);
+    CubeObject* cube1 =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	cube1->airResistance = 1.0f;
+    gameObjects.push_back(cube1);
+
+	CubeObject* cube2 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	cube2->airResistance = 1.0f;
+	gameObjects.push_back(cube2);
 
 	CubeObject* floorCube = new CubeObject(1, glm::vec3(0), glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
-	/*Cube* floorCube = new Cube(glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.2f, 0.2f, 0.2f));
-    GameObject* floor = new GameObject(1, glm::vec3(0), floorCube);*/
     
     gameObjects.push_back(floorCube);
 }
@@ -251,33 +252,8 @@ void Scene::CreateObjects()
 }
 void Scene::CreateModels()
 {
-	//Model ourModel("C:/Users/pietr/Desktop/city/uploads_files_2720101_BusGameMap.obj");
-	/*Model* spider = new Model("C:/Users/pietr/Downloads/spider/spider.obj", glm::vec3(0, 0, -50), 0.3, glm::vec3(1, 1, 1));
-	AddTextureModel(spider);*/
-
-
-	Model* car = new Model("../assets/models/ferrari.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	AddColorModel(car);
-	//Model* map = new Model("C:/Users/pietr/Downloads/udk0xohj4k-cityislands/City Islands/City Islands.obj", glm::vec3(0, -10, 0), 0.5, glm::vec3(1, 1, 0));
-	//AddTextureModel(map);
-	//Model* flashLightModel = new Model("C:/Users/pietr/Downloads/Flash.obj", glm::vec3(0, 0, 0), 0.1, glm::vec3(1, 1, 0));
-	////AddColorModel(flashLightModel);
-	//this->flashLightModel = flashLightModel;
-
-	//Model* jet = new Model("C:/Users/pietr/Downloads/jet/uploads_files_1907948_F+15.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	//AddTextureModel(jet);
-	//jet->move = true;
-	//this->jet = jet;
-	//jet->axisOfSymetry = glm::vec3(0, 0, 1);
-	//
-
-	//
-	//Model* alien = new Model("C:/Users/pietr/Downloads/20-alienanimal_obj/Alien Animal.obj", glm::vec3(-15, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	//AddColorModel(alien);
-
-	//Model* tank = new Model("C:/Users/pietr/Downloads/challenger-1-main-battle-tank/source/Challenger 1 Main Battle Tank/Challenger 1 Main Battle Tank.obj",
-	//	glm::vec3(90, 0, -90), 0.1, glm::vec3(0.4, 1, 0.4), glm::vec3(-90, 0, 0));
-	//AddColorModel(tank);
+	//Model* car = new Model("../assets/models/ferrari.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
+	//AddColorModel(car);
 }
 void Scene::CreateLights()
 {
@@ -351,7 +327,7 @@ void Scene::CreateLights()
 }
 void Scene::CreateCameras()
 {
-	Camera* camera1 = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
 	Camera* camera2 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
 	Camera* camera3 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
 	camera3->followingCamera = true;
