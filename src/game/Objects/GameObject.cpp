@@ -32,7 +32,7 @@ ColiderSolver::ColiderSolver(GameObject* a, GameObject* b)
 {}
 
 BoxCollider::BoxCollider(glm::vec3 position, glm::vec3 size)
-    : position(glm::vec3(0.0f)), size(glm::vec3(1.0f))
+    : position(position), size(size)
 {}
 
 bool ColiderSolver::Solve()
