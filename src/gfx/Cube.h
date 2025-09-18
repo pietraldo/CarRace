@@ -9,9 +9,9 @@ class Cube
 
 private:
 
-    static glm::mat4 GetModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
+    
 public:
-
+    static glm::mat4 GetModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
     static void Draw(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 color);
 
     static float vertices[216];

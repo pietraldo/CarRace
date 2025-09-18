@@ -85,7 +85,7 @@ int main()
 			gameObj->Update(deltaTime);
 		}
 
-		cout << cs.Solve();
+		cout << cs.Solve()<<endl;
 
         Rendering::RenderFrame(scene->GetGameObjects());
 	}

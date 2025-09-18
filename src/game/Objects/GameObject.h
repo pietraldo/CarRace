@@ -6,6 +6,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <iostream>
 #include <vector>
+#include "../../gfx/Cube.h"
 
 class GameObject;
 class BoxCollider;
@@ -113,10 +114,8 @@ public:
         // transform each vertex
         for (int i = 0; i < 8; i++)
         {
-            glm::vec3 rotated = RotateAroundAxis(localVerts[i], glm::vec3(1, 0, 0), glm::radians(rotation.x));
-            rotated = RotateAroundAxis(rotated, glm::vec3(0, 1, 0), glm::radians(rotation.y));
-            rotated = RotateAroundAxis(rotated, glm::vec3(0, 0, 1), glm::radians(rotation.z));
-            glm::vec3 worldPos = position + rotated;
+            glm::vec4 rotated = Cube::GetModelMatrix(position, rotation, glm::vec3(1)) * glm::vec4(localVerts[i], 1.0f);
+            glm::vec3 worldPos = glm::vec3(rotated);
 
             vertices.push_back(worldPos);
         }
@@ -137,8 +136,11 @@ public:
         // Define planes using 3 points 
         Plane top(vertices[6], vertices[7], vertices[2]); //  LTF, RTF, LTB
         planes.push_back(top);
-        Plane right(vertices[7], vertices[5], vertices[3]); //RTF, RDF, RTB
-        planes.push_back(right);
+        //Plane right(vertices[7], vertices[5], vertices[3]); //RTF, RDF, RTB
+        //planes.push_back(right);
+        Plane left(vertices[6], vertices[2], vertices[4]); // LTF, LTB, LDF
+        planes.push_back(left);
+        //Plane front(vertices[6], vertices[4], vertices[7]); //LTF, LDF, RTF
         Plane front(vertices[6], vertices[4], vertices[7]); //LTF, LDF, RTF
         planes.push_back(front);
 

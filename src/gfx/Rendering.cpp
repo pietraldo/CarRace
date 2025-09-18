@@ -218,9 +218,9 @@ void Rendering::RenderImGui()
     }
     {
         ImGui::Begin("Cube0 force");
-        ImGui::SliderFloat("TorqueX", &(*scene).GetGameObjects()[0]->rotation.x, 0, 100);
-        ImGui::SliderFloat("TorqueY", &(*scene).GetGameObjects()[0]->rotation.y, 0, 100);
-        ImGui::SliderFloat("TorqueZ", &(*scene).GetGameObjects()[0]->rotation.z, 0, 100);
+        ImGui::SliderFloat("TorqueX", &(*scene).GetGameObjects()[0]->rotation.x, 0, 360);
+        ImGui::SliderFloat("TorqueY", &(*scene).GetGameObjects()[0]->rotation.y, 0, 360);
+        ImGui::SliderFloat("TorqueZ", &(*scene).GetGameObjects()[0]->rotation.z, 0, 360);
         ImGui::SliderFloat("ForceX", &(*scene).GetGameObjects()[0]->position.x, -5, 5);
         ImGui::SliderFloat("ForceY", &(*scene).GetGameObjects()[0]->position.y, 0, 10);
         ImGui::SliderFloat("ForceZ", &(*scene).GetGameObjects()[0]->position.z, -5, 5);

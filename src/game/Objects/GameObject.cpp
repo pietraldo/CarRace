@@ -55,18 +55,28 @@ bool ColiderSolver::Solve()
     std::vector<Edge> edgesB = boxB.GetEdges(rotationB);
 
     std::vector<Edge> edgesToTest;
-    edgesToTest.reserve(6);
+    edgesToTest.insert(edgesToTest.end(), edgesA.begin(), edgesA.end());
+    edgesToTest.insert(edgesToTest.end(), edgesB.begin(), edgesB.end());
+    /*edgesToTest.reserve(6);
     edgesToTest.push_back(edgesA[4]);
     edgesToTest.push_back(edgesA[5]);
     edgesToTest.push_back(edgesA[9]);
     edgesToTest.push_back(edgesB[4]);
     edgesToTest.push_back(edgesB[5]);
-    edgesToTest.push_back(edgesB[9]);
+    edgesToTest.push_back(edgesB[9]);*/
 
-    
+    int planeCnt = 0;
     bool debug = false;
+    bool ans = true;
     for (Plane& plane : allPlanes)
     {
+        
+        if (planeCnt>= 3)
+            debug = false;
+        if (debug)
+            std::cout << "points"<<planeCnt-3<<" = [";
+
+        planeCnt++;
         for (Edge& edge : edgesToTest)
         {
             glm::vec2 p1 = plane.PointProjectionInPlaneCordinates(plane.PointProjection(edge.A));
@@ -88,14 +98,17 @@ bool ColiderSolver::Solve()
                 {
                     minA = projection;
                     maxA = projection;
+                    if (debug)
+                        std::cout << "(" << p.x << "," << p.y << ") ";
                 }
                 else
                 {
                     if (projection < minA) minA = projection;
                     if (projection > maxA) maxA = projection;
+                    if (debug)
+                        std::cout << ",(" << p.x << "," << p.y << ")";
                 }
-                if (debug)
-                    std::cout << "(" << p.x << "," << p.y << ") ";
+               
             }
 
             for (glm::vec3& vertex : verticesB)
@@ -106,26 +119,31 @@ bool ColiderSolver::Solve()
                 {
                     minB = projection;
                     maxB = projection;
+
+                    
                 }
                 else
                 {
                     if (projection < minB) minB = projection;
                     if (projection > maxB) maxB = projection;
+                    
                 }
+
                 if (debug)
-                    std::cout << "(" << p.x << "," << p.y << ") ";
+                    std::cout << ",(" << p.x << "," << p.y << ")";
+                
             }
 
             // check for overlap
             if (maxA < minB || maxB < minA)
             {
-                return false; // found a separating axis
+                ans= false; // found a separating axis
             }
             if (debug)
-                std::cout << std::endl;
+                std::cout<<"]" << std::endl;
             debug = false;
         }
     }
 
-    return true; // no separating axis found, boxes are colliding
+    return ans; // no separating axis found, boxes are colliding
 }
