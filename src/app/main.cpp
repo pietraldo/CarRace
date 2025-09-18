@@ -25,6 +25,7 @@
 #include "../gfx/Sphere.h"
 
 #include "./gfx/Rendering.h"
+#include "./physics/ColisionSolver.h"
 
 
 #define STB_IMAGE_IMPLEMENTATION

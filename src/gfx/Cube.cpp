@@ -60,11 +60,15 @@ glm::mat4 Cube::GetModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3
 
 void Cube::Draw(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 color)
 {
-	Shader& shader = *Rendering::colorShader;
-    unsigned int cubeVAO = Rendering::CubeVAO;
-    Camera& camera = *Rendering::camera;
-
     glm::mat4 model = GetModelMatrix(position, rotation, scale);
+    Draw(model, color);
+}
+
+void Cube::Draw(glm::mat4 model, glm::vec3 color)
+{
+	Shader& shader = *Rendering::colorShader;
+	unsigned int cubeVAO = Rendering::CubeVAO;
+	Camera& camera = *Rendering::camera;
 
 	shader.use();
 

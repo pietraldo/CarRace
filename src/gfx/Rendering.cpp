@@ -262,6 +262,7 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
     for (GameObject* gameObj : gameObjects)
     {
         gameObj->Draw();
+        gameObj->collider.Draw(gameObj->rotation);
     }
 
     (*scene).DrawLights(*lightShader, lightVAO);
