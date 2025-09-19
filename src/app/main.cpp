@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <hidapi.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -61,7 +62,17 @@ int main()
 	LightBuffer lightBuffer = scene->LoadLights();
 
 
+	if (hid_init())
+		return -1;
+	std::cout << "HIDAPI initialized\n";
+	// Open DualSense (USB VID/PID)
+	hid_device* handle = hid_open(0x054C, 0x0CE6, NULL);
+	if (!handle) {
+		std::cerr << "Unable to open DualSense controller\n";
+		return 1;
+	}
 
+	std::cout << "DualSense connected!\n";
 	
 
     if (Rendering::Initialize() == -1) return -1;
@@ -72,7 +83,7 @@ int main()
 	Rendering::camera = &(scene->GetActiveCamera());
 	
 	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
-
+	int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -80,6 +91,56 @@ int main()
 		lastFrame = currentFrame;
 
 		processInput(Rendering::window);
+
+		Camera& cam = scene->GetActiveCamera();
+
+       
+
+		unsigned char inputBuf[78];
+		int res = hid_read(handle, inputBuf, sizeof(inputBuf));
+		 if (res > 0) {
+		     
+			 int leftStickX = (inputBuf[1]-128);
+             int leftStickY = (inputBuf[2] - 128) ;
+             int rightStickX = (inputBuf[3] - 128) ;
+             int rightStickY = (inputBuf[4] - 128) ;
+
+			 std::cout << "LSX: " << leftStickX << " LSY: " << leftStickY << " RSX: " << rightStickX << " RSY: " << rightStickY << std::endl;
+
+			if(abs(leftStickX)<abs(lastXL))
+                leftStickX = 0;
+            if (abs(leftStickY) < abs(lastYL))
+                leftStickY = 0;
+            if (abs(rightStickX) < abs(lastXR))
+                rightStickX = 0;
+            if (abs(rightStickY) < abs(lastYR))
+                rightStickY = 0;
+
+			 cam.ProcessControllerPosition(inputBuf[1], inputBuf[2], deltaTime);
+			 cam.ProcessControllerRotation(inputBuf[3], inputBuf[4], deltaTime);
+
+             lastXL = leftStickX;
+             lastYL = leftStickY;
+             lastXR = rightStickX;
+             lastYR = rightStickY;
+		 }
+		 
+		//if(res>0)
+		//{
+
+		//    std::cout << "\r"; // wróć na początek linii
+		//    std::cout << "Read " << res << " bytes: ";
+		//    for (int i = 0; i < 70; i++) {
+		//        // wypisz w hex, zawsze 2 znaki, np. 0A zamiast A
+		//        std::cout << std::hex << std::uppercase
+		//                << std::setw(2) << std::setfill('0')
+		//                << (int)inputBuf[i] << " ";
+		//    }
+
+		//    std::cout << std::flush; // wymuś wypisanie
+		//}
+
+
 
 		for (GameObject* gameObj : scene->GetGameObjects())
 		{
@@ -112,7 +173,3 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
 }
-
-
-
-

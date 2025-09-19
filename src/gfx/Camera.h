@@ -96,6 +96,37 @@ public:
             Position += Right * velocity;
     }
 
+    void ProcessControllerPosition(float x, float y, float deltaTime)
+    {
+        float velocity = MovementSpeed * deltaTime;
+        float xDeadzone = 20.0f;
+        float yDeadzone = 20.0f;
+        if (abs(x - 128) < xDeadzone) x = 128;
+        if (abs(y - 128) < yDeadzone) y = 128;
+        Position -= Front * velocity * ((y - 128) / 128);
+        Position += Right * velocity * ((x - 128) / 128);
+    }
+
+    void ProcessControllerRotation(float x, float y, float deltaTime)
+    {
+        float velocity = deltaTime * 100*2;
+        float xDeadzone = 10.0f;
+        float yDeadzone = 10.0f;
+        if (abs(x - 128) < xDeadzone) x = 128;
+        if (abs(y - 128) < yDeadzone) y = 128;
+        Yaw += velocity * ((x - 128) / 128);
+        Pitch -= velocity * ((y - 128) / 128);
+
+        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+
+        // update Front, Right and Up Vectors using the updated Euler angles
+        updateCameraVectors();
+    }
+
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
     {

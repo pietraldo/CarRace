@@ -14,9 +14,10 @@ target_include_directories(carrace PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}     # src/...
   ${CMAKE_SOURCE_DIR}/externals   # headery z externals (glad, stb, glm, imgui)
   ${CMAKE_SOURCE_DIR}             # opcjonalnie
+  ${CMAKE_SOURCE_DIR}/externals/hidapi/include
 )
 
-target_link_libraries(carrace PRIVATE glfw glad imgui glm assimp)
+target_link_libraries(carrace PRIVATE glfw glad imgui glm assimp ${CMAKE_SOURCE_DIR}/externals/hidapi/lib/hidapi.lib)
 
 # (opcjonalnie) Dołącz nagłówki, żeby były widoczne w IDE
 file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
@@ -30,6 +31,12 @@ target_sources(carrace PRIVATE ${SRC_HEADERS})
   #${CMAKE_SOURCE_DIR}/assets/shaders/fragment_shader.txt
 #)
 target_sources(carrace PRIVATE ${SHADER_FILES})
+
+add_custom_command(TARGET carrace POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_SOURCE_DIR}/externals/hidapi/bin/hidapi.dll
+    $<TARGET_FILE_DIR:carrace>
+)
 
 # Grupowanie w Solution Explorer
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${SRC_FILES} ${SRC_HEADERS} ${SHADER_FILES})
