@@ -27,6 +27,7 @@
 
 #include "./gfx/Rendering.h"
 #include "./physics/ColisionSolver.h"
+#include "./ui/Controller.h"
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -46,12 +47,6 @@ float lastFrame = 0.0f;
 Scene* scene=nullptr;
 int main()
 {
-    /*BoxCollider box;
-    box.position = glm::vec3(0.0f, 0.0f, 0.0f);
-    box.size = glm::vec3(1.0f, 1.0f, 1.0f);
-
-    vector<glm::vec3> vertices = box.GetVertices(glm::vec3(45.0f, 0,0));*/
-
     scene = new Scene();
 	Rendering::scene = scene;
 	srand(19);
@@ -61,19 +56,7 @@ int main()
 	scene->SetActiveCamera(0);
 	LightBuffer lightBuffer = scene->LoadLights();
 
-
-	if (hid_init())
-		return -1;
-	std::cout << "HIDAPI initialized\n";
-	// Open DualSense (USB VID/PID)
-	hid_device* handle = hid_open(0x054C, 0x0CE6, NULL);
-	if (!handle) {
-		std::cerr << "Unable to open DualSense controller\n";
-		return 1;
-	}
-
-	std::cout << "DualSense connected!\n";
-	
+	Controller::getInstance()->connect();
 
     if (Rendering::Initialize() == -1) return -1;
 
@@ -83,7 +66,7 @@ int main()
 	Rendering::camera = &(scene->GetActiveCamera());
 	
 	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
-	int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
+	//int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -92,62 +75,12 @@ int main()
 
 		processInput(Rendering::window);
 
-		Camera& cam = scene->GetActiveCamera();
-
-       
-
-		unsigned char inputBuf[78];
-		int res = hid_read(handle, inputBuf, sizeof(inputBuf));
-		 if (res > 0) {
-		     
-			 int leftStickX = (inputBuf[1]-128);
-             int leftStickY = (inputBuf[2] - 128) ;
-             int rightStickX = (inputBuf[3] - 128) ;
-             int rightStickY = (inputBuf[4] - 128) ;
-
-			 std::cout << "LSX: " << leftStickX << " LSY: " << leftStickY << " RSX: " << rightStickX << " RSY: " << rightStickY << std::endl;
-
-			if(abs(leftStickX)<abs(lastXL))
-                leftStickX = 0;
-            if (abs(leftStickY) < abs(lastYL))
-                leftStickY = 0;
-            if (abs(rightStickX) < abs(lastXR))
-                rightStickX = 0;
-            if (abs(rightStickY) < abs(lastYR))
-                rightStickY = 0;
-
-			 cam.ProcessControllerPosition(inputBuf[1], inputBuf[2], deltaTime);
-			 cam.ProcessControllerRotation(inputBuf[3], inputBuf[4], deltaTime);
-
-             lastXL = leftStickX;
-             lastYL = leftStickY;
-             lastXR = rightStickX;
-             lastYR = rightStickY;
-		 }
-		 
-		//if(res>0)
-		//{
-
-		//    std::cout << "\r"; // wróć na początek linii
-		//    std::cout << "Read " << res << " bytes: ";
-		//    for (int i = 0; i < 70; i++) {
-		//        // wypisz w hex, zawsze 2 znaki, np. 0A zamiast A
-		//        std::cout << std::hex << std::uppercase
-		//                << std::setw(2) << std::setfill('0')
-		//                << (int)inputBuf[i] << " ";
-		//    }
-
-		//    std::cout << std::flush; // wymuś wypisanie
-		//}
-
-
-
 		for (GameObject* gameObj : scene->GetGameObjects())
 		{
 			gameObj->Update(deltaTime);
 		}
 
-		cout << cs.Solve()<<endl;
+		cs.Solve();
 
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
@@ -164,12 +97,47 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
+	if (Controller::isConnected())
+	{
+		Controller* contr = Controller::getInstance();
+        contr->updateInput();
+
+        std::vector<float> leftStick = contr->getLeftStick();
+        std::vector<float> rightStick = contr->getRightStick();
+
+        Camera& cam = scene->GetActiveCamera();
+		cam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
+		cam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
+
+        if (contr->isButtonPressed(Controller::Button::CROSS))
+            cout << "Button pressed: CROSS" << endl;
+        if (contr->isButtonPressed(Controller::Button::CIRCLE))
+            cout << "Button pressed: CIRCLE" << endl;
+        if (contr->isButtonPressed(Controller::Button::SQUARE))
+            cout << "Button pressed: SQUARE" << endl;
+        if (contr->isButtonPressed(Controller::Button::TRIANGLE))
+            cout << "Button pressed: TRIANGLE" << endl;
+        if (contr->isButtonPressed(Controller::Button::ARROW_UP))
+            cout << "Button pressed: ARROW_UP" << endl;
+        if (contr->isButtonPressed(Controller::Button::ARROW_DOWN))
+            cout << "Button pressed: ARROW_DOWN" << endl;
+        if (contr->isButtonPressed(Controller::Button::ARROW_LEFT))
+            cout << "Button pressed: ARROW_LEFT" << endl;
+        if (contr->isButtonPressed(Controller::Button::ARROW_RIGHT))
+            cout << "Button pressed: ARROW_RIGHT" << endl;
+
+
+	}
+	else
+	{ 
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
+	}
+	
 }

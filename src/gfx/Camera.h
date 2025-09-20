@@ -99,23 +99,16 @@ public:
     void ProcessControllerPosition(float x, float y, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
-        float xDeadzone = 20.0f;
-        float yDeadzone = 20.0f;
-        if (abs(x - 128) < xDeadzone) x = 128;
-        if (abs(y - 128) < yDeadzone) y = 128;
-        Position -= Front * velocity * ((y - 128) / 128);
-        Position += Right * velocity * ((x - 128) / 128);
+
+        Position -= Front * velocity * y;
+        Position += Right * velocity * x;
     }
 
     void ProcessControllerRotation(float x, float y, float deltaTime)
     {
         float velocity = deltaTime * 100*2;
-        float xDeadzone = 10.0f;
-        float yDeadzone = 10.0f;
-        if (abs(x - 128) < xDeadzone) x = 128;
-        if (abs(y - 128) < yDeadzone) y = 128;
-        Yaw += velocity * ((x - 128) / 128);
-        Pitch -= velocity * ((y - 128) / 128);
+        Yaw += velocity * x;
+        Pitch -= velocity * y;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
         if (Pitch > 89.0f)
