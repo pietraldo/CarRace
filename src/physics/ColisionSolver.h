@@ -19,6 +19,7 @@ private:
 public:
     ColiderSolver(GameObject* a, GameObject* b);
 
-    bool Solve();
+    glm::vec3 overlapVector = glm::vec3(0.0f);
+    bool Solve(bool updateOverlapVector);
 
 };

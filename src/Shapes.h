@@ -63,4 +63,9 @@ public:
         float y = glm::dot(r, glm::normalize(vector2));
         return glm::vec2(x, y);
     }
+
+    std::vector<glm::vec3> GetCordinateVectors()
+    {
+        return { glm::normalize(vector1), glm::normalize(vector2) };
+    }
 };

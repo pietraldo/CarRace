@@ -45,6 +45,8 @@ float lastFrame = 0.0f;
 
 
 Scene* scene=nullptr;
+bool updateOverlapVector = true;
+ColiderSolver* csPtr = nullptr;
 int main()
 {
     scene = new Scene();
@@ -66,6 +68,7 @@ int main()
 	Rendering::camera = &(scene->GetActiveCamera());
 	
 	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
+    csPtr = &cs;
 	//int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
@@ -80,7 +83,16 @@ int main()
 			gameObj->Update(deltaTime);
 		}
 
-		cs.Solve();
+		bool isColision = cs.Solve(updateOverlapVector);
+		if (isColision)
+		{
+			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
+            
 
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
@@ -119,7 +131,27 @@ void processInput(GLFWwindow* window)
             scene->userFlashlight = !scene->userFlashlight;
             cout << "Button just pressed: ARROW_DOWN Toggle Box Colliders display" << endl;
 		}
-			
+		if (contr->isButtonJustPressed(Controller::Button::CIRCLE))
+		{
+            updateOverlapVector = !updateOverlapVector;
+            cout << "Button just pressed: CIRCLE update vector: "<<updateOverlapVector<<endl;
+		}
+		if (contr->isButtonJustPressed(Controller::Button::ARROW_LEFT))
+		{
+            GameObject* obj = scene->GetGameObjects()[0];
+			obj->position += csPtr->overlapVector;
+			cout << "Button just pressed: ARROW_LEFT" << endl;
+            cout << "Overlap Vector: " << csPtr->overlapVector.x << "," << csPtr->overlapVector.y << "," << csPtr->overlapVector.z << endl;
+		}
+
+		if (contr->isButtonJustPressed(Controller::Button::ARROW_RIGHT))
+		{
+			GameObject* obj = scene->GetGameObjects()[0];
+            glm::vec3 overLap = csPtr->overlapVector;
+			obj->position -= overLap;
+			cout << "Button just pressed: ARROW_RIGHT" << endl;
+            cout << "Overlap Vector: " << overLap.x << "," << overLap.y << "," << overLap.z << endl;
+		}
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

@@ -9,7 +9,7 @@ ColiderSolver::ColiderSolver(GameObject* a, GameObject* b)
     objectB(b)
 {}
 
-bool ColiderSolver::Solve()
+bool ColiderSolver::Solve(bool updateOverLapVector)
 {
 
     boxA.position = objectA->position;
@@ -42,15 +42,22 @@ bool ColiderSolver::Solve()
     int planeCnt = 0;
     bool debug = false;
     bool ans = true;
+
+   
+    float minOverlap = FLT_MAX;
+    glm::vec2 minOverlapAxis;
+    Plane& minOverlapPlane= allPlanes[0];
     for (Plane& plane : allPlanes)
     {
 
-        if (planeCnt >= 3)
-            debug = false;
+        debug = false;
         if (debug)
-            std::cout << "points" << planeCnt - 3 << " = [";
+            std::cout << "points" << planeCnt<< " = [";
 
+        
         planeCnt++;
+
+        
         for (Edge& edge : edgesToTest)
         {
             glm::vec2 p1 = plane.PointProjectionInPlaneCordinates(plane.PointProjection(edge.A));
@@ -58,7 +65,7 @@ bool ColiderSolver::Solve()
 
             glm::vec2 vec = p2 - p1;
             glm::vec2 vecPerp = glm::vec2(-vec.y, vec.x);
-
+            vecPerp = glm::normalize(vecPerp);
             float minA;
             float maxA;
             float minB;
@@ -109,15 +116,51 @@ bool ColiderSolver::Solve()
             }
 
             // check for overlap
+            
             if (maxA < minB || maxB < minA)
             {
                 ans = false; // found a separating axis
+                //return false; // found a separating axis
             }
+
+            float overlap;
+            if (maxA<maxB && minA>minB) // minB minA maxA maxB
+            {
+                overlap = std::min(maxB - minA, maxA - minB);
+            }
+            else if (maxB<maxA && minB>minA) // minA minB maxB maxA
+            {
+                overlap = std::min(maxA - minB, maxB - minA);
+            }
+            else if (minA < minB) // minA minB maxA maxB
+            {
+                overlap = maxA - minB;
+            }
+            else // minB minA maxB maxA
+            {
+                overlap = maxB - minA;
+            }
+            if (overlap < minOverlap)
+            {
+                minOverlap = overlap;
+                minOverlapAxis = vecPerp;
+                minOverlapPlane = plane;
+            }
+           
             if (debug)
                 std::cout << "]" << std::endl;
             debug = false;
         }
     }
+    std::vector<glm::vec3> cord = minOverlapPlane.GetCordinateVectors();
+    minOverlapAxis *= minOverlap;
+    glm::vec3 minOverlapAxis3D = cord[0] * minOverlapAxis.x + cord[1] * minOverlapAxis.y;
+    glm::vec3 addMargin = glm::normalize(minOverlapAxis3D) * 0.001f;
+    minOverlapAxis3D += addMargin;
+
+    if (updateOverLapVector)
+        overlapVector = minOverlapAxis3D;
+
 
     return ans; // no separating axis found, boxes are colliding
 }
