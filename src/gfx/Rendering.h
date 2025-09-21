@@ -35,6 +35,8 @@ public:
     static Shader* lightShader;
     static Camera* camera;
 
+    static bool showBoxColliders;
+
     static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;;
 
     // camera moving

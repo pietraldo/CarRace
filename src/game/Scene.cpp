@@ -53,6 +53,7 @@ void Scene::Update(float deltaTime)
 		cube->rotate = rotateCubes;
 		cube->move = moveCubes;
 	}*/
+	UpdateFlashLight();
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
 			continue;
@@ -295,7 +296,7 @@ void Scene::CreateLights()
 
 	
 
-	Light* light6 = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
+	Light* light6 = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f,0, 0, 0.95f, 0.95f
 		, glm::vec3(0, 0, -1),
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f));

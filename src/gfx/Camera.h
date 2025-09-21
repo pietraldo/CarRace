@@ -106,7 +106,7 @@ public:
 
     void ProcessControllerRotation(float x, float y, float deltaTime)
     {
-        float velocity = deltaTime * 100*2;
+        float velocity = deltaTime * 100*1.6;
         Yaw += velocity * x;
         Pitch -= velocity * y;
 

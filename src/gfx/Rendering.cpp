@@ -4,6 +4,8 @@ unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
 
+bool Rendering::showBoxColliders = false;
+
 
 Camera* Rendering::camera = nullptr;
 Scene* Rendering::scene = nullptr;
@@ -236,6 +238,12 @@ void Rendering::RenderImGui()
         ImGui::SliderFloat("ForceZ", &(*scene).GetGameObjects()[1]->position.z, -5, 5);
         ImGui::End();
     }
+    {
+       //Frames per second
+        ImGui::Begin("Performance");
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -262,7 +270,8 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
     for (GameObject* gameObj : gameObjects)
     {
         gameObj->Draw();
-        gameObj->collider.Draw(gameObj->rotation);
+        if(showBoxColliders)
+            gameObj->collider.Draw(gameObj->rotation);
     }
 
     (*scene).DrawLights(*lightShader, lightVAO);

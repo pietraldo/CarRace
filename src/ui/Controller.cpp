@@ -35,9 +35,9 @@ std::vector<float> Controller::getRightStick() {
     float X = (inputBuf[3] - 128) / 128.0f;
     float Y = (inputBuf[4] - 128) / 128.0f;
 
-    if (std::abs(X) < std::abs(lastRX))
+    if (std::abs(X) < std::abs(lastRX)+rightStickDeadzone)
         X = 0.0f;
-    if (std::abs(Y) < std::abs(lastRY))
+    if (std::abs(Y) < std::abs(lastRY)+rightStickDeadzone)
         Y = 0.0f;
 
     if (std::abs(X) < rightStickDeadzone)
@@ -51,26 +51,14 @@ std::vector<float> Controller::getRightStick() {
 }
 
 bool Controller::isButtonPressed(Button button) {
-    switch (button) {
-    case Button::TRIANGLE:
-        return inputBuf[8] == 0x88;
-    case Button::CIRCLE:
-        return inputBuf[8] ==0x48;
-    case Button::CROSS:
-        return inputBuf[8] == 0x28;
-    case Button::SQUARE:
-        return inputBuf[8] == 0x18;
-    case Button::ARROW_UP:
-        return inputBuf[8] == 0x00;
-    case Button::ARROW_DOWN:
-        return inputBuf[8] == 0x04;
-    case Button::ARROW_LEFT:
-        return inputBuf[8] == 0x06;
-    case Button::ARROW_RIGHT:
-        return inputBuf[8] == 0x02;
-    default:
-        return false;
-    }
+    return inputBuf[8] == buttonCode[static_cast<int>(button)];
+}
+
+bool Controller::isButtonJustPressed(Button button) {
+    bool currentState = isButtonPressed(button);
+    bool justPressed = currentState && !lastButtonState[static_cast<int>(button)];
+    lastButtonState[static_cast<int>(button)] = currentState; 
+    return justPressed;
 }
 
 bool Controller::connect() {

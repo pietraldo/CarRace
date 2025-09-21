@@ -74,7 +74,7 @@ int main()
 		lastFrame = currentFrame;
 
 		processInput(Rendering::window);
-
+		scene->UpdateFlashLight();
 		for (GameObject* gameObj : scene->GetGameObjects())
 		{
 			gameObj->Update(deltaTime);
@@ -109,35 +109,27 @@ void processInput(GLFWwindow* window)
 		cam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
 		cam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
 
-        if (contr->isButtonPressed(Controller::Button::CROSS))
-            cout << "Button pressed: CROSS" << endl;
-        if (contr->isButtonPressed(Controller::Button::CIRCLE))
-            cout << "Button pressed: CIRCLE" << endl;
-        if (contr->isButtonPressed(Controller::Button::SQUARE))
-            cout << "Button pressed: SQUARE" << endl;
-        if (contr->isButtonPressed(Controller::Button::TRIANGLE))
-            cout << "Button pressed: TRIANGLE" << endl;
-        if (contr->isButtonPressed(Controller::Button::ARROW_UP))
-            cout << "Button pressed: ARROW_UP" << endl;
-        if (contr->isButtonPressed(Controller::Button::ARROW_DOWN))
-            cout << "Button pressed: ARROW_DOWN" << endl;
-        if (contr->isButtonPressed(Controller::Button::ARROW_LEFT))
-            cout << "Button pressed: ARROW_LEFT" << endl;
-        if (contr->isButtonPressed(Controller::Button::ARROW_RIGHT))
-            cout << "Button pressed: ARROW_RIGHT" << endl;
-
-
+		if (contr->isButtonJustPressed(Controller::Button::ARROW_UP))
+		{
+			Rendering::showBoxColliders = !Rendering::showBoxColliders;
+            cout << "Button just pressed: ARROW_UP Toggle Box Colliders display" << endl;
+		}
+		if (contr->isButtonJustPressed(Controller::Button::ARROW_DOWN))
+		{
+            scene->userFlashlight = !scene->userFlashlight;
+            cout << "Button just pressed: ARROW_DOWN Toggle Box Colliders display" << endl;
+		}
+			
 	}
-	else
-	{ 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
-	}
+	
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
+	
 	
 }
