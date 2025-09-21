@@ -123,35 +123,46 @@ public:
         return projectionPlanes;
     }
 
-    void Draw(glm::vec3 rotation, glm::vec3 color = glm::vec3(1, 0, 0))
+    void Draw(glm::vec3 rotation, glm::vec3 color = glm::vec3(1, 1, 0))
     {
         std::vector<glm::vec3> vertices = GetVertices(rotation);
         for (int i = 0; i < 8; i ++)
         {
-            Cube::Draw(vertices[i], glm::vec3(0), glm::vec3(0.1f), color);
+            Cube::Draw(vertices[i], rotation, glm::vec3(0.1f), color);
         }
         std::vector<Edge> edges = GetEdges(rotation);
-        for (Edge& edge : edges)
+        std::vector<glm::vec3>directions{ //coresponding to edges of box
+            glm::vec3(1,0,0),
+            glm::vec3(0,1,0),
+            glm::vec3(1,0,0),
+            glm::vec3(0,1,0),
+
+            glm::vec3(1,0,0),
+            glm::vec3(0,1,0),
+            glm::vec3(1,0,0),
+            glm::vec3(0,1,0),
+
+            glm::vec3(0,0,1),
+            glm::vec3(0,0,1),
+            glm::vec3(0,0,1),
+            glm::vec3(0,0,1)
+        };
+
+        for (int i =0; i< edges.size(); i++)
         {
+            Edge edge = edges[i];
+            glm::vec3 direction = directions[i];
+
             glm::vec3 edgeVec = edge.B - edge.A;
             float length = glm::length(edgeVec);
             glm::vec3 midPoint = (edge.A + edge.B) * 0.5f;
 
-            // Calculate rotation
-            glm::vec3 up = glm::vec3(0, 1, 0);
-            glm::vec3 axis = glm::cross(up, edgeVec);
-            float angle = acos(glm::dot(up, glm::normalize(edgeVec)));
-            if (glm::length(axis) < 0.0001f) // edge is parallel to up vector
-            {
-                axis = glm::vec3(1, 0, 0); // arbitrary axis
-                angle = (edgeVec.y > 0) ? 0.0f : glm::pi<float>(); // point up or down
-            }
-            else
-            {
-                axis = glm::normalize(axis);
-            }
+            
+            glm::vec3 size = length * direction;
+            glm::vec3 fliped = glm::vec3(1.0f) - direction;
+            size += fliped*0.05f;
 
-            Cube::Draw(midPoint, glm::degrees(axis) * angle, glm::vec3(0.05f, length * 0.5f, 0.05f), color);
+            Cube::Draw(midPoint, rotation, size, color);
         }
     }
 };
