@@ -25,12 +25,26 @@ file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
 )
 target_sources(carrace PRIVATE ${SRC_HEADERS})
 
-# (opcjonalnie) shadery jako "pliki dodatkowe"
-#set(SHADER_FILES
-  #${CMAKE_SOURCE_DIR}/assets/shaders/vertex_shader.txt
-  #${CMAKE_SOURCE_DIR}/assets/shaders/fragment_shader.txt
-#)
+# dodawanie shaderow
+file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS
+  ${CMAKE_SOURCE_DIR}/assets/shaders/*.* 
+)
+
 target_sources(carrace PRIVATE ${SHADER_FILES})
+
+# Always copy shaders on every build
+add_custom_target(copy_shaders ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets/shaders
+    ${CMAKE_BINARY_DIR}/assets/shaders
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets/shaders
+    $<TARGET_FILE_DIR:carrace>/assets/shaders
+  COMMENT "Copying shaders (always)..."
+)
+
+# Ensure carrace waits for shaders to be copied
+add_dependencies(carrace copy_shaders)
 
 add_custom_command(TARGET carrace POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -46,3 +60,6 @@ if (MSVC)
 else()
   target_compile_options(carrace PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+# Ustaw projekt "carrace" jako domyślny startup project w Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT carrace)

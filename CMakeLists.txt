@@ -8,3 +8,6 @@ add_subdirectory(externals/glm)
 add_subdirectory(externals/assimp)
 
 add_subdirectory(src)
+
+#set startup project
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT carrace)
