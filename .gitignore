@@ -376,3 +376,5 @@ FodyWeavers.xsd
 
 
 !assets/models/*.obj
+!externals/hidapi/bin/
+!externals/hidapi/bin/hidapi.dll
