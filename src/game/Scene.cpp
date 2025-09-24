@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "../gfx/Model.h"
 
 Scene::Scene()
 {
@@ -211,7 +212,8 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.setVec3("objectColor", model.color);
 	shader.setBool("fogEnabled", fog);
 
-
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, model.textureID); 
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::translate(modelMatrix, model.position);
@@ -254,14 +256,35 @@ void Scene::CreateObjects()
 	CreateCameras();
 	//CreateLights();
 	//CreateModels();
-	CreateCubes();
-	CreateSpheres();
 }
 void Scene::CreateModels()
 {
-	//Model* car = new Model("../assets/models/ferrari.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	//AddColorModel(car);
+    const std::string modelPath = "../assets/models/car/scene.gltf"; 
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+    if (!scene)
+    {
+        std::cerr << "B³¹d ³adowania modelu: " << importer.GetErrorString() << std::endl;
+        return;
+    }
+
+    // Przechodzimy przez wszystkie meshe w scenie
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[i];
+        
+		Model* carModel = new Model(modelPath, glm::vec3(-5, 5.0f, 0), 0.01f, glm::vec3(1.0f, 1.0f, 1.0f));
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		std::vector<Texture> diffuseMaps = carModel->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		carModel->textures_loaded.insert(carModel->textures_loaded.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+
+        AddColorModel(carModel);  // Dodajemy model do listy
+    }
 }
+
 void Scene::CreateLights()
 {
 	Light* light1 = new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
@@ -332,6 +355,7 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light14);
 }
+
 void Scene::CreateCameras()
 {
 	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
@@ -343,49 +367,6 @@ void Scene::CreateCameras()
 	AddCamera(camera2);
 	AddCamera(camera3);
 }
-void Scene::CreateCubes()
-{
-	// create a few cubes
-	//for (int i = 0; i < 60; i++)
-	//{
-	//	glm::vec3 position = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 50);
-	//	glm::vec3 scale = glm::vec3(rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f);
-	//	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	//	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	glm::vec3 rotation = glm::vec3(rand() % 360, rand() % 360, rand() % 360);
-	//	Cube* cube = new Cube(position, scale, color, rotation);
-	//	AddCube(cube);
-	//}
-	//cubes[0]->move = true;
-
-	//glm::vec3 position = glm::vec3(0,-20,0);
-	//glm::vec3 scale = glm::vec3(100,10,100);
-	////glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	//glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	////glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	//glm::vec3 rotation = glm::vec3(0,0,0);
-	//Cube* cube = new Cube(position, scale, color, rotation);
-	//AddCube(cube);
-}
-void Scene::CreateSpheres()
-{
-	//int render_radius = 50;
-	//// create a few spheres
-	//for (int i = 0; i < 40; i++)
-	//{
-
-	//	glm::vec3 position = glm::vec3(rand() % render_radius - render_radius/2, rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2-50);
-	//	float radius = rand() % 4;
-	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	//	Sphere* sphere = new Sphere(position, radius, color);
-	//	AddSphere(sphere);
-	//}
-}
-
-
-
-
 
 LightBuffer Scene::LoadLights() {
 	LightBuffer lightBuffer;

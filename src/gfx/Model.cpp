@@ -40,3 +40,30 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
 
     return textureID;
 }
+
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
+    std::vector<Texture> textures;
+    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+        aiString str;
+        mat->GetTexture(type, i, &str);
+
+        bool skip = false;
+        for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+            if (textures_loaded[j].path == str.C_Str()) {
+                textures.push_back(textures_loaded[j]);
+                skip = true;
+                break;
+            }
+        }
+
+        if (!skip) {
+            Texture texture;
+            texture.id = TextureFromFile(str.C_Str(), this->directory); // Wywo³anie funkcji do ³adowania tekstury
+            texture.type = typeName;
+            texture.path = str.C_Str();
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);
+        }
+    }
+    return textures;
+}

@@ -38,8 +38,6 @@ private:
 	
 	
 	void CreateCameras();
-	void CreateCubes();
-	void CreateSpheres();
 
 public:
 	bool dayNight = false;
@@ -94,7 +92,6 @@ public:
 	}
 
 
-	void DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube);
 	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);

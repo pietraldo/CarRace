@@ -41,10 +41,12 @@ struct SpotLight {
 in vec3 Normal;
 in vec3 FragPos;
 in vec4 fposition;
+in vec2 TexCoords; 
 
 uniform vec3 viewPos;
 uniform vec3 objectColor;
 uniform bool fogEnabled;
+uniform sampler2D texture_diffuse1;
 
 #define MAX_NR_DIR_LIGHTS 10
 #define MAX_NR_POINT_LIGHTS 10
@@ -88,6 +90,10 @@ void main()
 	{
 		result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);    
 	}
+
+    // Odczytanie koloru z tekstury
+    vec4 texColor = texture(texture_diffuse1, TexCoords);
+    result *= texColor.rgb;
 
     float fog_maxdist = 40.0;
     float fog_mindist = 10.0;

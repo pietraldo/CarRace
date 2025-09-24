@@ -22,6 +22,7 @@ using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
 
+
 class Model
 {
 public:
@@ -30,17 +31,34 @@ public:
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
+    GLuint textureID;
 
 	float scale = 1.0f;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 color = glm::vec3(1.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 
+    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, glm::vec3 position, float scale, glm::vec3 color, glm::vec3 rotation = glm::vec3(0.0f), bool gamma = false) 
 		: gammaCorrection(gamma), position(position), scale(scale), color(color), rotation(rotation)
     {
         loadModel(path);
+    }
+
+    void loadTexture(const std::string& path) {
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else {
+            std::cout << "Nie uda³o siê za³adowaæ tekstury" << std::endl;
+        }
+        stbi_image_free(data);
     }
 
     // draws the model, and thus all its meshes
@@ -49,6 +67,7 @@ public:
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
+
     struct Point {
         float x, y;
     };
@@ -217,41 +236,8 @@ private:
         // return a mesh object created from the extracted mesh data
         return Mesh(vertices, indices, textures);
     }
-
-    // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    // the required info is returned as a Texture struct.
-    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
-    {
-        vector<Texture> textures;
-        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-        {
-            aiString str;
-            mat->GetTexture(type, i, &str);
-            // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-            bool skip = false;
-            for (unsigned int j = 0; j < textures_loaded.size(); j++)
-            {
-                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    textures.push_back(textures_loaded[j]);
-                    skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-                    break;
-                }
-            }
-            if (!skip)
-            {   // if texture hasn't been loaded already, load it
-                Texture texture;
-                texture.id = TextureFromFile(str.C_Str(), this->directory);
-                texture.type = typeName;
-                texture.path = str.C_Str();
-                textures.push_back(texture);
-                textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-            }
-        }
-        return textures;
-    }
+    
 };
-
 
 
 #endif
