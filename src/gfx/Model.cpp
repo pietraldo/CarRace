@@ -10,34 +10,39 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-    if (data)
+    if (!data)
     {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        cout << filename << endl;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        std::cout << "Texture failed to load at path: " << filename << " (" << stbi_failure_reason() << ")" << std::endl;
         stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
+        return 0;
     }
 
+    GLenum format = GL_RGB;
+    if (nrComponents == 1)
+        format = GL_RED;
+    else if (nrComponents == 2)
+        format = GL_RG;
+    else if (nrComponents == 3)
+        format = GL_RGB;
+    else if (nrComponents == 4)
+        format = GL_RGBA;
+    else {
+        std::cout << "Unsupported number of components (" << nrComponents << ") for texture: " << filename << std::endl;
+        stbi_image_free(data);
+        return 0;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    std::cout << filename << " (components=" << nrComponents << ", format=" << format << ")" << std::endl;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
     return textureID;
 }
 
@@ -58,7 +63,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
         if (!skip) {
             Texture texture;
-            texture.id = TextureFromFile(str.C_Str(), this->directory); // Wywo³anie funkcji do ³adowania tekstury
+            texture.id = TextureFromFile(str.C_Str(), this->directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
@@ -67,3 +72,4 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
     }
     return textures;
 }
+

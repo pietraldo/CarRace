@@ -259,31 +259,70 @@ void Scene::CreateObjects()
 }
 void Scene::CreateModels()
 {
-    const std::string modelPath = "../assets/models/car/scene.gltf"; 
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	Assimp::Importer carImporter;
+	// £adujemy model samochodu
+	const aiScene* carScene = carImporter.ReadFile(carModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!carScene || !carScene->mNumMeshes)
+	{
+		std::cerr << "B³¹d ³adowania modelu samochodu: " << carImporter.GetErrorString() << std::endl;
+		return;
+	}
 
-    if (!scene)
-    {
-        std::cerr << "B³¹d ³adowania modelu: " << importer.GetErrorString() << std::endl;
-        return;
-    }
+	Assimp::Importer wheelImporter;
+	// £adujemy model ko³a
+	const aiScene* wheelScene = wheelImporter.ReadFile(wheelModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!wheelScene || !wheelScene->mNumMeshes)
+	{
+		std::cerr << "B³¹d ³adowania modelu ko³a: " << wheelImporter.GetErrorString() << std::endl;
+		return;
+	}
 
-    // Przechodzimy przez wszystkie meshe w scenie
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
-    {
-        aiMesh* mesh = scene->mMeshes[i];
-        
-		Model* carModel = new Model(modelPath, glm::vec3(-5, 5.0f, 0), 0.01f, glm::vec3(1.0f, 1.0f, 1.0f));
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	// Dodajemy model samochodu do sceny
+	for (unsigned int i = 0; i < carScene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = carScene->mMeshes[i];
+
+		Model* carModel = new Model(carModelPath, glm::vec3(0, 9.0f, 0), 0.01f, glm::vec3(1.0f, 1.0f, 1.0f));
+		aiMaterial* material = carScene->mMaterials[mesh->mMaterialIndex];
 		std::vector<Texture> diffuseMaps = carModel->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		carModel->textures_loaded.insert(carModel->textures_loaded.end(), diffuseMaps.begin(), diffuseMaps.end());
 
+		AddColorModel(carModel);
+	}
 
-        AddColorModel(carModel);  // Dodajemy model do listy
-    }
+	// Dodajemy ko³a do sceny
+	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = wheelScene->mMeshes[i];
+
+		std::vector<glm::vec3> wheelPositions = {
+			glm::vec3(-1.6f, 8.4f, 2.0f),
+			glm::vec3(1.6f, 8.4f, 2.0f),
+			glm::vec3(-1.6f, 9.0f, -2.0f),
+			glm::vec3(1.6f, 9.0f, -2.0f)
+		};
+
+		for (int i = 0; i < wheelPositions.size(); ++i)
+		{
+			glm::vec3 rotation = glm::vec3(0.0f);
+			if (i == 2 || i == 3)
+				rotation = glm::vec3(180.0f, 0.0f, 0.0f);
+
+			Model* wheelModel = new Model(wheelModelPath, wheelPositions[i], 1.3f, glm::vec3(1.0f, 1.0f, 1.0f), rotation);
+
+			aiMaterial* wheelMaterial = wheelScene->mMaterials[mesh->mMaterialIndex];
+			std::vector<Texture> wheelDiffuseMaps = wheelModel->loadMaterialTextures(wheelMaterial, aiTextureType_DIFFUSE, "texture_diffuse");
+			wheelModel->textures_loaded.insert(wheelModel->textures_loaded.end(), wheelDiffuseMaps.begin(), wheelDiffuseMaps.end());
+
+			AddColorModel(wheelModel);
+		}
+	}
 }
+
+
 
 void Scene::CreateLights()
 {
@@ -318,15 +357,6 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light4);
 
-	
-
-	Light* light6 = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f,0, 0, 0.95f, 0.95f
-		, glm::vec3(0, 0, -1),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light6);
-	flashlight = (LightSpot*)light6;
-
 	Light* light5 = new LightSpot(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
 		, glm::vec3(0, 0, 1),
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
@@ -335,25 +365,13 @@ void Scene::CreateLights()
 	lightToControl = (LightSpot*)light5;
 	originlDirection = lightToControl->direction;
 
+	Light* light6 = new LightSpot(glm::vec3(-5, 10.0f, 0), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0, 0, 0.95f, 0.95f
+		, glm::vec3(0, 0, -1),
+		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(1.0f, 1.0f, 1.0f));
+	AddLight(light6);
+	flashlight = (LightSpot*)light6;
 
-	// lights on bridge
-	Light* light12 = new LightSpot(glm::vec3(-42.0f, 15.0f, -152.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(-0.83, -0.56, 0),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light12);
-	// lights on bridge
-	Light* light13 = new LightSpot(glm::vec3(-88.0f, 15.0f, -152.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(0.74, -0.67, 0),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light13);
-	// lights on bridge
-	Light* light14 = new LightSpot(glm::vec3(-89, 15.0f, -159.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(0.8, -0.59, 0.05),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light14);
 }
 
 void Scene::CreateCameras()
