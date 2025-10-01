@@ -5,7 +5,6 @@ Scene::Scene()
 {
 	lights = vector<Light*>(); 
 	cameras = vector<Camera*>(); 
-	cubes = vector<Cube*>(); 
 
     gameObjects = vector<GameObject*>();
 
@@ -50,11 +49,6 @@ Camera& Scene::GetActiveCamera()
 }
 void Scene::Update(float deltaTime)
 {
-	/*for (Cube* cube : cubes) {
-		cube->UpdatePosition(deltaTime);
-		cube->rotate = rotateCubes;
-		cube->move = moveCubes;
-	}*/
 	UpdateFlashLight();
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
@@ -75,14 +69,6 @@ void Scene::Update(float deltaTime)
 	for (Model* model : modelsTex)
 	{
 		model->Update(deltaTime);
-	}
-	for (Sphere* sphere : spheres)
-	{
-		if (sphereGo)
-		{
-			sphere->rotation.z += 360 * deltaTime;
-			sphere->position.x -= 2 * 3.1428 * deltaTime * sphere->radius;
-		}
 	}
 
 	//updating direction of the contorl light
@@ -171,37 +157,6 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 }
-void Scene::DrawSpotLights(Shader& shader)
-{
-	/*shader.use();
-
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
-	shader.setVec3("objectColor", flashLightModel->color);
-	shader.setBool("fogEnabled", false);
-
-	for (Light* light : lights) {
-		if (light->GetType() != LightType::SPOT || light == flashlight)
-			continue;
-		
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, light->position);
-
-		
-		glm::vec3 a = glm::vec3(1,0,0);
-		glm::vec3 b = ((LightSpot*)light)->direction;
-		a = glm::normalize(a);
-		b = glm::normalize(b);
-		glm::mat4 rotationMatrix = rotateAlign(b, a);
-		modelMatrix = modelMatrix * rotationMatrix;
-		
-		modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * flashLightModel->scale);
-		shader.setMat4("model", modelMatrix);
-
-		flashLightModel->Draw(shader);
-	}*/
-}
 
 void Scene::DrawModel(Shader& shader, Model& model)
 {
@@ -263,7 +218,6 @@ void Scene::CreateModels()
 	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
 
 	Assimp::Importer carImporter;
-	// £adujemy model samochodu
 	const aiScene* carScene = carImporter.ReadFile(carModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!carScene || !carScene->mNumMeshes)
 	{
@@ -272,7 +226,6 @@ void Scene::CreateModels()
 	}
 
 	Assimp::Importer wheelImporter;
-	// £adujemy model ko³a
 	const aiScene* wheelScene = wheelImporter.ReadFile(wheelModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
 	if (!wheelScene || !wheelScene->mNumMeshes)
 	{
@@ -280,7 +233,7 @@ void Scene::CreateModels()
 		return;
 	}
 
-	// Dodajemy model samochodu do sceny
+	//samochód
 	for (unsigned int i = 0; i < carScene->mNumMeshes; i++)
 	{
 		aiMesh* mesh = carScene->mMeshes[i];
@@ -292,8 +245,7 @@ void Scene::CreateModels()
 
 		AddColorModel(carModel);
 	}
-
-	// Dodajemy ko³a do sceny
+	// ko³a
 	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
 	{
 		aiMesh* mesh = wheelScene->mMeshes[i];
@@ -326,27 +278,7 @@ void Scene::CreateModels()
 
 void Scene::CreateLights()
 {
-	Light* light1 = new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light1);
 
-	Light* light2 = new LightPoint(glm::vec3(10.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light2);
-
-	Light* light9 = new LightPoint(glm::vec3(150, -5, -102.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.009f, 0.0032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light9);
-
-	Light* light10 = new LightPoint(glm::vec3(-38, -4, 30.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light10);
-
-	
 	Light* light3 = new LightDirectional(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, -1, 0),
 		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
@@ -362,16 +294,11 @@ void Scene::CreateLights()
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light5);
+
+	// przypisz flashlight, aby wskazywa³ na utworzony LightSpot
 	lightToControl = (LightSpot*)light5;
+	flashlight = (LightSpot*)light5;
 	originlDirection = lightToControl->direction;
-
-	Light* light6 = new LightSpot(glm::vec3(-5, 10.0f, 0), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0, 0, 0.95f, 0.95f
-		, glm::vec3(0, 0, -1),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light6);
-	flashlight = (LightSpot*)light6;
-
 }
 
 void Scene::CreateCameras()
