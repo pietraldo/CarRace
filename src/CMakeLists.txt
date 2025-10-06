@@ -17,9 +17,12 @@ target_include_directories(carrace PRIVATE
   ${CMAKE_SOURCE_DIR}/externals/hidapi/include
 )
 
-target_link_libraries(carrace PRIVATE glfw glad imgui glm assimp ${CMAKE_SOURCE_DIR}/externals/hidapi/lib/hidapi.lib)
+target_link_libraries(carrace PRIVATE
+	glfw glad imgui glm assimp 
+	${CMAKE_SOURCE_DIR}/externals/hidapi/lib/hidapi.lib
+)
 
-# (opcjonalnie) Dołącz nagłówki, żeby były widoczne w IDE
+# --- Add headers to project (IDE visibility) ---
 file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
   app/*.h core/*.h gfx/*.h game/*.h features/*.h physics/*.h ui/*.h
 )
@@ -32,20 +35,25 @@ file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS
 
 target_sources(carrace PRIVATE ${SHADER_FILES})
 
-# Always copy shaders on every build
-add_custom_target(copy_shaders ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets/shaders
-    ${CMAKE_BINARY_DIR}/assets/shaders
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets/shaders
-    $<TARGET_FILE_DIR:carrace>/assets/shaders
-  COMMENT "Copying shaders (always)..."
-)
+# --- Function to copy a whole directory into build ---
+function(copy_assets DIR_NAME)
+  add_custom_target(copy_${DIR_NAME} ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${CMAKE_SOURCE_DIR}/assets/${DIR_NAME}
+      ${CMAKE_BINARY_DIR}/assets/${DIR_NAME}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${CMAKE_SOURCE_DIR}/assets/${DIR_NAME}
+      $<TARGET_FILE_DIR:carrace>/assets/${DIR_NAME}
+    COMMENT "Copying ${DIR_NAME}..."
+  )
+  add_dependencies(carrace copy_${DIR_NAME})
+endfunction()
 
-# Ensure carrace waits for shaders to be copied
-add_dependencies(carrace copy_shaders)
+# --- Copy all assets subdirectories (shaders, textures, models, etc.) ---
+copy_assets(shaders)
+copy_assets(models)
 
+# --- Copy DLLs ---
 add_custom_command(TARGET carrace POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_SOURCE_DIR}/externals/hidapi/bin/hidapi.dll
