@@ -233,7 +233,7 @@ void Scene::CreateModels()
 		return;
 	}
 
-	//samochód
+	//car
 	for (unsigned int i = 0; i < carScene->mNumMeshes; i++)
 	{
 		aiMesh* mesh = carScene->mMeshes[i];
@@ -245,17 +245,18 @@ void Scene::CreateModels()
 
 		AddColorModel(carModel);
 	}
-	// ko³a
-	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
-	{
-		aiMesh* mesh = wheelScene->mMeshes[i];
+	// wheels
 
-		std::vector<glm::vec3> wheelPositions = {
+	std::vector<glm::vec3> wheelPositions = {
 			glm::vec3(-1.6f, 8.4f, 2.0f),
 			glm::vec3(1.6f, 8.4f, 2.0f),
 			glm::vec3(-1.6f, 9.0f, -2.0f),
 			glm::vec3(1.6f, 9.0f, -2.0f)
-		};
+	};
+
+	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = wheelScene->mMeshes[i];
 
 		for (int i = 0; i < wheelPositions.size(); ++i)
 		{
@@ -295,7 +296,6 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light5);
 
-	// przypisz flashlight, aby wskazywa³ na utworzony LightSpot
 	lightToControl = (LightSpot*)light5;
 	flashlight = (LightSpot*)light5;
 	originlDirection = lightToControl->direction;
