@@ -100,31 +100,6 @@ void Scene::Update(float deltaTime)
 	UpdateFlashLight();
 }
 
-void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
-{
-	/*shader.use();
-
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
-	shader.setBool("fogEnabled", fog);
-
-	for (Sphere* sphere : spheres)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, sphere->position);
-		model = glm::rotate(model, glm::radians(sphere->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(sphere->radius));
-		shader.setMat4("model", model);
-		shader.setVec3("objectColor", sphere->color);
-
-		glBindVertexArray(sphereVAO);
-		glDrawElements(GL_TRIANGLES, (Sphere::stackCount-1)*Sphere::sectorCount*6, GL_UNSIGNED_INT, 0);
-	}*/
-}
-
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
 {
 	for (Model* model : modelsTex)
@@ -206,12 +181,6 @@ glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
 	return result;
 }
 
-void Scene::CreateObjects()
-{
-	CreateCameras();
-	//CreateLights();
-	//CreateModels();
-}
 void Scene::CreateModels()
 {
 	const std::string carModelPath = "../assets/models/car/scene.gltf";

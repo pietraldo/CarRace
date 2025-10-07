@@ -42,11 +42,10 @@ void processInput(GLFWwindow* window);
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
-
 Scene* scene=nullptr;
 bool updateOverlapVector = true;
 ColiderSolver* csPtr = nullptr;
+
 int main()
 {
     scene = new Scene();
@@ -54,7 +53,7 @@ int main()
 	srand(19);
 
 	scene->CreateLights();
-	scene->CreateObjects();
+	scene->CreateCameras();
 	scene->SetActiveCamera(0);
 	LightBuffer lightBuffer = scene->LoadLights();
 
@@ -69,7 +68,8 @@ int main()
 	
 	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
     csPtr = &cs;
-	//int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
+
+
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());

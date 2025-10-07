@@ -32,8 +32,6 @@ private:
 	vector<Model*> modelsCol;
 
 	Camera* active_camera;
-	
-	void CreateCameras();
 
 public:
 	bool dayNight = false;
@@ -67,6 +65,7 @@ public:
 	void SetActiveCamera(int index);
 	Camera& GetActiveCamera();
 	void Update(float deltaTime);
+	void CreateCameras();
 	void UpdateFlashLight()
 	{
 		if (userFlashlight)
@@ -84,7 +83,6 @@ public:
 	}
 
 
-	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
 	void DrawLights(Shader& shader, unsigned int& lightVAO);
@@ -93,7 +91,6 @@ public:
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
-	void CreateObjects();
 	void CreateModels();
 	
 	vector<Light*> GetLights() { return lights; }
