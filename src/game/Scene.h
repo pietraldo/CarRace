@@ -28,18 +28,12 @@ private:
 
 	vector<Light*> lights;
 	vector<Camera*> cameras;
-	vector<Cube*> cubes;
-	vector<Sphere*> spheres;
 	vector<Model*> modelsTex;
 	vector<Model*> modelsCol;
 
 	Camera* active_camera;
-
-	
 	
 	void CreateCameras();
-	void CreateCubes();
-	void CreateSpheres();
 
 public:
 	bool dayNight = false;
@@ -62,8 +56,6 @@ public:
 	bool sphereGo = false;
 	void CreateLights();
 	
-	/*Model* jet;
-	Model* flashLightModel;*/
 
 
 
@@ -72,8 +64,6 @@ public:
 	Scene();
 	void AddLight(Light* light) { lights.push_back(light); }
 	void AddCamera(Camera* camera) { cameras.push_back(camera); }
-	void AddCube(Cube* cube) { cubes.push_back(cube); }
-	void AddSphere(Sphere* sphere) { spheres.push_back(sphere); }
 	void SetActiveCamera(int index);
 	Camera& GetActiveCamera();
 	void Update(float deltaTime);
@@ -94,12 +84,10 @@ public:
 	}
 
 
-	void DrawCube(Shader& shader, unsigned int& cubeVAO, glm::vec3 position, glm::vec3 rotation, Cube* cube);
 	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
 	void DrawLights(Shader& shader, unsigned int& lightVAO);
-	void DrawSpotLights(Shader& shader);
 
 	
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
@@ -108,11 +96,6 @@ public:
 	void CreateObjects();
 	void CreateModels();
 	
-
-	
-
-	vector<Cube*> GetCubes() { return cubes; }
-	vector<Sphere*> GetSpheres() { return spheres; }
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
     vector<GameObject*> GetGameObjects() { return gameObjects; }

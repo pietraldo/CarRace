@@ -275,10 +275,6 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
     }
 
     (*scene).DrawLights(*lightShader, lightVAO);
-
-    //(*scene).DrawSpheres(shaderColor, VAO_sphere);
-    (*scene).DrawSpotLights(shaderColor);
-
     (*scene).DrawModels(shaderColor, shaderColor);
 
     RenderImGui();

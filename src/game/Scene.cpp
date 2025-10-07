@@ -1,10 +1,10 @@
 #include "Scene.h"
+#include "../gfx/Model.h"
 
 Scene::Scene()
 {
 	lights = vector<Light*>(); 
 	cameras = vector<Camera*>(); 
-	cubes = vector<Cube*>(); 
 
     gameObjects = vector<GameObject*>();
 
@@ -49,11 +49,6 @@ Camera& Scene::GetActiveCamera()
 }
 void Scene::Update(float deltaTime)
 {
-	/*for (Cube* cube : cubes) {
-		cube->UpdatePosition(deltaTime);
-		cube->rotate = rotateCubes;
-		cube->move = moveCubes;
-	}*/
 	UpdateFlashLight();
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
@@ -74,14 +69,6 @@ void Scene::Update(float deltaTime)
 	for (Model* model : modelsTex)
 	{
 		model->Update(deltaTime);
-	}
-	for (Sphere* sphere : spheres)
-	{
-		if (sphereGo)
-		{
-			sphere->rotation.z += 360 * deltaTime;
-			sphere->position.x -= 2 * 3.1428 * deltaTime * sphere->radius;
-		}
 	}
 
 	//updating direction of the contorl light
@@ -170,37 +157,6 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 }
-void Scene::DrawSpotLights(Shader& shader)
-{
-	/*shader.use();
-
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
-	shader.setVec3("objectColor", flashLightModel->color);
-	shader.setBool("fogEnabled", false);
-
-	for (Light* light : lights) {
-		if (light->GetType() != LightType::SPOT || light == flashlight)
-			continue;
-		
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, light->position);
-
-		
-		glm::vec3 a = glm::vec3(1,0,0);
-		glm::vec3 b = ((LightSpot*)light)->direction;
-		a = glm::normalize(a);
-		b = glm::normalize(b);
-		glm::mat4 rotationMatrix = rotateAlign(b, a);
-		modelMatrix = modelMatrix * rotationMatrix;
-		
-		modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * flashLightModel->scale);
-		shader.setMat4("model", modelMatrix);
-
-		flashLightModel->Draw(shader);
-	}*/
-}
 
 void Scene::DrawModel(Shader& shader, Model& model)
 {
@@ -211,7 +167,8 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.setVec3("objectColor", model.color);
 	shader.setBool("fogEnabled", fog);
 
-
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, model.textureID); 
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	modelMatrix = glm::translate(modelMatrix, model.position);
@@ -254,37 +211,75 @@ void Scene::CreateObjects()
 	CreateCameras();
 	//CreateLights();
 	//CreateModels();
-	CreateCubes();
-	CreateSpheres();
 }
 void Scene::CreateModels()
 {
-	//Model* car = new Model("../assets/models/ferrari.obj", glm::vec3(0, 0, 0), 0.5, glm::vec3(1, 1, 0));
-	//AddColorModel(car);
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
+
+	Assimp::Importer carImporter;
+	const aiScene* carScene = carImporter.ReadFile(carModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!carScene || !carScene->mNumMeshes)
+	{
+		std::cerr << "B³¹d ³adowania modelu samochodu: " << carImporter.GetErrorString() << std::endl;
+		return;
+	}
+
+	Assimp::Importer wheelImporter;
+	const aiScene* wheelScene = wheelImporter.ReadFile(wheelModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (!wheelScene || !wheelScene->mNumMeshes)
+	{
+		std::cerr << "B³¹d ³adowania modelu ko³a: " << wheelImporter.GetErrorString() << std::endl;
+		return;
+	}
+
+	//car
+	for (unsigned int i = 0; i < carScene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = carScene->mMeshes[i];
+
+		Model* carModel = new Model(carModelPath, glm::vec3(0, 9.0f, 0), 0.01f, glm::vec3(1.0f, 1.0f, 1.0f));
+		aiMaterial* material = carScene->mMaterials[mesh->mMaterialIndex];
+		std::vector<Texture> diffuseMaps = carModel->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		carModel->textures_loaded.insert(carModel->textures_loaded.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		AddColorModel(carModel);
+	}
+	// wheels
+
+	std::vector<glm::vec3> wheelPositions = {
+			glm::vec3(-1.6f, 8.4f, 2.0f),
+			glm::vec3(1.6f, 8.4f, 2.0f),
+			glm::vec3(-1.6f, 9.0f, -2.0f),
+			glm::vec3(1.6f, 9.0f, -2.0f)
+	};
+
+	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = wheelScene->mMeshes[i];
+
+		for (int i = 0; i < wheelPositions.size(); ++i)
+		{
+			glm::vec3 rotation = glm::vec3(0.0f);
+			if (i == 2 || i == 3)
+				rotation = glm::vec3(180.0f, 0.0f, 0.0f);
+
+			Model* wheelModel = new Model(wheelModelPath, wheelPositions[i], 1.3f, glm::vec3(1.0f, 1.0f, 1.0f), rotation);
+
+			aiMaterial* wheelMaterial = wheelScene->mMaterials[mesh->mMaterialIndex];
+			std::vector<Texture> wheelDiffuseMaps = wheelModel->loadMaterialTextures(wheelMaterial, aiTextureType_DIFFUSE, "texture_diffuse");
+			wheelModel->textures_loaded.insert(wheelModel->textures_loaded.end(), wheelDiffuseMaps.begin(), wheelDiffuseMaps.end());
+
+			AddColorModel(wheelModel);
+		}
+	}
 }
+
+
+
 void Scene::CreateLights()
 {
-	Light* light1 = new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light1);
 
-	Light* light2 = new LightPoint(glm::vec3(10.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light2);
-
-	Light* light9 = new LightPoint(glm::vec3(150, -5, -102.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.009f, 0.0032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light9);
-
-	Light* light10 = new LightPoint(glm::vec3(-38, -4, 30.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light10);
-
-	
 	Light* light3 = new LightDirectional(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, -1, 0),
 		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
@@ -295,43 +290,17 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light4);
 
-	
-
-	Light* light6 = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f,0, 0, 0.95f, 0.95f
-		, glm::vec3(0, 0, -1),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light6);
-	flashlight = (LightSpot*)light6;
-
 	Light* light5 = new LightSpot(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
 		, glm::vec3(0, 0, 1),
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light5);
+
 	lightToControl = (LightSpot*)light5;
+	flashlight = (LightSpot*)light5;
 	originlDirection = lightToControl->direction;
-
-
-	// lights on bridge
-	Light* light12 = new LightSpot(glm::vec3(-42.0f, 15.0f, -152.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(-0.83, -0.56, 0),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light12);
-	// lights on bridge
-	Light* light13 = new LightSpot(glm::vec3(-88.0f, 15.0f, -152.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(0.74, -0.67, 0),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light13);
-	// lights on bridge
-	Light* light14 = new LightSpot(glm::vec3(-89, 15.0f, -159.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(0.8, -0.59, 0.05),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light14);
 }
+
 void Scene::CreateCameras()
 {
 	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
@@ -343,49 +312,6 @@ void Scene::CreateCameras()
 	AddCamera(camera2);
 	AddCamera(camera3);
 }
-void Scene::CreateCubes()
-{
-	// create a few cubes
-	//for (int i = 0; i < 60; i++)
-	//{
-	//	glm::vec3 position = glm::vec3(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 50);
-	//	glm::vec3 scale = glm::vec3(rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f, rand() % 20 / 10.0f + 0.2f);
-	//	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	//	//glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	glm::vec3 rotation = glm::vec3(rand() % 360, rand() % 360, rand() % 360);
-	//	Cube* cube = new Cube(position, scale, color, rotation);
-	//	AddCube(cube);
-	//}
-	//cubes[0]->move = true;
-
-	//glm::vec3 position = glm::vec3(0,-20,0);
-	//glm::vec3 scale = glm::vec3(100,10,100);
-	////glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	//glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	////glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-	//glm::vec3 rotation = glm::vec3(0,0,0);
-	//Cube* cube = new Cube(position, scale, color, rotation);
-	//AddCube(cube);
-}
-void Scene::CreateSpheres()
-{
-	//int render_radius = 50;
-	//// create a few spheres
-	//for (int i = 0; i < 40; i++)
-	//{
-
-	//	glm::vec3 position = glm::vec3(rand() % render_radius - render_radius/2, rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2-50);
-	//	float radius = rand() % 4;
-	//	glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-	//	Sphere* sphere = new Sphere(position, radius, color);
-	//	AddSphere(sphere);
-	//}
-}
-
-
-
-
 
 LightBuffer Scene::LoadLights() {
 	LightBuffer lightBuffer;
