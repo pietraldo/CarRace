@@ -93,3 +93,8 @@ void Car::Draw(Shader& shader)
             w->model->Draw(shader);
     }
 }
+
+void Car::AddSpeed(float dv)
+{
+    speed = clampValue(speed + dv, -maxSpeed, maxSpeed);
+}

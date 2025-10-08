@@ -14,6 +14,8 @@ public:
     void SetSpeed(float v);
     void Update(float dt);
     void Draw(Shader& shader);
+    void AddSpeed(float dv);
+    float GetSpeed() const { return speed; }
 
     std::shared_ptr<Model> body;
     std::array<std::unique_ptr<Wheel>, 4> wheels;
@@ -27,4 +29,7 @@ public:
 
     float speed = 0.f;
     float wheelRadius = 0.35f;
+
+private:
+	float maxSpeed = 50.f;
 };

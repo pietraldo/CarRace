@@ -171,4 +171,19 @@ void processInput(GLFWwindow* window)
 		steer = -45.0f;   // left
 	}
 	scene->SetCarSteer(steer);
+
+	const float accel = 8.0f; 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		scene->AddCarSpeed(+accel * deltaTime);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		scene->AddCarSpeed(-accel * deltaTime);
+	}
+	else {
+		float v = scene->GetCarSpeed();
+		float drag = 4.0f; 
+		if (std::abs(v) > 0.01f) {
+			scene->AddCarSpeed((v > 0 ? -drag : +drag) * deltaTime);
+		}
+	}
 }

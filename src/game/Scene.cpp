@@ -190,7 +190,7 @@ glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
 void Scene::CreateModels()
 {
 	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 9.0f, 0.f), 0.01f, glm::vec3(1.f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));

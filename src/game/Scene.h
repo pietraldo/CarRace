@@ -75,6 +75,8 @@ public:
 
 	void SetCarSteer(float deg) { if (car) car->SetSteer(deg); }
 	void SetCarSpeed(float v) { if (car) car->SetSpeed(v); }
+	void AddCarSpeed(float dv) { if (car) car->AddSpeed(dv); }
+	float GetCarSpeed() const { return car ? car->GetSpeed() : 0.0f; }
 
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }

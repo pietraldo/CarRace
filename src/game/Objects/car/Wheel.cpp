@@ -13,7 +13,7 @@ void Wheel::SetSteer(float steerDeg)
 {
     currentSteerDeg = steerDeg;
     if (model) {
-        // skrêt ko³a — oœ Y
+        // wheel turn - Y axis
         model->rotation.y = currentSteerDeg;
     }
 }
@@ -24,7 +24,7 @@ void Wheel::AddSpin(float deltaDeg)
     if (currentSpinDeg < 0.0f) currentSpinDeg += 360.0f;
 
     if (model) {
-        // toczenie ko³a — oœ X
-        model->rotation.x = currentSpinDeg;
+        // wheel turn - Z axis
+        model->rotation.z = currentSpinDeg;
     }
 }
