@@ -17,6 +17,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Objects/car/Car.h"
 
 using namespace std;
 
@@ -31,6 +32,7 @@ private:
 	vector<Model*> modelsCol;
 
 	Camera* active_camera;
+	std::unique_ptr<Car> car;
 
 public:
 	bool dayNight = false;

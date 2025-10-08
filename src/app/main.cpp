@@ -77,6 +77,7 @@ int main()
 
 		processInput(Rendering::window);
 		scene->UpdateFlashLight();
+		scene->Update(deltaTime);
 		for (GameObject* gameObj : scene->GetGameObjects())
 		{
 			gameObj->Update(deltaTime);
