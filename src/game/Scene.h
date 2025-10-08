@@ -10,7 +10,6 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Model.h"
-#include "../gfx/Sphere.h"
 #include "./Objects/GameObject.h"
 #include "../gfx/Rendering.h"
 #include "./Objects/CubeObejct.h"

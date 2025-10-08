@@ -23,7 +23,6 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Constants.h"
-#include "../gfx/Sphere.h"
 
 #include "./gfx/Rendering.h"
 #include "./physics/ColisionSolver.h"

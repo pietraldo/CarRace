@@ -15,7 +15,6 @@
 #include "Camera.h"
 #include "Constants.h"
 #include "Cube.h"
-#include "Sphere.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"
 #include "../game/Scene.h"
