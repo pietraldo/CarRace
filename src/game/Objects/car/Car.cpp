@@ -17,14 +17,13 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
     }
 
     wheels[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
-    wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
-    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
+    wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
+    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
     wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
 
-
     wheelOffsets[0] = glm::vec3(-1.6f, -0.6f, 2.0f); // FL
-    wheelOffsets[1] = glm::vec3(1.6f, -0.6f, 2.0f); // FR
-    wheelOffsets[2] = glm::vec3(-1.6f, 0.0f, -2.0f); // RL
+    wheelOffsets[1] = glm::vec3(1.6f, -0.6f, 2.0f); // RL
+    wheelOffsets[2] = glm::vec3(-1.6f, 0.0f, -2.0f); // FR
     wheelOffsets[3] = glm::vec3(1.6f, 0.0f, -2.0f); // RR
 
     for (int i = 0; i < 4; ++i) {
@@ -69,7 +68,10 @@ void Car::Update(float dt)
             w->model->position = body->position + wheelOffsets[i];
         }
 
-        if (i == 0 || i == 1) {
+        if (i == 0) {               
+            w->SetSteer(-steerCurrent);
+        }
+        else if (i == 2) {         
             w->SetSteer(steerCurrent);
         }
         else {

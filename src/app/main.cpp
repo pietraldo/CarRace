@@ -163,5 +163,12 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
 	
-	
+	float steer = 0.0f;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		steer = +45.0f;   // right
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		steer = -45.0f;   // left
+	}
+	scene->SetCarSteer(steer);
 }

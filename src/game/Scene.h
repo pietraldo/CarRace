@@ -25,14 +25,13 @@ class Scene
 {
 private:
     vector<GameObject*> gameObjects;
+	std::unique_ptr<Car> car;
 
 	vector<Light*> lights;
 	vector<Camera*> cameras;
 	vector<Model*> modelsTex;
 	vector<Model*> modelsCol;
-
 	Camera* active_camera;
-	std::unique_ptr<Car> car;
 
 public:
 	bool dayNight = false;
@@ -41,59 +40,42 @@ public:
 	bool userFlashlight = false;
 
 	LightSpot* flashlight;
-
-	bool turnOnJetFlashlight = true;
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
+
 	float rotationX = 0.0f;
 	float rotationY = 0.0f;
-
 	bool alignLightWithJet = false;
+	bool turnOnJetFlashlight = true;
 	bool rotateCubes = false;
 	bool moveCubes = false;
-
 	bool sphereGo = false;
-	void CreateLights();
 	
-
-
-
 	glm::mat4 rotateAlign(glm::vec3 v1, glm::vec3 v2);
 
 	Scene();
+	void Update(float deltaTime);
+	void CreateModels();
+
 	void AddLight(Light* light) { lights.push_back(light); }
+	void UpdateFlashLight();
+	void CreateLights();
+
+	void CreateCameras();
 	void AddCamera(Camera* camera) { cameras.push_back(camera); }
 	void SetActiveCamera(int index);
 	Camera& GetActiveCamera();
-	void Update(float deltaTime);
-	void CreateCameras();
-	void UpdateFlashLight()
-	{
-		if (userFlashlight)
-		{
-			flashlight->specular = glm::vec3(1.0f);
-			flashlight->diffuse = glm::vec3(0.6f);
-			flashlight->ambient = glm::vec3(0.0f);
-		}
-		else
-		{
-			flashlight->specular = glm::vec3(0.0f);
-			flashlight->diffuse = glm::vec3(0.0f);
-			flashlight->ambient = glm::vec3(0.0f);
-		}
-	}
-
 
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
 	void DrawLights(Shader& shader, unsigned int& lightVAO);
 
-	
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
-	void CreateModels();
-	
+	void SetCarSteer(float deg) { if (car) car->SetSteer(deg); }
+	void SetCarSpeed(float v) { if (car) car->SetSpeed(v); }
+
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
     vector<GameObject*> GetGameObjects() { return gameObjects; }

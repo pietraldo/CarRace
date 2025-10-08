@@ -240,6 +240,22 @@ void Scene::CreateCameras()
 	AddCamera(camera3);
 }
 
+void Scene::UpdateFlashLight()
+{
+	if (userFlashlight)
+	{
+		flashlight->specular = glm::vec3(1.0f);
+		flashlight->diffuse = glm::vec3(0.6f);
+		flashlight->ambient = glm::vec3(0.0f);
+	}
+	else
+	{
+		flashlight->specular = glm::vec3(0.0f);
+		flashlight->diffuse = glm::vec3(0.0f);
+		flashlight->ambient = glm::vec3(0.0f);
+	}
+}
+
 LightBuffer Scene::LoadLights() {
 	LightBuffer lightBuffer;
 	lightBuffer.NR_DIR_LIGHTS = 0;
