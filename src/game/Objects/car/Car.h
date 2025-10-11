@@ -5,30 +5,48 @@
 #include <glm/glm.hpp>
 #include "Wheel.h"
 
-class Car
-{
+class Car {
 public:
     Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel);
 
-    void SetSteer(float deg);
-    void SetSpeed(float v);
-    void Update(float dt);
+    void SetSteer(float deg);  
+    void SetSpeed(float v);     
+    void AddSpeed(float dv);    
+    void Update(float dt);      
     void Draw(Shader& shader);
-    void AddSpeed(float dv);
-    float GetSpeed() const { return speed; }
 
-    std::shared_ptr<Model> body;
-    std::array<std::unique_ptr<Wheel>, 4> wheels;
+    float GetSpeed()        const { return speed_; }
+    float GetSteer()        const { return steerCurrent_; }
+    float GetSteerTarget()  const { return steerTarget_; }
+    float GetMaxSteer()     const { return maxSteer_; }
+    float GetSteerSpeed()   const { return steerSpeed_; }
+    float GetWheelRadius()  const { return wheelRadius_; }
+    float GetMaxSpeed()     const { return maxSpeed_; }
 
-    std::array<glm::vec3, 4> wheelOffsets;
+    const std::shared_ptr<Model>& GetBody() const noexcept { return body_; }
 
-    float steerTarget = 0.f;
-    float steerCurrent = 0.f;
-    float steerSpeed = 180.f;
-    float maxSteer = 45.f;
-    float speed = 0.f;
-    float wheelRadius = 0.35f;
+    const std::array<glm::vec3, 4>& GetWheelOffsets() const noexcept { return wheelOffsets_; }
+
+    void SetMaxSteer(float deg);        
+    void SetSteerSpeed(float degPerSec);
+    void SetWheelRadius(float r);       
+    void SetMaxSpeed(float v);          
+    void SetWheelOffsets(const std::array<glm::vec3, 4>& offsets);
+
+    const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
 
 private:
-	float maxSpeed = 50.f;
+    std::shared_ptr<Model> body_;
+    std::array<std::unique_ptr<Wheel>, 4> wheels_{};
+
+    std::array<glm::vec3, 4> wheelOffsets_{};
+
+    float steerTarget_ = 0.f;   // deg
+    float steerCurrent_ = 0.f;   // deg
+    float steerSpeed_ = 180.f; // deg/s
+    float maxSteer_ = 45.f;  // deg
+
+    float speed_ = 0.f;   // m/s
+    float wheelRadius_ = 0.35f; // m
+    float maxSpeed_ = 50.f;  // m/s
 };
