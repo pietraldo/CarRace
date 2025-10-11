@@ -199,7 +199,7 @@ void Scene::CreateModels()
 
 	if (car->body) AddColorModel(car->body.get());
 	for (auto& w : car->wheels)
-		if (w && w->model) AddColorModel(w->model.get());
+		if (w && w->GetModel()) AddColorModel(w->GetModel().get());
 }
 
 

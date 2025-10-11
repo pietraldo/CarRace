@@ -27,10 +27,11 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
     wheelOffsets[3] = glm::vec3(1.6f, 0.0f, -2.0f); // RR
 
     for (int i = 0; i < 4; ++i) {
-        if (wheels[i]->model) {
-            wheels[i]->model->scale = 1.3f;
+        const auto& model = wheels[i]->GetModel();
+        if (model) {
+            model->scale = 1.3f;
             if (i == 2 || i == 3) {
-                wheels[i]->model->rotation.x = 180.0f; // reverse rear pair
+                model->rotation.x = 180.0f; // reverse rear pair
             }
         }
     }
@@ -62,10 +63,9 @@ void Car::Update(float dt)
 
     for (int i = 0; i < 4; ++i)
     {
-        auto& w = wheels[i];
-
-        if (w->model && body) {
-            w->model->position = body->position + wheelOffsets[i];
+        const auto& w = wheels[i];
+        if (w->GetModel() && body) {
+            w->GetModel()->position = body->position + wheelOffsets[i];
         }
 
         if (i == 0) {               
@@ -89,8 +89,9 @@ void Car::Draw(Shader& shader)
 
     for (auto& w : wheels)
     {
-        if (w->model)
-            w->model->Draw(shader);
+        const auto& model = w->GetModel();
+        if (model)
+            model->Draw(shader);
     }
 }
 

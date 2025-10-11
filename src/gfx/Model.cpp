@@ -84,7 +84,7 @@ void Model::loadTexture(const std::string& path)
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
-        std::cout << "Nie uda³o siê za³adowaæ tekstury" << std::endl;
+        std::cout << "Could not load texture" << std::endl;
     }
     stbi_image_free(data);
 }

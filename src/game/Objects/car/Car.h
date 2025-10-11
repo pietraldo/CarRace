@@ -26,7 +26,6 @@ public:
     float steerCurrent = 0.f;
     float steerSpeed = 180.f;
     float maxSteer = 45.f;
-
     float speed = 0.f;
     float wheelRadius = 0.35f;
 
