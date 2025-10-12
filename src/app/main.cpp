@@ -23,7 +23,6 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Constants.h"
-#include "../gfx/Sphere.h"
 
 #include "./gfx/Rendering.h"
 #include "./physics/ColisionSolver.h"
@@ -42,11 +41,10 @@ void processInput(GLFWwindow* window);
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
-
 Scene* scene=nullptr;
 bool updateOverlapVector = true;
 ColiderSolver* csPtr = nullptr;
+
 int main()
 {
     scene = new Scene();
@@ -54,7 +52,7 @@ int main()
 	srand(19);
 
 	scene->CreateLights();
-	scene->CreateObjects();
+	scene->CreateCameras();
 	scene->SetActiveCamera(0);
 	LightBuffer lightBuffer = scene->LoadLights();
 
@@ -69,7 +67,8 @@ int main()
 	
 	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
     csPtr = &cs;
-	//int lastXL=0, lastYL=0, lastXR = 0, lastYR =0;
+
+
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -78,6 +77,7 @@ int main()
 
 		processInput(Rendering::window);
 		scene->UpdateFlashLight();
+		scene->Update(deltaTime);
 		for (GameObject* gameObj : scene->GetGameObjects())
 		{
 			gameObj->Update(deltaTime);
@@ -163,5 +163,27 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
 	
-	
+	float steer = 0.0f;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		steer = +45.0f;   // right
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		steer = -45.0f;   // left
+	}
+	scene->SetCarSteer(steer);
+
+	const float accel = 8.0f; 
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		scene->AddCarSpeed(+accel * deltaTime);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		scene->AddCarSpeed(-accel * deltaTime);
+	}
+	else {
+		float v = scene->GetCarSpeed();
+		float drag = 4.0f; 
+		if (std::abs(v) > 0.01f) {
+			scene->AddCarSpeed((v > 0 ? -drag : +drag) * deltaTime);
+		}
+	}
 }

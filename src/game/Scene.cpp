@@ -50,6 +50,15 @@ Camera& Scene::GetActiveCamera()
 void Scene::Update(float deltaTime)
 {
 	UpdateFlashLight();
+	if (car) car->Update(deltaTime);
+
+	for (Model* model : modelsTex) {
+		model->Update(deltaTime);
+	}
+	for (Model* model : modelsCol) {
+		model->Update(deltaTime);
+	}
+
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
 			continue;
@@ -94,35 +103,7 @@ void Scene::Update(float deltaTime)
 		lightToControl->specular = glm::vec3(0.0f);
 	}
 	
-	//lightToControl->position = jet->position;
-
-
 	UpdateFlashLight();
-}
-
-void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
-{
-	/*shader.use();
-
-	shader.setMat4("projection", GetProjectionMatrix());
-	shader.setMat4("view", GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
-	shader.setBool("fogEnabled", fog);
-
-	for (Sphere* sphere : spheres)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, sphere->position);
-		model = glm::rotate(model, glm::radians(sphere->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(sphere->radius));
-		shader.setMat4("model", model);
-		shader.setVec3("objectColor", sphere->color);
-
-		glBindVertexArray(sphereVAO);
-		glDrawElements(GL_TRIANGLES, (Sphere::stackCount-1)*Sphere::sectorCount*6, GL_UNSIGNED_INT, 0);
-	}*/
 }
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
@@ -206,72 +187,21 @@ glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
 	return result;
 }
 
-void Scene::CreateObjects()
-{
-	CreateCameras();
-	//CreateLights();
-	//CreateModels();
-}
 void Scene::CreateModels()
 {
 	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 
-	Assimp::Importer carImporter;
-	const aiScene* carScene = carImporter.ReadFile(carModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (!carScene || !carScene->mNumMeshes)
-	{
-		std::cerr << "B³¹d ³adowania modelu samochodu: " << carImporter.GetErrorString() << std::endl;
-		return;
-	}
+	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 9.0f, 0.f), 0.01f, glm::vec3(1.f));
+	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 
-	Assimp::Importer wheelImporter;
-	const aiScene* wheelScene = wheelImporter.ReadFile(wheelModelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (!wheelScene || !wheelScene->mNumMeshes)
-	{
-		std::cerr << "B³¹d ³adowania modelu ko³a: " << wheelImporter.GetErrorString() << std::endl;
-		return;
-	}
+	car = std::make_unique<Car>(bodyModel, wheelModel);
 
-	//car
-	for (unsigned int i = 0; i < carScene->mNumMeshes; i++)
-	{
-		aiMesh* mesh = carScene->mMeshes[i];
-
-		Model* carModel = new Model(carModelPath, glm::vec3(0, 9.0f, 0), 0.01f, glm::vec3(1.0f, 1.0f, 1.0f));
-		aiMaterial* material = carScene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuseMaps = carModel->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-		carModel->textures_loaded.insert(carModel->textures_loaded.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-		AddColorModel(carModel);
-	}
-	// wheels
-
-	std::vector<glm::vec3> wheelPositions = {
-			glm::vec3(-1.6f, 8.4f, 2.0f),
-			glm::vec3(1.6f, 8.4f, 2.0f),
-			glm::vec3(-1.6f, 9.0f, -2.0f),
-			glm::vec3(1.6f, 9.0f, -2.0f)
-	};
-
-	for (unsigned int i = 0; i < wheelScene->mNumMeshes; i++)
-	{
-		aiMesh* mesh = wheelScene->mMeshes[i];
-
-		for (int i = 0; i < wheelPositions.size(); ++i)
-		{
-			glm::vec3 rotation = glm::vec3(0.0f);
-			if (i == 2 || i == 3)
-				rotation = glm::vec3(180.0f, 0.0f, 0.0f);
-
-			Model* wheelModel = new Model(wheelModelPath, wheelPositions[i], 1.3f, glm::vec3(1.0f, 1.0f, 1.0f), rotation);
-
-			aiMaterial* wheelMaterial = wheelScene->mMaterials[mesh->mMaterialIndex];
-			std::vector<Texture> wheelDiffuseMaps = wheelModel->loadMaterialTextures(wheelMaterial, aiTextureType_DIFFUSE, "texture_diffuse");
-			wheelModel->textures_loaded.insert(wheelModel->textures_loaded.end(), wheelDiffuseMaps.begin(), wheelDiffuseMaps.end());
-
-			AddColorModel(wheelModel);
-		}
+	if (car->GetBody()) AddColorModel(car->GetBody().get());
+	for (auto& w : car->Wheels()) {
+		if (!w) continue;
+		const auto& sp = w->GetModel();
+		if (sp) AddColorModel(sp.get());
 	}
 }
 
@@ -311,6 +241,22 @@ void Scene::CreateCameras()
 	AddCamera(camera1);
 	AddCamera(camera2);
 	AddCamera(camera3);
+}
+
+void Scene::UpdateFlashLight()
+{
+	if (userFlashlight)
+	{
+		flashlight->specular = glm::vec3(1.0f);
+		flashlight->diffuse = glm::vec3(0.6f);
+		flashlight->ambient = glm::vec3(0.0f);
+	}
+	else
+	{
+		flashlight->specular = glm::vec3(0.0f);
+		flashlight->diffuse = glm::vec3(0.0f);
+		flashlight->ambient = glm::vec3(0.0f);
+	}
 }
 
 LightBuffer Scene::LoadLights() {
