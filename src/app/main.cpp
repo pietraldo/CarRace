@@ -47,6 +47,8 @@ Scene* scene=nullptr;
 bool updateOverlapVector = true;
 ColiderSolver* csPtr = nullptr;
 
+bool startSimulation = false;
+
 int main()
 {
 	// --- 1. Setup foundation and physics ---
@@ -60,12 +62,20 @@ int main()
 		return -1;
 	}
 
+	physx::PxPvd* pvd = physx::PxCreatePvd(*foundation);
+	physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+
+	// Connect PVD
+	pvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+
 	physx::PxPhysics* physics = PxCreatePhysics(
-		PX_PHYSICS_VERSION, *foundation, physx::PxTolerancesScale());
+		PX_PHYSICS_VERSION, *foundation, physx::PxTolerancesScale(), true, pvd);
 	if (!physics) {
 		std::cerr << "PxCreatePhysics failed!" << std::endl;
 		return -1;
 	}
+
+	
 
 	// --- 2. Scene with gravity ---
 	physx::PxSceneDesc sceneDesc(physics->getTolerancesScale());
@@ -87,22 +97,9 @@ int main()
 		*physics, transform, geometry, *material, 1.0f);
 	scenePx->addActor(*cube);
 
-	// --- 5. Simulate and print position ---
-	const float timestep = 1.0f / 60.0f;
-	for (int i = 0; i < 120; ++i) {
-		scenePx->simulate(timestep);
-		scenePx->fetchResults(true);
+	
 
-		physx::PxTransform t = cube->getGlobalPose();
-		std::cout << "Frame " << i << ": cube height = " << t.p.y << std::endl;
-	}
-
-	// --- 6. Cleanup ---
-	cube->release();
-	groundPlane->release();
-	scenePx->release();
-	physics->release();
-	foundation->release();
+	
 
 
 	scene = new Scene();
@@ -150,12 +147,32 @@ int main()
 		{
 			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(0.0f, 1.0f, 0.0f);
 		}
-            
 
+		// --- 5. Simulate and print position ---
+		//const float timestep = 1.0f / 60.0f;
+		if (startSimulation)
+		{
+			scenePx->simulate(deltaTime);
+			scenePx->fetchResults(true);
+
+			physx::PxTransform t = cube->getGlobalPose();
+			std::cout << "cube height = " << t.p.y << std::endl;
+
+            scene->GetGameObjects()[1]->position.y = t.p.y;
+		}
+		
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
 
 	glfwTerminate();
+
+	// --- 6. Cleanup ---
+	cube->release();
+	groundPlane->release();
+	scenePx->release();
+	physics->release();
+	foundation->release();
+
 	return 0;
 }
 
@@ -220,6 +237,11 @@ void processInput(GLFWwindow* window)
 		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        startSimulation = true;
+    }
 	
 	float steer = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
