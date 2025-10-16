@@ -28,12 +28,14 @@
 #include "./physics/ColisionSolver.h"
 #include "./ui/Controller.h"
 
+// include physx
+#include <PxPhysicsAPI.h>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../externals/stb_image/stb_image.h"
 
 using namespace std;
-
 
 void processInput(GLFWwindow* window);
 
@@ -47,7 +49,63 @@ ColiderSolver* csPtr = nullptr;
 
 int main()
 {
-    scene = new Scene();
+	// --- 1. Setup foundation and physics ---
+	static physx::PxDefaultAllocator     allocator;
+	static physx::PxDefaultErrorCallback errorCallback;
+
+	physx::PxFoundation* foundation = PxCreateFoundation(
+		PX_PHYSICS_VERSION, allocator, errorCallback);
+	if (!foundation) {
+		std::cerr << "PxCreateFoundation failed!" << std::endl;
+		return -1;
+	}
+
+	physx::PxPhysics* physics = PxCreatePhysics(
+		PX_PHYSICS_VERSION, *foundation, physx::PxTolerancesScale());
+	if (!physics) {
+		std::cerr << "PxCreatePhysics failed!" << std::endl;
+		return -1;
+	}
+
+	// --- 2. Scene with gravity ---
+	physx::PxSceneDesc sceneDesc(physics->getTolerancesScale());
+	sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	physx::PxScene* scenePx = physics->createScene(sceneDesc);
+
+	// --- 3. Material and ground plane ---
+	physx::PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.6f);
+	physx::PxRigidStatic* groundPlane =
+		physx::PxCreatePlane(*physics, physx::PxPlane(0, 1, 0, 0), *material);
+	scenePx->addActor(*groundPlane);
+
+	// --- 4. A dynamic cube ---
+	physx::PxTransform transform(physx::PxVec3(0, 10, 0));  // start 10m up
+	physx::PxBoxGeometry geometry(physx::PxVec3(0.5f, 0.5f, 0.5f));  // 1x1x1
+	physx::PxRigidDynamic* cube = physx::PxCreateDynamic(
+		*physics, transform, geometry, *material, 1.0f);
+	scenePx->addActor(*cube);
+
+	// --- 5. Simulate and print position ---
+	const float timestep = 1.0f / 60.0f;
+	for (int i = 0; i < 120; ++i) {
+		scenePx->simulate(timestep);
+		scenePx->fetchResults(true);
+
+		physx::PxTransform t = cube->getGlobalPose();
+		std::cout << "Frame " << i << ": cube height = " << t.p.y << std::endl;
+	}
+
+	// --- 6. Cleanup ---
+	cube->release();
+	groundPlane->release();
+	scenePx->release();
+	physics->release();
+	foundation->release();
+
+
+	scene = new Scene();
 	Rendering::scene = scene;
 	srand(19);
 
