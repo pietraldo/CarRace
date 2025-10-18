@@ -9,14 +9,14 @@ Scene::Scene()
     gameObjects = vector<GameObject*>();
 
 
-    CubeObject* cube1 =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f,2.0f,0.5f), glm::vec3(1.0f, 0.0f, 0.0f));
+    CubeObject* cube1 =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f,2.0f,0.5f), glm::vec3(1.0f, 0.50f, 0.50f));
 	cube1->airResistance = 1.0f;
 	cube1->position = glm::vec3(1.9, 4.232, 0);
     cube1->rotation = glm::vec3(225, 0, 0);
     cube1->collider.size = cube1->scale;
     gameObjects.push_back(cube1);
 
-	CubeObject* cube2 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(2.0f,0.7f, 1.4f), glm::vec3(0.0f, 0.0f, 1.0f));
+	CubeObject* cube2 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(2.0f,0.7f, 1.4f), glm::vec3(0.50f, 0.50f, 1.0f));
 	cube2->airResistance = 1.0f;
     cube2->position = glm::vec3(1.7, 4, 0);
     cube2->rotation = glm::vec3(85, 0, 43);
@@ -90,18 +90,9 @@ void Scene::Update(float deltaTime)
 		glm::mat4 rotationMatrix = glm::mat4(1.0f);
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotationX), glm::vec3(1.0f, 0.0f, 0.0f));
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotationY), glm::vec3(0.0f, 1.0f, 0.0f));
-		lightToControl->direction = rotationMatrix * glm::normalize(glm::vec4(originlDirection, 0));
+		
 	}
-	if (turnOnJetFlashlight)
-	{
-		lightToControl->diffuse = glm::vec3(0.8f);
-		lightToControl->specular = glm::vec3(1.0f);
-	}
-	else
-	{
-		lightToControl->diffuse = glm::vec3(0.0f);
-		lightToControl->specular = glm::vec3(0.0f);
-	}
+
 	
 	UpdateFlashLight();
 }
@@ -209,26 +200,38 @@ void Scene::CreateModels()
 
 void Scene::CreateLights()
 {
+	/* Point light 1 - in the center of board */
+	Light* light1 = new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
+	AddLight(light1);
 
+	/* Point light 2 - in the center of board */
+	Light* light2 = new LightPoint(glm::vec3(10.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
+	AddLight(light2);
+
+	/* Sun light 1 */
 	Light* light3 = new LightDirectional(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, -1, 0),
 		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light3);
 
+	/* Sun light 2 */
 	Light* light4 = new LightDirectional(glm::vec3(-4.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1, -1, 0),
 		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(light4);
 
-	Light* light5 = new LightSpot(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.000009f, 0.0000032f, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f))
-		, glm::vec3(0, 0, 1),
+
+	/* User Flash light */
+	Light* light6 = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0, 0, 0.95f, 0.95f
+		, glm::vec3(0, 0, -1),
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(light5);
-
-	lightToControl = (LightSpot*)light5;
-	flashlight = (LightSpot*)light5;
-	originlDirection = lightToControl->direction;
+	AddLight(light6);
+	flashlight = (LightSpot*)light6;
 }
 
 void Scene::CreateCameras()
