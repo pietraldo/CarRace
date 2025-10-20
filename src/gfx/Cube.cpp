@@ -47,24 +47,19 @@ float Cube::vertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
 
-glm::mat4 Cube::GetModelMatrix(glm::vec3 position, glm::vec4 rotation, glm::vec3 scale)
+glm::mat4 Cube::GetModelMatrix(glm::vec3 position, glm::quat quat, glm::vec3 scale)
 {
 	glm::mat4 model = glm::mat4(1.0f);
-
-	// Convert vec4 ? quaternion (x, y, z, w)
-	glm::quat q(rotation.w, rotation.x, rotation.y, rotation.z);
-
-	// Apply transforms
 	model = glm::translate(model, position);
-	model *= glm::toMat4(q);
+	model *= glm::toMat4(quat);
 	model = glm::scale(model, scale);
 
 	return model;
 }
 
-void Cube::Draw(glm::vec3 position, glm::vec4 rotation, glm::vec3 scale, glm::vec3 color)
+void Cube::Draw(glm::vec3 position, glm::quat quat, glm::vec3 scale, glm::vec3 color)
 {
-    glm::mat4 model = GetModelMatrix(position, rotation, scale);
+    glm::mat4 model = GetModelMatrix(position, quat, scale);
     Draw(model, color);
 }
 

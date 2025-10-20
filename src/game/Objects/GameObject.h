@@ -7,43 +7,26 @@
 #include <iostream>
 #include <vector>
 #include "../../gfx/Cube.h"
-#include "../../physics/BoxCollider.h"
+#include <PxPhysicsAPI.h>
+
 
 class GameObject
 {
 public:
 
-    GameObject(float mass, glm::vec3 position, glm::vec4 rotation = glm::vec4(0)) :
-        mass(mass), position(position), rotation(rotation)
-    {
-        centerOfMass = glm::vec3(0.0f);
-        velocity = glm::vec3(0.0f);
-        rotationVelocity = glm::vec3(0.0f);
-        force = glm::vec3(0.0f);
-        torque = glm::vec3(0.0f);
-        airResistance = 0.1f;
-        elasticity = 0.5f;
-        friction = 0.5f;
+    GameObject(physx::PxRigidActor* actor) : actor(actor) {
     };
 
-    float mass;
-    glm::vec3 centerOfMass;
+    physx::PxRigidActor* actor = nullptr;
 
-    glm::vec3 position;
-    glm::vec4 rotation; //quaterion representation
+    physx::PxVec3 GetPosition() const {
+        return actor ? actor->getGlobalPose().p : physx::PxVec3(0, 0, 0);
+    }
 
-    glm::vec3 velocity;
-    glm::vec3 rotationVelocity;
-
-    glm::vec3 force;
-    glm::vec3 torque;
-
-    float airResistance;
-    float elasticity;
-    float friction;
+    physx::PxQuat GetRotation() const {
+        return actor ? actor->getGlobalPose().q : physx::PxQuat(0, 0, 0, 1);
+    }
 
     virtual void Draw() = 0;
-
-    void Update(float deltaTime);
 };
 

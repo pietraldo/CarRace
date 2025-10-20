@@ -25,19 +25,11 @@ set(PHYSX_LIB ${CMAKE_SOURCE_DIR}/externals/physx/lib)
 target_link_libraries(carrace PRIVATE
 	glfw glad imgui glm assimp 
 	${CMAKE_SOURCE_DIR}/externals/hidapi/lib/hidapi.lib
-	
-	
 	${PHYSX_LIB}/PhysX_64.lib
-	
 	${PHYSX_LIB}/PhysXCommon_64.lib
 	${PHYSX_LIB}/PhysXCooking_64.lib
-	
 	${PHYSX_LIB}/PhysXFoundation_64.lib
-	
-	
-	
 	${PHYSX_LIB}/PVDRuntime_64.lib
-	
 	${PHYSX_LIB}/PhysXExtensions_static_64.lib
 	${PHYSX_LIB}/PhysXPvdSDK_static_64.lib
 	${PHYSX_LIB}/SceneQuery_static_64.lib
@@ -50,7 +42,6 @@ target_link_libraries(carrace PRIVATE
 	${PHYSX_LIB}/LowLevel_static_64.lib
 	${PHYSX_LIB}/LowLevelAABB_static_64.lib
 	${PHYSX_LIB}/LowLevelDynamics_static_64.lib
-	
 )
 
 
