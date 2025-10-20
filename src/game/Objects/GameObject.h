@@ -13,8 +13,8 @@ class GameObject
 {
 public:
 
-    GameObject(float mass, glm::vec3 position, glm::vec3 rotation = glm::vec3(0)) :
-        mass(mass), position(position), rotation(rotation), collider(position, glm::vec3(1))
+    GameObject(float mass, glm::vec3 position, glm::vec4 rotation = glm::vec4(0)) :
+        mass(mass), position(position), rotation(rotation)
     {
         centerOfMass = glm::vec3(0.0f);
         velocity = glm::vec3(0.0f);
@@ -30,7 +30,7 @@ public:
     glm::vec3 centerOfMass;
 
     glm::vec3 position;
-    glm::vec3 rotation; // degrees
+    glm::vec4 rotation; //quaterion representation
 
     glm::vec3 velocity;
     glm::vec3 rotationVelocity;
@@ -41,8 +41,6 @@ public:
     float airResistance;
     float elasticity;
     float friction;
-
-    BoxCollider collider;
 
     virtual void Draw() = 0;
 

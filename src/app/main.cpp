@@ -45,9 +45,32 @@ float lastFrame = 0.0f;
 
 Scene* scene=nullptr;
 bool updateOverlapVector = true;
-ColiderSolver* csPtr = nullptr;
 
 bool startSimulation = false;
+
+
+physx::PxVec3 GetEulerAngles(const physx::PxQuat & q)
+{
+	// roll (x-axis rotation)
+	float sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
+	float cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+	float roll = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	float sinp = 2.0f * (q.w * q.y - q.z * q.x);
+	float pitch;
+	if (std::abs(sinp) >= 1)
+		pitch = std::copysign(physx::PxPi / 2, sinp); // use 90 degrees if out of range
+	else
+		pitch = std::asin(sinp);
+
+	// yaw (z-axis rotation)
+	float siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
+	float cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+	float yaw = std::atan2(siny_cosp, cosy_cosp);
+
+	return physx::PxVec3(roll, pitch, yaw);
+}
 
 int main()
 {
@@ -97,6 +120,11 @@ int main()
 		*physics, transform, geometry, *material, 1.0f);
 	scenePx->addActor(*cube);
 
+	physx::PxTransform transform2(physx::PxVec3(1, 12, 0));  // start 10m up
+	physx::PxBoxGeometry geometry2(physx::PxVec3(0.7f, 0.5f, 0.5f));  // 1x1x1
+	physx::PxRigidDynamic* cube2 = physx::PxCreateDynamic(
+		*physics, transform2, geometry2, *material, 1.0f);
+	scenePx->addActor(*cube2);
 	
 
 	
@@ -119,34 +147,19 @@ int main()
 	scene->CreateModels();
 	
 	Rendering::camera = &(scene->GetActiveCamera());
-	
-	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
-    csPtr = &cs;
 
 
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
+        //deltaTime = 0.016f; // fixed timestep
 		lastFrame = currentFrame;
 
 		processInput(Rendering::window);
 		scene->UpdateFlashLight();
 		scene->Update(deltaTime);
-		for (GameObject* gameObj : scene->GetGameObjects())
-		{
-			gameObj->Update(deltaTime);
-		}
-
-		bool isColision = cs.Solve(updateOverlapVector);
-		if (isColision)
-		{
-			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(0.0f, 1.0f, 0.0f);
-		}
+		
 
 		// --- 5. Simulate and print position ---
 		//const float timestep = 1.0f / 60.0f;
@@ -158,7 +171,18 @@ int main()
 			physx::PxTransform t = cube->getGlobalPose();
 			std::cout << "cube height = " << t.p.y << std::endl;
 
-            scene->GetGameObjects()[1]->position.y = t.p.y;
+			GameObject* obj1 = scene->GetGameObjects()[0];
+			obj1->position.x = t.p.x;
+			obj1->position.y = t.p.y;
+			obj1->position.z = t.p.z;
+			obj1->rotation = glm::vec4(t.q.x, t.q.y, t.q.z, t.q.w);
+
+			GameObject* obj2 = scene->GetGameObjects()[1];
+            physx::PxTransform t2 = cube2->getGlobalPose();
+			obj2->position.x = t2.p.x;
+			obj2->position.y = t2.p.y;
+			obj2->position.z = t2.p.z;
+            obj2->rotation = glm::vec4(t2.q.x, t2.q.y, t2.q.z, t2.q.w);
 		}
 		
         Rendering::RenderFrame(scene->GetGameObjects());
@@ -214,18 +238,13 @@ void processInput(GLFWwindow* window)
 		if (contr->isButtonJustPressed(Controller::Button::ARROW_LEFT))
 		{
             GameObject* obj = scene->GetGameObjects()[0];
-			obj->position += csPtr->overlapVector;
 			cout << "Button just pressed: ARROW_LEFT" << endl;
-            cout << "Overlap Vector: " << csPtr->overlapVector.x << "," << csPtr->overlapVector.y << "," << csPtr->overlapVector.z << endl;
 		}
 
 		if (contr->isButtonJustPressed(Controller::Button::ARROW_RIGHT))
 		{
 			GameObject* obj = scene->GetGameObjects()[0];
-            glm::vec3 overLap = csPtr->overlapVector;
-			obj->position -= overLap;
 			cout << "Button just pressed: ARROW_RIGHT" << endl;
-            cout << "Overlap Vector: " << overLap.x << "," << overLap.y << "," << overLap.z << endl;
 		}
 	}
 	
