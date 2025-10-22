@@ -11,9 +11,9 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
 add_executable(carrace ${SRC_FILES})
 
 target_include_directories(carrace PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}     # src/...
-  ${CMAKE_SOURCE_DIR}/externals   # headery z externals (glad, stb, glm, imgui)
-  ${CMAKE_SOURCE_DIR}             # opcjonalnie
+  ${CMAKE_CURRENT_SOURCE_DIR}    
+  ${CMAKE_SOURCE_DIR}/externals   
+  ${CMAKE_SOURCE_DIR}             
   ${CMAKE_SOURCE_DIR}/externals/hidapi/include
   ${CMAKE_SOURCE_DIR}/externals/physx/include
 )

@@ -46,9 +46,6 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
 {
     // --- 3. Material and ground plane ---
     physx::PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.6f);
-    /*physx::PxRigidStatic* groundPlane =
-        physx::PxCreatePlane(*physics, physx::PxPlane(0, 1, 0, 0), *material);
-    scenePx->addActor(*groundPlane);*/
 
     // --- 4. A dynamic cube ---
     physx::PxTransform transform(physx::PxVec3(0, 10, 0));  // start 10m up
