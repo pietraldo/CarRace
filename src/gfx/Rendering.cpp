@@ -49,9 +49,6 @@ int Rendering::Initialize()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-
-
-
    
     glGenVertexArrays(1, &CubeVAO);
     glGenBuffers(1, &VBO);
@@ -59,7 +56,7 @@ int Rendering::Initialize()
     glBindVertexArray(CubeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::vertices), Cube::vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*216, Cube::GetVertices(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -212,22 +209,12 @@ void Rendering::RenderImGui()
     }
     {
         ImGui::Begin("Cube0 force");
-        ImGui::SliderFloat("TorqueX", &(*scene).GetGameObjects()[0]->rotation.x, 0, 360);
-        ImGui::SliderFloat("TorqueY", &(*scene).GetGameObjects()[0]->rotation.y, 0, 360);
-        ImGui::SliderFloat("TorqueZ", &(*scene).GetGameObjects()[0]->rotation.z, 0, 360);
-        ImGui::SliderFloat("ForceX", &(*scene).GetGameObjects()[0]->position.x, -5, 5);
-        ImGui::SliderFloat("ForceY", &(*scene).GetGameObjects()[0]->position.y, 0, 10);
-        ImGui::SliderFloat("ForceZ", &(*scene).GetGameObjects()[0]->position.z, -5, 5);
+
         ImGui::End();
     }
     {
         ImGui::Begin("Cube1 force");
-        ImGui::SliderFloat("TorqueX", &(*scene).GetGameObjects()[1]->rotation.x, 0, 100);
-        ImGui::SliderFloat("TorqueY", &(*scene).GetGameObjects()[1]->rotation.y, 0, 100);
-        ImGui::SliderFloat("TorqueZ", &(*scene).GetGameObjects()[1]->rotation.z, 0, 100);
-        ImGui::SliderFloat("ForceX", &(*scene).GetGameObjects()[1]->position.x, -5, 5);
-        ImGui::SliderFloat("ForceY", &(*scene).GetGameObjects()[1]->position.y, 0, 10);
-        ImGui::SliderFloat("ForceZ", &(*scene).GetGameObjects()[1]->position.z, -5, 5);
+
         ImGui::End();
     }
     {
@@ -262,8 +249,6 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
     for (GameObject* gameObj : gameObjects)
     {
         gameObj->Draw();
-        if(showBoxColliders)
-            gameObj->collider.Draw(gameObj->rotation);
     }
 
     (*scene).DrawLights(*lightShader, lightVAO);

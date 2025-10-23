@@ -25,15 +25,17 @@
 #include "../gfx/Constants.h"
 
 #include "./gfx/Rendering.h"
-#include "./physics/ColisionSolver.h"
 #include "./ui/Controller.h"
+#include "./physics/physics.h"
+
+// include physx
+#include <PxPhysicsAPI.h>
 
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../externals/stb_image/stb_image.h"
 
 using namespace std;
-
 
 void processInput(GLFWwindow* window);
 
@@ -42,12 +44,14 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Scene* scene=nullptr;
-bool updateOverlapVector = true;
-ColiderSolver* csPtr = nullptr;
+bool startSimulation = false;
 
 int main()
 {
-    scene = new Scene();
+    Physics::getInstance()->initialize();
+    Physics::getInstance()->createScene();
+    
+	scene = new Scene();
 	Rendering::scene = scene;
 	srand(19);
 
@@ -62,42 +66,35 @@ int main()
 
 
 	scene->CreateModels();
+    
+	Physics::getInstance()->createObjects(scene->GetGameObjects());
+
 	
 	Rendering::camera = &(scene->GetActiveCamera());
-	
-	ColiderSolver cs = ColiderSolver(scene->GetGameObjects()[0], scene->GetGameObjects()[1]);
-    csPtr = &cs;
 
 
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
+        //deltaTime = 0.016f; // fixed timestep
 		lastFrame = currentFrame;
 
 		processInput(Rendering::window);
 		scene->UpdateFlashLight();
 		scene->Update(deltaTime);
-		for (GameObject* gameObj : scene->GetGameObjects())
+		
+		if (startSimulation)
 		{
-			gameObj->Update(deltaTime);
+			Physics::getInstance()->update(deltaTime);
 		}
-
-		bool isColision = cs.Solve(updateOverlapVector);
-		if (isColision)
-		{
-			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(1.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			((CubeObject*)scene->GetGameObjects()[2])->color = glm::vec3(0.0f, 1.0f, 0.0f);
-		}
-            
-
+		
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
 
 	glfwTerminate();
+
+    Physics::getInstance()->cleanup();
 	return 0;
 }
 
@@ -131,27 +128,6 @@ void processInput(GLFWwindow* window)
             scene->userFlashlight = !scene->userFlashlight;
             cout << "Button just pressed: ARROW_DOWN Toggle Box Colliders display" << endl;
 		}
-		if (contr->isButtonJustPressed(Controller::Button::CIRCLE))
-		{
-            updateOverlapVector = !updateOverlapVector;
-            cout << "Button just pressed: CIRCLE update vector: "<<updateOverlapVector<<endl;
-		}
-		if (contr->isButtonJustPressed(Controller::Button::ARROW_LEFT))
-		{
-            GameObject* obj = scene->GetGameObjects()[0];
-			obj->position += csPtr->overlapVector;
-			cout << "Button just pressed: ARROW_LEFT" << endl;
-            cout << "Overlap Vector: " << csPtr->overlapVector.x << "," << csPtr->overlapVector.y << "," << csPtr->overlapVector.z << endl;
-		}
-
-		if (contr->isButtonJustPressed(Controller::Button::ARROW_RIGHT))
-		{
-			GameObject* obj = scene->GetGameObjects()[0];
-            glm::vec3 overLap = csPtr->overlapVector;
-			obj->position -= overLap;
-			cout << "Button just pressed: ARROW_RIGHT" << endl;
-            cout << "Overlap Vector: " << overLap.x << "," << overLap.y << "," << overLap.z << endl;
-		}
 	}
 	
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -162,6 +138,11 @@ void processInput(GLFWwindow* window)
 		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        startSimulation = true;
+    }
 	
 	float steer = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {

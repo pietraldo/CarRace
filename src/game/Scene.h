@@ -77,6 +77,7 @@ public:
 	void SetCarSpeed(float v) { if (car) car->SetSpeed(v); }
 	void AddCarSpeed(float dv) { if (car) car->AddSpeed(dv); }
 	float GetCarSpeed() const { return car ? car->GetSpeed() : 0.0f; }
+    Car* GetCar() { return car.get(); }
 
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
