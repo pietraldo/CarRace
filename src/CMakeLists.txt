@@ -16,6 +16,7 @@ target_include_directories(carrace PRIVATE
   ${CMAKE_SOURCE_DIR}             
   ${CMAKE_SOURCE_DIR}/externals/hidapi/include
   ${CMAKE_SOURCE_DIR}/externals/physx/include
+  ${CMAKE_SOURCE_DIR}/externals/rapidjson/include
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/externals/physx/include)

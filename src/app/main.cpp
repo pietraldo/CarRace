@@ -68,7 +68,8 @@ int main()
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
-
+	Physics::getInstance()->initMaterialFrictionTable();
+	Physics::getInstance()->createVehicle();
 	
 	Rendering::camera = &(scene->GetActiveCamera());
 
