@@ -13,7 +13,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include <PxPhysicsAPI.h>
 #include "../externals/stb_image/stb_image.h"
 
 #include "Shader.h"
@@ -35,7 +35,7 @@ public:
 	float scale = 1.0f;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 color = glm::vec3(1.0f);
-	glm::vec3 rotation = glm::vec3(0.0f);
+    physx::PxQuat roatation = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
 
     struct Point {
         float x, y;
@@ -48,8 +48,8 @@ public:
     glm::vec3 axisOfSymetry = glm::vec3(0, 0, 1);
 
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-    Model(string const& path, glm::vec3 position, float scale, glm::vec3 color, glm::vec3 rotation = glm::vec3(0.0f), bool gamma = false) 
-		: gammaCorrection(gamma), position(position), scale(scale), color(color), rotation(rotation)
+    Model(string const& path, glm::vec3 position, float scale, glm::vec3 color, bool gamma = false) 
+		: gammaCorrection(gamma), position(position), scale(scale), color(color)
     {
         loadModel(path);
     }

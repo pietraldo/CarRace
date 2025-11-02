@@ -39,7 +39,8 @@ physx::PxScene* Physics::createScene() {
     physx::PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
-    sceneDesc.filterShader = VehicleFilterShader; // Use custom filter shader for vehicles
+    //sceneDesc.filterShader = VehicleFilterShader; // Use custom filter shader for vehicles
+    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     gScene = gPhysics->createScene(sceneDesc);
     return gScene;
 }
@@ -50,14 +51,14 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
     // --- 4. A dynamic cube ---
-    physx::PxTransform transform(physx::PxVec3(0, 10, 0));  // start 10m up
+    physx::PxTransform transform(physx::PxVec3(1, 1, 10));  // start 10m up
     physx::PxBoxGeometry geometry(physx::PxVec3(0.5f, 0.5f, 0.5f));  // 1x1x1
     physx::PxRigidDynamic* cube = physx::PxCreateDynamic(
         *gPhysics, transform, geometry, *material, 1.0f);
     gScene->addActor(*cube);
     gameObjects[0]->actor = cube;
 
-    physx::PxTransform transform2(physx::PxVec3(1, 12, 0));  // start 10m up
+    physx::PxTransform transform2(physx::PxVec3(4, 1, 10));  // start 10m up
     physx::PxBoxGeometry geometry2(physx::PxVec3(0.7f, 0.5f, 0.5f));  // 1x1x1
     physx::PxRigidDynamic* cube2 = physx::PxCreateDynamic(
         *gPhysics, transform2, geometry2, *material, 1.0f);
@@ -65,7 +66,7 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gameObjects[1]->actor = cube2;
 
     physx::PxRigidStatic* boxCollider = physx::PxCreateStatic(
-        *gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(25.0f, 0.5f, 25.0f)), *material);
+        *gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(225.0f, 0.5f, 225.0f)), *material);
     gScene->addActor(*boxCollider);
     gameObjects[2]->actor = boxCollider;
 }
@@ -73,9 +74,13 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
 void Physics::update(float deltaTime)
 {
     if (gNbCommands == gCommandProgress)
+    {
+        std::cout << "Finished all commands." << std::endl;
         return;
+    }
+        
 
-    const PxReal timestep = 1.0f / 60.0f;
+  
 
     //Apply the brake, throttle and steer to the command state of the vehicle.
     const Command& command = gCommands[gCommandProgress];
@@ -92,18 +97,20 @@ void Physics::update(float deltaTime)
     const PxReal forwardSpeed = linVel.dot(forwardDir);
     const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
     gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
-    gVehicle.step(timestep, gVehicleSimulationContext);
+    gVehicle.step(deltaTime, gVehicleSimulationContext);
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);
 
     //Increment the time spent on the current command.
     //Move to the next command in the list if enough time has lapsed.
-    gCommandTime += timestep;
+    gCommandTime += deltaTime;
+    std::cout << gCommandTime << std::endl;
     if (gCommandTime > gCommands[gCommandProgress].duration)
     {
         gCommandProgress++;
         gCommandTime = 0.0f;
+        std::cout << "Moving to command " << gCommandProgress << std::endl;
     }
 }
 

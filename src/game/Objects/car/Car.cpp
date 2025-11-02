@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>     // std::isfinite
 
+
 static inline bool isFinite(float x) { return std::isfinite(x); }
 
 template <typename T> T clampValue(const T& v, const T& lo, const T& hi) { return (v < lo) ? lo : (v > hi) ? hi : v; }
@@ -10,7 +11,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
 {
     body_ = std::move(bodyModel);
 
-    if (body_) {
+    if (!body_) {
         body_->position = glm::vec3(0.f, 9.0f, 0.f);
         body_->scale = 0.01f;
     }
@@ -33,7 +34,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
             model->scale = 1.3f;
 
             if (i == 2 || i == 3) {
-                model->rotation.x = 180.0f;
+                //model->rotation.x = 180.0f;
             }
         }
     }
@@ -52,8 +53,10 @@ void Car::SetSpeed(float v)
     speed_ = clampValue(v, -maxSpeed_, maxSpeed_);
 }
 
-void Car::Update(float dt)
+void Car::Update(float dt, glm::vec3 position, physx::PxQuat roation)
 {
+    body_->position = position;
+    body_->roatation = roation;
     float delta = steerTarget_ - steerCurrent_;
     float step = steerSpeed_ * dt;
 

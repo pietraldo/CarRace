@@ -13,6 +13,11 @@
 #include "./Objects/GameObject.h"
 #include "../gfx/Rendering.h"
 #include "./Objects/CubeObejct.h"
+#include "./physics/physics.h"
+
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>  
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

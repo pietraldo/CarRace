@@ -1,3 +1,5 @@
+#pragma once
+
 #include <PxPhysicsAPI.h>
 #include <iostream>
 #include <vector>
@@ -39,6 +41,17 @@ public:
     void update(float deltaTime);
 
     void cleanup();
+
+    PxVec3 getVehiclePosition()
+    {
+        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        return PxVec3(t.p.x, t.p.y, t.p.z);
+    }
+    PxQuat getVehicleRotation()
+    {
+        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        return t.q;
+    }
 
     PxMaterial* gMaterial = nullptr;
     
