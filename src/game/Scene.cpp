@@ -125,10 +125,10 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	glm::vec3 position = model.position;
 	glm::quat rotation = glm::quat(
-		model.roatation.w,
-		model.roatation.x,
-		model.roatation.y,
-		model.roatation.z
+		model.rotation.w,
+		model.rotation.x,
+		model.rotation.y,
+		model.rotation.z
 	);
 
     // Rotate model by 90 degrees around Y axis because different model rotation

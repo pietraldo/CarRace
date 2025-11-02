@@ -34,7 +34,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
             model->scale = 1.3f;
 
             if (i == 2 || i == 3) {
-                //model->rotation.x = 180.0f;
+                model->rotation = physx::PxQuat(3.14159265f, physx::PxVec3(1.0f, 0.0f, 0.0f)) * model->rotation;
             }
         }
     }
@@ -53,10 +53,10 @@ void Car::SetSpeed(float v)
     speed_ = clampValue(v, -maxSpeed_, maxSpeed_);
 }
 
-void Car::Update(float dt, glm::vec3 position, physx::PxQuat roation)
+void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 {
     body_->position = position;
-    body_->roatation = roation;
+    body_->rotation = rotation;
     float delta = steerTarget_ - steerCurrent_;
     float step = steerSpeed_ * dt;
 

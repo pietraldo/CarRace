@@ -35,7 +35,7 @@ public:
 	float scale = 1.0f;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 color = glm::vec3(1.0f);
-    physx::PxQuat roatation = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
+    physx::PxQuat rotation = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
 
     struct Point {
         float x, y;
