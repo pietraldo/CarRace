@@ -16,6 +16,8 @@ public:
     float currentSteerDeg;
     float currentSpinDeg;
 
+    void UpdateWheelRotation();
+
 private:
     void SetSteer(float steerDeg);
     void AddSpin(float deltaDeg);

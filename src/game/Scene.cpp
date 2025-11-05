@@ -15,7 +15,7 @@ Scene::Scene()
 	CubeObject* cube2 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f,1.0f, 1.0f), glm::vec3(0.50f, 0.50f, 1.0f));
 	gameObjects.push_back(cube2);
 
-	CubeObject* floorCube = new CubeObject(1, glm::vec3(0,-0.5,0), glm::vec3(50.0f, 1.0f, 50.0f), glm::vec3(0.7f, 0.4f, 1.0f));
+	CubeObject* floorCube = new CubeObject(1, glm::vec3(0,-0.5,0), glm::vec3(450.0f, 1.0f, 450.0f), glm::vec3(0.7f, 0.4f, 1.0f));
     gameObjects.push_back(floorCube);
 }
 
@@ -41,7 +41,10 @@ Camera& Scene::GetActiveCamera()
 void Scene::Update(float deltaTime)
 {
 	UpdateFlashLight();
-	if (car) car->Update(deltaTime);
+	PxVec3 pos = Physics::getInstance()->getVehiclePosition();
+	PxQuat rotation = Physics::getInstance()->getVehicleRotation();
+    glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+	if (car) car->Update(deltaTime, position, rotation);
 
 	for (Model* model : modelsTex) {
 		model->Update(deltaTime);
@@ -117,23 +120,30 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.setBool("fogEnabled", fog);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, model.textureID); 
+	glBindTexture(GL_TEXTURE_2D, model.textureID);
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::translate(modelMatrix, model.position);
+	glm::vec3 position = model.position;
+	glm::quat rotation = glm::quat(
+		model.rotation.w,
+		model.rotation.x,
+		model.rotation.y,
+		model.rotation.z
+	);
 
-	if (model.move)
-	{
-		glm::vec3 a = model.axisOfSymetry;
-		glm::vec3 b = model.velocity;
-		a = glm::normalize(a);
-		b = glm::normalize(b);
-		glm::mat4 rotationMatrix = rotateAlign(b, a);
-		modelMatrix = modelMatrix * rotationMatrix;
-	}
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(model.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(model.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(model.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    // Rotate model by 90 degrees around Y axis because different model rotation
+    // to align with physics engine 
+    // in future just align maybe model in blender
+	float angle = glm::radians(90.0f);
+	glm::vec3 axisY(0.0f, 1.0f, 0.0f);
+	glm::quat q_y = glm::angleAxis(angle, axisY);
+    glm::quat finalRotation = q_y * rotation;
+
+    glm::vec3 positionOffset(0.0f, 1.0f, 0.0f);
+    position += positionOffset;
+
+	modelMatrix = glm::translate(modelMatrix, position);
+	modelMatrix *= glm::toMat4(finalRotation);
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.scale);
 	shader.setMat4("model", modelMatrix);
 
@@ -160,7 +170,7 @@ void Scene::CreateModels()
 	const std::string carModelPath = "../assets/models/car/scene.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 
-	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 9.0f, 0.f), 0.01f, glm::vec3(1.f));
+	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 
 	car = std::make_unique<Car>(bodyModel, wheelModel);

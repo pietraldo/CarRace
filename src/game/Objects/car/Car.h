@@ -12,7 +12,7 @@ public:
     void SetSteer(float deg);  
     void SetSpeed(float v);     
     void AddSpeed(float dv);    
-    void Update(float dt);      
+    void Update(float dt, glm::vec3 position, physx::PxQuat rotation);
     void Draw(Shader& shader);
 
     float GetSpeed()        const { return speed_; }
