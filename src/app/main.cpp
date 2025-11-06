@@ -27,6 +27,7 @@
 #include "./gfx/Rendering.h"
 #include "./ui/Controller.h"
 #include "./physics/physics.h"
+#include "./game/Objects/car/Car.h"
 
 // include physx
 #include <PxPhysicsAPI.h>
@@ -37,7 +38,7 @@
 
 using namespace std;
 
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, CarControlInput& carControll);
 
 // timing
 float deltaTime = 0.0f;
@@ -81,13 +82,14 @@ int main()
         //deltaTime = 0.016f; // fixed timestep
 		lastFrame = currentFrame;
 
-		processInput(Rendering::window);
+        CarControlInput carControl;
+		processInput(Rendering::window, carControl);
 		scene->UpdateFlashLight();
 		scene->Update(deltaTime);
 		
 		if (startSimulation)
 		{
-			Physics::getInstance()->update(deltaTime);
+			Physics::getInstance()->update(deltaTime, carControl);
 		}
 		
         Rendering::RenderFrame(scene->GetGameObjects());
@@ -102,7 +104,7 @@ int main()
 
 
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, CarControlInput& carControl)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -144,22 +146,29 @@ void processInput(GLFWwindow* window)
     {
         startSimulation = true;
     }
+    carControl.brake = 0;
+    carControl.throttle = 0;
+    carControl.steer = 0;
 	
 	float steer = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		steer = +45.0f;   // right
+		carControl.steer = -1;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		steer = -45.0f;   // left
+        carControl.steer = 1;
 	}
 	scene->SetCarSteer(steer);
 
 	const float accel = 8.0f; 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		scene->AddCarSpeed(+accel * deltaTime);
+        carControl.throttle = 1;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		scene->AddCarSpeed(-accel * deltaTime);
+        carControl.brake = 1;
 	}
 	else {
 		float v = scene->GetCarSpeed();
@@ -168,4 +177,5 @@ void processInput(GLFWwindow* window)
 			scene->AddCarSpeed((v > 0 ? -drag : +drag) * deltaTime);
 		}
 	}
+	carControl.gear = 3;
 }

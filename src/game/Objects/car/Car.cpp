@@ -55,6 +55,17 @@ void Car::SetSpeed(float v)
 
 void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 {
+    lastTime += dt;
+    updateCounter++;
+    if (updateCounter > 50)
+    {
+        velocity = glm::length(position - lastPosition) / lastTime;
+        lastPosition = position;
+        updateCounter = 0;
+        lastTime = 0;
+    }
+    
+    
     body_->position = position;
     body_->rotation = rotation;
     float delta = steerTarget_ - steerCurrent_;

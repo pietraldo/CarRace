@@ -208,6 +208,11 @@ void Rendering::RenderImGui()
         ImGui::End();
     }
     {
+        ImGui::Begin("Speed");
+        ImGui::Text("Car speed: %.2f km/h", scene->GetCar()->velocity);
+        ImGui::End();
+    }
+    {
         ImGui::Begin("Cube0 force");
 
         ImGui::End();

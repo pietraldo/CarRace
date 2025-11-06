@@ -38,20 +38,17 @@ Camera& Scene::GetActiveCamera()
 	}
 	return *active_camera;
 }
+void Scene::UpdateCar(float deltaTime)
+{
+	PxVec3 pos = Physics::getInstance()->getVehiclePosition();
+	PxQuat rotation = Physics::getInstance()->getVehicleRotation();
+	glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+	if (car) car->Update(deltaTime, position, rotation);
+}
 void Scene::Update(float deltaTime)
 {
 	UpdateFlashLight();
-	PxVec3 pos = Physics::getInstance()->getVehiclePosition();
-	PxQuat rotation = Physics::getInstance()->getVehicleRotation();
-    glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
-	if (car) car->Update(deltaTime, position, rotation);
-
-	for (Model* model : modelsTex) {
-		model->Update(deltaTime);
-	}
-	for (Model* model : modelsCol) {
-		model->Update(deltaTime);
-	}
+	UpdateCar(deltaTime);
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
@@ -68,10 +65,6 @@ void Scene::Update(float deltaTime)
 			light->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
 			light->specular = glm::vec3(0.6f, 0.6f, 0.6f);
 		}
-	}
-	for (Model* model : modelsTex)
-	{
-		model->Update(deltaTime);
 	}
 	
 	UpdateFlashLight();

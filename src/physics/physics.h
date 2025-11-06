@@ -9,10 +9,20 @@
 #include "./common/serialization/BaseSerialization.h"
 #include "./common/serialization/EngineDrivetrainSerialization.h"
 #include "./common/SnippetVehicleHelpers.h"
+#include "./game/Objects/car/Car.h"
 
 using namespace physx;
 using namespace vehicle2;
 using namespace snippetvehicle;
+
+struct CarControlInput
+{
+    PxF32 brake;
+    PxF32 throttle;
+    PxF32 steer;
+    PxU32 gear;
+    PxF32 duration;
+};
 
 class Physics {
 private:
@@ -38,7 +48,7 @@ public:
     void createObjects(const std::vector<GameObject*>& gameObjects);
 
     
-    void update(float deltaTime);
+    void update(float deltaTime, CarControlInput carControll);
 
     void cleanup();
 
@@ -72,26 +82,9 @@ public:
     const char gVehicleName[20] = "engineDrive";
 
     //Commands are issued to the vehicle in a pre-choreographed sequence.
-    struct Command
-    {
-        PxF32 brake;
-        PxF32 throttle;
-        PxF32 steer;
-        PxU32 gear;
-        PxF32 duration;
-    };
+   
     const PxU32 gTargetGearCommand = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
-    Command gCommands[10] =
-    {
-        {0.5f, 0.0f, 0.0f, gTargetGearCommand, 2.0f},	//brake on and come to rest for 2 seconds
-        {0.0f, 0.65f, 0.0f, gTargetGearCommand, 5.0f},	//throttle for 5 seconds
-        {0.5f, 0.0f, 0.0f, gTargetGearCommand, 5.0f},	//brake for 5 seconds
-        {0.0f, 0.75f, 0.0f, gTargetGearCommand, 5.0f},	//throttle for 5 seconds
-        {0.0f, 0.25f, 0.5f, gTargetGearCommand, 5.0f}	//light throttle and steer for 5 seconds.
-    };
-    const PxU32 gNbCommands = sizeof(gCommands) / sizeof(Command);
-    PxReal gCommandTime = 0.0f;			//Time spent on current command
-    PxU32 gCommandProgress = 0;			//The id of the current command.
+   
 
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
     const char* gVehicleDataPath = "C:\\Users\\pietr\\Desktop\\pull_req\\CarRace\\assets\\vehicledata";

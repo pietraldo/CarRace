@@ -60,6 +60,7 @@ public:
 
 	Scene();
 	void Update(float deltaTime);
+    void UpdateCar(float deltaTime);
 	void CreateModels();
 
 	void AddLight(Light* light) { lights.push_back(light); }

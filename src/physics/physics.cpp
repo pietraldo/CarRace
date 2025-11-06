@@ -71,24 +71,17 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gameObjects[2]->actor = boxCollider;
 }
 
-void Physics::update(float deltaTime)
+void Physics::update(float deltaTime, CarControlInput carControll)
 {
-    if (gNbCommands == gCommandProgress)
-    {
-        std::cout << "Finished all commands." << std::endl;
-        return;
-    }
         
-
-  
-
-    //Apply the brake, throttle and steer to the command state of the vehicle.
-    const Command& command = gCommands[gCommandProgress];
-    gVehicle.mCommandState.brakes[0] = command.brake;
+    // Update vehicle
+    gVehicle.mCommandState.brakes[0] = carControll.brake;
     gVehicle.mCommandState.nbBrakes = 1;
-    gVehicle.mCommandState.throttle = command.throttle;
-    gVehicle.mCommandState.steer = command.steer;
-    gVehicle.mTransmissionCommandState.targetGear = command.gear;
+    gVehicle.mCommandState.throttle = carControll.throttle;
+    gVehicle.mCommandState.steer = carControll.steer;
+    gVehicle.mTransmissionCommandState.targetGear = carControll.gear;
+
+    cout << "Physics update: throttle=" << carControll.throttle << " brake=" << carControll.brake << " steer=" << carControll.steer << " gear=" << carControll.gear << endl;
 
     //Forward integrate the vehicle by a single timestep.
     //Apply substepping at low forward speed to improve simulation fidelity.
@@ -101,17 +94,6 @@ void Physics::update(float deltaTime)
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);
-
-    //Increment the time spent on the current command.
-    //Move to the next command in the list if enough time has lapsed.
-    gCommandTime += deltaTime;
-    std::cout << gCommandTime << std::endl;
-    if (gCommandTime > gCommands[gCommandProgress].duration)
-    {
-        gCommandProgress++;
-        gCommandTime = 0.0f;
-        std::cout << "Moving to command " << gCommandProgress << std::endl;
-    }
 }
 
 void Physics::cleanup()
@@ -123,7 +105,7 @@ void Physics::cleanup()
 
 bool Physics::createVehicle()
 {
-    vehicle2::PxInitVehicleExtension(*gFoundation);
+    vehicle2::PxInitVehicleExtension(*gFoundation); // this tells that we use vehicle2 
 
     //Load the params from json or set directly.
     readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", gVehicle.mBaseParams);
@@ -148,19 +130,14 @@ bool Physics::createVehicle()
     gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
 
     //Set the vehicle to use the automatic gearbox.
-    gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+    //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
-    //Set up the simulation context.
-    //The snippet is set up with
-    //a) z as the longitudinal axis
-    //b) x as the lateral axis
-    //c) y as the vertical axis.
-    //d) metres  as the lengthscale.
+    // Setting up simulation context for the vehicle.
     gVehicleSimulationContext.setToDefault();
-    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ;
+    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ; // seting what is the forward axis of the vehicle
     gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
     gVehicleSimulationContext.frame.vrtAxis = PxVehicleAxes::ePosY;
-    gVehicleSimulationContext.scale.scale = 1.0f;
+    gVehicleSimulationContext.scale.scale = 1.0f; // it tells that we use meters, if we use centimeters set scale to 0.01f
     gVehicleSimulationContext.gravity = gGravity;
     gVehicleSimulationContext.physxScene = gScene;
     gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
