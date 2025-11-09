@@ -19,26 +19,7 @@ Scene::Scene()
     gameObjects.push_back(floorCube);
 }
 
-void Scene::SetActiveCamera(int index)
-{
-	for (Camera* camera : cameras) {
-		camera->SetActive(false);
-	}
-	cameras[index]->SetActive(true);
-	active_camera = cameras[index];
-}
-Camera& Scene::GetActiveCamera()
-{
-	for (Camera* camera : cameras) {
-		if (camera->IsActive())
-		{
-			active_camera = camera;
-			break;
-		}
-	}
-    Rendering::camera = active_camera;
-	return *active_camera;
-}
+
 void Scene::UpdateCar(float deltaTime)
 {
 	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
@@ -53,11 +34,7 @@ void Scene::UpdateCar(float deltaTime)
 
 void Scene::UpdateCamera()
 {
-    Camera& camera = GetActiveCamera();
-	if(camera.followingCamera)
-        camera.targetPos = car->GetBody()->position;
-		//camera.Position = car->GetBody()->position + glm::vec3(0.0f, 5.0f, 15.0f);
-		//camera.Front = glm::normalize(car->GetBody()->position - camera.Position);
+    
 }
 
 void Scene::Update(float deltaTime)
@@ -124,7 +101,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.use();
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
+	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setVec3("objectColor", model.color);
 	shader.setBool("fogEnabled", fog);
 
@@ -159,20 +136,6 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	model.Draw(shader);
 }
 
-glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
-{
-	glm::vec3 axis = cross(v1, v2);
-	const float cosA = dot(v1, v2);
-	const float k = 1.0f / (1.0f + cosA);
-
-	glm::mat4 result(
-		(axis.x * axis.x * k) + cosA, (axis.y * axis.x * k) - axis.z, (axis.z * axis.x * k) + axis.y, 0.0f,
-		(axis.x * axis.y * k) + axis.z, (axis.y * axis.y * k) + cosA, (axis.z * axis.y * k) - axis.x, 0.0f,
-		(axis.x * axis.z * k) - axis.y, (axis.y * axis.z * k) + axis.x, (axis.z * axis.z * k) + cosA, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-	return result;
-}
 
 void Scene::CreateModels()
 {
@@ -223,18 +186,6 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(user_flashlight);
 	flashlight = (LightSpot*)user_flashlight;
-}
-
-void Scene::CreateCameras()
-{
-	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
-	Camera* camera2 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
-	Camera* camera3 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
-	camera2->followingCamera = true;
-
-	AddCamera(camera1);
-	AddCamera(camera2);
-	AddCamera(camera3);
 }
 
 void Scene::UpdateFlashLight()

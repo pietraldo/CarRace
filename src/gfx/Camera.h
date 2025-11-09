@@ -14,6 +14,11 @@ enum Camera_Movement {
     RIGHT
 };
 
+enum CameraType {
+    FREE_CAMERA,
+    FOLLOWING_CAMERA
+};
+
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
@@ -40,13 +45,12 @@ public:
     float MouseSensitivity;
     float Zoom;
 
-    bool isActive = false;
-    glm::vec3 targetPos;
-
-    bool followingCamera = false;
+    const CameraType cameraType = CameraType::FREE_CAMERA;
 
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(CameraType cameraType, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)
+        , float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f))
+        , MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), cameraType(cameraType)
     {
         Position = position;
         WorldUp = up;
@@ -55,7 +59,8 @@ public:
         updateCameraVectors();
     }
     // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(CameraType cameraType, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), cameraType(cameraType)
     {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
@@ -64,21 +69,14 @@ public:
         updateCameraVectors();
     }
 
-	void SetActive(bool active) {
-		isActive = active;
-	}
-
-    bool IsActive() {
-        return isActive;
-    }
-
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix()
     {
-        if (followingCamera)
+        //CameraTODO: following camera
+        /*if (followingCamera)
         {
 			return glm::lookAt(Position, targetPos, Up);
-		}
+		}*/
         return glm::lookAt(Position, Position + Front, Up);
     }
 

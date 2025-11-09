@@ -23,6 +23,7 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Constants.h"
+#include "../gfx/CameraManager.h"
 
 #include "./gfx/Rendering.h"
 #include "./ui/Controller.h"
@@ -56,8 +57,7 @@ int main()
 	srand(19);
 
 	scene->CreateLights();
-	scene->CreateCameras();
-	scene->SetActiveCamera(0);
+	CameraManager::GetInstance()->CreateCameras();
 	LightBuffer lightBuffer = scene->LoadLights();
 
 	Controller::getInstance()->connect();
@@ -68,9 +68,6 @@ int main()
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
-	
-	Rendering::camera = &(scene->GetActiveCamera());
-
 
 	while (!glfwWindowShouldClose(Rendering::window))
 	{
@@ -106,6 +103,8 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+
+	Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
 	if (Controller::isConnected())
 	{
 		Controller* contr = Controller::getInstance();
@@ -114,9 +113,11 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
         std::vector<float> leftStick = contr->getLeftStick();
         std::vector<float> rightStick = contr->getRightStick();
 
-        Camera& cam = scene->GetActiveCamera();
-		cam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
-		cam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
+		if (activeCam.cameraType == CameraType::FREE_CAMERA)
+		{
+			activeCam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
+			activeCam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
+		}
 
 		if (contr->isButtonJustPressed(Controller::Button::ARROW_UP))
 		{
@@ -129,15 +130,19 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
             cout << "Button just pressed: ARROW_DOWN Toggle Box Colliders display" << endl;
 		}
 	}
+
+    if (activeCam.cameraType == CameraType::FREE_CAMERA)
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(FORWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(BACKWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(LEFT, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(RIGHT, deltaTime);
+    }
 	
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
     {

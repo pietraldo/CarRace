@@ -15,6 +15,7 @@
 #include "./Objects/CubeObejct.h"
 #include "./physics/physics.h"
 #include "./physics/vehicle.h"
+#include "./gfx/CameraManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>  
@@ -36,27 +37,15 @@ private:
 	vector<Camera*> cameras;
 	vector<Model*> modelsTex;
 	vector<Model*> modelsCol;
-	Camera* active_camera;
 
 public:
 	bool dayNight = false;
-	bool Gouraud = false;
 	bool fog = false;
 	bool userFlashlight = false;
 
 	LightSpot* flashlight;
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
-
-	float rotationX = 0.0f;
-	float rotationY = 0.0f;
-	bool alignLightWithJet = false;
-	bool turnOnJetFlashlight = true;
-	bool rotateCubes = false;
-	bool moveCubes = false;
-	bool sphereGo = false;
-	
-	glm::mat4 rotateAlign(glm::vec3 v1, glm::vec3 v2);
 
 	Scene();
 	void Update(float deltaTime);
@@ -67,11 +56,6 @@ public:
 	void AddLight(Light* light) { lights.push_back(light); }
 	void UpdateFlashLight();
 	void CreateLights();
-
-	void CreateCameras();
-	void AddCamera(Camera* camera) { cameras.push_back(camera); }
-	void SetActiveCamera(int index);
-	Camera& GetActiveCamera();
 
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);

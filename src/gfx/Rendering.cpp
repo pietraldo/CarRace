@@ -6,8 +6,6 @@ Shader* Rendering::lightShader = nullptr;
 
 bool Rendering::showBoxColliders = false;
 
-
-Camera* Rendering::camera = nullptr;
 Scene* Rendering::scene = nullptr;
 
 unsigned int Rendering::VBO_sphere = 0;
@@ -163,14 +161,14 @@ void Rendering::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    camera->ProcessMouseMovement(xoffset, yoffset);
+    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera->ProcessMouseScroll(static_cast<float>(yoffset));
+    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 void Rendering::RenderImGui()
@@ -181,14 +179,22 @@ void Rendering::RenderImGui()
 
     {
         ImGui::Begin("Camera settings");
-        vector<Camera*> cameras = (*scene).GetCameras();
-        for (int i = 0; i < cameras.size(); i++)
+        CameraManager* cameraManager = CameraManager::GetInstance();
+        int camera_numer = cameraManager->GetNumberOfCameras();
+        int activeIndex = cameraManager->GetActiveCameraIndex();
+        for (int i = 0; i < camera_numer; i++)
         {
-            ImGui::Checkbox(("Camera " + to_string(i)).c_str(), &cameras[i]->isActive);
+            std::string label = "Camera " + std::to_string(i);
+            if (ImGui::RadioButton(label.c_str(), activeIndex == i))
+            {
+                cameraManager->SetActiveCamera(i);
+            }
         }
-        ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*scene).GetActiveCamera().Position.x, (*scene).GetActiveCamera().Position.y, (*scene).GetActiveCamera().Position.z);
-        ImGui::SliderFloat("Speed", &(*scene).GetActiveCamera().MovementSpeed, 1, 100);
-        ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", (*scene).GetActiveCamera().Front.x, (*scene).GetActiveCamera().Front.y, (*scene).GetActiveCamera().Front.z);
+        Camera* activeCam = &cameraManager->GetActiveCamera();
+        
+        ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
+        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 100);
+        ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
         ImGui::End();
     }
     {
@@ -232,8 +238,8 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
 
     // updating light buffer
     LightBuffer lightBuffer = (*scene).LoadLights();
-    lightBuffer.spotLights[0].position = glm::vec3((*scene).GetActiveCamera().Position);
-    lightBuffer.spotLights[0].direction = glm::vec3((*scene).GetActiveCamera().Front);
+    lightBuffer.spotLights[0].position = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Position);
+    lightBuffer.spotLights[0].direction = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Front);
 
     glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
