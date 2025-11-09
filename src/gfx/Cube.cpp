@@ -1,7 +1,7 @@
 #include "Cube.h"
 #include "Shader.h"
 #include "Rendering.h"
-#include "Camera.h"
+#include "./camera/Camera.h"
 
 float Cube::vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../gfx/Camera.h"
+#include "../gfx/camera/Camera.h"
 #include "../gfx/lights/Light.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightDirectional.h"
@@ -15,7 +15,7 @@
 #include "./Objects/CubeObejct.h"
 #include "./physics/physics.h"
 #include "./physics/vehicle.h"
-#include "./gfx/CameraManager.h"
+#include "./gfx/camera/CameraManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>  

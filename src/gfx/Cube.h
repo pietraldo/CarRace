@@ -6,7 +6,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>  
-#include "./gfx/CameraManager.h"
+#include "./gfx/camera/CameraManager.h"
 
 class Cube
 {

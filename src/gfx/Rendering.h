@@ -12,13 +12,13 @@
 
 
 #include "Shader.h"
-#include "Camera.h"
+#include "./camera/Camera.h"
 #include "Constants.h"
 #include "Cube.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"
 #include "../game/Scene.h"
-#include "./CameraManager.h"
+#include "./camera/CameraManager.h"
 
 class Scene;
 

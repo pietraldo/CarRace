@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../gfx/Shader.h"
-#include "../gfx/Camera.h"
+#include "../gfx/camera/Camera.h"
 #include "../gfx/Model.h"
 #include "../game/Scene.h"
 #include "../gfx/lights/Light.h"
@@ -23,7 +23,7 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Constants.h"
-#include "../gfx/CameraManager.h"
+#include "../gfx/camera/CameraManager.h"
 
 #include "./gfx/Rendering.h"
 #include "./ui/Controller.h"
