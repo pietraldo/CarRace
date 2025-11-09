@@ -3,13 +3,14 @@
 #include <iostream>
 #include <vector>
 #include "./Camera.h"
-
+#include "./FreeCamera.h"
+#include "./FollowingCamera.h"
 
 
 class CameraManager {
 private:
     static CameraManager* instance; 
-    std::vector<Camera*> cameras; // TODO: change to unique ptr
+    std::vector<std::unique_ptr<Camera>> cameras; 
     int active_camera_index = 0;
 
     CameraManager() {}
@@ -22,8 +23,8 @@ public:
         return instance;
     }
 
-    void AddCamera(Camera* camera) {
-        cameras.push_back(camera);
+    void AddCamera(std::unique_ptr<Camera> camera) {
+        cameras.push_back(std::move(camera));
     }
 
     int GetNumberOfCameras() {

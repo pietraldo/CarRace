@@ -30,6 +30,39 @@ const float ZOOM = 45.0f;
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
+
+protected:
+    // constructor with vectors
+    Camera(CameraType cameraType, glm::vec3 position, glm::vec3 up,
+        float yaw, float pitch)
+        : Position(position),
+        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        WorldUp(up),
+        Yaw(yaw),
+        Pitch(pitch),
+        MovementSpeed(SPEED),
+        MouseSensitivity(SENSITIVITY),
+        Zoom(ZOOM),
+        cameraType(cameraType)
+    {
+        updateCameraVectors();
+    }
+
+    // constructor with scalar values
+    Camera(CameraType cameraType, float posX, float posY, float posZ,
+        float upX, float upY, float upZ, float yaw, float pitch)
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        MovementSpeed(SPEED),
+        MouseSensitivity(SENSITIVITY),
+        Zoom(ZOOM),
+        cameraType(cameraType),
+        Position(glm::vec3(posX, posY, posZ)),
+        WorldUp(glm::vec3(upX, upY, upZ)),
+        Yaw(yaw),
+        Pitch(pitch)
+    {
+        updateCameraVectors();
+    }
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -37,46 +70,20 @@ public:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+
     // euler Angles
     float Yaw;
     float Pitch;
+
     // camera options
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
 
-    const CameraType cameraType = CameraType::FREE_CAMERA;
+    const CameraType cameraType;
 
-    // constructor with vectors
-    Camera(CameraType cameraType, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)
-        , float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f))
-        , MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), cameraType(cameraType)
+    virtual glm::mat4 GetViewMatrix()
     {
-        Position = position;
-        WorldUp = up;
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
-    // constructor with scalar values
-    Camera(CameraType cameraType, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), cameraType(cameraType)
-    {
-        Position = glm::vec3(posX, posY, posZ);
-        WorldUp = glm::vec3(upX, upY, upZ);
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
-
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix()
-    {
-        //CameraTODO: following camera
-        /*if (followingCamera)
-        {
-			return glm::lookAt(Position, targetPos, Up);
-		}*/
         return glm::lookAt(Position, Position + Front, Up);
     }
 

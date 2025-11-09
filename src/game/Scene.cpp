@@ -34,7 +34,12 @@ void Scene::UpdateCar(float deltaTime)
 
 void Scene::UpdateCamera()
 {
-    
+    Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
+    if (activeCamera.cameraType == CameraType::FOLLOWING_CAMERA)
+    {
+        FollowingCamera& followingCamera = static_cast<FollowingCamera&>(activeCamera);
+        followingCamera.SetTarget(&car->GetBody()->position);
+    }
 }
 
 void Scene::Update(float deltaTime)
