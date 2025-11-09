@@ -1,7 +1,7 @@
 #include "Cube.h"
 #include "Shader.h"
 #include "Rendering.h"
-#include "Camera.h"
+#include "./camera/Camera.h"
 
 float Cube::vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -67,7 +67,7 @@ void Cube::Draw(glm::mat4 model, glm::vec3 color)
 {
 	Shader& shader = *Rendering::colorShader;
 	unsigned int cubeVAO = Rendering::CubeVAO;
-	Camera& camera = *Rendering::camera;
+    Camera& camera = CameraManager::GetInstance()->GetActiveCamera();
 
 	shader.use();
 

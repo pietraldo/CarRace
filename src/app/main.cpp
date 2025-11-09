@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../gfx/Shader.h"
-#include "../gfx/Camera.h"
+#include "../gfx/camera/Camera.h"
 #include "../gfx/Model.h"
 #include "../game/Scene.h"
 #include "../gfx/lights/Light.h"
@@ -23,10 +23,12 @@
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
 #include "../gfx/Constants.h"
+#include "../gfx/camera/CameraManager.h"
 
 #include "./gfx/Rendering.h"
 #include "./ui/Controller.h"
 #include "./physics/physics.h"
+#include "./game/Objects/car/Car.h"
 
 // include physx
 #include <PxPhysicsAPI.h>
@@ -37,7 +39,7 @@
 
 using namespace std;
 
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, CarControlInput& carControll);
 
 // timing
 float deltaTime = 0.0f;
@@ -49,15 +51,13 @@ bool startSimulation = false;
 int main()
 {
     Physics::getInstance()->initialize();
-    Physics::getInstance()->createScene();
     
 	scene = new Scene();
 	Rendering::scene = scene;
 	srand(19);
 
 	scene->CreateLights();
-	scene->CreateCameras();
-	scene->SetActiveCamera(0);
+	CameraManager::GetInstance()->CreateCameras();
 	LightBuffer lightBuffer = scene->LoadLights();
 
 	Controller::getInstance()->connect();
@@ -68,10 +68,6 @@ int main()
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
-	Physics::getInstance()->initMaterialFrictionTable();
-	Physics::getInstance()->createVehicle();
-	
-	Rendering::camera = &(scene->GetActiveCamera());
 
 
 	while (!glfwWindowShouldClose(Rendering::window))
@@ -81,13 +77,14 @@ int main()
         //deltaTime = 0.016f; // fixed timestep
 		lastFrame = currentFrame;
 
-		processInput(Rendering::window);
+        CarControlInput carControl;
+		processInput(Rendering::window, carControl);
 		scene->UpdateFlashLight();
 		scene->Update(deltaTime);
 		
 		if (startSimulation)
 		{
-			Physics::getInstance()->update(deltaTime);
+			Physics::getInstance()->update(deltaTime, &carControl);
 		}
 		
         Rendering::RenderFrame(scene->GetGameObjects());
@@ -102,11 +99,13 @@ int main()
 
 
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, CarControlInput& carControl)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+
+	Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
 	if (Controller::isConnected())
 	{
 		Controller* contr = Controller::getInstance();
@@ -115,9 +114,11 @@ void processInput(GLFWwindow* window)
         std::vector<float> leftStick = contr->getLeftStick();
         std::vector<float> rightStick = contr->getRightStick();
 
-        Camera& cam = scene->GetActiveCamera();
-		cam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
-		cam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
+		if (activeCam.cameraType == CameraType::FREE_CAMERA)
+		{
+			activeCam.ProcessControllerPosition(leftStick[0], leftStick[1], deltaTime);
+			activeCam.ProcessControllerRotation(rightStick[0], rightStick[1], deltaTime);
+		}
 
 		if (contr->isButtonJustPressed(Controller::Button::ARROW_UP))
 		{
@@ -130,36 +131,47 @@ void processInput(GLFWwindow* window)
             cout << "Button just pressed: ARROW_DOWN Toggle Box Colliders display" << endl;
 		}
 	}
+
+    if (activeCam.cameraType == CameraType::FREE_CAMERA)
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(FORWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(BACKWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(LEFT, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			activeCam.ProcessKeyboard(RIGHT, deltaTime);
+    }
 	
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(FORWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(BACKWARD, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(LEFT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		scene->GetActiveCamera().ProcessKeyboard(RIGHT, deltaTime);
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
     {
         startSimulation = true;
     }
+    carControl.brake = 0;
+    carControl.throttle = 0;
+    carControl.steer = 0;
 	
 	float steer = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		steer = +45.0f;   // right
+		carControl.steer = -1;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		steer = -45.0f;   // left
+        carControl.steer = 1;
 	}
 	scene->SetCarSteer(steer);
 
 	const float accel = 8.0f; 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		scene->AddCarSpeed(+accel * deltaTime);
+        carControl.throttle = 1;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		scene->AddCarSpeed(-accel * deltaTime);
+        carControl.brake = 1;
 	}
 	else {
 		float v = scene->GetCarSpeed();
@@ -168,4 +180,5 @@ void processInput(GLFWwindow* window)
 			scene->AddCarSpeed((v > 0 ? -drag : +drag) * deltaTime);
 		}
 	}
+	carControl.gear = 3;
 }

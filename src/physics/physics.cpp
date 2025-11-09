@@ -1,4 +1,5 @@
 #include "physics.h"
+#include "vehicle.h"
 
 Physics* Physics::physicsObj = nullptr;
 physx::PxDefaultAllocator     Physics::gAllocator;
@@ -32,6 +33,14 @@ int Physics::initialize() {
     }
 
     gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+
+    createScene();
+    initMaterialFrictionTable();
+    InitVehicleSystem();
+
+    createVehicle(PxVec3(0, 0, 0), "vehicle1");
+
+
     return 0;
 }
 
@@ -51,14 +60,18 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
     // --- 4. A dynamic cube ---
-    physx::PxTransform transform(physx::PxVec3(1, 1, 10));  // start 10m up
+
+    physx::PxTransform transform(physx::PxVec3(1, 12, 10));  // start 10m up
+
     physx::PxBoxGeometry geometry(physx::PxVec3(0.5f, 0.5f, 0.5f));  // 1x1x1
     physx::PxRigidDynamic* cube = physx::PxCreateDynamic(
         *gPhysics, transform, geometry, *material, 1.0f);
     gScene->addActor(*cube);
     gameObjects[0]->actor = cube;
 
-    physx::PxTransform transform2(physx::PxVec3(4, 1, 10));  // start 10m up
+
+    physx::PxTransform transform2(physx::PxVec3(0, 10, 10));  // start 10m up
+
     physx::PxBoxGeometry geometry2(physx::PxVec3(0.7f, 0.5f, 0.5f));  // 1x1x1
     physx::PxRigidDynamic* cube2 = physx::PxCreateDynamic(
         *gPhysics, transform2, geometry2, *material, 1.0f);
@@ -71,47 +84,20 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gameObjects[2]->actor = boxCollider;
 }
 
-void Physics::update(float deltaTime)
+void Physics::update(float deltaTime, CarControlInput* carControll)
 {
-    if (gNbCommands == gCommandProgress)
-    {
-        std::cout << "Finished all commands." << std::endl;
-        return;
+
+    for (size_t i = 0; i < vehicles.size(); i++) {
+        vehicles[i]->Update(deltaTime, carControll[i]);
     }
-        
-
-  
-
-    //Apply the brake, throttle and steer to the command state of the vehicle.
-    const Command& command = gCommands[gCommandProgress];
-    gVehicle.mCommandState.brakes[0] = command.brake;
-    gVehicle.mCommandState.nbBrakes = 1;
-    gVehicle.mCommandState.throttle = command.throttle;
-    gVehicle.mCommandState.steer = command.steer;
-    gVehicle.mTransmissionCommandState.targetGear = command.gear;
-
+    // Update vehicle
+   
     //Forward integrate the vehicle by a single timestep.
     //Apply substepping at low forward speed to improve simulation fidelity.
-    const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
-    const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
-    const PxReal forwardSpeed = linVel.dot(forwardDir);
-    const PxU8 nbSubsteps = (forwardSpeed < 5.0f ? 3 : 1);
-    gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
-    gVehicle.step(deltaTime, gVehicleSimulationContext);
+  
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);
-
-    //Increment the time spent on the current command.
-    //Move to the next command in the list if enough time has lapsed.
-    gCommandTime += deltaTime;
-    std::cout << gCommandTime << std::endl;
-    if (gCommandTime > gCommands[gCommandProgress].duration)
-    {
-        gCommandProgress++;
-        gCommandTime = 0.0f;
-        std::cout << "Moving to command " << gCommandProgress << std::endl;
-    }
 }
 
 void Physics::cleanup()
@@ -121,48 +107,55 @@ void Physics::cleanup()
     gFoundation->release();
 }
 
-bool Physics::createVehicle()
+
+
+void Physics::initMaterialFrictionTable()
 {
-    vehicle2::PxInitVehicleExtension(*gFoundation);
+    //Each physx material can be mapped to a tire friction value on a per tire basis.
+    //If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
+    //In this snippet there is only a single material so there can only be a single mapping between material and friction.
+    //In this snippet the same mapping is used by all tires.
+    gPhysXMaterialFrictions[0].friction = 1.0f;
+    gPhysXMaterialFrictions[0].material = gMaterial;
+    gPhysXDefaultMaterialFriction = 1.0f;
+    gNbPhysXMaterialFrictions = 1;
+}
 
-    //Load the params from json or set directly.
-    readBaseParamsFromJsonFile(gVehicleDataPath, "Base.json", gVehicle.mBaseParams);
-    setPhysXIntegrationParams(gVehicle.mBaseParams.axleDescription,
-        gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
-        gVehicle.mPhysXParams);
-    readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, "EngineDrive.json",
-        gVehicle.mEngineDriveParams);
+void Physics::InitVehicleSystem()
+{
+    vehicle2::PxInitVehicleExtension(*gFoundation); // this tells that we use vehicle2 
 
-    //Set the states to default.
-    if (!gVehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE))
-    {
-        return false;
-    }
-
-    //Apply a start pose to the physx actor and add it to the physx scene.
-    PxTransform pose(PxVec3(0.000000000f, -0.0500000119f, -1.59399998f), PxQuat(PxIdentity));
-    gVehicle.setUpActor(*gScene, pose, gVehicleName);
-
-    //Set the vehicle in 1st gear.
-    gVehicle.mEngineDriveState.gearboxState.currentGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
-    gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
-
-    //Set the vehicle to use the automatic gearbox.
-    gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
-
-    //Set up the simulation context.
-    //The snippet is set up with
-    //a) z as the longitudinal axis
-    //b) x as the lateral axis
-    //c) y as the vertical axis.
-    //d) metres  as the lengthscale.
+    // Setting up simulation context for the vehicle.
     gVehicleSimulationContext.setToDefault();
-    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ;
+    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ; // seting what is the forward axis of the vehicle
     gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
     gVehicleSimulationContext.frame.vrtAxis = PxVehicleAxes::ePosY;
-    gVehicleSimulationContext.scale.scale = 1.0f;
+    gVehicleSimulationContext.scale.scale = 1.0f; // it tells that we use meters, if we use centimeters set scale to 0.01f
     gVehicleSimulationContext.gravity = gGravity;
     gVehicleSimulationContext.physxScene = gScene;
     gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
-    return true;
+}
+
+RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehicleName)
+{
+    RaceCar* vehicle = new RaceCar(vehicleName.c_str(), "Base.json", "EngineDrive.json", &gVehicleSimulationContext);
+    vehicles.push_back(vehicle);
+
+    setPhysXIntegrationParams(vehicle->gVehicle.mBaseParams.axleDescription,
+        gPhysXMaterialFrictions, gNbPhysXMaterialFrictions, gPhysXDefaultMaterialFriction,
+        vehicle->gVehicle.mPhysXParams);
+
+
+    //Set the states to default.
+    if (!vehicle->gVehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE))
+    {
+        return nullptr;
+    }
+
+    //Apply a start pose to the physx actor and add it to the physx scene.
+    PxTransform pose(position, PxQuat(PxIdentity));
+    vehicle->gVehicle.setUpActor(*gScene, pose, vehicle->gVehicleName);
+
+    return vehicle;
+
 }
