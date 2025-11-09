@@ -57,8 +57,6 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         lastTime = 0;
     }
     
-    
-
     body_->position = position;
     body_->rotation = rotation;
     float delta = steerTarget_ - steerCurrent_;
@@ -72,17 +70,19 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     }
 
     float spinDelta = glm::degrees((speed_ / wheelRadius_) * dt);
+    glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
 
     for (int i = 0; i < 4; ++i)
     {
         auto& w = wheels_[i];
+        auto& wheelModel = w->GetModel();
 
-        if (w->GetModel() && body_) {
-            w->GetModel()->position = body_->position + wheelOffsets_[i];
+        if (wheelModel && body_) {
+            glm::vec3 worldOffset = carRot * wheelOffsets_[i];
+            wheelModel->position = body_->position + worldOffset;
         }
 
         auto pos = w->GetPos();
-
         if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
             w->SetSteer(-steerCurrent_);
         }
@@ -91,6 +91,11 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         }
 
         w->AddSpin(spinDelta);
+
+        if (wheelModel) {
+            physx::PxQuat localRot = wheelModel->rotation;     
+            wheelModel->rotation = rotation * localRot;       
+        }
     }
 }
 
