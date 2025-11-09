@@ -16,31 +16,22 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
         body_->scale = 0.01f;
     }
 
-    // Index: 0 FL, 1 RL, 2 FR, 3 RR
-    wheels_[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
-    wheels_[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
-    wheels_[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
-    wheels_[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
+    wheels_[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
+    wheels_[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
+    wheels_[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
+    wheels_[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
 
-    // circle offsets (FL, RL, FR, RR)
-    wheelOffsets_[0] = glm::vec3(-1.6f, -0.6f, 2.0f); // FL
-    wheelOffsets_[1] = glm::vec3(1.6f, -0.6f, 2.0f); // RL
-    wheelOffsets_[2] = glm::vec3(-1.6f, 0.0f, -2.0f); // FR
-    wheelOffsets_[3] = glm::vec3(1.6f, 0.0f, -2.0f); // RR
+    wheelOffsets_[0] = glm::vec3(-0.92f, 0.3f, 1.35f); // RL
+    wheelOffsets_[1] = glm::vec3(0.7f, 0.3f, 1.35f); // RR
+    wheelOffsets_[2] = glm::vec3(-0.92f, 0.3f, -1.35f); // FL
+    wheelOffsets_[3] = glm::vec3(0.7f, 0.3f, -1.35f); // FR
 
     for (int i = 0; i < 4; ++i) {
         const auto& model = wheels_[i]->GetModel();
         if (model) {
             model->scale = 1.3f;
-
-            if (i == 2 || i == 3) {
-                model->rotation = physx::PxQuat(3.14159265f, physx::PxVec3(1.0f, 0.0f, 0.0f)) * model->rotation;
-            }
         }
     }
-
-    wheels_[2]->currentSpinDeg = 180.0f;
-    wheels_[3]->currentSpinDeg = 180.0f;
 }
 
 void Car::SetSteer(float deg)
@@ -55,7 +46,6 @@ void Car::SetSpeed(float v)
 
 void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 {
-
     lastTime += dt;
     updateCounter++;
     if (updateCounter > 50)
@@ -65,11 +55,7 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         updateCounter = 0;
         lastTime = 0;
     }
-    
-    
 
-    body_->position = position;
-    body_->rotation = rotation;
     float delta = steerTarget_ - steerCurrent_;
     float step = steerSpeed_ * dt;
 
@@ -82,25 +68,40 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 
     float spinDelta = glm::degrees((speed_ / wheelRadius_) * dt);
 
+    glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
+
+    glm::quat flip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+    carRot = carRot * flip;              
+
+    physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
+
+    body_->position = position;
+    body_->rotation = carRotPx;
+
     for (int i = 0; i < 4; ++i)
     {
         auto& w = wheels_[i];
+        auto& wheelModel = w->GetModel();
 
-        if (w->GetModel() && body_) {
-            w->GetModel()->position = body_->position + wheelOffsets_[i];
+        if (wheelModel && body_) {
+            glm::vec3 worldOffset = carRot * wheelOffsets_[i];
+            wheelModel->position = body_->position + worldOffset;
         }
 
-        if (i == 0) {               // FL
+        auto pos = w->GetPos();
+        if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
             w->SetSteer(-steerCurrent_);
         }
-        else if (i == 2) {          // FR
-            w->SetSteer(steerCurrent_);
-        }
-        else {                      // RL, RR
+        else {
             w->SetSteer(0.0f);
         }
 
         w->AddSpin(spinDelta);
+
+        if (wheelModel) {
+            physx::PxQuat localRot = wheelModel->rotation;
+            wheelModel->rotation = carRotPx * localRot;
+        }
     }
 }
 
