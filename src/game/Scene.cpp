@@ -36,6 +36,7 @@ Camera& Scene::GetActiveCamera()
 			break;
 		}
 	}
+    Rendering::camera = active_camera;
 	return *active_camera;
 }
 void Scene::UpdateCar(float deltaTime)
@@ -49,8 +50,19 @@ void Scene::UpdateCar(float deltaTime)
 		if (car) car->Update(deltaTime, position, rotation);
     }
 }
+
+void Scene::UpdateCamera()
+{
+    Camera& camera = GetActiveCamera();
+	if(camera.followingCamera)
+        camera.targetPos = car->GetBody()->position;
+		//camera.Position = car->GetBody()->position + glm::vec3(0.0f, 5.0f, 15.0f);
+		//camera.Front = glm::normalize(car->GetBody()->position - camera.Position);
+}
+
 void Scene::Update(float deltaTime)
 {
+	UpdateCamera();
 	UpdateFlashLight();
 	UpdateCar(deltaTime);
 
@@ -218,7 +230,7 @@ void Scene::CreateCameras()
 	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
 	Camera* camera2 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
 	Camera* camera3 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
-	camera3->followingCamera = true;
+	camera2->followingCamera = true;
 
 	AddCamera(camera1);
 	AddCamera(camera2);

@@ -194,8 +194,6 @@ void Rendering::RenderImGui()
     {
         ImGui::Begin("Light settings");
         ImGui::Checkbox("Day/Night", &(*scene).dayNight);
-        ImGui::Checkbox("Gouraud", &(*scene).Gouraud);
-        ImGui::Checkbox("Fog", &(*scene).fog);
         ImGui::End();
     }
     {
@@ -210,16 +208,6 @@ void Rendering::RenderImGui()
     {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h", scene->GetCar()->velocity);
-        ImGui::End();
-    }
-    {
-        ImGui::Begin("Cube0 force");
-
-        ImGui::End();
-    }
-    {
-        ImGui::Begin("Cube1 force");
-
         ImGui::End();
     }
     {
