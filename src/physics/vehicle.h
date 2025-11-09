@@ -44,6 +44,12 @@ public:
         return t.q;
     }
 
+    PxVec3 getVehicleFrontDirection()
+    {
+        PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
+        return PxVec3(v.x, v.y, v.z);
+    }
+
     void Update(float deltaTime, CarControlInput carControll);
 
     friend class Physics;

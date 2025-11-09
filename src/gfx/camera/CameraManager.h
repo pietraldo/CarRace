@@ -5,6 +5,7 @@
 #include "./Camera.h"
 #include "./FreeCamera.h"
 #include "./FollowingCamera.h"
+#include "./ObservingCamera.h"
 
 
 class CameraManager {

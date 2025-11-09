@@ -38,7 +38,16 @@ void Scene::UpdateCamera()
     if (activeCamera.cameraType == CameraType::FOLLOWING_CAMERA)
     {
         FollowingCamera& followingCamera = static_cast<FollowingCamera&>(activeCamera);
-        followingCamera.SetTarget(&car->GetBody()->position);
+		RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+		PxVec3 pos = vehicle->getVehicleFrontDirection();
+
+		glm::vec3 carDirection = glm::vec3(pos.x, pos.y, pos.z);
+		followingCamera.Update(car->GetBody()->position, carDirection);
+    }
+    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
+    {
+        ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
+        observingCamera.SetTarget(&car->GetBody()->position);
     }
 }
 

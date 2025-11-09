@@ -10,7 +10,9 @@
 class FollowingCamera : public Camera {
 
 private:
-    glm::vec3* targetPos = new glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    int distanceFromTarget = 10;
+    glm::vec3 directionFromTarget = glm::vec3(0.0f, 5.0f, distanceFromTarget);
 
 public:
     // constructor with vectors
@@ -31,8 +33,16 @@ public:
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() override
     {
-        return glm::lookAt(Position, *targetPos, Up);
+        return glm::lookAt(Position, targetPos, Up);
     }
 
-    void SetTarget(glm::vec3* newTarget) { targetPos = newTarget; }
+    void Update(glm::vec3 newTargetPos, glm::vec3 newDirectionFromTarget)
+    {
+        if (glm::length(newDirectionFromTarget) > 0.01f)
+        directionFromTarget = glm::normalize(newDirectionFromTarget);
+        targetPos = newTargetPos;
+
+        Position = targetPos - directionFromTarget * (float)distanceFromTarget+ glm::vec3(0,3,0);
+        Front = directionFromTarget*2.0f;
+    }
 };
