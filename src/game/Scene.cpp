@@ -40,10 +40,14 @@ Camera& Scene::GetActiveCamera()
 }
 void Scene::UpdateCar(float deltaTime)
 {
-	PxVec3 pos = Physics::getInstance()->getVehiclePosition();
-	PxQuat rotation = Physics::getInstance()->getVehicleRotation();
-	glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
-	if (car) car->Update(deltaTime, position, rotation);
+	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
+    for (RaceCar* v : vehicles)
+	{
+		PxVec3 pos = v->getVehiclePosition();
+		PxQuat rotation = v->getVehicleRotation();
+		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+		if (car) car->Update(deltaTime, position, rotation);
+    }
 }
 void Scene::Update(float deltaTime)
 {

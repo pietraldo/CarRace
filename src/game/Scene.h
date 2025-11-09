@@ -14,7 +14,7 @@
 #include "../gfx/Rendering.h"
 #include "./Objects/CubeObejct.h"
 #include "./physics/physics.h"
-
+#include "./physics/vehicle.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>  

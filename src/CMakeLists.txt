@@ -77,6 +77,7 @@ endfunction()
 # --- Copy all assets subdirectories (shaders, textures, models, etc.) ---
 copy_assets(shaders)
 copy_assets(models)
+copy_assets(vehicledata)
 
 # --- Copy DLLs ---
 add_custom_command(TARGET carrace POST_BUILD

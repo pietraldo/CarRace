@@ -50,7 +50,6 @@ bool startSimulation = false;
 int main()
 {
     Physics::getInstance()->initialize();
-    Physics::getInstance()->createScene();
     
 	scene = new Scene();
 	Rendering::scene = scene;
@@ -69,8 +68,6 @@ int main()
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
-	Physics::getInstance()->initMaterialFrictionTable();
-	Physics::getInstance()->createVehicle();
 	
 	Rendering::camera = &(scene->GetActiveCamera());
 
@@ -89,7 +86,7 @@ int main()
 		
 		if (startSimulation)
 		{
-			Physics::getInstance()->update(deltaTime, carControl);
+			Physics::getInstance()->update(deltaTime, &carControl);
 		}
 		
         Rendering::RenderFrame(scene->GetGameObjects());
