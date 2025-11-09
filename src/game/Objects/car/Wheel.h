@@ -11,6 +11,7 @@ public:
     Wheel(std::shared_ptr<Model> wheelModel, WheelPos p);
     
     const std::shared_ptr<Model>& GetModel() const noexcept { return model; }
+    WheelPos GetPos() const noexcept { return pos; }
 
     WheelPos pos;
     float currentSteerDeg;

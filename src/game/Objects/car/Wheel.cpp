@@ -31,18 +31,20 @@ void Wheel::AddSpin(float deltaDeg)
 
 void Wheel::UpdateWheelRotation()
 {
-    // Convert degrees to radians
     float steerRad = glm::radians(currentSteerDeg);
     float spinRad = glm::radians(currentSpinDeg);
 
-    // Create individual quaternions
-    glm::quat qSteer = glm::angleAxis(steerRad, glm::vec3(0, 1, 0)); // Y-axis
-    glm::quat qSpin = glm::angleAxis(spinRad, glm::vec3(0, 0, 1)); // Z-axis
+    glm::quat qSteer = glm::angleAxis(steerRad, glm::vec3(0, 1, 0));
+    glm::quat qSpin = glm::angleAxis(spinRad, glm::vec3(0, 0, 1));
 
-    // Combine them: first steer, then spin around wheel's own axis
-    // (order matters!)
-    glm::quat finalRot = qSteer * qSpin;
+    glm::quat qFlip(1.0f, 0.0f, 0.0f, 0.0f);
+    if (pos == WheelPos::FrontLeft || pos == WheelPos::RearLeft) {
+        qFlip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0)); 
+    }
+
+    glm::quat finalRot = qFlip * qSteer * qSpin;
     finalRot = glm::normalize(finalRot);
+
     physx::PxQuat pxQuat(finalRot.x, finalRot.y, finalRot.z, finalRot.w);
     model->rotation = pxQuat;
 }
