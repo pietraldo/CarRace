@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../gfx/Camera.h"
+#include "../gfx/camera/Camera.h"
 #include "../gfx/lights/Light.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightDirectional.h"
@@ -14,6 +14,9 @@
 #include "../gfx/Rendering.h"
 #include "./Objects/CubeObejct.h"
 #include "./physics/physics.h"
+
+#include "./physics/vehicle.h"
+#include "./gfx/camera/CameraManager.h"
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -36,11 +39,9 @@ private:
 	vector<Camera*> cameras;
 	vector<Model*> modelsTex;
 	vector<Model*> modelsCol;
-	Camera* active_camera;
 
 public:
 	bool dayNight = false;
-	bool Gouraud = false;
 	bool fog = false;
 	bool userFlashlight = false;
 
@@ -48,28 +49,15 @@ public:
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
 
-	float rotationX = 0.0f;
-	float rotationY = 0.0f;
-	bool alignLightWithJet = false;
-	bool turnOnJetFlashlight = true;
-	bool rotateCubes = false;
-	bool moveCubes = false;
-	bool sphereGo = false;
-	
-	glm::mat4 rotateAlign(glm::vec3 v1, glm::vec3 v2);
-
 	Scene();
 	void Update(float deltaTime);
+    void UpdateCar(float deltaTime);
+	void UpdateCamera();
 	void CreateModels();
 
 	void AddLight(Light* light) { lights.push_back(light); }
 	void UpdateFlashLight();
 	void CreateLights();
-
-	void CreateCameras();
-	void AddCamera(Camera* camera) { cameras.push_back(camera); }
-	void SetActiveCamera(int index);
-	Camera& GetActiveCamera();
 
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);

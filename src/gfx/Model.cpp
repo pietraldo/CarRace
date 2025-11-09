@@ -89,37 +89,6 @@ void Model::loadTexture(const std::string& path)
     stbi_image_free(data);
 }
 
-void Model::Update(float deltaTime)
-{
-    if (!move) return;
-
-    float radius = 100;
-    totalTime += deltaTime * 4;
-    position.x = sin(totalTime / 16) * radius * cos(totalTime / 32 + 1.2) + 5 * sin(totalTime / 48 + 3);
-    position.z = cos(totalTime / 6 + 2) * 50;
-    position.y = 10;
-
-    Point p1 = { lastlastPosition.x, lastlastPosition.z };
-    Point p2 = { lastPosition.x, lastPosition.z };
-    Point p = { position.x, position.z };
-    float side = sideOfLine(p1, p2, p);
-
-    velocity = position - lastPosition;
-    lastlastPosition = lastPosition;
-    lastPosition = position;
-}
-
-float Model::sideOfLine(Point p1, Point p2, Point p)
-{
-    float dx = p2.x - p1.x;
-    float dy = p2.y - p1.y;
-
-    float vx = p.x - p1.x;
-    float vy = p.y - p1.y;
-
-    return dx * vy - dy * vx;
-}
-
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; i++)

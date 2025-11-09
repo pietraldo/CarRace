@@ -19,39 +19,45 @@ Scene::Scene()
     gameObjects.push_back(floorCube);
 }
 
-void Scene::SetActiveCamera(int index)
+
+void Scene::UpdateCar(float deltaTime)
 {
-	for (Camera* camera : cameras) {
-		camera->SetActive(false);
-	}
-	cameras[index]->SetActive(true);
-	active_camera = cameras[index];
+	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
+    for (RaceCar* v : vehicles)
+	{
+		PxVec3 pos = v->getVehiclePosition();
+		PxQuat rotation = v->getVehicleRotation();
+		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+		if (car) car->Update(deltaTime, position, rotation);
+    }
 }
-Camera& Scene::GetActiveCamera()
+
+void Scene::UpdateCamera()
 {
-	for (Camera* camera : cameras) {
-		if (camera->IsActive())
-		{
-			active_camera = camera;
-			break;
-		}
-	}
-	return *active_camera;
+    Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
+    if (activeCamera.cameraType == CameraType::FOLLOWING_CAMERA)
+    {
+        FollowingCamera& followingCamera = static_cast<FollowingCamera&>(activeCamera);
+		RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+		PxVec3 pos = vehicle->getVehicleFrontDirection();
+
+		glm::vec3 carDirection = glm::vec3(pos.x, pos.y, pos.z);
+		followingCamera.Update(car->GetBody()->position, carDirection);
+    }
+    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
+    {
+        ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
+        observingCamera.SetTarget(&car->GetBody()->position);
+    }
 }
+
 void Scene::Update(float deltaTime)
 {
+	UpdateCamera();
 	UpdateFlashLight();
-	PxVec3 pos = Physics::getInstance()->getVehiclePosition();
-	PxQuat rotation = Physics::getInstance()->getVehicleRotation();
-    glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
-	if (car) car->Update(deltaTime, position, rotation);
 
-	for (Model* model : modelsTex) {
-		model->Update(deltaTime);
-	}
-	for (Model* model : modelsCol) {
-		model->Update(deltaTime);
-	}
+	UpdateCar(deltaTime);
+
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
@@ -68,10 +74,6 @@ void Scene::Update(float deltaTime)
 			light->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
 			light->specular = glm::vec3(0.6f, 0.6f, 0.6f);
 		}
-	}
-	for (Model* model : modelsTex)
-	{
-		model->Update(deltaTime);
 	}
 	
 	UpdateFlashLight();
@@ -115,7 +117,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.use();
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", active_camera->Position);
+	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setVec3("objectColor", model.color);
 	shader.setBool("fogEnabled", fog);
 
@@ -150,20 +152,6 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	model.Draw(shader);
 }
 
-glm::mat4 Scene::rotateAlign(glm::vec3 v1, glm::vec3 v2)
-{
-	glm::vec3 axis = cross(v1, v2);
-	const float cosA = dot(v1, v2);
-	const float k = 1.0f / (1.0f + cosA);
-
-	glm::mat4 result(
-		(axis.x * axis.x * k) + cosA, (axis.y * axis.x * k) - axis.z, (axis.z * axis.x * k) + axis.y, 0.0f,
-		(axis.x * axis.y * k) + axis.z, (axis.y * axis.y * k) + cosA, (axis.z * axis.y * k) - axis.x, 0.0f,
-		(axis.x * axis.z * k) - axis.y, (axis.y * axis.z * k) + axis.x, (axis.z * axis.z * k) + cosA, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	);
-	return result;
-}
 
 void Scene::CreateModels()
 {
@@ -214,18 +202,6 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(user_flashlight);
 	flashlight = (LightSpot*)user_flashlight;
-}
-
-void Scene::CreateCameras()
-{
-	Camera* camera1 = new Camera(glm::vec3(0.0f, 5.0f, 20.0f));
-	Camera* camera2 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
-	Camera* camera3 = new Camera(glm::vec3(0.0f, 0.0f, 30.0f));
-	camera3->followingCamera = true;
-
-	AddCamera(camera1);
-	AddCamera(camera2);
-	AddCamera(camera3);
 }
 
 void Scene::UpdateFlashLight()

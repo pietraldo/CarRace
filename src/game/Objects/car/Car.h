@@ -35,6 +35,10 @@ public:
 
     const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
 
+    float velocity = 0;
+    glm::vec3 lastPosition = glm::vec3(0.f);
+    float lastTime = 0;
+    int updateCounter = 0;
 private:
     std::shared_ptr<Model> body_;
     std::array<std::unique_ptr<Wheel>, 4> wheels_{};

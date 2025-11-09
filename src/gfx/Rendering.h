@@ -12,12 +12,13 @@
 
 
 #include "Shader.h"
-#include "Camera.h"
+#include "./camera/Camera.h"
 #include "Constants.h"
 #include "Cube.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"
 #include "../game/Scene.h"
+#include "./camera/CameraManager.h"
 
 class Scene;
 
@@ -32,7 +33,6 @@ public:
     static unsigned int lightVAO;
     static Shader* colorShader;
     static Shader* lightShader;
-    static Camera* camera;
 
     static bool showBoxColliders;
 
@@ -57,12 +57,12 @@ public:
 
     static glm::mat4 GetProjectionMatrix()
     {
-        return glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 400.0f);
+        return glm::perspective(glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 400.0f);
     }
 
     static glm::mat4 GetViewMatrix()
     {
-        return camera->GetViewMatrix();
+        return CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix();
     }
 
     static Scene* scene;
