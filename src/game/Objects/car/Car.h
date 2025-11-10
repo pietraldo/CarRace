@@ -47,7 +47,7 @@ private:
     std::array<glm::vec3, 4> wheelOffsets_{};
 
     std::shared_ptr<Model> steeringWheel_;
-    glm::vec3 steeringOffset_{ -0.5f, 0.8f, -0.25f };
+    glm::vec3 steeringOffset_;
 
     float steerTarget_ = 0.f;   // deg
     float steerCurrent_ = 0.f;   // deg

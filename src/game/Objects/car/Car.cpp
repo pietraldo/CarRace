@@ -13,6 +13,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
 
     if (steeringModel) {
         steeringWheel_ = std::move(steeringModel);
+        steeringOffset_ = glm::vec3(-0.5f, 0.8f, -0.25f);
 
     }
 
