@@ -192,7 +192,7 @@ void Scene::CreateLights()
 	AddLight(sun_light1);
 
 	Light* sun_light2 = new LightDirectional(glm::vec3(-4.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1, -1, 0),
-		glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.9f, 0.9f, 0.9f),
+		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(sun_light2);
 
