@@ -11,12 +11,13 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
 add_executable(carrace ${SRC_FILES})
 
 target_include_directories(carrace PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}    
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/externals   
   ${CMAKE_SOURCE_DIR}             
   ${CMAKE_SOURCE_DIR}/externals/hidapi/include
   ${CMAKE_SOURCE_DIR}/externals/physx/include
   ${CMAKE_SOURCE_DIR}/externals/rapidjson/include
+  ${CMAKE_SOURCE_DIR}/externals/stb_image
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/externals/physx/include)
@@ -51,7 +52,10 @@ target_link_libraries(carrace PRIVATE
 file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
   app/*.h core/*.h gfx/*.h game/*.h features/*.h physics/*.h ui/*.h
 )
-target_sources(carrace PRIVATE ${SRC_HEADERS})
+target_sources(carrace PRIVATE 
+	${SRC_HEADERS}  
+	${CMAKE_SOURCE_DIR}/externals/stb_image/stb_image.h
+)
 
 # dodawanie shaderow
 file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS
