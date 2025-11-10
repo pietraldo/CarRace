@@ -3,6 +3,7 @@
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
+Shader* Rendering::texturedShader = nullptr;
 
 bool Rendering::showBoxColliders = false;
 
@@ -29,6 +30,7 @@ int Rendering::Initialize()
 
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
+    texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
 
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
@@ -70,6 +72,9 @@ int Rendering::Initialize()
 
     unsigned int uniformBlockIndexLights = glGetUniformBlockIndex(colorShader->ID, "Lights");
     glUniformBlockBinding(colorShader->ID, uniformBlockIndexLights, 0);
+
+    unsigned int uniformBlockIndexLightsTex = glGetUniformBlockIndex(texturedShader->ID, "Lights");
+    glUniformBlockBinding(texturedShader->ID, uniformBlockIndexLightsTex, 0);
 
     LightBuffer lightBuffer = (*scene).LoadLights();
     //unsigned int uboLights;
@@ -116,10 +121,9 @@ GLFWwindow* Rendering::CreateWindow(int width, int height, const char* title)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    //stbi_set_flip_vertically_on_load(true);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_FRAMEBUFFER_SRGB);
+
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -236,6 +240,7 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
 
     // setting proper shader
     Shader& shaderColor = *Rendering::colorShader;
+    Shader& shaderTextured = *Rendering::texturedShader;
 
     // updating light buffer
     LightBuffer lightBuffer = (*scene).LoadLights();
@@ -251,11 +256,8 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
         gameObj->Draw();
     }
 
-    shaderColor.use();
-    shaderColor.setBool("fogEnabled", (*scene).fog);
-
     (*scene).DrawLights(*lightShader, lightVAO);
-    (*scene).DrawModels(shaderColor, shaderColor);
+    (*scene).DrawModels(shaderTextured, shaderColor);
 
     RenderImGui();
 

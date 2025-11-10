@@ -163,11 +163,14 @@ void Scene::CreateModels()
 
 	car = std::make_unique<Car>(bodyModel, wheelModel);
 
-	if (car->GetBody()) AddColorModel(car->GetBody().get());
+	if (car->GetBody())
+		AddTextureModel(car->GetBody().get());
+
 	for (auto& w : car->Wheels()) {
 		if (!w) continue;
 		const auto& sp = w->GetModel();
-		if (sp) AddColorModel(sp.get());
+		if (sp)
+			AddTextureModel(sp.get());
 	}
 }
 

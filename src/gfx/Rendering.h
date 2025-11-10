@@ -33,6 +33,7 @@ public:
     static unsigned int lightVAO;
     static Shader* colorShader;
     static Shader* lightShader;
+    static Shader* texturedShader;
 
     static bool showBoxColliders;
 
