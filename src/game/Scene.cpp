@@ -157,11 +157,13 @@ void Scene::CreateModels()
 {
 	const std::string carModelPath = "../assets/models/car/car.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
+	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
+	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
 
-	car = std::make_unique<Car>(bodyModel, wheelModel);
+	car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
 	if (car->GetBody())
 		AddTextureModel(car->GetBody().get());
@@ -171,6 +173,10 @@ void Scene::CreateModels()
 		const auto& sp = w->GetModel();
 		if (sp)
 			AddTextureModel(sp.get());
+	}
+
+	if (car->GetSteeringWheel()) {
+		AddTextureModel(car->GetSteeringWheel().get());
 	}
 }
 

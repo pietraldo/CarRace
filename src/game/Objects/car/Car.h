@@ -7,7 +7,7 @@
 
 class Car {
 public:
-    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel);
+    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel);
 
     void SetSteer(float deg);  
     void SetSpeed(float v);     
@@ -24,14 +24,15 @@ public:
     float GetMaxSpeed()     const { return maxSpeed_; }
 
     const std::shared_ptr<Model>& GetBody() const noexcept { return body_; }
-
     const std::array<glm::vec3, 4>& GetWheelOffsets() const noexcept { return wheelOffsets_; }
+    const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel_; }
 
     void SetMaxSteer(float deg);        
     void SetSteerSpeed(float degPerSec);
     void SetWheelRadius(float r);       
     void SetMaxSpeed(float v);          
     void SetWheelOffsets(const std::array<glm::vec3, 4>& offsets);
+    void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset_ = offset; }
 
     const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
 
@@ -44,6 +45,9 @@ private:
     std::array<std::unique_ptr<Wheel>, 4> wheels_{};
 
     std::array<glm::vec3, 4> wheelOffsets_{};
+
+    std::shared_ptr<Model> steeringWheel_;
+    glm::vec3 steeringOffset_{ -0.5f, 0.8f, -0.25f };
 
     float steerTarget_ = 0.f;   // deg
     float steerCurrent_ = 0.f;   // deg
