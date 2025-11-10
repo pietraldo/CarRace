@@ -34,7 +34,6 @@
 #include <PxPhysicsAPI.h>
 
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "../externals/stb_image/stb_image.h"
 
 using namespace std;

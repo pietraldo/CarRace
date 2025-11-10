@@ -58,7 +58,7 @@ int Rendering::Initialize()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(int)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     //unsigned int lightVAO;
@@ -119,6 +119,7 @@ GLFWwindow* Rendering::CreateWindow(int width, int height, const char* title)
     //stbi_set_flip_vertically_on_load(true);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_FRAMEBUFFER_SRGB);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -249,6 +250,9 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
     {
         gameObj->Draw();
     }
+
+    shaderColor.use();
+    shaderColor.setBool("fogEnabled", (*scene).fog);
 
     (*scene).DrawLights(*lightShader, lightVAO);
     (*scene).DrawModels(shaderColor, shaderColor);
