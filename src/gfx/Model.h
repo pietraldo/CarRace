@@ -33,10 +33,6 @@ public:
 	glm::vec3 color = glm::vec3(1.0f);
     physx::PxQuat rotation = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
 
-    struct Point {
-        float x, y;
-    };
-
     Model(string const& path, glm::vec3 position, float scale, glm::vec3 color, bool gamma = false) 
 		: gammaCorrection(gamma), position(position), scale(scale), color(color)
     {
