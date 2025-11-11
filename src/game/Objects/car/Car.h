@@ -4,14 +4,13 @@
 #include <array>
 #include <glm/glm.hpp>
 #include "Wheel.h"
+#include "../../helper_functions.h"
 
 class Car {
 public:
     Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel);
 
     void SetSteer(float deg);  
-    void SetSpeed(float v);     
-    void AddSpeed(float dv);    
     void Update(float dt, glm::vec3 position, physx::PxQuat rotation);
     void Draw(Shader& shader);
 
@@ -33,6 +32,7 @@ public:
     void SetMaxSpeed(float v);          
     void SetWheelOffsets(const std::array<glm::vec3, 4>& offsets);
     void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset_ = offset; }
+    void SetWheelRotation(vector<physx::PxQuat> rotations) { wheelRotations = rotations; }
 
     const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
 
@@ -40,6 +40,8 @@ public:
     glm::vec3 lastPosition = glm::vec3(0.f);
     float lastTime = 0;
     int updateCounter = 0;
+
+    float wheelRotationDeg = 0;
 private:
     std::shared_ptr<Model> body_;
     std::array<std::unique_ptr<Wheel>, 4> wheels_{};
@@ -57,4 +59,6 @@ private:
     float speed_ = 0.f;   // m/s
     float wheelRadius_ = 0.35f; // m
     float maxSpeed_ = 50.f;  // m/s
+
+    std::vector<physx::PxQuat> wheelRotations;
 };

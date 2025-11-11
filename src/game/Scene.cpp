@@ -28,7 +28,10 @@ void Scene::UpdateCar(float deltaTime)
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
 		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
-		if (car) car->Update(deltaTime, position, rotation);
+
+		car->SetWheelRotation(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
+
+		car->Update(deltaTime, position, rotation);
     }
 }
 

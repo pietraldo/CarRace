@@ -50,6 +50,20 @@ public:
         return PxVec3(v.x, v.y, v.z);
     }
 
+    vector<PxQuat> getWheelRotation()
+    {
+        return gVehicle.getWheelRotation();
+        /*vector<PxQuat> rotations;
+        rotations.reserve(4);
+
+        for (int i = 0; i < 4; i++)
+        {
+            rotations[i]= gVehicle.mBaseState.wheelLocalPoses[i].localPose.q;
+        }
+        return rotations;*/
+        
+    }
+
     void Update(float deltaTime, CarControlInput carControll);
 
     friend class Physics;

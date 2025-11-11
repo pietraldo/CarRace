@@ -21,7 +21,7 @@ public:
 
 private:
     void SetSteer(float steerDeg);
-    void AddSpin(float deltaDeg);
+    void SetSpin(float deltaDeg);
     std::shared_ptr<Model> model;
 
 };
