@@ -67,7 +67,6 @@ public:
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
 	void SetCarSteer(float deg) { if (car) car->SetSteer(deg); }
-	float GetCarSpeed() const { return car ? car->GetSpeed() : 0.0f; }
     Car* GetCar() { return car.get(); }
 
 	vector<Light*> GetLights() { return lights; }

@@ -37,15 +37,6 @@ void Car::SetSteer(float deg)
 
 void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 {
-    lastTime += dt;
-    updateCounter++;
-    if (updateCounter > 50)
-    {
-        velocity = glm::length(position - lastPosition) / lastTime;
-        lastPosition = position;
-        updateCounter = 0;
-        lastTime = 0;
-    }
 
     float delta = steerTarget_ - steerCurrent_;
     float step = steerSpeed_ * dt;
@@ -149,20 +140,6 @@ void Car::SetSteerSpeed(float degPerSec)
 {
     if (!isFinite(degPerSec)) return;
     steerSpeed_ = std::max(0.0f, degPerSec);
-}
-
-void Car::SetWheelRadius(float r)
-{
-    if (!isFinite(r)) return;
-    wheelRadius_ = std::max(0.01f, r);
-}
-
-void Car::SetMaxSpeed(float v)
-{
-    if (!isFinite(v)) return;
-
-    maxSpeed_ = std::max(0.0f, v);
-    speed_ = clampValue(speed_, -maxSpeed_, maxSpeed_);
 }
 
 void Car::SetWheelOffsets(const std::array<glm::vec3, 4>& offsets)
