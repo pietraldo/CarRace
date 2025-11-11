@@ -155,19 +155,28 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/Untitled.gltf";
+	const std::string carModelPath = "../assets/models/car/car.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
+	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
+	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
 
-	car = std::make_unique<Car>(bodyModel, wheelModel);
+	car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
-	if (car->GetBody()) AddColorModel(car->GetBody().get());
+	if (car->GetBody())
+		AddTextureModel(car->GetBody().get());
+
 	for (auto& w : car->Wheels()) {
 		if (!w) continue;
 		const auto& sp = w->GetModel();
-		if (sp) AddColorModel(sp.get());
+		if (sp)
+			AddTextureModel(sp.get());
+	}
+
+	if (car->GetSteeringWheel()) {
+		AddTextureModel(car->GetSteeringWheel().get());
 	}
 }
 
@@ -181,7 +190,7 @@ void Scene::CreateLights()
 	AddLight(point_light1_ceneter_of_board);
 
 	/* Point light 2 - in the center of board */
-	Light* point_light2_ceneter_of_board = new LightPoint(glm::vec3(10.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+	Light* point_light2_ceneter_of_board = new LightPoint(glm::vec3(10.2f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(point_light2_ceneter_of_board);

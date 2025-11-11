@@ -7,13 +7,14 @@ static inline bool isFinite(float x) { return std::isfinite(x); }
 
 template <typename T> T clampValue(const T& v, const T& lo, const T& hi) { return (v < lo) ? lo : (v > hi) ? hi : v; }
 
-Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
+Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel)
 {
     body_ = std::move(bodyModel);
 
-    if (!body_) {
-        body_->position = glm::vec3(0.f, 9.0f, 0.f);
-        body_->scale = 0.01f;
+    if (steeringModel) {
+        steeringWheel_ = std::move(steeringModel);
+        steeringOffset_ = glm::vec3(-0.5f, 0.8f, -0.25f);
+
     }
 
     wheels_[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
@@ -26,12 +27,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel)
     wheelOffsets_[2] = glm::vec3(-0.92f, 0.3f, -1.35f); // FL
     wheelOffsets_[3] = glm::vec3(0.7f, 0.3f, -1.35f); // FR
 
-    for (int i = 0; i < 4; ++i) {
-        const auto& model = wheels_[i]->GetModel();
-        if (model) {
-            model->scale = 1.3f;
-        }
-    }
+
 }
 
 void Car::SetSteer(float deg)
@@ -103,11 +99,41 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
             wheelModel->rotation = carRotPx * localRot;
         }
     }
+
+    if (steeringWheel_ && body_) {
+        glm::quat carRot(
+            body_->rotation.w,
+            body_->rotation.x,
+            body_->rotation.y,
+            body_->rotation.z
+        );
+
+        glm::vec3 worldSteerOffset = carRot * steeringOffset_;
+        steeringWheel_->position = body_->position + worldSteerOffset;
+
+        glm::quat localModelFix = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+
+        const float steeringWheelMultiplier = 6.0f;
+        float steeringWheelAngleDeg = steerCurrent_ * steeringWheelMultiplier;
+
+        glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
+
+        glm::quat finalRotGLM = carRot * steeringTurn * localModelFix;
+
+        steeringWheel_->rotation = physx::PxQuat(
+            finalRotGLM.x,
+            finalRotGLM.y,
+            finalRotGLM.z,
+            finalRotGLM.w
+        );
+    }
 }
 
 void Car::Draw(Shader& shader)
 {
     if (body_) body_->Draw(shader);
+
+    if (steeringWheel_) steeringWheel_->Draw(shader);
 
     for (auto& w : wheels_) {
         const auto& model = w->GetModel();
