@@ -4,7 +4,8 @@
 #include <vector>
 #include "./Camera.h"
 #include "./FreeCamera.h"
-#include "./FollowingCamera.h"
+#include "./FirstPersonCamera.h"
+#include "./FollowingCarCamera.h"
 #include "./ObservingCamera.h"
 
 
