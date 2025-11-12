@@ -35,22 +35,8 @@ void Car::SetSteer(float deg)
     steerTarget_ = clampValue(deg, -maxSteer_, maxSteer_);
 }
 
-void Car::SetSpeed(float v)
-{
-    speed_ = clampValue(v, -maxSpeed_, maxSpeed_);
-}
-
 void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 {
-    lastTime += dt;
-    updateCounter++;
-    if (updateCounter > 50)
-    {
-        velocity = glm::length(position - lastPosition) / lastTime;
-        lastPosition = position;
-        updateCounter = 0;
-        lastTime = 0;
-    }
 
     float delta = steerTarget_ - steerCurrent_;
     float step = steerSpeed_ * dt;
@@ -62,8 +48,6 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         steerCurrent_ += (delta > 0 ? step : -step);
     }
 
-    float spinDelta = glm::degrees((speed_ / wheelRadius_) * dt);
-
     glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
 
     glm::quat flip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
@@ -74,6 +58,8 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     body_->position = position;
     body_->rotation = carRotPx;
 
+
+    
     for (int i = 0; i < 4; ++i)
     {
         auto& w = wheels_[i];
@@ -83,7 +69,7 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
             glm::vec3 worldOffset = carRot * wheelOffsets_[i];
             wheelModel->position = body_->position + worldOffset;
         }
-
+       
         auto pos = w->GetPos();
         if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
             w->SetSteer(-steerCurrent_);
@@ -92,12 +78,10 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
             w->SetSteer(0.0f);
         }
 
-        w->AddSpin(spinDelta);
-
-        if (wheelModel) {
-            physx::PxQuat localRot = wheelModel->rotation;
-            wheelModel->rotation = carRotPx * localRot;
-        }
+        w->SetSpin(getXRotationDegrees(wheelRotations[i]));
+        
+        physx::PxQuat localRot = wheelModel->rotation;
+        wheelModel->rotation = carRotPx * localRot;
     }
 
     if (steeringWheel_ && body_) {
@@ -141,11 +125,6 @@ void Car::Draw(Shader& shader)
     }
 }
 
-void Car::AddSpeed(float dv)
-{
-    speed_ = clampValue(speed_ + dv, -maxSpeed_, maxSpeed_);
-}
-
 
 void Car::SetMaxSteer(float deg)
 {
@@ -161,20 +140,6 @@ void Car::SetSteerSpeed(float degPerSec)
 {
     if (!isFinite(degPerSec)) return;
     steerSpeed_ = std::max(0.0f, degPerSec);
-}
-
-void Car::SetWheelRadius(float r)
-{
-    if (!isFinite(r)) return;
-    wheelRadius_ = std::max(0.01f, r);
-}
-
-void Car::SetMaxSpeed(float v)
-{
-    if (!isFinite(v)) return;
-
-    maxSpeed_ = std::max(0.0f, v);
-    speed_ = clampValue(speed_, -maxSpeed_, maxSpeed_);
 }
 
 void Car::SetWheelOffsets(const std::array<glm::vec3, 4>& offsets)

@@ -28,9 +28,10 @@
 
 #pragma once
 
+#include <iostream>
+#include <vector>
 #include "vehicle2/PxVehicleAPI.h"
 #include "../physxintegration/PhysXIntegration.h"
-
 namespace snippetvehicle
 {
 
@@ -114,6 +115,17 @@ class EngineDriveVehicle
 	, public PxVehicleEngineDrivetrainComponent
 {
 public:
+	std::vector<PxQuat> getWheelRotation()
+	{
+		std::vector<PxQuat> rotations;
+		rotations.reserve(4);
+
+		for (int i = 0; i < 4; i++)
+		{
+			rotations.push_back(mBaseState.wheelLocalPoses[i].localPose.q);
+		}
+		return rotations;
+	}
 
 	enum Enum
 	{
@@ -314,7 +326,6 @@ public:
 		gearboxState = &mEngineDriveState.gearboxState;
 		clutchState = &mEngineDriveState.clutchState;
 	}
-
 
 	//Parameters and states of the vehicle's engine drivetrain.
 	EngineDrivetrainParams mEngineDriveParams;

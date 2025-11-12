@@ -163,21 +163,12 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
 	}
 	scene->SetCarSteer(steer);
 
-	const float accel = 8.0f; 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		scene->AddCarSpeed(+accel * deltaTime);
         carControl.throttle = 1;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		scene->AddCarSpeed(-accel * deltaTime);
         carControl.brake = 1;
 	}
-	else {
-		float v = scene->GetCarSpeed();
-		float drag = 4.0f; 
-		if (std::abs(v) > 0.01f) {
-			scene->AddCarSpeed((v > 0 ? -drag : +drag) * deltaTime);
-		}
-	}
+	
 	carControl.gear = 3;
 }

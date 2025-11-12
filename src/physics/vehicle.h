@@ -40,7 +40,7 @@ public:
     }
     PxQuat getVehicleRotation()
     {
-        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        PxTransform t  = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
         return t.q;
     }
 
@@ -48,6 +48,16 @@ public:
     {
         PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
         return PxVec3(v.x, v.y, v.z);
+    }
+
+    float getSpeed()
+    {
+        return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
+    }
+
+    vector<PxQuat> getWheelRotation()
+    {
+        return gVehicle.getWheelRotation();
     }
 
     void Update(float deltaTime, CarControlInput carControll);
