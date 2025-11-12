@@ -16,7 +16,6 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
 }
-
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
     gVehicle.mCommandState.brakes[0] = carControll.brake;

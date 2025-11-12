@@ -52,22 +52,12 @@ public:
 
     float getSpeed()
     {
-        //return 30;
         return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
     }
 
     vector<PxQuat> getWheelRotation()
     {
         return gVehicle.getWheelRotation();
-        /*vector<PxQuat> rotations;
-        rotations.reserve(4);
-
-        for (int i = 0; i < 4; i++)
-        {
-            rotations[i]= gVehicle.mBaseState.wheelLocalPoses[i].localPose.q;
-        }
-        return rotations;*/
-        
     }
 
     void Update(float deltaTime, CarControlInput carControll);
