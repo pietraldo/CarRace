@@ -40,7 +40,7 @@ private:
     std::shared_ptr<Model> steeringWheel_;
     glm::vec3 steeringOffset_;
 
-    float steerTarget_ = 0.f;   // deg
+    float steerTarget_ = 0.f;
     float steerCurrent_ = 0.f;   // deg
     float steerSpeed_ = 180.f; // deg/s
     float maxSteer_ = 45.f;  // deg
