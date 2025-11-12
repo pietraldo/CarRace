@@ -16,7 +16,8 @@ enum Camera_Movement {
 
 enum CameraType {
     FREE_CAMERA,
-    FOLLOWING_CAMERA,
+    FOLLOWING_CAR_CAMERA,
+	FIRST_PERSON_CAMERA,
     OBSERVING_CAMERA
 };
 
