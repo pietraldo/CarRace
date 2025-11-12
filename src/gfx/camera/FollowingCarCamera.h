@@ -15,9 +15,9 @@ private:
     int distanceFromTarget = 10;
 
     // camera settings
-    float eyeHeight = 5.0f;     // wysokoœæ kamery nad œrodkiem auta (world Y)
-    float upLookBias = 0.02f;   // ma³y bias w górê (0.0..0.5 typowe)
-    float localBackward = 2.5f; // dodatkowe cofniêcie wzd³u¿ lokalnej osi auta
+	float eyeHeight = 5.0f;     // height of the eye above the target
+	float upLookBias = 0.02f;   // small upward bias to look slightly above the target
+	float localBackward = 2.5f; // additional backward offset from the target
 
 public:
     // constructor with vectors
