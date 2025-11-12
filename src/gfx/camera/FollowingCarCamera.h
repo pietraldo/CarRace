@@ -34,12 +34,6 @@ public:
         : Camera(CameraType::FOLLOWING_CAR_CAMERA, posX, posY, posZ, upX, upY, upZ, yaw, pitch)
     {}
 
-    // returns the view matrix (u¿ywamy Position + Front jako celu)
-    glm::mat4 GetViewMatrix() override
-    {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
-
     void Update(const glm::vec3& carPosition, const glm::quat& carRotation)
     {
         targetPos = carPosition;

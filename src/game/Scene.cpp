@@ -59,17 +59,15 @@ void Scene::UpdateCamera()
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
-		if (FollowingCarCamera* fol = dynamic_cast<FollowingCarCamera*>(&activeCamera)) {
-			RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
-			PxVec3 pxPos = vehicle->getVehiclePosition();
-			PxQuat pxRot = vehicle->getVehicleRotation();
+		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
+		RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+		PxVec3 pxPos = vehicle->getVehiclePosition();
+		PxQuat pxRot = vehicle->getVehicleRotation();
 
-			glm::vec3 carPos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
-			glm::quat carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
+		glm::vec3 carPos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
+		glm::quat carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
 
-			fol->Update(carPos, carRot);
-		}
-	
+		fol.Update(carPos, carRot);
 	}
 
 }
