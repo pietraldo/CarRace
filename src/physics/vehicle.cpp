@@ -22,7 +22,16 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.mCommandState.nbBrakes = 1;
     gVehicle.mCommandState.throttle = carControll.throttle;
     gVehicle.mCommandState.steer = carControll.steer;
-    gVehicle.mTransmissionCommandState.targetGear = carControll.gear;
+    int currrentGear = gVehicle.mEngineDriveState.gearboxState.currentGear;
+    int targetGear = currrentGear + carControll.gear;
+    if (targetGear >= 0 && targetGear < 5 && carControll.gear!=0)
+    {
+        gVehicle.mTransmissionCommandState.targetGear = targetGear;
+    }
+    else
+    {
+        gVehicle.mTransmissionCommandState.targetGear = currrentGear;
+    }
 
     const PxVec3 linVel = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
     const PxVec3 forwardDir = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();

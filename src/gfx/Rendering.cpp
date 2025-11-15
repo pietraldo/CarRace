@@ -219,6 +219,7 @@ void Rendering::RenderImGui()
     {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h", Physics::getInstance()->getVehicles()[0]->getSpeed());
+        ImGui::Text("Car gear: %d", Physics::getInstance()->getVehicles()[0]->getCurrentGear());
         ImGui::End();
     }
     {

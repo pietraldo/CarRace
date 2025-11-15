@@ -55,6 +55,11 @@ public:
         return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
     }
 
+    int getCurrentGear()
+    {
+        return gVehicle.mEngineDriveState.gearboxState.currentGear;
+    }
+
     vector<PxQuat> getWheelRotation()
     {
         return gVehicle.getWheelRotation();

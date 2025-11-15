@@ -97,7 +97,8 @@ int main()
 
 
 
-
+bool gearUpPressed = false;
+bool gearDownPressed = false;
 void processInput(GLFWwindow* window, CarControlInput& carControl)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -151,6 +152,7 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
     carControl.brake = 0;
     carControl.throttle = 0;
     carControl.steer = 0;
+    carControl.gear = 0;
 	
 	float steer = 0.0f;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
@@ -170,5 +172,31 @@ void processInput(GLFWwindow* window, CarControlInput& carControl)
         carControl.brake = 1;
 	}
 	
-	carControl.gear = 3;
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+		if (!gearDownPressed)               // KEY JUST PRESSED
+		{
+			carControl.gear = -1;
+		}
+		gearDownPressed = true;             // Mark as pressed
+	}
+	else
+	{
+		gearDownPressed = false;            // Key released → ready for next press
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+	{
+		if (!gearUpPressed)                 // KEY JUST PRESSED
+		{
+			carControl.gear = 1;
+		}
+		gearUpPressed = true;
+	}
+	else
+	{
+		gearUpPressed = false;
+	}
+
+	
 }
