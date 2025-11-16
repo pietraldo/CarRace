@@ -39,7 +39,7 @@
         ]
     },
     "HandbrakeCommandResponseParams": {
-        "MaxResponse": 0.0,
+        "MaxResponse": 1875.0,
         "WheelResponseMultipliers": [
             0.0,
 			0.0,

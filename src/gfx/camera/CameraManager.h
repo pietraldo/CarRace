@@ -7,6 +7,7 @@
 #include "./FirstPersonCamera.h"
 #include "./FollowingCarCamera.h"
 #include "./ObservingCamera.h"
+#include "../../ui/Input/InputStructures.h"
 
 
 class CameraManager {
@@ -46,4 +47,6 @@ public:
     }
 
     void CreateCameras();
+
+    void ProccessInput(CameraControlInput input, float deltaTime);
 };

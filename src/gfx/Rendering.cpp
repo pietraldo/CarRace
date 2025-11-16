@@ -119,7 +119,6 @@ GLFWwindow* Rendering::CreateWindow(int width, int height, const char* title)
     glViewport(0, 0, width, height);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     glEnable(GL_DEPTH_TEST);
@@ -146,34 +145,12 @@ void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int hei
     glViewport(0, 0, width, height);
 }
 
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-void Rendering::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-
-    lastX = xpos;
-    lastY = ypos;
-
-    //if right mouse button is pressed, do not move the camera
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != GLFW_PRESS)
-    {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        return;
-    }
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseMovement(xoffset, yoffset);
-}
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseScroll(static_cast<float>(yoffset));
+    KeyboardController::scrollCallback(static_cast<float>(yoffset));
 }
 
 void Rendering::RenderImGui()
@@ -219,6 +196,8 @@ void Rendering::RenderImGui()
     {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h", Physics::getInstance()->getVehicles()[0]->getSpeed());
+        ImGui::Text("Car gear: %d", Physics::getInstance()->getVehicles()[0]->getCurrentGear());
+        ImGui::Text("Engine rotation: %d", Physics::getInstance()->getVehicles()[0]->getEngineRPM());
         ImGui::End();
     }
     {

@@ -19,6 +19,7 @@
 #include "lights/Light.h"
 #include "../game/Scene.h"
 #include "./camera/CameraManager.h"
+#include "../ui/Input/KeyboardController.h"
 
 class Scene;
 
@@ -49,7 +50,6 @@ public:
     static int Initialize();
     static GLFWwindow* CreateWindow(int width, int height, const char* title);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-    static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     static void RenderImGui();

@@ -84,13 +84,10 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gameObjects[2]->actor = boxCollider;
 }
 
-void Physics::update(float deltaTime, CarControlInput* carControll)
+void Physics::update(float deltaTime, CarControlInput carControll)
 {
 
-    for (size_t i = 0; i < vehicles.size(); i++) {
-        vehicles[i]->Update(deltaTime, carControll[i]);
-    }
-    // Update vehicle
+    vehicles[0]->Update(deltaTime, carControll);
    
     //Forward integrate the vehicle by a single timestep.
     //Apply substepping at low forward speed to improve simulation fidelity.

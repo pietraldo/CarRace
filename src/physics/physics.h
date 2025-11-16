@@ -11,7 +11,7 @@
 #include "./common/SnippetVehicleHelpers.h"
 
 #include "./game/Objects/car/Car.h"
-#include "./CarControlInput.h"
+#include "../ui/Input/InputStructures.h"
 
 
 using namespace physx;
@@ -48,7 +48,7 @@ public:
     void createObjects(const std::vector<GameObject*>& gameObjects);
 
     
-    void update(float deltaTime, CarControlInput* carControll);
+    void update(float deltaTime, CarControlInput carControll);
 
     void cleanup();
 

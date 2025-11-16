@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../ui/Input/InputStructures.h"
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -25,7 +27,6 @@ enum CameraType {
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 20.5f;
-const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
 
@@ -43,7 +44,6 @@ protected:
         Yaw(yaw),
         Pitch(pitch),
         MovementSpeed(SPEED),
-        MouseSensitivity(SENSITIVITY),
         Zoom(ZOOM),
         cameraType(cameraType)
     {
@@ -55,7 +55,6 @@ protected:
         float upX, float upY, float upZ, float yaw, float pitch)
         : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
         MovementSpeed(SPEED),
-        MouseSensitivity(SENSITIVITY),
         Zoom(ZOOM),
         cameraType(cameraType),
         Position(glm::vec3(posX, posY, posZ)),
@@ -79,7 +78,6 @@ public:
 
     // camera options
     float MovementSpeed;
-    float MouseSensitivity;
     float Zoom;
 
     const CameraType cameraType;
@@ -89,33 +87,26 @@ public:
         return glm::lookAt(Position, Position + Front, Up);
     }
 
-    // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    void processInput(CameraControlInput input, float deltaTime)
     {
-        float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            Position += Front * velocity;
-        if (direction == BACKWARD)
-            Position -= Front * velocity;
-        if (direction == LEFT)
-            Position -= Right * velocity;
-        if (direction == RIGHT)
-            Position += Right * velocity;
+        processPositionInput(input, deltaTime);
+        processRotationInput(input, deltaTime);
+        processZoomInput(input);
     }
 
-    void ProcessControllerPosition(float x, float y, float deltaTime)
+    void processPositionInput(CameraControlInput& input, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
 
-        Position -= Front * velocity * y;
-        Position += Right * velocity * x;
+        Position += Front * velocity * input.moveForward;
+        Position += Right * velocity * input.moveRight;
     }
 
-    void ProcessControllerRotation(float x, float y, float deltaTime)
+    void processRotationInput(CameraControlInput& input, float deltaTime)
     {
-        float velocity = deltaTime * 100*1.6;
-        Yaw += velocity * x;
-        Pitch -= velocity * y;
+        float velocity = deltaTime * 20;
+        Yaw += velocity * input.yaw;
+        Pitch += velocity * input.pitch;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
         if (Pitch > 89.0f)
@@ -127,36 +118,13 @@ public:
         updateCameraVectors();
     }
 
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void processZoomInput(CameraControlInput& input)
     {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
-
-        Yaw += xoffset;
-        Pitch += yoffset;
-
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-        }
-
-        // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraVectors();
-    }
-
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(float yoffset)
-    {
-        Zoom -= (float)yoffset;
+        Zoom -= (float)input.zoom;
         if (Zoom < 1.0f)
             Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        if (Zoom > 90.0f)
+            Zoom = 90.0f;
     }
 
 private:
