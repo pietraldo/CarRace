@@ -87,7 +87,7 @@ int main()
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
 
     bool continueGame = true;
-	while (continueGame)
+	while (continueGame && !glfwWindowShouldClose(Rendering::window))
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;

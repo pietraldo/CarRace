@@ -13,9 +13,9 @@ std::vector<float> PS5Controller::getLeftStick() {
     float X = (inputBuf[1] - 128) / 128.0f;
     float Y = (inputBuf[2] - 128) / 128.0f;
 
-    if (std::abs(X) < std::abs(lastLX))
+    if (std::abs(X)+10 < std::abs(lastLX))
         X = 0.0f;
-    if (std::abs(Y) < std::abs(lastLY))
+    if (std::abs(Y)+10 < std::abs(lastLY))
         Y = 0.0f;
 
     if (std::abs(X) < leftStickDeadzone)
@@ -72,8 +72,8 @@ CameraControlInput PS5Controller::getCameraControlInput()
 
     cameraInput.moveRight = leftStick[0];
     cameraInput.moveForward = -leftStick[1];
-    cameraInput.yaw = rightStick[0];
-    cameraInput.pitch = -rightStick[1];
+    cameraInput.yaw = rightStick[0]*10;
+    cameraInput.pitch = -rightStick[1]*10;
     
     return cameraInput;
 }
