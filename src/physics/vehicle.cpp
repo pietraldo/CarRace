@@ -20,7 +20,6 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
     gVehicle.mCommandState.brakes[0] = carControll.brake;
     gVehicle.mCommandState.brakes[1] = carControll.handbrake;
-    cout << "Handbrake: " << carControll.handbrake << endl;
     gVehicle.mCommandState.nbBrakes = 2;
     gVehicle.mCommandState.throttle = carControll.throttle;
     gVehicle.mCommandState.steer = carControll.steer;
