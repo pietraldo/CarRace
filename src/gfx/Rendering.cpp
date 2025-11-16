@@ -150,7 +150,7 @@ void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int hei
 // ----------------------------------------------------------------------
 void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Keyboard::scrollCallback(static_cast<float>(yoffset));
+    KeyboardController::scrollCallback(static_cast<float>(yoffset));
 }
 
 void Rendering::RenderImGui()

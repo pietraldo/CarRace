@@ -30,8 +30,6 @@
 #include "./game/Objects/car/Car.h"
 #include "./ui/Input/InputStructures.h"
 #include "./ui/Input/InputManager.h"
-#include "./ui/Input/PS5Controller.h"
-#include "./ui/Input/Keyboard.h"
 
 
 // include physx
@@ -42,7 +40,6 @@
 
 using namespace std;
 
-void processInput(GLFWwindow* window, CarControlInput& carControll);
 
 // timing
 float deltaTime = 0.0f;
@@ -63,24 +60,10 @@ int main()
 	CameraManager::GetInstance()->CreateCameras();
 	LightBuffer lightBuffer = scene->LoadLights();
 
-	
-	PS5Controller* controller = new PS5Controller();
-	if (controller->connect())
-	{
-        InputManager::getInstance().setInputController1(controller);
-        cout << "Controller connected and set as input controller 1" << endl;
-	}
-	else
-	{
-        Keyboard* keyboard = new Keyboard();
-        InputManager::getInstance().setInputController1(keyboard);
-        cout << "Controller not connected. Keyboard set as input controller 1" << endl;
-	}
-
-
 
     if (Rendering::Initialize() == -1) return -1;
 
+    InputManager::getInstance().setUp();
 
 	scene->CreateModels();
     

@@ -7,7 +7,7 @@
 #include "InputController.h"
 #include "InputStructures.h"
 
-class Keyboard : public InputController {
+class KeyboardController : public InputController {
 
 private:
     bool isKeyPressed(int key);
@@ -22,7 +22,7 @@ private:
     static double lastMouseX;
     static double lastMouseY;
 public:
-    Keyboard() {}
+    KeyboardController() {}
     CarControlInput getCarControlInput() override;
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override;

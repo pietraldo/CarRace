@@ -1,20 +1,20 @@
-#include "Keyboard.h"
+#include "KeyboardController.h"
 
-float Keyboard::deltaMouseX = 0.0f; 
-float Keyboard::deltataMouseY = 0.0f;
-float Keyboard::zoomOffset = 0.0f;
+float KeyboardController::deltaMouseX = 0.0f;
+float KeyboardController::deltataMouseY = 0.0f;
+float KeyboardController::zoomOffset = 0.0f;
 
-double Keyboard::lastMouseX = 0.0;
-double Keyboard::lastMouseY = 0.0;
+double KeyboardController::lastMouseX = 0.0;
+double KeyboardController::lastMouseY = 0.0;
 
-void Keyboard::mouseCallback(float addToDeltaMouseX, float addToDeltaMouseY) {
+void KeyboardController::mouseCallback(float addToDeltaMouseX, float addToDeltaMouseY) {
     deltaMouseX = addToDeltaMouseX;
     deltataMouseY = addToDeltaMouseY;
 }
-void Keyboard::scrollCallback(float deltaOffsetY) {
+void KeyboardController::scrollCallback(float deltaOffsetY) {
     zoomOffset += deltaOffsetY;
 }
-CarControlInput Keyboard::getCarControlInput() {
+CarControlInput KeyboardController::getCarControlInput() {
     CarControlInput input;
 
     if (isKeyPressed(GLFW_KEY_RIGHT))
@@ -37,7 +37,7 @@ CarControlInput Keyboard::getCarControlInput() {
 
     return input;
 }
-CameraControlInput Keyboard::getCameraControlInput() {
+CameraControlInput KeyboardController::getCameraControlInput() {
     CameraControlInput input;
 
     if(isKeyPressed(GLFW_KEY_W))
@@ -74,19 +74,19 @@ CameraControlInput Keyboard::getCameraControlInput() {
 
     return input;
 }
-AdditionalInputInfo Keyboard::getAdditionalInputInfo() {
+AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     AdditionalInputInfo info;
     info.startSimulation = isKeyJustPressed(GLFW_KEY_SPACE);
     info.exit = isKeyJustPressed(GLFW_KEY_ESCAPE);
     return info;
 }
-bool Keyboard::updateInput() {
+bool KeyboardController::updateInput() {
     return true;
 }
-bool Keyboard::isKeyPressed(int key) {
+bool KeyboardController::isKeyPressed(int key) {
     return glfwGetKey(Rendering::window, key) == GLFW_PRESS;
 }
-bool Keyboard::isKeyJustPressed(int key) {
+bool KeyboardController::isKeyJustPressed(int key) {
     bool currentState = isKeyPressed(key);
     bool justPressed = currentState && !lastKeyStates[key];
     lastKeyStates[key] = currentState;
