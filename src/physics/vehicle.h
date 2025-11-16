@@ -55,6 +55,11 @@ public:
         return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
     }
 
+    int getEngineRPM()
+    {
+        return (int)gVehicle.mEngineDriveState.engineState.rotationSpeed;
+    }
+
     int getCurrentGear()
     {
         return gVehicle.mEngineDriveState.gearboxState.currentGear;
