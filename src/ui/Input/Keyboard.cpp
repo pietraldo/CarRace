@@ -69,20 +69,15 @@ CameraControlInput Keyboard::getCameraControlInput() {
     lastMouseX = mouseX;
     lastMouseY = mouseY;
    
-
-    /*input.yaw = deltaMouseX;
-    input.pitch = deltataMouseY;
     input.zoom = zoomOffset;
-    
-    deltaMouseX = 0.0f;
-    deltataMouseY = 0.0f;
-    zoomOffset = 0.0f;*/
+    zoomOffset = 0.0f;
 
     return input;
 }
 AdditionalInputInfo Keyboard::getAdditionalInputInfo() {
     AdditionalInputInfo info;
     info.startSimulation = isKeyJustPressed(GLFW_KEY_SPACE);
+    info.exit = isKeyJustPressed(GLFW_KEY_ESCAPE);
     return info;
 }
 bool Keyboard::updateInput() {

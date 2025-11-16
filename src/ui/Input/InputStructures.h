@@ -22,7 +22,8 @@ struct CameraControlInput
 
 struct AdditionalInputInfo
 {
-    bool startSimulation;
+    bool startSimulation = false;
+    bool exit = false;
 };
 
 struct InputData

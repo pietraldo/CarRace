@@ -41,6 +41,7 @@ public:
             inputController1->updateInput();
             inputData.carControl1 = inputController1->getCarControlInput();
             inputData.cameraControl1 = inputController1->getCameraControlInput();
+            inputData.additionalInfo = inputController1->getAdditionalInputInfo();
         }
 
         if (inputController2) {
