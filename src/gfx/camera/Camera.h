@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../ui/Input/InputStructures.h"
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -101,6 +103,46 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+    }
+
+    void processInput(CameraControlInput input, float deltaTime)
+    {
+        processPositionInput(input, deltaTime);
+        processRotationInput(input, deltaTime);
+        processZoomInput(input);
+    }
+
+    void processPositionInput(CameraControlInput& input, float deltaTime)
+    {
+        float velocity = MovementSpeed * deltaTime;
+
+        Position += Front * velocity * input.moveForward;
+        Position += Right * velocity * input.moveRight;
+    }
+
+    void processRotationInput(CameraControlInput& input, float deltaTime)
+    {
+        float velocity = deltaTime * 50;
+        Yaw += velocity * input.yaw;
+        Pitch += velocity * input.pitch;
+
+        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+
+        // update Front, Right and Up Vectors using the updated Euler angles
+        updateCameraVectors();
+    }
+
+    void processZoomInput(CameraControlInput& input)
+    {
+        Zoom -= (float)input.zoom;
+        if (Zoom < 1.0f)
+            Zoom = 1.0f;
+        if (Zoom > 45.0f)
+            Zoom = 45.0f;
     }
 
     void ProcessControllerPosition(float x, float y, float deltaTime)

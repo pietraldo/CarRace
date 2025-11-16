@@ -166,14 +166,14 @@ void Rendering::mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseMovement(xoffset, yoffset);
+    Keyboard::mouseCallback(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    CameraManager::GetInstance()->GetActiveCamera().ProcessMouseScroll(static_cast<float>(yoffset));
+    Keyboard::scrollCallback(static_cast<float>(yoffset));
 }
 
 void Rendering::RenderImGui()

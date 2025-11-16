@@ -15,12 +15,3 @@
 using namespace physx;
 using namespace vehicle2;
 using namespace snippetvehicle;
-
-struct CarControlInput
-{
-    PxF32 brake;
-    PxF32 throttle;
-    PxF32 steer;
-    PxU32 gear;
-    PxF32 duration;
-};

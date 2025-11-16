@@ -19,6 +19,7 @@
 #include "lights/Light.h"
 #include "../game/Scene.h"
 #include "./camera/CameraManager.h"
+#include "../ui/Input/Keyboard.h"
 
 class Scene;
 
