@@ -79,7 +79,7 @@ int main()
 
         InputData input = InputManager::getInstance().getInputData();
 
-		scene->Update(deltaTime);
+		scene->Update(input, deltaTime);
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
         continueGame = !input.additionalInfo.exit;

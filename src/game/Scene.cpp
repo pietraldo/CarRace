@@ -20,7 +20,7 @@ Scene::Scene()
 }
 
 
-void Scene::UpdateCar(float deltaTime)
+void Scene::UpdateCar(InputData input, float deltaTime)
 {
 	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
     for (RaceCar* v : vehicles)
@@ -30,6 +30,8 @@ void Scene::UpdateCar(float deltaTime)
 		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
 
 		car->SetWheelRotation(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
+        float steer = -input.carControl1.steer*45;
+		car->SetSteer(steer);
 
 		car->Update(deltaTime, position, rotation);
     }
@@ -72,12 +74,12 @@ void Scene::UpdateCamera()
 
 }
 
-void Scene::Update(float deltaTime)
+void Scene::Update(InputData input, float deltaTime)
 {
 	UpdateCamera();
 	UpdateFlashLight();
 
-	UpdateCar(deltaTime);
+	UpdateCar(input, deltaTime);
 
 
 	for (Light* light : lights) {

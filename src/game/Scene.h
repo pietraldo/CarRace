@@ -26,6 +26,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Objects/car/Car.h"
+#include "./ui/Input/InputStructures.h"
 
 using namespace std;
 
@@ -50,8 +51,8 @@ public:
 	glm::vec3 originlDirection;
 
 	Scene();
-	void Update(float deltaTime);
-    void UpdateCar(float deltaTime);
+	void Update(InputData input, float deltaTime);
+    void UpdateCar(InputData input, float deltaTime);
 	void UpdateCamera();
 	void CreateModels();
 
