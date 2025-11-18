@@ -19,28 +19,17 @@
 		{
 			"mesh":0,
 			"name":"Object_5",
-			"rotation":[
-				0.01956106163561344,
-				0.009068072773516178,
-				0.7594442367553711,
-				0.6502150297164917
-			],
 			"translation":[
-				-0.0013169707963243127,
-				0.028968168422579765,
-				-0.020277367904782295
+				-0.0788503885269165,
+				0.0027327104471623898,
+				0.018677493557333946
 			]
 		},
 		{
 			"children":[
 				0
 			],
-			"name":"2020 Audi RS7 Sportback Wheel.001_0",
-			"translation":[
-				0,
-				0,
-				-0.0008053923957049847
-			]
+			"name":"2020 Audi RS7 Sportback Wheel.001_0"
 		},
 		{
 			"children":[
@@ -52,13 +41,7 @@
 			"children":[
 				2
 			],
-			"name":"GLTF_SceneRootNode",
-			"rotation":[
-				0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			]
+			"name":"GLTF_SceneRootNode"
 		},
 		{
 			"children":[
@@ -70,13 +53,7 @@
 			"children":[
 				4
 			],
-			"name":"Sketchfab_model",
-			"rotation":[
-				-0.6480352878570557,
-				0.28880923986434937,
-				-0.3000148832798004,
-				0.637675940990448
-			]
+			"name":"Sketchfab_model"
 		}
 	],
 	"materials":[
@@ -166,52 +143,52 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"max":[
-				0.2410735785961151,
-				0.24181492626667023,
-				0.10118227452039719
+				0.18283012509346008,
+				0.23887236416339874,
+				0.24070222675800323
 			],
 			"min":[
-				-0.24256516993045807,
-				-0.241817444562912,
-				-0.10772134363651276
+				-0.027011848986148834,
+				-0.24507497251033783,
+				-0.24303914606571198
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":61640,
+			"count":66015,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":6,
-			"componentType":5123,
+			"componentType":5125,
 			"count":290841,
 			"type":"SCALAR"
 		}
@@ -219,44 +196,44 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":739680,
+			"byteLength":792180,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":739680,
-			"byteOffset":739680,
+			"byteLength":792180,
+			"byteOffset":792180,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":493120,
-			"byteOffset":1479360,
+			"byteLength":528120,
+			"byteOffset":1584360,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":493120,
-			"byteOffset":1972480,
+			"byteLength":528120,
+			"byteOffset":2112480,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":493120,
-			"byteOffset":2465600,
+			"byteLength":528120,
+			"byteOffset":2640600,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":493120,
-			"byteOffset":2958720,
+			"byteLength":528120,
+			"byteOffset":3168720,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":581682,
-			"byteOffset":3451840,
+			"byteLength":1163364,
+			"byteOffset":3696840,
 			"target":34963
 		}
 	],
@@ -268,7 +245,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":4033524,
+			"byteLength":4860204,
 			"uri":"wheel.bin"
 		}
 	]
