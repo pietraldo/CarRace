@@ -178,7 +178,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/car.gltf";
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
@@ -204,7 +204,7 @@ void Scene::CreateModels()
 
 	// ---- Map model ----
 	const std::string mapModelPath = "../assets/models/map/scene.gltf";
-	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec3(1.0f));
+	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, -0.99f, 0.0f), 1.0f, glm::vec3(1.0f));
 	mapModel->rotation = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f));
 	AddTextureModel(mapModel);
 }

@@ -17,7 +17,7 @@ private:
     // camera settings
 	float eyeHeight = 5.0f;     // height of the eye above the target
 	float upLookBias = 0.02f;   // small upward bias to look slightly above the target
-	float localBackward = 2.5f; // additional backward offset from the target
+	float localBackward = 4.5f; // additional backward offset from the target
 
 public:
     // constructor with vectors

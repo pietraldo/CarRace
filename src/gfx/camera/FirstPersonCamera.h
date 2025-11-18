@@ -15,7 +15,7 @@ private:
     glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 directionFromTarget = glm::vec3(0.0f, 0.0f, 1.0f);
 
-    glm::vec3 localOffset = glm::vec3(0.5f, 2.0f, -0.56f); //  x(-)=left, y=height, z(+)front
+    glm::vec3 localOffset = glm::vec3(0.4f, 0.9f, -0.54f); //  x(-)=right, y=height, z(+)front
 
 public:
     // constructor with vectors
