@@ -12,6 +12,7 @@
 #include "./game/Objects/car/Car.h"
 #include "./physics.h"
 #include "./CarControlInput.h"
+#include "../audio/EngineSound.h"
 
 using namespace physx;
 using namespace vehicle2;
@@ -30,6 +31,8 @@ private:
     //Pvd vehicle name
     const char* gVehicleName;
     const char* gVehicleDataPath = "..\\assets\\vehicledata";
+    EngineSound engineSound_;
+
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath, PxVehiclePhysXSimulationContext* simulationContext);
 
