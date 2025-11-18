@@ -13,7 +13,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
 
     if (steeringModel) {
         steeringWheel_ = std::move(steeringModel);
-        steeringOffset_ = glm::vec3(-0.5f, 0.8f, -0.25f);
+        steeringOffset_ = glm::vec3(-0.4f, 0.2f, -0.25f);
 
     }
 
@@ -22,11 +22,12 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
     wheels_[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
     wheels_[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
 
-    wheelOffsets_[0] = glm::vec3(-0.92f, 0.3f, 1.35f); // RL
-    wheelOffsets_[1] = glm::vec3(0.7f, 0.3f, 1.35f); // RR
-    wheelOffsets_[2] = glm::vec3(-0.92f, 0.3f, -1.35f); // FL
-    wheelOffsets_[3] = glm::vec3(0.7f, 0.3f, -1.35f); // FR
+    wheelOffsets_[0] = glm::vec3(-0.82f, -0.2f, 1.35f); // RL
+    wheelOffsets_[1] = glm::vec3(0.8f, -0.2f, 1.35f); // RR
+    wheelOffsets_[2] = glm::vec3(-0.82f, -0.2f, -1.35f); // FL
+    wheelOffsets_[3] = glm::vec3(0.8f, -0.2f, -1.35f); // FR
 
+	bodyOffset_ = glm::vec3(0.0f, -0.5f, 0.0f);
 
 }
 
@@ -55,9 +56,9 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 
     physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
 
-    body_->position = position;
+    glm::vec3 worldBodyOffset = carRot * bodyOffset_;
+    body_->position = position + worldBodyOffset;
     body_->rotation = carRotPx;
-
 
     
     for (int i = 0; i < 4; ++i)
@@ -98,7 +99,18 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         glm::quat localModelFix = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
         const float steeringWheelMultiplier = 6.0f;
-        float steeringWheelAngleDeg = steerCurrent_ * steeringWheelMultiplier;
+        float targetSteeringWheelAngle = steerCurrent_ * steeringWheelMultiplier;
+
+        if (steeringWheelVisualMaxAngle_ > 0.0f) {
+            targetSteeringWheelAngle = glm::clamp(targetSteeringWheelAngle,
+                                                   -steeringWheelVisualMaxAngle_,
+                                                   steeringWheelVisualMaxAngle_);
+        }
+
+        float alpha = glm::clamp(steeringWheelVisualSmooth_ * dt, 0.0f, 1.0f);
+        steeringWheelVisualAngle_ = glm::mix(steeringWheelVisualAngle_, targetSteeringWheelAngle, alpha);
+
+        float steeringWheelAngleDeg = steeringWheelVisualAngle_;
 
         glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
 

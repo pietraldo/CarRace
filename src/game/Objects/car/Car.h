@@ -29,6 +29,14 @@ public:
     void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset_ = offset; }
     void SetWheelRotation(vector<physx::PxQuat> rotations) { wheelRotations = rotations; }
 
+    // body offset (local car-space): x = right, y = up, z = forward
+    void SetBodyOffset(const glm::vec3& off) { bodyOffset_ = off; }
+    glm::vec3 GetBodyOffset() const { return bodyOffset_; }
+
+    // tuning wizualnego ruchu kierownicy (tylko model)
+    void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth_ = s; }
+    float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth_; }
+
     const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
 
 private:
@@ -36,6 +44,7 @@ private:
     std::array<std::unique_ptr<Wheel>, 4> wheels_{};
 
     std::array<glm::vec3, 4> wheelOffsets_{};
+    glm::vec3 bodyOffset_;
 
     std::shared_ptr<Model> steeringWheel_;
     glm::vec3 steeringOffset_;
@@ -46,4 +55,8 @@ private:
     float maxSteer_ = 45.f;  // deg
 
     std::vector<physx::PxQuat> wheelRotations;
+
+    float steeringWheelVisualAngle_ = 0.0f;      
+    float steeringWheelVisualSmooth_ = 6.0f;
+    float steeringWheelVisualMaxAngle_ = 120.0f;
 };
