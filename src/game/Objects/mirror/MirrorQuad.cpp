@@ -53,8 +53,19 @@ void MirrorQuad::Draw()
     shader.use();
     shader.setBool("uIsMirror", true);
 
-    glm::vec3 carPos = Rendering::scene->GetCarPosition();
-    glm::quat carRot = Rendering::scene->GetCarRotation();
+    glm::vec3 carPos(0.0f);
+    glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
+
+    if (Rendering::scene) {
+        Car* car = Rendering::scene->GetCar();
+        if (car && car->GetBody()) {
+            const auto& body = car->GetBody();
+            carPos = body->position;
+
+            physx::PxQuat pxRot = body->rotation;
+            carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
+        }
+    }
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, carPos);
@@ -66,9 +77,9 @@ void MirrorQuad::Draw()
     glm::mat4 rotMat = glm::toMat4(baseMirrorRot);
 
     glm::vec3 rotRad = glm::radians(rotationDeg);
-    rotMat = glm::rotate(rotMat, rotRad.y, glm::vec3(0, 1, 0)); // yaw
-    rotMat = glm::rotate(rotMat, rotRad.x, glm::vec3(1, 0, 0)); // pitch
-    rotMat = glm::rotate(rotMat, rotRad.z, glm::vec3(0, 0, 1)); // roll
+    rotMat = glm::rotate(rotMat, rotRad.y, glm::vec3(0, 1, 0)); 
+    rotMat = glm::rotate(rotMat, rotRad.x, glm::vec3(1, 0, 0)); 
+    rotMat = glm::rotate(rotMat, rotRad.z, glm::vec3(0, 0, 1)); 
 
     model *= rotMat;
 
@@ -86,5 +97,6 @@ void MirrorQuad::Draw()
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
+
 
 

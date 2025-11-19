@@ -20,14 +20,14 @@ Scene::Scene()
     gameObjects.push_back(floorCube);
 
 	MirrorQuad* leftMirror = new MirrorQuad(
-		glm::vec3(0.97f, 0.81f, 0.05f),   
+		glm::vec3(0.97f, 1.31f, 0.05f),   
 		glm::vec2(0.12f, 0.12f)          
 	);
 	leftMirror->SetRotationDeg(glm::vec3(0.0f, 292.0f, 0.0f));
 	gameObjects.push_back(leftMirror);
 
 	MirrorQuad* rightMirror = new MirrorQuad(
-		glm::vec3(-0.97f, 0.81f, 0.05f),
+		glm::vec3(-0.97f, 1.31f, 0.05f),
 		glm::vec2(0.12f, 0.12f)
 	);
 	rightMirror->SetRotationDeg(glm::vec3(0.0f, -292.0f, 0.0f));
