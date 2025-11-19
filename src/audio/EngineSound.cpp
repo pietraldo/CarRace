@@ -72,11 +72,20 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     if (rpm < 0.0f) rpm = -rpm;
 
     float prevRpmSmoothed = rpmSmoothed_;
-    float rpmDeltaRaw = rpm - prevRpmSmoothed;   
+    float rpmDeltaRaw = rpm - prevRpmSmoothed;
     float targetRPM = rpm;
 
-    float upFactor = rpmSmoothFactor_ * 1.3f;
-    float downFactor = rpmSmoothFactor_ * 1.8f; 
+    float tForInertia = 0.0f; 
+    {
+        float tmp = targetRPM;
+        if (tmp < idleRPM_) tmp = idleRPM_;
+        if (tmp > maxRPM_)  tmp = maxRPM_;
+        tForInertia = (tmp - idleRPM_) / (maxRPM_ - idleRPM_); 
+    }
+
+    float inertiaRpmFactorHigh = 1.0f - 0.5f * tForInertia;
+    float upFactor = rpmSmoothFactor_ * inertiaRpmFactorHigh * 1.1f;
+    float downFactor = rpmSmoothFactor_ * inertiaRpmFactorHigh * 1.6f;
 
     if (targetRPM > rpmSmoothed_) {
         rpmSmoothed_ += (targetRPM - rpmSmoothed_) * upFactor;
@@ -89,34 +98,34 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     if (clampedRPM < idleRPM_) clampedRPM = idleRPM_;
     if (clampedRPM > maxRPM_)  clampedRPM = maxRPM_;
 
-    float t = (clampedRPM - idleRPM_) / (maxRPM_ - idleRPM_); 
+    float t = (clampedRPM - idleRPM_) / (maxRPM_ - idleRPM_);
     if (t < 0.0f) t = 0.0f;
     else if (t > 1.0f) t = 1.0f;
 
     float tPitch = std::pow(t, 0.5f);
     float tVol = std::pow(t, 0.75f);
 
-    float basePitch = 0.9f;   
-    float maxPitch = 2.5f;  
+    float basePitch = 0.9f;
+    float maxPitch = 2.5f;
     float targetPitch = basePitch + tPitch * (maxPitch - basePitch);
 
     if (gear > 1) {
-        float gearPitchScale = 1.0f - 0.015f * (gear - 1); 
+        float gearPitchScale = 1.0f - 0.015f * (gear - 1);
         if (gearPitchScale < 0.9f) gearPitchScale = 0.9f;
         targetPitch *= gearPitchScale;
     }
 
     if (throttle > 0.3f) {
-        float loadBoost = std::pow(throttle, 0.5f) * t * 0.22f; 
+        float loadBoost = std::pow(throttle, 0.5f) * t * 0.22f;
         targetPitch += loadBoost;
     }
 
-    float baseVolIdle = 0.10f; 
+    float baseVolIdle = 0.10f;
     float maxVol = 1.25f;
     float targetVolume = baseVolIdle + tVol * (maxVol - baseVolIdle);
 
-    float loadShaped = std::pow(throttle, 0.4f);      
-    float loadGain = 0.3f + 1.05f * loadShaped;      
+    float loadShaped = std::pow(throttle, 0.4f);
+    float loadGain = 0.3f + 1.05f * loadShaped;
     targetVolume *= loadGain;
 
     if (clampedRPM <= idleRPM_ + 200.0f && throttle < 0.1f) {
@@ -131,7 +140,7 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
 
     const float limiterStart = 0.97f;
     if (t > limiterStart && throttle > 0.7f) {
-        float over = (t - limiterStart) / (1.0f - limiterStart); 
+        float over = (t - limiterStart) / (1.0f - limiterStart);
         if (over < 0.0f) over = 0.0f;
         if (over > 1.0f) over = 1.0f;
 
@@ -139,14 +148,16 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
         targetPitch *= (1.0f - 0.15f * over);
     }
 
-
     if (rpmDeltaRaw < -600.0f && throttle > 0.2f) {
-        targetPitch *= 0.80f;
-        targetVolume *= 0.70f;
+        targetPitch *= 0.85f;
+        targetVolume *= 0.78f;
     }
     else if (rpmDeltaRaw > 600.0f && throttle > 0.2f && speed > 5.0f) {
-        targetPitch *= 1.18f;
-        targetVolume *= 1.25f;
+        float highDamp = 1.0f - 0.4f * t; 
+        if (highDamp < 0.5f) highDamp = 0.5f;
+
+        targetPitch *= (1.10f + 0.08f * highDamp);
+        targetVolume *= (1.15f + 0.10f * highDamp);
     }
 
     if (rpmDeltaRaw > 200.0f && throttle > 0.5f) {
@@ -154,18 +165,27 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
         if (attack < 0.0f) attack = 0.0f;
         if (attack > 0.4f) attack = 0.4f;
 
-        targetPitch *= 1.0f + 0.25f * attack;
-        targetVolume *= 1.0f + 0.40f * attack;
+        float highDamp = 1.0f - 0.5f * t; 
+        if (highDamp < 0.4f) highDamp = 0.4f;
+
+        targetPitch *= 1.0f + 0.25f * attack * highDamp;
+        targetVolume *= 1.0f + 0.40f * attack * highDamp;
     }
 
     float dv = targetVolume - volumeSmoothed_;
     float dp = targetPitch - pitchSmoothed_;
 
-    float volFactor = volumeSmoothFactor_ * 1.2f;
-    float pitchFactor = pitchSmoothFactor_ * 1.2f;
+    float volFactor = volumeSmoothFactor_;
+    float pitchFactor = pitchSmoothFactor_;
 
-    if (std::fabs(dv) > 0.25f) volFactor *= 2.0f;
-    if (std::fabs(dp) > 0.30f) pitchFactor *= 2.0f;
+    float inertiaHigh = 1.0f - 0.5f * t; 
+    if (inertiaHigh < 0.4f) inertiaHigh = 0.4f;
+
+    volFactor *= inertiaHigh;
+    pitchFactor *= inertiaHigh;
+
+    if (std::fabs(dv) > 0.25f) volFactor *= 1.7f;
+    if (std::fabs(dp) > 0.30f) pitchFactor *= 1.7f;
 
     volumeSmoothed_ += dv * volFactor;
     pitchSmoothed_ += dp * pitchFactor;
@@ -176,4 +196,5 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     ma_sound_set_pitch(&sound_, pitchSmoothed_);
     ma_sound_set_volume(&sound_, volumeSmoothed_);
 }
+
 

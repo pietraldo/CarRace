@@ -16,8 +16,8 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
     
     // audio
-    if (!engineSound_.load("C:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/build/assets/audio/loop_2.wav")) {
-        std::cerr << "RaceCar: nie udalo sie zaladowac engine_loop.mp3\n";
+    if (!engineSound_.load("../assets/audio/loop_2.wav")) {
+        std::cerr << "RaceCar: nie udalo sie zaladowac assets/audio/loop_2.wav\n";
     }
 }
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
