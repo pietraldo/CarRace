@@ -35,8 +35,8 @@ void Wheel::UpdateWheelRotation()
 
     glm::quat qSteer = glm::angleAxis(steerRad, glm::vec3(0, 1, 0));
     glm::quat qSpin = glm::angleAxis(spinRad, glm::vec3(0, 0, 1));
-
     glm::quat qFix(1.0f, 0.0f, 0.0f, 0.0f);
+
     qFix = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
     glm::quat finalRot = qFlip * qSteer * qSpin *qFix;
     finalRot = glm::normalize(finalRot);

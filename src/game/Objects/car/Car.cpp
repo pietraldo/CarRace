@@ -50,9 +50,6 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     }
 
     glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
-
-    carRot = carRot;              
-
     physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
 
     glm::vec3 worldBodyOffset = carRot * bodyOffset;
