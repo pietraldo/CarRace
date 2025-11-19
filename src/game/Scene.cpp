@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "../gfx/Model.h"
+#include "Objects/mirror/MirrorQuad.h"
 
 Scene::Scene()
 {
@@ -17,6 +18,20 @@ Scene::Scene()
 
 	CubeObject* floorCube = new CubeObject(1, glm::vec3(0,-0.5,0), glm::vec3(450.0f, 1.0f, 450.0f), glm::vec3(0.7f, 0.4f, 1.0f));
     gameObjects.push_back(floorCube);
+
+	MirrorQuad* leftMirror = new MirrorQuad(
+		glm::vec3(0.97f, 0.81f, 0.05f),   
+		glm::vec2(0.12f, 0.12f)          
+	);
+	leftMirror->SetRotationDeg(glm::vec3(0.0f, 292.0f, 0.0f));
+	gameObjects.push_back(leftMirror);
+
+	MirrorQuad* rightMirror = new MirrorQuad(
+		glm::vec3(-0.97f, 0.81f, 0.05f),
+		glm::vec2(0.12f, 0.12f)
+	);
+	rightMirror->SetRotationDeg(glm::vec3(0.0f, -292.0f, 0.0f));
+	gameObjects.push_back(rightMirror);
 }
 
 
@@ -116,6 +131,7 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
 void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 {
 	shader.use();
+	shader.setBool("uIsMirror", false);
 
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
@@ -138,6 +154,7 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 void Scene::DrawModel(Shader& shader, Model& model)
 {
 	shader.use();
+	shader.setBool("uIsMirror", false);
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
@@ -267,4 +284,24 @@ LightBuffer Scene::LoadLights() {
 		light->AddTo(lightBuffer);
 	}
 	return lightBuffer;
+}
+
+glm::vec3 Scene::GetCarPosition() const
+{
+	auto vehicles = Physics::getInstance()->getVehicles();
+	if (vehicles.empty())
+		return glm::vec3(0.0f);
+
+	PxVec3 pos = vehicles[0]->getVehiclePosition();
+	return glm::vec3(pos.x, pos.y, pos.z);
+}
+
+glm::quat Scene::GetCarRotation() const
+{
+	auto vehicles = Physics::getInstance()->getVehicles();
+	if (vehicles.empty())
+		return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	PxQuat rot = vehicles[0]->getVehicleRotation();
+	return glm::quat(rot.w, rot.x, rot.y, rot.z);
 }

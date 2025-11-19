@@ -46,6 +46,7 @@ in vec2 TexCoords;          // z vertex shadera
 uniform vec3 viewPos;
 uniform vec3 objectColor;   // opcjonalny tint (np. (1,1,1))
 uniform bool fogEnabled;
+uniform bool uIsMirror;
 
 uniform sampler2D uBaseColorMap;
 
@@ -73,8 +74,13 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    // 1. bazowy kolor z tekstury + ewentualny tint
     vec3 texColor = texture(uBaseColorMap, TexCoords).rgb;
+
+    if (uIsMirror) {
+        FragColor = vec4(texColor, 1.0);   // bez *1.5
+        return;
+    }
+
     surfaceColor = texColor;
 
     // 2. liczenie świateł jak w Twoim shaderze

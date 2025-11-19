@@ -67,7 +67,7 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     body->rotation = physx::PxQuat(bodyQ.x, bodyQ.y, bodyQ.z, bodyQ.w);
 
     for (int i = 0; i < 4; ++i)
-    {
+    { 
         auto& w = wheels[i];
         auto& wheelModel = w->GetModel();
 

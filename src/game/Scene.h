@@ -73,6 +73,8 @@ public:
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
     vector<GameObject*> GetGameObjects() { return gameObjects; }
+	glm::vec3 GetCarPosition() const;
+	glm::quat GetCarRotation() const;
 
 	LightBuffer LoadLights();
 };

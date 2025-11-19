@@ -1,4 +1,5 @@
 #include "Rendering.h"
+#include "../game/Objects/mirror/MirrorQuad.h"
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -6,6 +7,14 @@ Shader* Rendering::lightShader = nullptr;
 Shader* Rendering::texturedShader = nullptr;
 
 bool Rendering::showBoxColliders = false;
+
+unsigned int Rendering::mirrorFBO = 0;
+unsigned int Rendering::mirrorColorTex = 0;
+unsigned int Rendering::mirrorDepthRBO = 0;
+bool   Rendering::useExternalView = false;
+glm::mat4 Rendering::externalView = glm::mat4(1.0f);
+bool   Rendering::useExternalProj = false;
+glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
 Scene* Rendering::scene = nullptr;
 
@@ -23,9 +32,47 @@ bool Rendering::firstMouse = true;
 unsigned int Rendering::uboLights = *(new unsigned);
 unsigned int Rendering::lightVAO = *(new unsigned);
 
+namespace
+{
+    void InitMirrorRenderTarget()
+    {
+        glGenFramebuffers(1, &Rendering::mirrorFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, Rendering::mirrorFBO);
+
+        // kolor
+        glGenTextures(1, &Rendering::mirrorColorTex);
+        glBindTexture(GL_TEXTURE_2D, Rendering::mirrorColorTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+            Rendering::MIRROR_WIDTH, Rendering::MIRROR_HEIGHT,
+            0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D, Rendering::mirrorColorTex, 0);
+
+        // depth+stencil
+        glGenRenderbuffers(1, &Rendering::mirrorDepthRBO);
+        glBindRenderbuffer(GL_RENDERBUFFER, Rendering::mirrorDepthRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+            Rendering::MIRROR_WIDTH, Rendering::MIRROR_HEIGHT);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+            GL_RENDERBUFFER, Rendering::mirrorDepthRBO);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            std::cout << "Mirror FBO not complete!" << std::endl;
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+}
+
 int Rendering::Initialize()
 {
-    window = CreateWindow(SCR_WIDTH, SCR_HEIGHT, "Rendering 3D scene");
+    window = CreateGLFWWindow(SCR_WIDTH, SCR_HEIGHT, "Rendering 3D scene");
     if (window == nullptr) return -1;
 
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
@@ -90,11 +137,12 @@ int Rendering::Initialize()
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    InitMirrorRenderTarget();
     return 0;
 }
 
 
-GLFWwindow* Rendering::CreateWindow(int width, int height, const char* title)
+GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -211,35 +259,92 @@ void Rendering::RenderImGui()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-
-void Rendering::RenderFrame(vector<GameObject*> gameObjects)
+static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,
+    bool skipMirror)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // setting proper shader
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
 
-    // updating light buffer
-    LightBuffer lightBuffer = (*scene).LoadLights();
+    LightBuffer lightBuffer = (*Rendering::scene).LoadLights();
     lightBuffer.spotLights[0].position = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Position);
     lightBuffer.spotLights[0].direction = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Front);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, Rendering::uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     for (GameObject* gameObj : gameObjects)
     {
+        if (skipMirror) {
+            if (dynamic_cast<MirrorQuad*>(gameObj) != nullptr)
+                continue;
+        }
         gameObj->Draw();
     }
 
-    (*scene).DrawLights(*lightShader, lightVAO);
-    (*scene).DrawModels(shaderTextured, shaderColor);
+    (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
+    (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
+}
+
+
+
+void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
+{
+    glm::vec3 carPos(0.0f);
+    glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
+
+    if (scene) {
+        Car* car = scene->GetCar();
+        if (car && car->GetBody()) {
+            const auto& body = car->GetBody();
+            carPos = body->position;
+
+            physx::PxQuat pxRot = body->rotation;
+            carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
+        }
+    }
+
+    glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);  
+    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f); 
+    glm::vec3 right = glm::normalize(glm::cross(forward, up)); 
+
+    float height = 1.2f;   
+    float sideOffset = 1.2f;   
+    float forwardOffset = 0.2f;   
+
+    glm::vec3 mirrorPos =
+        carPos
+        + up * height          
+        - right * sideOffset  
+        + forward * forwardOffset;
+
+    glm::vec3 lookDir = glm::normalize(-forward - 0.35f * right);
+
+    glm::mat4 mirrorView = glm::lookAt(
+        mirrorPos,
+        mirrorPos + lookDir,
+        up
+    );
+
+    Rendering::SetExternalView(mirrorView);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, mirrorFBO);
+    glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    RenderSceneCommon(gameObjects,true);
+
+    Rendering::ClearExternalView();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    RenderSceneCommon(gameObjects,false);
 
     RenderImGui();
-
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
 }
