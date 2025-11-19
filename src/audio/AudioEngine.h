@@ -10,7 +10,7 @@ public:
     bool init();        
     void shutdown();    
 
-    ma_engine* Engine() { return &engine; }
+    ma_engine* getEngine() { return &engine; }
 
 private:
     AudioEngine() = default;

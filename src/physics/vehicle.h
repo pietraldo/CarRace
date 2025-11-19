@@ -75,6 +75,7 @@ public:
     }
 
     void Update(float deltaTime, CarControlInput carControll);
+	void UpdateEngineSound(float rpm, float throttle,float speed,int  gear);
 
     friend class Physics;
 };

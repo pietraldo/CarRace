@@ -45,15 +45,14 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
     gVehicle.step(deltaTime, *gVehicleSimulationContext);
 
+    UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
+}
+
+void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear)
+{
     if (!engineSoundStarted_) {
         engineSound_.start();
         engineSoundStarted_ = true;
     }
-    // === AUDIO ===
-    float rpm = static_cast<float>(getEngineRPM());
-    float speed = getSpeed();
-    float throttle = carControll.throttle;
-    int   gear = getCurrentGear();
-
     engineSound_.update(rpm, throttle, speed, gear);
 }
