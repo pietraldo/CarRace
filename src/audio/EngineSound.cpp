@@ -2,6 +2,7 @@
 #include "AudioEngine.h"
 
 #include <iostream>
+#include <cmath>
 
 EngineSound::~EngineSound()
 {
@@ -19,11 +20,10 @@ bool EngineSound::load(const char* path)
 
     ma_engine* eng = AudioEngine::instance().engine();
 
-    // £adujemy jako dŸwiêk dekodowany na bie¿¹co, async
     ma_result result = ma_sound_init_from_file(
         eng,
         path,
-        MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,  // BEZ MA_SOUND_FLAG_LOOP
+        MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,
         nullptr,
         nullptr,
         &sound_
@@ -35,8 +35,14 @@ bool EngineSound::load(const char* path)
         return false;
     }
 
-    // Tu w³¹czamy zapêtlanie
     ma_sound_set_looping(&sound_, MA_TRUE);
+
+    rpmSmoothed_ = idleRPM_;
+    volumeSmoothed_ = 0.0f;
+    pitchSmoothed_ = 1.0f;
+
+    ma_sound_set_volume(&sound_, volumeSmoothed_);
+    ma_sound_set_pitch(&sound_, pitchSmoothed_);
 
     loaded_ = true;
     return true;
@@ -54,32 +60,120 @@ void EngineSound::stop()
     ma_sound_stop(&sound_);
 }
 
-void EngineSound::update(float rpm, float speed)
+void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int gear)
 {
     if (!loaded_) return;
 
-    const float idleRPM = 900.0f;   // obroty ja³owe
-    const float maxRPM = 7000.0f;  // "redline" – dopasuj pod swój samochód
+    if (throttle < 0.0f) throttle = 0.0f;
+    if (throttle > 1.0f) throttle = 1.0f;
 
-    float x = (rpm - idleRPM) / (maxRPM - idleRPM);
+    const float RADS_TO_RPM = 60.0f / (2.0f * 3.14159265f);
+    float rpm = rpmRadPerSec * RADS_TO_RPM;
+    if (rpm < 0.0f) rpm = -rpm;
 
-    if (x < 0.0f)      x = 0.0f;
-    else if (x > 1.0f) x = 1.0f;
+    float prevRpmSmoothed = rpmSmoothed_;
+    float rpmDeltaRaw = rpm - prevRpmSmoothed;   
+    float targetRPM = rpm;
 
-    // pitch: 0.8x przy ja³owych, 2.0x przy maxRPM
-    float pitch = 0.8f + x * 1.2f;
+    float upFactor = rpmSmoothFactor_ * 1.3f;
+    float downFactor = rpmSmoothFactor_ * 1.8f; 
 
-    // volume: 0.2 przy idle, do 1.0 przy maxRPM
-    float volume = 0.2f + x * 0.8f;
-    if (rpm < idleRPM * 0.5f) {
-        volume = 0.0f; // jak "zgaszony" – cisza
+    if (targetRPM > rpmSmoothed_) {
+        rpmSmoothed_ += (targetRPM - rpmSmoothed_) * upFactor;
+    }
+    else {
+        rpmSmoothed_ += (targetRPM - rpmSmoothed_) * downFactor;
     }
 
-    // opcjonalna korekta g³oœnoœci po prêdkoœci (np. przy toczeniu na luzie)
-    if (speed < 1.0f && rpm > idleRPM + 500.0f) {
-        volume *= 0.7f;
+    float clampedRPM = rpmSmoothed_;
+    if (clampedRPM < idleRPM_) clampedRPM = idleRPM_;
+    if (clampedRPM > maxRPM_)  clampedRPM = maxRPM_;
+
+    float t = (clampedRPM - idleRPM_) / (maxRPM_ - idleRPM_); 
+    if (t < 0.0f) t = 0.0f;
+    else if (t > 1.0f) t = 1.0f;
+
+    float tPitch = std::pow(t, 0.5f);
+    float tVol = std::pow(t, 0.75f);
+
+    float basePitch = 0.9f;   
+    float maxPitch = 2.5f;  
+    float targetPitch = basePitch + tPitch * (maxPitch - basePitch);
+
+    if (gear > 1) {
+        float gearPitchScale = 1.0f - 0.015f * (gear - 1); 
+        if (gearPitchScale < 0.9f) gearPitchScale = 0.9f;
+        targetPitch *= gearPitchScale;
     }
 
-    ma_sound_set_pitch(&sound_, pitch);
-    ma_sound_set_volume(&sound_, volume);
+    if (throttle > 0.3f) {
+        float loadBoost = std::pow(throttle, 0.5f) * t * 0.22f; 
+        targetPitch += loadBoost;
+    }
+
+    float baseVolIdle = 0.10f; 
+    float maxVol = 1.25f;
+    float targetVolume = baseVolIdle + tVol * (maxVol - baseVolIdle);
+
+    float loadShaped = std::pow(throttle, 0.4f);      
+    float loadGain = 0.3f + 1.05f * loadShaped;      
+    targetVolume *= loadGain;
+
+    if (clampedRPM <= idleRPM_ + 200.0f && throttle < 0.1f) {
+        targetVolume *= 0.6f;
+    }
+    if (clampedRPM > idleRPM_ + 500.0f && throttle < 0.1f) {
+        targetVolume *= 0.5f;
+    }
+    if (speed < 1.0f && throttle < 0.1f) {
+        targetVolume *= 0.6f;
+    }
+
+    const float limiterStart = 0.97f;
+    if (t > limiterStart && throttle > 0.7f) {
+        float over = (t - limiterStart) / (1.0f - limiterStart); 
+        if (over < 0.0f) over = 0.0f;
+        if (over > 1.0f) over = 1.0f;
+
+        targetVolume *= (1.0f - 0.35f * over);
+        targetPitch *= (1.0f - 0.15f * over);
+    }
+
+
+    if (rpmDeltaRaw < -600.0f && throttle > 0.2f) {
+        targetPitch *= 0.80f;
+        targetVolume *= 0.70f;
+    }
+    else if (rpmDeltaRaw > 600.0f && throttle > 0.2f && speed > 5.0f) {
+        targetPitch *= 1.18f;
+        targetVolume *= 1.25f;
+    }
+
+    if (rpmDeltaRaw > 200.0f && throttle > 0.5f) {
+        float attack = rpmDeltaRaw / 1500.0f;
+        if (attack < 0.0f) attack = 0.0f;
+        if (attack > 0.4f) attack = 0.4f;
+
+        targetPitch *= 1.0f + 0.25f * attack;
+        targetVolume *= 1.0f + 0.40f * attack;
+    }
+
+    float dv = targetVolume - volumeSmoothed_;
+    float dp = targetPitch - pitchSmoothed_;
+
+    float volFactor = volumeSmoothFactor_ * 1.2f;
+    float pitchFactor = pitchSmoothFactor_ * 1.2f;
+
+    if (std::fabs(dv) > 0.25f) volFactor *= 2.0f;
+    if (std::fabs(dp) > 0.30f) pitchFactor *= 2.0f;
+
+    volumeSmoothed_ += dv * volFactor;
+    pitchSmoothed_ += dp * pitchFactor;
+
+    if (volumeSmoothed_ < 0.0f) volumeSmoothed_ = 0.0f;
+    if (volumeSmoothed_ > 1.0f) volumeSmoothed_ = 1.0f;
+
+    ma_sound_set_pitch(&sound_, pitchSmoothed_);
+    ma_sound_set_volume(&sound_, volumeSmoothed_);
 }
+

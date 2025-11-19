@@ -16,11 +16,8 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
     
     // audio
-    if (engineSound_.load("C:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/build/assets/audio/engine_loop.mp3")) {
-        engineSound_.start();
-    }
-    else {
-        std::cerr << "RaceCar: dupa nie udalo sie zaladowac assets/audio/engine_loop.mp3\n";
+    if (!engineSound_.load("C:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/build/assets/audio/loop_2.wav")) {
+        std::cerr << "RaceCar: nie udalo sie zaladowac engine_loop.mp3\n";
     }
 }
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
@@ -48,9 +45,15 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
     gVehicle.step(deltaTime, *gVehicleSimulationContext);
 
+    if (!engineSoundStarted_) {
+        engineSound_.start();
+        engineSoundStarted_ = true;
+    }
     // === AUDIO ===
     float rpm = static_cast<float>(getEngineRPM());
-    float speed = getSpeed();  
+    float speed = getSpeed();
+    float throttle = carControll.throttle;
+    int   gear = getCurrentGear();
 
-    engineSound_.update(rpm, speed);
+    engineSound_.update(rpm, throttle, speed, gear);
 }

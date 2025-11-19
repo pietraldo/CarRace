@@ -32,6 +32,7 @@ private:
     const char* gVehicleName;
     const char* gVehicleDataPath = "..\\assets\\vehicledata";
     EngineSound engineSound_;
+    bool engineSoundStarted_ = false;
 
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath, PxVehiclePhysXSimulationContext* simulationContext);
