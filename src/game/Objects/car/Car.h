@@ -14,49 +14,47 @@ public:
     void Update(float dt, glm::vec3 position, physx::PxQuat rotation);
     void Draw(Shader& shader);
 
-    float GetSteer()        const { return steerCurrent_; }
-    float GetSteerTarget()  const { return steerTarget_; }
-    float GetMaxSteer()     const { return maxSteer_; }
-    float GetSteerSpeed()   const { return steerSpeed_; }
+    float GetSteer()        const { return steerCurrent; }
+    float GetSteerTarget()  const { return steerTarget; }
+    float GetMaxSteer()     const { return maxSteer; }
+    float GetSteerSpeed()   const { return steerSpeed; }
 
-    const std::shared_ptr<Model>& GetBody() const noexcept { return body_; }
-    const std::array<glm::vec3, 4>& GetWheelOffsets() const noexcept { return wheelOffsets_; }
-    const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel_; }
+    const std::shared_ptr<Model>& GetBody() const noexcept { return body; }
+    const std::array<glm::vec3, 4>& GetWheelOffsets() const noexcept { return wheelOffsets; }
+    const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel; }
 
     void SetMaxSteer(float deg);        
     void SetSteerSpeed(float degPerSec);
     void SetWheelOffsets(const std::array<glm::vec3, 4>& offsets);
-    void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset_ = offset; }
+    void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
     void SetWheelRotation(vector<physx::PxQuat> rotations) { wheelRotations = rotations; }
 
-    // body offset (local car-space): x = right, y = up, z = forward
-    void SetBodyOffset(const glm::vec3& off) { bodyOffset_ = off; }
-    glm::vec3 GetBodyOffset() const { return bodyOffset_; }
+    void SetBodyOffset(const glm::vec3& off) { bodyOffset = off; }
+    glm::vec3 GetBodyOffset() const { return bodyOffset; }
 
-    // tuning wizualnego ruchu kierownicy (tylko model)
-    void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth_ = s; }
-    float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth_; }
+    void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
+    float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth; }
 
-    const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels_; }
+    const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels; }
 
 private:
-    std::shared_ptr<Model> body_;
-    std::array<std::unique_ptr<Wheel>, 4> wheels_{};
+    std::shared_ptr<Model> body;
+    std::array<std::unique_ptr<Wheel>, 4> wheels{};
 
-    std::array<glm::vec3, 4> wheelOffsets_{};
-    glm::vec3 bodyOffset_;
+    std::array<glm::vec3, 4> wheelOffsets{};
+    glm::vec3 bodyOffset;
 
-    std::shared_ptr<Model> steeringWheel_;
-    glm::vec3 steeringOffset_;
+    std::shared_ptr<Model> steeringWheel;
+    glm::vec3 steeringOffset;
 
-    float steerTarget_ = 0.f;
-    float steerCurrent_ = 0.f;   // deg
-    float steerSpeed_ = 180.f; // deg/s
-    float maxSteer_ = 45.f;  // deg
+    float steerTarget = 0.f;
+    float steerCurrent = 0.f;   // deg
+    float steerSpeed = 180.f; // deg/s
+    float maxSteer = 45.f;  // deg
 
     std::vector<physx::PxQuat> wheelRotations;
 
-    float steeringWheelVisualAngle_ = 0.0f;      
-    float steeringWheelVisualSmooth_ = 6.0f;
-    float steeringWheelVisualMaxAngle_ = 120.0f;
+    float steeringWheelVisualAngle = 0.0f;      
+    float steeringWheelVisualSmooth = 6.0f;
+    float steeringWheelVisualMaxAngle = 120.0f;
 };

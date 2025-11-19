@@ -12,6 +12,8 @@
 #include "./game/Objects/car/Car.h"
 #include "./physics.h"
 #include "./CarControlInput.h"
+#include "../audio/EngineSound.h"
+#include "../audio/TireSquealSound.h"
 
 using namespace physx;
 using namespace vehicle2;
@@ -30,6 +32,13 @@ private:
     //Pvd vehicle name
     const char* gVehicleName;
     const char* gVehicleDataPath = "..\\assets\\vehicledata";
+
+    EngineSound engineSound;
+    bool engineSoundStarted = false;
+
+    TireSquealSound tireSquealSound;
+    bool tireSquealLoaded = false;
+
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath, PxVehiclePhysXSimulationContext* simulationContext);
 
@@ -70,7 +79,11 @@ public:
         return gVehicle.getWheelRotation();
     }
 
+    float computeDriftFactor() const;
+
     void Update(float deltaTime, CarControlInput carControll);
+	void UpdateEngineSound(float rpm, float throttle,float speed,int  gear);
+    void UpdateTireSqueal(float driftFactor, float speed);
 
     friend class Physics;
 };

@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 
+
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -25,16 +26,16 @@
 #include "../gfx/Constants.h"
 #include "../gfx/camera/CameraManager.h"
 
+#include "audio/AudioEngine.h"
+
 #include "./gfx/Rendering.h"
 #include "./physics/physics.h"
 #include "./game/Objects/car/Car.h"
 #include "./ui/Input/InputStructures.h"
 #include "./ui/Input/InputManager.h"
 
-
 // include physx
 #include <PxPhysicsAPI.h>
-
 
 #include "../externals/stb_image/stb_image.h"
 
@@ -59,7 +60,7 @@ int main()
 	scene->CreateLights();
 	CameraManager::GetInstance()->CreateCameras();
 	LightBuffer lightBuffer = scene->LoadLights();
-
+	AudioEngine::instance().init();
 
     if (Rendering::Initialize() == -1) return -1;
 
@@ -94,7 +95,7 @@ int main()
 	}
 
 	glfwTerminate();
-
+	AudioEngine::instance().shutdown();
     Physics::getInstance()->cleanup();
 	return 0;
 }

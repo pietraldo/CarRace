@@ -6,6 +6,7 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   features/*.cpp
   physics/*.cpp
   ui/*.cpp
+  audio/*.cpp
 )
 
 add_executable(carrace ${SRC_FILES})
@@ -18,6 +19,7 @@ target_include_directories(carrace PRIVATE
   ${CMAKE_SOURCE_DIR}/externals/physx/include
   ${CMAKE_SOURCE_DIR}/externals/rapidjson/include
   ${CMAKE_SOURCE_DIR}/externals/stb_image
+  ${CMAKE_SOURCE_DIR}/externals/mini_audio
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/externals/physx/include)
@@ -50,11 +52,12 @@ target_link_libraries(carrace PRIVATE
 
 # --- Add headers to project (IDE visibility) ---
 file(GLOB_RECURSE SRC_HEADERS CONFIGURE_DEPENDS
-  app/*.h core/*.h gfx/*.h game/*.h features/*.h physics/*.h ui/*.h
+  app/*.h core/*.h gfx/*.h game/*.h features/*.h physics/*.h ui/*.h audio/*.h
 )
 target_sources(carrace PRIVATE 
 	${SRC_HEADERS}  
 	${CMAKE_SOURCE_DIR}/externals/stb_image/stb_image.h
+	${CMAKE_SOURCE_DIR}/externals/mini_audio/miniaudio.h
 )
 
 # dodawanie shaderow
@@ -82,6 +85,7 @@ endfunction()
 copy_assets(shaders)
 copy_assets(models)
 copy_assets(vehicledata)
+copy_assets(audio)
 
 # --- Copy DLLs ---
 add_custom_command(TARGET carrace POST_BUILD
