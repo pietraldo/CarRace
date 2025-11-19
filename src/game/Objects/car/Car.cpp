@@ -1,6 +1,8 @@
 #include "Car.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>     // std::isfinite
+#include <glm/gtx/quaternion.hpp>
 
 
 static inline bool isFinite(float x) { return std::isfinite(x); }
@@ -50,23 +52,30 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     }
 
     glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
-    physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
+    carRot = glm::normalize(carRot);
 
-    glm::vec3 worldBodyOffset = carRot * bodyOffset;
-    body->position = position + worldBodyOffset;
-    body->rotation = carRotPx;
+    glm::mat4 chassisM =
+        glm::translate(glm::mat4(1.0f), position) *
+        glm::toMat4(carRot);
 
-    
+    glm::mat4 bodyM = chassisM * glm::translate(glm::mat4(1.0f), bodyOffset);
+
+    glm::vec3 bodyPos = glm::vec3(bodyM[3]);
+    glm::quat bodyQ = glm::quat_cast(bodyM);
+
+    body->position = bodyPos;
+    body->rotation = physx::PxQuat(bodyQ.x, bodyQ.y, bodyQ.z, bodyQ.w);
+
     for (int i = 0; i < 4; ++i)
     {
         auto& w = wheels[i];
         auto& wheelModel = w->GetModel();
 
-        if (wheelModel && body) {
-            glm::vec3 worldOffset = carRot * wheelOffsets[i];
-            wheelModel->position = body->position + worldOffset;
+        if (wheelModel) {
+            glm::mat4 wheelM = bodyM * glm::translate(glm::mat4(1.0f), wheelOffsets[i]);
+            wheelModel->position = glm::vec3(wheelM[3]);
         }
-       
+
         auto pos = w->GetPos();
         if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
             w->SetSteer(-steerCurrent);
@@ -76,10 +85,14 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         }
 
         w->SetSpin(getXRotationDegrees(wheelRotations[i]));
-        
-        physx::PxQuat localRot = wheelModel->rotation;
-        wheelModel->rotation = carRotPx * localRot;
+
+        if (wheelModel) {
+            physx::PxQuat localRot = wheelModel->rotation;
+            physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
+            wheelModel->rotation = carRotPx * localRot;
+        }
     }
+
 
     if (steeringWheel && body) {
         glm::quat carRot(
