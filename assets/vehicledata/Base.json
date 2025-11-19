@@ -22,11 +22,11 @@
         "Scale": 1.0
     },
     "RigidBodyParams": {
-        "Mass": 2014.4000244140625,
+        "Mass": 814.4000244140625,
         "MOI": [
-            3200.0,
-            3414.0,
-            750.0
+            1400.0,
+            1614.0,
+            320.0
         ]
     },
     "BrakeCommandResponseParams": {
@@ -48,7 +48,7 @@
         ]
     },
     "SteerCommandResponseParams": {
-        "MaxResponse": 0.5235990285873413,
+        "MaxResponse": 1.0235990285873413,
         "WheelResponseMultipliers": [
             1.0,
             1.0,
@@ -388,15 +388,15 @@
             "FrictionVsSlip": [
                 [
                     0.0,
-                    1.0
+                    1.5
                 ],
                 [
                     0.10000000149011612,
-                    1.0
+                    1.5
                 ],
                 [
                     1.0,
-                    1.0
+                    1.5
                 ]
             ],
             "TireLoadFilter": [
@@ -420,15 +420,15 @@
             "FrictionVsSlip": [
                 [
                     0.0,
-                    1.0
+                    1.5
                 ],
                 [
                     0.10000000149011612,
-                    1.0
+                    1.5
                 ],
                 [
                     1.0,
-                    1.0
+                    1.5
                 ]
             ],
             "TireLoadFilter": [
@@ -452,15 +452,15 @@
             "FrictionVsSlip": [
                 [
                     0.0,
-                    1.0
+                    1.5
                 ],
                 [
                     0.10000000149011612,
-                    1.0
+                    1.5
                 ],
                 [
                     1.0,
-                    1.0
+                    1.5
                 ]
             ],
             "TireLoadFilter": [
@@ -484,15 +484,15 @@
             "FrictionVsSlip": [
                 [
                     0.0,
-                    1.0
+                    1.5
                 ],
                 [
                     0.10000000149011612,
-                    1.0
+                    1.5
                 ],
                 [
                     1.0,
-                    1.0
+                    1.5
                 ]
             ],
             "TireLoadFilter": [
