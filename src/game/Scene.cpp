@@ -178,7 +178,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/car.gltf";
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
