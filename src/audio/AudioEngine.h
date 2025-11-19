@@ -10,7 +10,7 @@ public:
     bool init();        
     void shutdown();    
 
-    ma_engine* engine() { return &engine_; }
+    ma_engine* Engine() { return &engine; }
 
 private:
     AudioEngine() = default;
@@ -19,6 +19,6 @@ private:
     AudioEngine(const AudioEngine&) = delete;
     AudioEngine& operator=(const AudioEngine&) = delete;
 
-    ma_engine engine_{};
-    bool initialized_ = false;
+    ma_engine engine{};
+    bool initialized = false;
 };

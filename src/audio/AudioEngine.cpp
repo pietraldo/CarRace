@@ -11,23 +11,23 @@ AudioEngine& AudioEngine::instance()
 
 bool AudioEngine::init()
 {
-    if (initialized_) return true;
+    if (initialized) return true;
 
-    ma_result result = ma_engine_init(nullptr, &engine_);
+    ma_result result = ma_engine_init(nullptr, &engine);
     if (result != MA_SUCCESS)
     {
         std::cerr << "AudioEngine: failed to initialize, code = " << result << std::endl;
         return false;
     }
 
-    initialized_ = true;
+    initialized = true;
     return true;
 }
 
 void AudioEngine::shutdown()
 {
-    if (!initialized_) return;
+    if (!initialized) return;
 
-    ma_engine_uninit(&engine_);
-    initialized_ = false;
+    ma_engine_uninit(&engine);
+    initialized = false;
 }

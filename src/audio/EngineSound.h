@@ -15,24 +15,26 @@ public:
     void update(float rpm, float throttle, float speed, int gear);
 
 private:
-    ma_sound sound_{};
-    bool loaded_ = false;
+    ma_sound sound {};
+    bool loaded  = false;
 
-    float rpmSmoothed_ = 0.0f;
-    float volumeSmoothed_ = 0.0f;
-    float pitchSmoothed_ = 1.0f;
+    float rpmSmoothed = 0.0f;
+    float volumeSmoothed = 0.0f;
+    float pitchSmoothed = 1.0f;
 
-    float rpmSmoothFactor_ = 0.15f;  
-    float volumeSmoothFactor_ = 0.12f;
-    float pitchSmoothFactor_ = 0.15f;
+    float rpmSmoothFactor = 0.15f;  
+    float volumeSmoothFactor = 0.12f;
+    float pitchSmoothFactor = 0.15f;
 
-    float idleRPM_ = 900.0f;
-    float maxRPM_ = 7500.0f; 
+    float idleRPM = 900.0f;
+    float maxRPM = 7500.0f; 
 
-    float lastThrottle_ = 0.0f;
-    float lastRpmRaw_ = 0.0f;
-    int   lastGear_ = 0;
+    float lastThrottle = 0.0f;
+    float lastRpmRaw = 0.0f;
+    int   lastGear = 0;
 
-    int shiftFramesLeft_ = 0;
-    int shiftDir_ = 0;
+    int shiftFramesLeft = 0;
+    int shiftDir = 0;
+    float audioThrottle = 0.0f;
+
 };

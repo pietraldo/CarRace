@@ -6,8 +6,8 @@
 
 EngineSound::~EngineSound()
 {
-    if (loaded_) {
-        ma_sound_uninit(&sound_);
+    if (loaded) {
+        ma_sound_uninit(&sound);
     }
 }
 
@@ -18,7 +18,7 @@ bool EngineSound::load(const char* path)
         return false;
     }
 
-    ma_engine* eng = AudioEngine::instance().engine();
+    ma_engine* eng = AudioEngine::instance().Engine();
 
     ma_result result = ma_sound_init_from_file(
         eng,
@@ -26,7 +26,7 @@ bool EngineSound::load(const char* path)
         MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,
         nullptr,
         nullptr,
-        &sound_
+        &sound
     );
 
     if (result != MA_SUCCESS) {
@@ -35,103 +35,134 @@ bool EngineSound::load(const char* path)
         return false;
     }
 
-    ma_sound_set_looping(&sound_, MA_TRUE);
+    ma_sound_set_looping(&sound, MA_TRUE);
 
-    rpmSmoothed_ = idleRPM_;
-    volumeSmoothed_ = 0.0f;
-    pitchSmoothed_ = 1.0f;
+    rpmSmoothed = idleRPM;
+    volumeSmoothed = 0.0f;
+    pitchSmoothed = 1.0f;
 
-    ma_sound_set_volume(&sound_, volumeSmoothed_);
-    ma_sound_set_pitch(&sound_, pitchSmoothed_);
+    ma_sound_set_volume(&sound, volumeSmoothed);
+    ma_sound_set_pitch(&sound, pitchSmoothed);
 
-    loaded_ = true;
+    loaded = true;
     return true;
 }
 
 void EngineSound::start()
 {
-    if (!loaded_) return;
-    ma_sound_start(&sound_);
+    if (!loaded) return;
+    ma_sound_start(&sound);
 }
 
 void EngineSound::stop()
 {
-    if (!loaded_) return;
-    ma_sound_stop(&sound_);
+    if (!loaded) return;
+    ma_sound_stop(&sound);
 }
 
 void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int gear)
 {
-    if (!loaded_) return;
+    if (!loaded) return;
 
     if (throttle < 0.0f) throttle = 0.0f;
     if (throttle > 1.0f) throttle = 1.0f;
+
+    float targetAudioThrottle = throttle;
+
+    const float throttleAttack = 0.35f;
+    const float throttleRelease = 0.08f; 
+
+    if (targetAudioThrottle > audioThrottle) {
+        audioThrottle += (targetAudioThrottle - audioThrottle) * throttleAttack;
+    }
+    else {
+        audioThrottle += (targetAudioThrottle - audioThrottle) * throttleRelease;
+    }
+
+    if (audioThrottle < 0.0f) audioThrottle = 0.0f;
+    if (audioThrottle > 1.0f) audioThrottle = 1.0f;
 
     const float RADS_TO_RPM = 60.0f / (2.0f * 3.14159265f);
     float rpm = rpmRadPerSec * RADS_TO_RPM;
     if (rpm < 0.0f) rpm = -rpm;
 
-    float prevRpmSmoothed = rpmSmoothed_;
-    float rpmDeltaRaw = rpm - prevRpmSmoothed;   
+    float prevRpmSmoothed = rpmSmoothed;
+    float rpmDeltaRaw = rpm - prevRpmSmoothed;
     float targetRPM = rpm;
 
-    float upFactor = rpmSmoothFactor_ * 1.3f;
-    float downFactor = rpmSmoothFactor_ * 1.8f; 
+    float upFactor = rpmSmoothFactor * 1.6f;
 
-    if (targetRPM > rpmSmoothed_) {
-        rpmSmoothed_ += (targetRPM - rpmSmoothed_) * upFactor;
+    float downFactor = rpmSmoothFactor * 0.7f;
+    if (throttle < 0.25f) {
+        downFactor *= 0.35f;
+    }
+
+    if (targetRPM > rpmSmoothed) {
+        rpmSmoothed += (targetRPM - rpmSmoothed) * upFactor;
     }
     else {
-        rpmSmoothed_ += (targetRPM - rpmSmoothed_) * downFactor;
+        rpmSmoothed += (targetRPM - rpmSmoothed) * downFactor;
     }
 
-    float clampedRPM = rpmSmoothed_;
-    if (clampedRPM < idleRPM_) clampedRPM = idleRPM_;
-    if (clampedRPM > maxRPM_)  clampedRPM = maxRPM_;
+    float clampedRPM = rpmSmoothed;
+    if (clampedRPM < idleRPM) clampedRPM = idleRPM;
+    if (clampedRPM > maxRPM)  clampedRPM = maxRPM;
 
-    float t = (clampedRPM - idleRPM_) / (maxRPM_ - idleRPM_); 
+    float t = (clampedRPM - idleRPM) / (maxRPM - idleRPM);
     if (t < 0.0f) t = 0.0f;
     else if (t > 1.0f) t = 1.0f;
 
     float tPitch = std::pow(t, 0.5f);
     float tVol = std::pow(t, 0.75f);
 
-    float basePitch = 0.9f;   
-    float maxPitch = 2.5f;  
+    float basePitch = 0.9f;
+    float maxPitch = 2.5f;
     float targetPitch = basePitch + tPitch * (maxPitch - basePitch);
 
     if (gear > 1) {
-        float gearPitchScale = 1.0f - 0.015f * (gear - 1); 
+        float gearPitchScale = 1.0f - 0.015f * (gear - 1);
         if (gearPitchScale < 0.9f) gearPitchScale = 0.9f;
         targetPitch *= gearPitchScale;
     }
 
-    if (throttle > 0.3f) {
-        float loadBoost = std::pow(throttle, 0.5f) * t * 0.22f; 
+    if (audioThrottle > 0.3f) {
+        float loadBoost = std::pow(audioThrottle, 0.5f) * t * 0.22f;
         targetPitch += loadBoost;
     }
 
-    float baseVolIdle = 0.10f; 
+    float baseVolIdle = 0.12f;
     float maxVol = 1.25f;
     float targetVolume = baseVolIdle + tVol * (maxVol - baseVolIdle);
 
-    float loadShaped = std::pow(throttle, 0.4f);      
-    float loadGain = 0.3f + 1.05f * loadShaped;      
+    float loadShaped = std::pow(audioThrottle, 0.45f);
+    float loadGain = 0.55f + 0.90f * loadShaped; 
     targetVolume *= loadGain;
 
-    if (clampedRPM <= idleRPM_ + 200.0f && throttle < 0.1f) {
-        targetVolume *= 0.6f;
+    bool isStanding = (speed < 1.0f);
+    bool isOffGas = (throttle < 0.12f);
+    bool isCoasting = (!isStanding && isOffGas && gear > 1);
+
+    if (isStanding) {
+        if (clampedRPM <= idleRPM + 250.0f) {
+            targetVolume *= 0.55f;
+            targetPitch *= 0.97f;
+        }
+        else if (clampedRPM > idleRPM + 600.0f) {
+            targetVolume *= 0.9f;
+        }
     }
-    if (clampedRPM > idleRPM_ + 500.0f && throttle < 0.1f) {
-        targetVolume *= 0.5f;
-    }
-    if (speed < 1.0f && throttle < 0.1f) {
-        targetVolume *= 0.6f;
+    else if (isCoasting) {
+        float coastFactor = speed / 40.0f; 
+        if (coastFactor < 0.0f) coastFactor = 0.0f;
+        if (coastFactor > 1.0f) coastFactor = 1.0f;
+
+        targetPitch *= (1.02f + 0.10f * coastFactor);
+        targetVolume *= (0.90f + 0.25f * coastFactor);
     }
 
     const float limiterStart = 0.97f;
-    if (t > limiterStart && throttle > 0.7f) {
-        float over = (t - limiterStart) / (1.0f - limiterStart); 
+    if (t > limiterStart && audioThrottle > 0.7f) {
+        float over = (t - limiterStart) / (1.0f - limiterStart);
         if (over < 0.0f) over = 0.0f;
         if (over > 1.0f) over = 1.0f;
 
@@ -139,17 +170,16 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
         targetPitch *= (1.0f - 0.15f * over);
     }
 
-
-    if (rpmDeltaRaw < -600.0f && throttle > 0.2f) {
-        targetPitch *= 0.80f;
-        targetVolume *= 0.70f;
+    if (rpmDeltaRaw < -600.0f && audioThrottle > 0.25f) {
+        targetPitch *= 0.88f;
+        targetVolume *= 0.80f;  
     }
-    else if (rpmDeltaRaw > 600.0f && throttle > 0.2f && speed > 5.0f) {
+    else if (rpmDeltaRaw > 600.0f && audioThrottle > 0.25f && speed > 5.0f) {
         targetPitch *= 1.18f;
         targetVolume *= 1.25f;
     }
 
-    if (rpmDeltaRaw > 200.0f && throttle > 0.5f) {
+    if (rpmDeltaRaw > 200.0f && audioThrottle > 0.5f) {
         float attack = rpmDeltaRaw / 1500.0f;
         if (attack < 0.0f) attack = 0.0f;
         if (attack > 0.4f) attack = 0.4f;
@@ -158,22 +188,26 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
         targetVolume *= 1.0f + 0.40f * attack;
     }
 
-    float dv = targetVolume - volumeSmoothed_;
-    float dp = targetPitch - pitchSmoothed_;
+    float dv = targetVolume - volumeSmoothed;
+    float dp = targetPitch - pitchSmoothed;
 
-    float volFactor = volumeSmoothFactor_ * 1.2f;
-    float pitchFactor = pitchSmoothFactor_ * 1.2f;
+    float volFactor = volumeSmoothFactor;
+    float pitchFactor = pitchSmoothFactor;
 
-    if (std::fabs(dv) > 0.25f) volFactor *= 2.0f;
-    if (std::fabs(dp) > 0.30f) pitchFactor *= 2.0f;
+    if (dv > 0.25f) volFactor *= 2.0f;
+    if (dp > 0.30f) pitchFactor *= 2.0f;
 
-    volumeSmoothed_ += dv * volFactor;
-    pitchSmoothed_ += dp * pitchFactor;
+    if (dv < 0.0f && throttle < 0.25f) volFactor *= 0.4f;
+    if (dp < 0.0f && throttle < 0.25f) pitchFactor *= 0.6f;
 
-    if (volumeSmoothed_ < 0.0f) volumeSmoothed_ = 0.0f;
-    if (volumeSmoothed_ > 1.0f) volumeSmoothed_ = 1.0f;
+    volumeSmoothed += dv * volFactor;
+    pitchSmoothed += dp * pitchFactor;
 
-    ma_sound_set_pitch(&sound_, pitchSmoothed_);
-    ma_sound_set_volume(&sound_, volumeSmoothed_);
+    if (volumeSmoothed < 0.0f) volumeSmoothed = 0.0f;
+    if (volumeSmoothed > 1.0f) volumeSmoothed = 1.0f;
+
+    ma_sound_set_pitch(&sound, pitchSmoothed);
+    ma_sound_set_volume(&sound, volumeSmoothed);
 }
+
 
