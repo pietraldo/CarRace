@@ -82,6 +82,12 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
         *gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(500.0f, 0.5f, 500.0f)), *material);
     gScene->addActor(*boxCollider);
     gameObjects[2]->actor = boxCollider;
+
+    physx::PxRigidStatic* boxCollider2 = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(0, 0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(5.0f, 0.5f, 5.0f)), *material);
+    gScene->addActor(*boxCollider2);
+    gameObjects[3]->actor = boxCollider2;
+
 }
 
 void Physics::update(float deltaTime, CarControlInput carControll)
@@ -148,6 +154,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     {
         return nullptr;
     }
+    
 
     //Apply a start pose to the physx actor and add it to the physx scene.
     PxTransform pose(position, PxQuat(PxIdentity));
@@ -161,14 +168,13 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     // Ensure it has collision
     shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
-
-    // Create new geometry
     PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.06f));
-
-    // Apply back to shape
     shape->setGeometry(newGeom);
     physx::PxTransform localOffset = PxTransform(0, 0.85, 0);
     shape->setLocalPose(localOffset);
+
+    auto wheelsPoses = vehicle->gVehicle.mBaseState.wheelLocalPoses;
+
 
     return vehicle;
 

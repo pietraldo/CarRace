@@ -18,6 +18,9 @@ Scene::Scene()
 	CubeObject* floorCube = new CubeObject(1, glm::vec3(0,-0.5,0), glm::vec3(1000, 1.0f, 1000), glm::vec3(0.7f, 0.4f, 1.0f));
     gameObjects.push_back(floorCube);
 
+	CubeObject* floorCube2 = new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(10, 1.0f, 10), glm::vec3(1.0f, 0.4f, 1.0f));
+	gameObjects.push_back(floorCube2);
+
 	CubeObject* cube3 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), false);
 	gameObjects.push_back(cube3);
 	cube = cube3;
