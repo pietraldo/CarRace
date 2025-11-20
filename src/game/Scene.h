@@ -50,7 +50,7 @@ public:
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
 
-	CubeObject* cube;
+    CubeObject* cube; // cube that is used for measuring distances TODO: delete in future
 
 	Scene();
 	void Update(InputData input, float deltaTime);

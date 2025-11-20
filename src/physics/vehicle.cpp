@@ -87,8 +87,6 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.mComponentSequence.setSubsteps(gVehicle.mComponentSequenceSubstepGroupHandle, nbSubsteps);
     gVehicle.step(deltaTime, *gVehicleSimulationContext);
 
-    auto wheelsPoses = gVehicle.mBaseState.wheelLocalPoses;
-
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
     UpdateTireSqueal(computeDriftFactor(), getSpeed());
 }

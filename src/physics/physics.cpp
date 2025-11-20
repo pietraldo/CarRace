@@ -165,15 +165,13 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getShapes(shapes, sizeof(PxShape*) * shapeNum, 0);
     PxShape* shape = shapes[0];
 
-    // Ensure it has collision
+    // Add colision shape
     shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
     PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.06f));
     shape->setGeometry(newGeom);
     physx::PxTransform localOffset = PxTransform(0, 0.85, 1.59);
     shape->setLocalPose(localOffset);
-
-    auto wheelsPoses = vehicle->gVehicle.mBaseState.wheelLocalPoses;
 
 
     return vehicle;
