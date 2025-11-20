@@ -79,7 +79,7 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gameObjects[1]->actor = cube2;
 
     physx::PxRigidStatic* boxCollider = physx::PxCreateStatic(
-        *gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(225.0f, 0.5f, 225.0f)), *material);
+        *gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)), physx::PxBoxGeometry(physx::PxVec3(500.0f, 0.5f, 500.0f)), *material);
     gScene->addActor(*boxCollider);
     gameObjects[2]->actor = boxCollider;
 }
