@@ -29,7 +29,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
     wheelOffsets[2] = glm::vec3(-0.9f, -0.2f, -1.35f); // RR
     wheelOffsets[3] = glm::vec3(0.9f, -0.2f, -1.35f); // RL
 
-	bodyOffset = glm::vec3(0.0f, -0.5f, 0.0f);
+	bodyOffset = glm::vec3(0.0f, -0.5f, 1.59f);
 
 }
 
