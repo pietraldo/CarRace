@@ -38,7 +38,7 @@ int Physics::initialize() {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(0, 0, 0), "vehicle1");
+    createVehicle(PxVec3(0, 5, 0), "vehicle1");
 
 
     return 0;
@@ -152,6 +152,23 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     //Apply a start pose to the physx actor and add it to the physx scene.
     PxTransform pose(position, PxQuat(PxIdentity));
     vehicle->gVehicle.setUpActor(*gScene, pose, vehicle->gVehicleName);
+
+    int shapeNum = vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getNbShapes();
+    physx::PxShape** shapes = new physx::PxShape * [shapeNum];
+    vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getShapes(shapes, sizeof(PxShape*) * shapeNum, 0);
+    PxShape* shape = shapes[0];
+
+    // Ensure it has collision
+    shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+
+
+    // Create new geometry
+    PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.06f));
+
+    // Apply back to shape
+    shape->setGeometry(newGeom);
+    physx::PxTransform localOffset = PxTransform(0, 0.85, 0);
+    shape->setLocalPose(localOffset);
 
     return vehicle;
 

@@ -50,6 +50,8 @@ public:
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
 
+	CubeObject* cube;
+
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCar(InputData input, float deltaTime);
