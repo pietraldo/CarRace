@@ -88,6 +88,11 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gScene->addActor(*boxCollider2);
     gameObjects[3]->actor = boxCollider2;
 
+    
+    physx::PxRigidStatic* boxCollider3 = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(6, 0.5f, 0), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(2.0f, 0.25f, 2.0f)), *material);
+    gScene->addActor(*boxCollider3);
+    gameObjects[4]->actor = boxCollider3;
 }
 
 void Physics::update(float deltaTime, CarControlInput carControll)
@@ -168,9 +173,9 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     // Add colision shape
     shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
-    PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.06f));
+    PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
     shape->setGeometry(newGeom);
-    physx::PxTransform localOffset = PxTransform(0, 0.85, 1.59);
+    physx::PxTransform localOffset = PxTransform(0, 0.85f, 1.59f);
     shape->setLocalPose(localOffset);
 
 

@@ -21,6 +21,9 @@ Scene::Scene()
 	CubeObject* floorCube2 = new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(10, 1.0f, 10), glm::vec3(1.0f, 0.4f, 1.0f));
 	gameObjects.push_back(floorCube2);
 
+	CubeObject* cube4 = new  CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f), glm::vec3(0.0f, 0.0f, 1.0f), true);
+	gameObjects.push_back(cube4);
+
 	CubeObject* cube3 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), false);
 	gameObjects.push_back(cube3);
 	cube = cube3;
@@ -163,19 +166,8 @@ void Scene::DrawModel(Shader& shader, Model& model)
 		model.rotation.z
 	);
 
-    // Rotate model by 90 degrees around Y axis because different model rotation
-    // to align with physics engine 
-    // in future just align maybe model in blender
-	float angle = glm::radians(90.0f);
-	glm::vec3 axisY(0.0f, 1.0f, 0.0f);
-	glm::quat q_y = glm::angleAxis(angle, axisY);
-    glm::quat finalRotation = q_y * rotation;
-
-    glm::vec3 positionOffset(0.0f, 1.0f, 0.0f);
-    position += positionOffset;
-
 	modelMatrix = glm::translate(modelMatrix, position);
-	modelMatrix *= glm::toMat4(finalRotation);
+	modelMatrix *= glm::toMat4(rotation);
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.scale);
 	shader.setMat4("model", modelMatrix);
 
@@ -190,6 +182,8 @@ void Scene::CreateModels()
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
+    bodyModel->rotationOffset = physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f));
+	bodyModel->positionOffset = glm::vec3(0.0f, 0.6f, 1.59f);
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
 
@@ -211,7 +205,7 @@ void Scene::CreateModels()
 
 	// ---- Map model ----
 	const std::string mapModelPath = "../assets/models/map/scene.gltf";
-	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, -0.99f, 0.0f), 1.0f, glm::vec3(1.0f));
+	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, 0.01f, 0.0f), 1.0f, glm::vec3(1.0f));
 	mapModel->rotation = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f));
 	AddTextureModel(mapModel);
 }

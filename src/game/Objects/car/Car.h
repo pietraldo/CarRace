@@ -29,9 +29,6 @@ public:
     void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
     void SetWheelRotation(vector<physx::PxQuat> rotations) { wheelRotations = rotations; }
 
-    void SetBodyOffset(const glm::vec3& off) { bodyOffset = off; }
-    glm::vec3 GetBodyOffset() const { return bodyOffset; }
-
     void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
     float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth; }
 
@@ -42,7 +39,6 @@ private:
     std::array<std::unique_ptr<Wheel>, 4> wheels{};
 
     std::array<glm::vec3, 4> wheelOffsets{};
-    glm::vec3 bodyOffset;
 
     std::shared_ptr<Model> steeringWheel;
     glm::vec3 steeringOffset;
