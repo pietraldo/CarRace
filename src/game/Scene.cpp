@@ -39,7 +39,7 @@ void Scene::UpdateCar(InputData input, float deltaTime)
 		PxQuat rotation = v->getVehicleRotation();
 		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
 
-		car->SetWheelRotation(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
+		car->SetWheelRotationFromPhysx(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
         float steer = -input.carControl1.steer*45;
 		car->SetSteer(steer);
 
