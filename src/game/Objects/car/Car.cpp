@@ -60,24 +60,9 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 
     glm::vec3 bodyPos = glm::vec3(bodyM[3]);
     glm::quat bodyQ = glm::quat_cast(bodyM);*/
-    physx::PxVec3 positionOffsetPx(
-        body->positionOffset.x,
-        body->positionOffset.y,
-        body->positionOffset.z
-    );
-
-    // rotate with PhysX quaternion
-    positionOffsetPx = rotation.rotate(positionOffsetPx);
-
-
-    glm::vec3 positionOffset = glm::vec3(
-        positionOffsetPx.x,
-        positionOffsetPx.y,
-        positionOffsetPx.z
-    );
-    body->position = position + positionOffset;
-    body->rotation = rotation * body->rotationOffset; // assuming rotationOffset is PxQuat
-
+    
+    body->SetPosition(position);
+    body->SetRotation(rotation);
 
     /* for (int i = 0; i < 4; ++i)
     {
@@ -178,16 +163,16 @@ void Car::SetSteerSpeed(float degPerSec)
 
 void Car::SetWheelOffsets(const std::array<glm::vec3, 4>& offsets)
 {
-    wheelOffsets = offsets;
+   /* wheelOffsets = offsets;
 
     if (body) {
         for (int i = 0; i < 4; ++i) {
             if (wheels[i]) {
                 const auto& mdl = wheels[i]->GetModel();
-                if (mdl) {
-                    mdl->position = body->position + wheelOffsets[i];
-                }
+               
+                mdl->position = body->position + wheelOffsets[i];
+                
             }
         }
-    }
+    }*/
 }

@@ -67,7 +67,7 @@ void Scene::UpdateCamera()
     else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
     {
         ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-        observingCamera.SetTarget(&car->GetBody()->position);
+        observingCamera.SetTarget(car->GetBody()->GetPosition());
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
@@ -151,24 +151,19 @@ void Scene::DrawModel(Shader& shader, Model& model)
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
-	shader.setVec3("objectColor", model.color);
+	shader.setVec3("objectColor", model.GetColor());
 	shader.setBool("fogEnabled", fog);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, model.textureID);
 
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	glm::vec3 position = model.position;
-	glm::quat rotation = glm::quat(
-		model.rotation.w,
-		model.rotation.x,
-		model.rotation.y,
-		model.rotation.z
-	);
+	glm::vec3 position = model.GetPosition();
+    glm::quat rotation = PxQuatToGlmQuat(model.GetRotation());
 
 	modelMatrix = glm::translate(modelMatrix, position);
 	modelMatrix *= glm::toMat4(rotation);
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.scale);
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.GetScale());
 	shader.setMat4("model", modelMatrix);
 
 	model.Draw(shader);
@@ -182,8 +177,8 @@ void Scene::CreateModels()
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
-    bodyModel->rotationOffset = physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f));
-	bodyModel->positionOffset = glm::vec3(0.0f, 0.6f, 1.59f);
+    bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
+	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
 
@@ -206,7 +201,7 @@ void Scene::CreateModels()
 	// ---- Map model ----
 	const std::string mapModelPath = "../assets/models/map/scene.gltf";
 	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, 0.01f, 0.0f), 1.0f, glm::vec3(1.0f));
-	mapModel->rotation = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f));
+	mapModel->SetRotation(physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f)));
 	AddTextureModel(mapModel);
 }
 

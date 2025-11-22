@@ -10,7 +10,7 @@
 class ObservingCamera : public Camera {
 
 private:
-    glm::vec3* targetPos = new glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
 public:
     // constructor with vectors
@@ -31,8 +31,8 @@ public:
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() override
     {
-        return glm::lookAt(Position, *targetPos, Up);
+        return glm::lookAt(Position, targetPos, Up);
     }
 
-    void SetTarget(glm::vec3* newTarget) { targetPos = newTarget; }
+    void SetTarget(glm::vec3 newTarget) { targetPos = newTarget; }
 };

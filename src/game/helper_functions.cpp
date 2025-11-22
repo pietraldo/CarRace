@@ -12,3 +12,21 @@ float getXRotationDegrees(const physx::PxQuat& q)
 }
 
 
+glm::vec3 PxVec3ToGlmVec3(const physx::PxVec3& v)
+{
+    return glm::vec3(v.x, v.y, v.z);
+}
+physx::PxVec3 GlmVec3ToPxVec3(const glm::vec3& v)
+{
+    return physx::PxVec3(v.x, v.y, v.z);
+}
+
+glm::quat PxQuatToGlmQuat(const physx::PxQuat& q)
+{
+    return glm::quat(q.w, q.x, q.y, q.z);
+}
+
+physx::PxQuat GlmQuatToPxQuat(const glm::quat& q)
+{
+    return physx::PxQuat(q.x, q.y, q.z, q.w);
+}
