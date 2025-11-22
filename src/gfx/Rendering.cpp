@@ -32,13 +32,20 @@ int Rendering::Initialize()
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
 
+    vector<float> vert = Sphere::CreateVertices();
+    vector<int> ind = Sphere::CreateIndices();
+
+    //unsigned int VBO_sphere, VAO_sphere, EBO_sphere;
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
     glGenBuffers(1, &EBO_sphere);
 
     glBindVertexArray(VAO_sphere);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_sphere);
+    glBufferData(GL_ARRAY_BUFFER, vert.size() * sizeof(float), vert.data(), GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_sphere);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * ind.size(), ind.data(), GL_STATIC_DRAW);
 
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -248,6 +255,7 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
 
     (*scene).DrawLights(*lightShader, lightVAO);
     (*scene).DrawModels(shaderTextured, shaderColor);
+    (*scene).DrawSpheres(*colorShader, VAO_sphere);
 
     RenderImGui();
 
