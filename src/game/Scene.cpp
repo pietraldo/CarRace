@@ -181,6 +181,7 @@ void Scene::CreateModels()
 	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
+	steeringModel->SetPositionOffset(glm::vec3(-0.3f, 0.2f, 0.45f));
 
 	car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
