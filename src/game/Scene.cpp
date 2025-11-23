@@ -145,6 +145,29 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 	}
 }
 
+void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
+{
+	shader.use();
+
+	shader.setMat4("projection", Rendering::GetProjectionMatrix());
+	shader.setMat4("view", CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix());
+	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
+	shader.setBool("fogEnabled", fog);
+
+	
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, terrain->position);/*
+	model = glm::rotate(model, glm::radians(terrain->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(terrain->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(terrain->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));*/
+	shader.setMat4("model", model);
+	shader.setVec3("objectColor", terrain->color);
+
+	glBindVertexArray(sphereVAO);
+	glDrawElements(GL_TRIANGLES, Terrain::indices.size(), GL_UNSIGNED_INT, 0);
+	
+}
+
 void Scene::DrawModel(Shader& shader, Model& model)
 {
 	shader.use();
@@ -172,12 +195,12 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/scene.gltf";
+	const std::string carModelPath = "../assets/models/car/car.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
-    bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
+	bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
 	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
 	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
@@ -205,7 +228,6 @@ void Scene::CreateModels()
 	mapModel->SetRotation(physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f)));
 	AddTextureModel(mapModel);
 }
-
 
 
 void Scene::CreateLights()

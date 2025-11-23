@@ -62,6 +62,8 @@ int main()
 	LightBuffer lightBuffer = scene->LoadLights();
 	AudioEngine::instance().init();
 
+	scene->CreateTerrain();
+
     if (Rendering::Initialize() == -1) return -1;
 
     InputManager::getInstance().setUp();
@@ -69,6 +71,7 @@ int main()
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
+
 
     bool continueGame = true;
 	while (continueGame && !glfwWindowShouldClose(Rendering::window))

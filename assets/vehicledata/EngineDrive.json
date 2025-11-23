@@ -12,8 +12,8 @@
 	"EngineParams":
 	{
 		"TorqueCurve": [[0.0, 1.0], [0.33, 1.0], [1.0, 1.0]],
-		"MOI": 0.03,
-		"PeakTorque": 800.0,
+		"MOI": 0.1,
+		"PeakTorque": 500.0,
 		"IdleOmega": 0.0,
 		"MaxOmega": 600.0,
 		"DampingRateFullThrottle": 0.15,
@@ -23,7 +23,7 @@
 	"GearboxParams":
 	{
 		"NeutralGear": 1,
-		"Ratios": [-4.0, 0.0, 100.0, 70.0, 44.0, 30, 20, 15, 10],
+		"Ratios": [-4.0, 0.0, 100.0, 40.0, 1.5, 1.1, 1.0],
 		"FinalRatio": 0.1,
 		"SwitchTime": 0.5
 	},

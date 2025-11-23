@@ -38,8 +38,8 @@ int Physics::initialize() {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(0, 5, 0), "vehicle1");
-
+    createVehicle(PxVec3(0, 10, 0), "vehicle1");
+    createTerrain();
 
     return 0;
 }
@@ -93,6 +93,82 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
         *gPhysics, physx::PxTransform(physx::PxVec3(6, 0.5f, 0), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(2.0f, 0.25f, 2.0f)), *material);
     gScene->addActor(*boxCollider3);
     gameObjects[4]->actor = boxCollider3;
+}
+
+
+
+void Physics::createTerrain()
+{
+    const PxU32 ts = 100; // user heightfield dimensions (ts = terrain samples)
+    // create the actor for heightfield
+    PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
+
+    // iterate over source data points and find minimum and maximum heights
+    PxReal minHeight = 0;
+    PxReal maxHeight = 1;
+
+    int outRows, outCols;
+    vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", outRows, outCols);
+    cout << "Heightmap rows: " << outRows << ", cols: " << outCols << endl;
+
+    // compute maximum height difference
+    PxReal deltaHeight = maxHeight - minHeight;
+
+    // maximum positive value that can be represented with signed 16 bit integer
+    PxReal quantization = (PxReal)0x7fff;
+
+    // compute heightScale such that the forward transform will generate the closest point
+    // to the source
+    // clamp to at least PX_MIN_HEIGHTFIELD_Y_SCALE to respect the PhysX API specs
+    PxReal heightScale = PxMax(deltaHeight*10 / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
+
+    PxHeightFieldSample* hfSamples = new PxHeightFieldSample[ts * ts];
+
+    PxU32 index = 0;
+    for (PxU32 col = 0; col < ts; col++)
+    {
+        for (PxU32 row = 0; row < ts; row++)
+        {
+            PxI16 height;
+            height = PxI16(quantization * ((heights[(col * ts) + row] - minHeight) /
+                deltaHeight));
+
+            PxHeightFieldSample& smp = hfSamples[(row * ts) + col];
+            smp.height = height;
+            smp.materialIndex0 = 0;
+            smp.materialIndex1 = 0;
+            /*if (userFlipEdge)
+                smp.setTessFlag();*/
+        }
+    }
+
+    // Build PxHeightFieldDesc from samples
+    PxHeightFieldDesc terrainDesc;
+    terrainDesc.format = PxHeightFieldFormat::eS16_TM;
+    terrainDesc.nbColumns = ts;
+    terrainDesc.nbRows = ts;
+    terrainDesc.samples.data = hfSamples;
+    terrainDesc.samples.stride = sizeof(PxHeightFieldSample);
+    terrainDesc.flags = PxHeightFieldFlags();
+
+    float terrainWidth = 200;
+
+    PxHeightFieldGeometry hfGeom;
+    hfGeom.columnScale = terrainWidth / (ts - 1); // compute column and row scale from input terrain
+    // height grid
+    hfGeom.rowScale = terrainWidth / (ts - 1);
+    hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
+    hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
+
+    delete[] hfSamples;
+
+    PxTransform localPose;
+    localPose.p = PxVec3(-(terrainWidth * 0.5f),    // make it so that the center of the
+        minHeight, -(terrainWidth * 0.5f));         // heightfield is at world (0,minHeight,0)
+    localPose.q = PxQuat(PxIdentity);
+    PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);
+    shape->setLocalPose(localPose);
+    gScene->addActor(*actor);
 }
 
 void Physics::update(float deltaTime, CarControlInput carControll)

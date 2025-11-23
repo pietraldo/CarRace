@@ -20,6 +20,7 @@
 #include "../game/Scene.h"
 #include "./camera/CameraManager.h"
 #include "../ui/Input/KeyboardController.h"
+#include "../game/terrain.h"
 
 class Scene;
 
@@ -67,5 +68,7 @@ public:
     }
 
     static Scene* scene;
+
+       
 };
 
