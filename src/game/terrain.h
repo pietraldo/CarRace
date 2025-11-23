@@ -10,6 +10,7 @@ https://www.songho.ca/opengl/gl_sphere.html
 #include <iostream>
 
 #include <glm/glm.hpp>
+#include "../game/helper_functions.h"
 
 using namespace std;
 
@@ -38,6 +39,8 @@ public:
 
 	static vector<float> CreateVertices()
 	{
+
+        vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", stackCount, sectorCount);
 		vector<float> vertices;
 		float radius = 1.0f;
 		vector<float> normals;
@@ -46,37 +49,29 @@ public:
 
 
 		float x, y, z, xy;                              // vertex position
-		float nx, ny, nz, lengthInv = 1.0f / radius;    // normal
-		float s, t;                                     // texCoord
+		float nx, ny, nz;    // normal
 
-		float sectorStep = 2 * PI / sectorCount;
-		float stackStep = PI / stackCount;
-		float sectorAngle, stackAngle;
 
 		for (int i = 0; i <= stackCount; ++i)
 		{
-			stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
-			xy = radius * cosf(stackAngle);             // r * cos(u)
-			z = radius * sinf(stackAngle);              // r * sin(u)
+			
 
-			// add (sectorCount+1) vertices per stack
-			// the first and last vertices have same position and normal, but different tex coords
 			for (int j = 0; j <= sectorCount; ++j)
 			{
-				sectorAngle = j * sectorStep;           // starting from 0 to 2pi
-
-				// vertex position
-				x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
-				y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+				x = i * 0.5;
+				y = (i * sectorCount + j < 10000) ? heights[i * sectorCount + j] : 0;
+				y *= 10;
+				z = j * 0.5;// r * cos(u) * sin(v)
 				vertices.push_back(x);
 				vertices.push_back(y);
 				vertices.push_back(z);
 
 
 				// normalized vertex normal
-				nx = x * lengthInv;
-				ny = y * lengthInv;
-				nz = z * lengthInv;
+				float lengthInv = 1.0f / sqrt(x * x + y * y + z * z + 1e-6f); // avoid div by zero
+				float nx = x * lengthInv;
+				float ny = y * lengthInv;
+				float nz = z * lengthInv;
 				vertices.push_back(nx);
 				vertices.push_back(ny);
 				vertices.push_back(nz);

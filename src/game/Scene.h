@@ -86,15 +86,14 @@ public:
 	{
 		int render_radius = 50;
 		// create a few spheres
-		for (int i = 0; i < 40; i++)
-		{
+		
 
-			glm::vec3 position = glm::vec3(rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2, rand() % render_radius - render_radius / 2 - 50);
-			float radius = rand() % 4;
-			glm::vec3 color = glm::vec3((rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f, (rand() % 50 + 50) / 100.0f);
-			Sphere* sphere = new Sphere(position, radius, color);
-			AddSphere(sphere);
-		}
+		glm::vec3 position = glm::vec3(10,5,0);
+		float radius =5;
+		glm::vec3 color = glm::vec3(1,0,0);
+		Sphere* sphere = new Sphere(position, radius, color);
+		AddSphere(sphere);
+	
 	}
 	void AddSphere(Sphere* sphere) { spheres.push_back(sphere); }
 
