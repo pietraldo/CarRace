@@ -194,6 +194,17 @@ void Rendering::RenderImGui()
         ImGui::End();
     }
     {
+        ImGui::Begin("Box Colliders");
+        ImGui::SliderFloat("ScaleX", &(*scene).cube->scale.x, 0, 10);
+        ImGui::SliderFloat("ScaleY", &(*scene).cube->scale.y, 0, 10);
+        ImGui::SliderFloat("ScaleZ", &(*scene).cube->scale.z, 0, 10);
+        ImGui::SliderFloat("PositionX", &(*scene).cube->positionToDisplay.x, -10, 10);
+        ImGui::SliderFloat("PositionY", &(*scene).cube->positionToDisplay.y, -10, 10);
+        ImGui::SliderFloat("PositionZ", &(*scene).cube->positionToDisplay.z, -10, 10);
+
+        ImGui::End();
+    }
+    {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h", Physics::getInstance()->getVehicles()[0]->getSpeed());
         ImGui::Text("Car gear: %d", Physics::getInstance()->getVehicles()[0]->getCurrentGear());
