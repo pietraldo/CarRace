@@ -26,6 +26,8 @@ public:
 
 	static int rows;
 	static int cols;
+    static vector<float> vertices;
+    static vector<int> indices;
 
 
 	glm::vec3 position;
@@ -37,92 +39,115 @@ public:
 	Sphere(glm::vec3 position, float radius, glm::vec3 color)
 		:position(position), radius(radius), color(color) {};
 
-	static vector<float> CreateVertices()
+	static vector<float> CreateVerticesAndIndices()
 	{
         vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", rows, cols);
-		vector<float> vertices;
 		
 
 		float x, y, z;		// vertex position
 		float nx, ny, nz;   // normal
 
 
-		for (int i = 0; i <rows; ++i)
+		for (int i = 0; i <rows-1; ++i)
 		{
-			for (int j = 0; j <cols; ++j)
+			for (int j = 0; j <cols-1; ++j)
 			{
-                // ----- Get Height -----
-                float h = heights[i * cols + j];
+				float x_size = 2.0f;
+                float y_size = 5.0f;
+				float z_size = 2.0f;
 
-                // ----- Compute vertex position -----
-                float x = i * 2.0f-100;
-                float y = h * 10.0f;
-                float z = j * 2.0f-100;
+				// point 1
+				float x1 = i * x_size;
+                float y1 = heights[i * cols + j] * y_size;
+                float z1 = j * z_size;
 
-                // ----- Add to vertex buffer -----
-                vertices.push_back(x);
-                vertices.push_back(y);
-                vertices.push_back(z);
+                // point 2
+                float x2 = i * x_size;
+                float y2 = heights[i * cols + j+1] * y_size;
+                float z2 = (j + 1) * z_size;
 
-				if (i == 0 || i == rows - 1 || j == 0 || j == cols - 1)
-                {
-                    // For border vertices, set normal to point up
-                    vertices.push_back(0.0f);
-                    vertices.push_back(1.0f);
-                    vertices.push_back(0.0f);
-                    continue;
-                }
+                // point 3
+                float x3 = (i + 1) * x_size;
+                float y3 = heights[(i + 1) * cols + j] * y_size;
+                float z3 = j * z_size;
+
+                // point 4
+                float x4 = (i + 1) * x_size;
+                float y4 = heights[(i + 1) * cols + j + 1] * y_size;
+                float z4 = (j + 1) * z_size;
+
+                // first triangle normals
+                glm::vec3 u1 = glm::vec3(x2 - x1, y2 - y1, z2 - z1);
+                glm::vec3 v1 = glm::vec3(x3 - x1, y3 - y1, z3 - z1);
+                glm::vec3 normal1 = glm::normalize(glm::cross(u1, v1));
+
+                // second triangle normals
+                glm::vec3 u2 = glm::vec3(x3 - x4, y3 - y4, z3 - z4);
+                glm::vec3 v2 = glm::vec3(x2 - x4, y2 - y4, z2 - z4);
+                glm::vec3 normal2 = glm::normalize(glm::cross(u2, v2));
+
+                // first triangle
+
+                // vertex 1
+                vertices.push_back(x1);
+                vertices.push_back(y1);
+                vertices.push_back(z1);
+                vertices.push_back(normal1.x);
+                vertices.push_back(normal1.y);
+                vertices.push_back(normal1.z);
+
+                // vertex 2
+                vertices.push_back(x2);
+                vertices.push_back(y2);
+                vertices.push_back(z2);
+                vertices.push_back(normal1.x);
+                vertices.push_back(normal1.y);
+                vertices.push_back(normal1.z);
+
+                // vertex 3
+                vertices.push_back(x3);
+                vertices.push_back(y3);
+                vertices.push_back(z3);
+                vertices.push_back(normal1.x);
+                vertices.push_back(normal1.y);
+                vertices.push_back(normal1.z);
+
+                // second triangle
                 
+                // vertex 4
+                vertices.push_back(x4);
+                vertices.push_back(y4);
+                vertices.push_back(z4);
+                vertices.push_back(normal2.x);
+                vertices.push_back(normal2.y);
+                vertices.push_back(normal2.z);
 
-                // ----- Safe neighbor reads -----
-                float hl = heights[(i > 0 ? i - 1 : i) * cols + j];
-                float hr = heights[(i < rows - 1 ? i + 1 : i) * cols + j];
-                float hd = heights[i * cols + (j > 0 ? j - 1 : j)];
-                float hu = heights[i * cols + (j < cols - 1 ? j + 1 : j)];
+                // vertex 3
+                vertices.push_back(x3);
+                vertices.push_back(y3);
+                vertices.push_back(z3);
+                vertices.push_back(normal2.x);
+                vertices.push_back(normal2.y);
+                vertices.push_back(normal2.z);
 
-                // ----- Compute normal vector -----
-                glm::vec3 normal(
-                    hl - hr,     // slope in X
-                    2.0f,        // vertical weight
-                    hd - hu      // slope in Z
-                );
+                // vertex 2
+                vertices.push_back(x2);
+                vertices.push_back(y2);
+                vertices.push_back(z2);
+                vertices.push_back(normal2.x);
+                vertices.push_back(normal2.y);
+                vertices.push_back(normal2.z);
 
-                normal = glm::normalize(normal);
-
-                vertices.push_back(normal.x);
-                vertices.push_back(normal.y);
-                vertices.push_back(normal.z);
-
+                // insert indices
+                int count = (vertices.size() / 6) - 6;
+                indices.push_back(count);
+                indices.push_back(count + 1);
+                indices.push_back(count + 2);
+                indices.push_back(count + 3);
+                indices.push_back(count + 4);
+                indices.push_back(count + 5);
 			}
 		}
 		return vertices;
 	}
-
-	static vector<int> CreateIndices()
-	{
-		std::vector<int> indices;
-		for (int i = 0; i < rows; ++i)
-		{
-			for (int j = 0; j < cols; ++j)
-			{
-                int first = (i * cols) + j;
-                int second = first + cols;
-
-                if (i < rows - 1 && j < cols - 1)
-                {
-                    indices.push_back(first);
-                    indices.push_back(second);
-                    indices.push_back(first + 1);
-
-                    indices.push_back(second);
-                    indices.push_back(second + 1);
-                    indices.push_back(first + 1);
-                }
-			}
-		}
-		return indices;
-	}
-
-
-
 };

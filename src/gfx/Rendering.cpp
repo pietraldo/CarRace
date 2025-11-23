@@ -32,8 +32,9 @@ int Rendering::Initialize()
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
 
-    vector<float> vert = Sphere::CreateVertices();
-    vector<int> ind = Sphere::CreateIndices();
+    Sphere::CreateVerticesAndIndices();
+    vector<float> vert = Sphere::vertices;
+    vector<int> ind = Sphere::indices;
 
     //unsigned int VBO_sphere, VAO_sphere, EBO_sphere;
     glGenVertexArrays(1, &VAO_sphere);

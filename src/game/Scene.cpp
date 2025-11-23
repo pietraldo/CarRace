@@ -166,7 +166,7 @@ void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
 		shader.setVec3("objectColor", sphere->color);
 
 		glBindVertexArray(sphereVAO);
-		glDrawElements(GL_TRIANGLES, (Sphere::rows-1) * (Sphere::cols-1)* 2, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, Sphere::indices.size()/3, GL_UNSIGNED_INT, 0);
 	}
 }
 
