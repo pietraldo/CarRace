@@ -62,7 +62,7 @@ int main()
 	LightBuffer lightBuffer = scene->LoadLights();
 	AudioEngine::instance().init();
 
-	scene->CreateSpheres();
+	scene->CreateTerrain();
 
     if (Rendering::Initialize() == -1) return -1;
 

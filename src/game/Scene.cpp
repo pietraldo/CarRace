@@ -145,7 +145,7 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 	}
 }
 
-void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
+void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 {
 	shader.use();
 
@@ -154,20 +154,18 @@ void Scene::DrawSpheres(Shader& shader, unsigned int& sphereVAO)
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setBool("fogEnabled", fog);
 
-	for (Sphere* sphere : spheres)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, sphere->position);
-		model = glm::rotate(model, glm::radians(sphere->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(sphere->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(sphere->radius));
-		shader.setMat4("model", model);
-		shader.setVec3("objectColor", sphere->color);
+	
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, terrain->position);/*
+	model = glm::rotate(model, glm::radians(terrain->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(terrain->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(terrain->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));*/
+	shader.setMat4("model", model);
+	shader.setVec3("objectColor", terrain->color);
 
-		glBindVertexArray(sphereVAO);
-		glDrawElements(GL_TRIANGLES, Sphere::indices.size()/3, GL_UNSIGNED_INT, 0);
-	}
+	glBindVertexArray(sphereVAO);
+	glDrawElements(GL_TRIANGLES, Terrain::indices.size()/3, GL_UNSIGNED_INT, 0);
+	
 }
 
 void Scene::DrawModel(Shader& shader, Model& model)

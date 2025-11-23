@@ -32,9 +32,9 @@ int Rendering::Initialize()
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
 
-    Sphere::CreateVerticesAndIndices();
-    vector<float> vert = Sphere::vertices;
-    vector<int> ind = Sphere::indices;
+    Terrain::CreateVerticesAndIndices();
+    vector<float> vert = Terrain::vertices;
+    vector<int> ind = Terrain::indices;
 
     //unsigned int VBO_sphere, VAO_sphere, EBO_sphere;
     glGenVertexArrays(1, &VAO_sphere);
@@ -256,7 +256,7 @@ void Rendering::RenderFrame(vector<GameObject*> gameObjects)
 
     (*scene).DrawLights(*lightShader, lightVAO);
     (*scene).DrawModels(shaderTextured, shaderColor);
-    (*scene).DrawSpheres(*colorShader, VAO_sphere);
+    (*scene).DrawTerrain(*colorShader, VAO_sphere);
 
     RenderImGui();
 

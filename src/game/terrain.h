@@ -1,8 +1,3 @@
-/*
-Create Vertices and create indices for a sphere
-https://www.songho.ca/opengl/gl_sphere.html
-
-*/
 
 #pragma once
 
@@ -14,7 +9,7 @@ https://www.songho.ca/opengl/gl_sphere.html
 
 using namespace std;
 
-class Sphere
+class Terrain
 {
 private:
 
@@ -31,22 +26,16 @@ public:
 
 
 	glm::vec3 position;
-	float radius;
 
 	glm::vec3 color;
 	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	Sphere(glm::vec3 position, float radius, glm::vec3 color)
-		:position(position), radius(radius), color(color) {};
+    Terrain(glm::vec3 position, glm::vec3 color)
+		:position(position), color(color) {};
 
 	static vector<float> CreateVerticesAndIndices()
 	{
         vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", rows, cols);
-		
-
-		float x, y, z;		// vertex position
-		float nx, ny, nz;   // normal
-
 
 		for (int i = 0; i <rows-1; ++i)
 		{
@@ -145,8 +134,8 @@ public:
                 indices.push_back(count + 2);
                 indices.push_back(count + 3);
                 indices.push_back(count + 4);
-                indices.push_back(count + 5);
-			}
+                indices.push_back(count + 5);   
+            }
 		}
 		return vertices;
 	}

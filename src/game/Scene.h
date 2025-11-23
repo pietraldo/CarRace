@@ -80,22 +80,15 @@ public:
 
 	LightBuffer LoadLights();
 
-	vector<Sphere*> spheres;
-	void DrawSpheres(Shader& shader, unsigned int& sphereVAO);
-	void CreateSpheres()
+	Terrain* terrain;
+	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
+	void CreateTerrain()
 	{
-		int render_radius = 50;
-		// create a few spheres
-		
-
 		glm::vec3 position = glm::vec3(0);
-		float radius =5;
 		glm::vec3 color = glm::vec3(1,0,0);
-		Sphere* sphere = new Sphere(position, radius, color);
-		AddSphere(sphere);
+		terrain = new Terrain(position, color);
 	
 	}
-	void AddSphere(Sphere* sphere) { spheres.push_back(sphere); }
 
 };
 
