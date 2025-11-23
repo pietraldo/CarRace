@@ -15,38 +15,38 @@ vector<float> Terrain::CreateVerticesAndIndices()
         for (int j = 0; j < cols - 1; ++j)
         {
             float x_size = 2.0f;
-            float y_size = 5.0f;
+            float y_size = 10.0f;
             float z_size = 2.0f;
 
-            // point 1
-            float x1 = i * x_size;
+            // point 1 (i, j)
+            float x1 = j * x_size;
             float y1 = heights[i * cols + j] * y_size;
-            float z1 = j * z_size;
+            float z1 = i * z_size;
 
-            // point 2
-            float x2 = i * x_size;
+            // point 2 (i, j+1)
+            float x2 = (j + 1) * x_size;
             float y2 = heights[i * cols + j + 1] * y_size;
-            float z2 = (j + 1) * z_size;
+            float z2 = i * z_size;
 
-            // point 3
-            float x3 = (i + 1) * x_size;
+            // point 3 (i+1, j)
+            float x3 = j * x_size;
             float y3 = heights[(i + 1) * cols + j] * y_size;
-            float z3 = j * z_size;
+            float z3 = (i + 1) * z_size;
 
-            // point 4
-            float x4 = (i + 1) * x_size;
+            // point 4 (i+1, j+1)
+            float x4 = (j + 1) * x_size;
             float y4 = heights[(i + 1) * cols + j + 1] * y_size;
-            float z4 = (j + 1) * z_size;
+            float z4 = (i + 1) * z_size;
 
             // first triangle normals
             glm::vec3 u1 = glm::vec3(x2 - x1, y2 - y1, z2 - z1);
             glm::vec3 v1 = glm::vec3(x3 - x1, y3 - y1, z3 - z1);
-            glm::vec3 normal1 = glm::normalize(glm::cross(u1, v1));
+            glm::vec3 normal1 = glm::normalize(glm::cross(v1, u1));
 
             // second triangle normals
             glm::vec3 u2 = glm::vec3(x3 - x4, y3 - y4, z3 - z4);
             glm::vec3 v2 = glm::vec3(x2 - x4, y2 - y4, z2 - z4);
-            glm::vec3 normal2 = glm::normalize(glm::cross(u2, v2));
+            glm::vec3 normal2 = glm::normalize(glm::cross(v2, u2));
 
             // first triangle
 
