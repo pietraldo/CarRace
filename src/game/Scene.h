@@ -14,6 +14,8 @@
 #include "../gfx/Rendering.h"
 #include "./Objects/CubeObejct.h"
 #include "./physics/physics.h"
+#include "terrain.h"
+#include "../gfx/Rendering.h"
 
 #include "./physics/vehicle.h"
 #include "./gfx/camera/CameraManager.h"
@@ -50,6 +52,8 @@ public:
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
 
+    CubeObject* cube; // cube that is used for measuring distances TODO: delete in future
+
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCar(InputData input, float deltaTime);
@@ -77,5 +81,16 @@ public:
 	glm::quat GetCarRotation() const;
 
 	LightBuffer LoadLights();
+
+	Terrain* terrain;
+	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
+	void CreateTerrain()
+	{
+		glm::vec3 position = glm::vec3(-100,0,-100);
+		glm::vec3 color = glm::vec3(1,0,0);
+		terrain = new Terrain(position, color);
+	
+	}
+
 };
 

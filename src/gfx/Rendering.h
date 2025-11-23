@@ -21,6 +21,7 @@
 #include "../game/Scene.h"
 #include "./camera/CameraManager.h"
 #include "../ui/Input/KeyboardController.h"
+#include "../game/terrain.h"
 
 class Scene;
 
@@ -105,5 +106,6 @@ private:
     static glm::mat4 externalView;
     static bool useExternalProj;
     static glm::mat4 externalProj;
+
 };
 

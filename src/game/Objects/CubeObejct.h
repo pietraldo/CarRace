@@ -16,8 +16,11 @@ public:
     glm::vec3 scale;
     glm::vec3 color;
 
-    CubeObject(float mass, glm::vec3 position, glm::vec3 scale, glm::vec3 color, physx::PxRigidDynamic* body =  nullptr)
-        :GameObject(body), scale(scale), color(color) {
+    glm::vec3 positionToDisplay;
+    bool simulatePhysics;
+
+    CubeObject(float mass, glm::vec3 position, glm::vec3 scale, glm::vec3 color, bool simulatePhysics = true, physx::PxRigidDynamic* body =  nullptr)
+        :GameObject(body), scale(scale), color(color), positionToDisplay(position), simulatePhysics(simulatePhysics) {
     };
 
     void Draw() override;

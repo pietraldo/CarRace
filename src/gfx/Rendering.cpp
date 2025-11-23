@@ -79,13 +79,21 @@ int Rendering::Initialize()
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
 
+    Terrain::CreateVerticesAndIndices();
+    vector<float> vert = Terrain::vertices;
+    vector<int> ind = Terrain::indices;
+
+    //unsigned int VBO_sphere, VAO_sphere, EBO_sphere;
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
     glGenBuffers(1, &EBO_sphere);
 
     glBindVertexArray(VAO_sphere);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_sphere);
+    glBufferData(GL_ARRAY_BUFFER, vert.size() * sizeof(float), vert.data(), GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_sphere);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * ind.size(), ind.data(), GL_STATIC_DRAW);
 
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -242,6 +250,17 @@ void Rendering::RenderImGui()
         ImGui::End();
     }
     {
+        ImGui::Begin("Box Colliders");
+        ImGui::SliderFloat("ScaleX", &(*scene).cube->scale.x, 0, 10);
+        ImGui::SliderFloat("ScaleY", &(*scene).cube->scale.y, 0, 10);
+        ImGui::SliderFloat("ScaleZ", &(*scene).cube->scale.z, 0, 10);
+        ImGui::SliderFloat("PositionX", &(*scene).cube->positionToDisplay.x, -10, 10);
+        ImGui::SliderFloat("PositionY", &(*scene).cube->positionToDisplay.y, -10, 10);
+        ImGui::SliderFloat("PositionZ", &(*scene).cube->positionToDisplay.z, -10, 10);
+
+        ImGui::End();
+    }
+    {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h", Physics::getInstance()->getVehicles()[0]->getSpeed());
         ImGui::Text("Car gear: %d", Physics::getInstance()->getVehicles()[0]->getCurrentGear());
@@ -284,6 +303,8 @@ static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
+    (*Rendering::scene).DrawTerrain(*Rendering::colorShader, Rendering::VAO_sphere);
+
 }
 
 
@@ -297,9 +318,9 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
         Car* car = scene->GetCar();
         if (car && car->GetBody()) {
             const auto& body = car->GetBody();
-            carPos = body->position;
+            carPos = body->GetPosition();
 
-            physx::PxQuat pxRot = body->rotation;
+            physx::PxQuat pxRot = body->GetRotation();
             carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
         }
     }
@@ -343,6 +364,7 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     RenderSceneCommon(gameObjects,false);
+
 
     RenderImGui();
     glfwSwapBuffers(Rendering::window);

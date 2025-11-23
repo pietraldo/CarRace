@@ -15,21 +15,22 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
 
     if (steeringModel) {
         steeringWheel = std::move(steeringModel);
-        steeringOffset = glm::vec3(0.4f, 0.2f, 0.25f);
-
     }
 
-    wheels[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
-    wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
-    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
-    wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
+    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
+    wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
+    wheels[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
+    wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
 
-    wheelOffsets[0] = glm::vec3(-0.9f, -0.2f, 1.35f); // FR
-    wheelOffsets[1] = glm::vec3(0.9f, -0.2f, 1.35f); // FL
-    wheelOffsets[2] = glm::vec3(-0.9f, -0.2f, -1.35f); // RR
-    wheelOffsets[3] = glm::vec3(0.9f, -0.2f, -1.35f); // RL
+    wheelPositionOffsets[0] = glm::vec3(1.35f, -0.2f, -0.9f); // FR
+    wheelPositionOffsets[1] = glm::vec3(1.35f, -0.2f, 0.9f); // FL
+    wheelPositionOffsets[2] = glm::vec3(-1.35f, -0.2f, -0.9f); // RR
+    wheelPositionOffsets[3] = glm::vec3(-1.35f, -0.2f, 0.9f); // RL
 
-	bodyOffset = glm::vec3(0.0f, -0.5f, 0.0f);
+    wheelRotationOffsets[0] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // FR
+    wheelRotationOffsets[1] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // FL
+    wheelRotationOffsets[2] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // RR
+    wheelRotationOffsets[3] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // RL
 
 }
 
@@ -50,31 +51,18 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     else {
         steerCurrent += (delta > 0 ? step : -step);
     }
-
-    glm::quat carRot(rotation.w, rotation.x, rotation.y, rotation.z);
-    carRot = glm::normalize(carRot);
-
-    glm::mat4 chassisM =
-        glm::translate(glm::mat4(1.0f), position) *
-        glm::toMat4(carRot);
-
-    glm::mat4 bodyM = chassisM * glm::translate(glm::mat4(1.0f), bodyOffset);
-
-    glm::vec3 bodyPos = glm::vec3(bodyM[3]);
-    glm::quat bodyQ = glm::quat_cast(bodyM);
-
-    body->position = bodyPos;
-    body->rotation = physx::PxQuat(bodyQ.x, bodyQ.y, bodyQ.z, bodyQ.w);
+    
+    body->SetPosition(position);
+    body->SetRotation(rotation);
 
     for (int i = 0; i < 4; ++i)
-    { 
+    {
         auto& w = wheels[i];
         auto& wheelModel = w->GetModel();
 
-        if (wheelModel) {
-            glm::mat4 wheelM = bodyM * glm::translate(glm::mat4(1.0f), wheelOffsets[i]);
-            wheelModel->position = glm::vec3(wheelM[3]);
-        }
+        wheelModel->SetPosition(body->GetPosition());
+        wheelModel->SetPositionOffset(wheelPositionOffsets[i]);
+        
 
         auto pos = w->GetPos();
         if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
@@ -83,55 +71,38 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
         else {
             w->SetSteer(0.0f);
         }
-
-        w->SetSpin(getXRotationDegrees(wheelRotations[i]));
-
-        if (wheelModel) {
-            physx::PxQuat localRot = wheelModel->rotation;
-            physx::PxQuat carRotPx(carRot.x, carRot.y, carRot.z, carRot.w);
-            wheelModel->rotation = carRotPx * localRot;
-        }
+        w->SetSpin(getXRotationDegrees(wheelRotationsFromPhysx[i]));
+        
+        wheelModel->SetRotation(body->GetRotation());
     }
 
 
-    if (steeringWheel && body) {
-        glm::quat carRot(
-            body->rotation.w,
-            body->rotation.x,
-            body->rotation.y,
-            body->rotation.z
-        );
+    
+    // steering wheel
+    steeringWheel->SetPosition(body->GetPosition());
+    steeringWheel->SetRotation(body->GetRotation());
 
-        glm::vec3 worldSteerOffset = carRot * steeringOffset;
-        steeringWheel->position = body->position + worldSteerOffset;
+    glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 
-        glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+    const float steeringWheelMultiplier = 6.0f;
+    float targetSteeringWheelAngle = -steerCurrent * steeringWheelMultiplier;
 
-        const float steeringWheelMultiplier = 6.0f;
-        float targetSteeringWheelAngle = -steerCurrent * steeringWheelMultiplier;
-
-        if (steeringWheelVisualMaxAngle > 0.0f) {
-            targetSteeringWheelAngle = glm::clamp(targetSteeringWheelAngle,
-                                                   -steeringWheelVisualMaxAngle,
-                                                   steeringWheelVisualMaxAngle);
-        }
-
-        float alpha = glm::clamp(steeringWheelVisualSmooth * dt, 0.0f, 1.0f);
-        steeringWheelVisualAngle = glm::mix(steeringWheelVisualAngle, targetSteeringWheelAngle, alpha);
-
-        float steeringWheelAngleDeg = steeringWheelVisualAngle;
-
-        glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
-
-        glm::quat finalRotGLM = carRot * steeringTurn * localModelFix;
-
-        steeringWheel->rotation = physx::PxQuat(
-            finalRotGLM.x,
-            finalRotGLM.y,
-            finalRotGLM.z,
-            finalRotGLM.w
-        );
+    if (steeringWheelVisualMaxAngle > 0.0f) {
+        targetSteeringWheelAngle = glm::clamp(targetSteeringWheelAngle,
+                                                -steeringWheelVisualMaxAngle,
+                                                steeringWheelVisualMaxAngle);
     }
+
+    float alpha = glm::clamp(steeringWheelVisualSmooth * dt, 0.0f, 1.0f);
+    steeringWheelVisualAngle = glm::mix(steeringWheelVisualAngle, targetSteeringWheelAngle, alpha);
+
+    float steeringWheelAngleDeg = steeringWheelVisualAngle;
+
+    glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
+
+    glm::quat finalRotGLM = steeringTurn * localModelFix;
+
+    steeringWheel->SetRotationOffset(GlmQuatToPxQuat(finalRotGLM));
 }
 
 void Car::Draw(Shader& shader)
@@ -163,18 +134,3 @@ void Car::SetSteerSpeed(float degPerSec)
     steerSpeed = std::max(0.0f, degPerSec);
 }
 
-void Car::SetWheelOffsets(const std::array<glm::vec3, 4>& offsets)
-{
-    wheelOffsets = offsets;
-
-    if (body) {
-        for (int i = 0; i < 4; ++i) {
-            if (wheels[i]) {
-                const auto& mdl = wheels[i]->GetModel();
-                if (mdl) {
-                    mdl->position = body->position + wheelOffsets[i];
-                }
-            }
-        }
-    }
-}

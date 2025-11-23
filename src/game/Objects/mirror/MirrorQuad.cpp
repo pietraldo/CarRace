@@ -60,9 +60,9 @@ void MirrorQuad::Draw()
         Car* car = Rendering::scene->GetCar();
         if (car && car->GetBody()) {
             const auto& body = car->GetBody();
-            carPos = body->position;
+            carPos = body->GetPosition();
 
-            physx::PxQuat pxRot = body->rotation;
+            physx::PxQuat pxRot = body->GetRotation();
             carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
         }
     }
