@@ -1,5 +1,5 @@
 #include "terrain.h"
 
 
-int Sphere::sectorCount = 10;
-int Sphere::stackCount = 10;
+int Sphere::rows = 0;
+int Sphere::cols = 0;

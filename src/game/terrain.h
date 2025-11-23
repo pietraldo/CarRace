@@ -24,8 +24,8 @@ private:
 
 public:
 
-	static int sectorCount;
-	static int stackCount;
+	static int rows;
+	static int cols;
 
 
 	glm::vec3 position;
@@ -39,42 +39,59 @@ public:
 
 	static vector<float> CreateVertices()
 	{
-
-        vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", stackCount, sectorCount);
+        vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", rows, cols);
 		vector<float> vertices;
-		float radius = 1.0f;
-		vector<float> normals;
+		
 
-		const float PI = acos(-1.0f);
-
-
-		float x, y, z, xy;                              // vertex position
-		float nx, ny, nz;    // normal
+		float x, y, z;		// vertex position
+		float nx, ny, nz;   // normal
 
 
-		for (int i = 0; i <= stackCount; ++i)
+		for (int i = 0; i <rows; ++i)
 		{
-			
-
-			for (int j = 0; j <= sectorCount; ++j)
+			for (int j = 0; j <cols; ++j)
 			{
-				x = i * 0.5;
-				y = (i * sectorCount + j < 10000) ? heights[i * sectorCount + j] : 0;
-				y *= 10;
-				z = j * 0.5;// r * cos(u) * sin(v)
-				vertices.push_back(x);
-				vertices.push_back(y);
-				vertices.push_back(z);
+                // ----- Get Height -----
+                float h = heights[i * cols + j];
 
+                // ----- Compute vertex position -----
+                float x = i * 2.0f-100;
+                float y = h * 10.0f;
+                float z = j * 2.0f-100;
 
-				// normalized vertex normal
-				float lengthInv = 1.0f / sqrt(x * x + y * y + z * z + 1e-6f); // avoid div by zero
-				float nx = x * lengthInv;
-				float ny = y * lengthInv;
-				float nz = z * lengthInv;
-				vertices.push_back(nx);
-				vertices.push_back(ny);
-				vertices.push_back(nz);
+                // ----- Add to vertex buffer -----
+                vertices.push_back(x);
+                vertices.push_back(y);
+                vertices.push_back(z);
+
+				if (i == 0 || i == rows - 1 || j == 0 || j == cols - 1)
+                {
+                    // For border vertices, set normal to point up
+                    vertices.push_back(0.0f);
+                    vertices.push_back(1.0f);
+                    vertices.push_back(0.0f);
+                    continue;
+                }
+                
+
+                // ----- Safe neighbor reads -----
+                float hl = heights[(i > 0 ? i - 1 : i) * cols + j];
+                float hr = heights[(i < rows - 1 ? i + 1 : i) * cols + j];
+                float hd = heights[i * cols + (j > 0 ? j - 1 : j)];
+                float hu = heights[i * cols + (j < cols - 1 ? j + 1 : j)];
+
+                // ----- Compute normal vector -----
+                glm::vec3 normal(
+                    hl - hr,     // slope in X
+                    2.0f,        // vertical weight
+                    hd - hu      // slope in Z
+                );
+
+                normal = glm::normalize(normal);
+
+                vertices.push_back(normal.x);
+                vertices.push_back(normal.y);
+                vertices.push_back(normal.z);
 
 			}
 		}
@@ -84,39 +101,23 @@ public:
 	static vector<int> CreateIndices()
 	{
 		std::vector<int> indices;
-		std::vector<int> lineIndices;
-		unsigned int k1, k2;
-		for (int i = 0; i < stackCount; ++i)
+		for (int i = 0; i < rows; ++i)
 		{
-			k1 = i * (sectorCount + 1);     // beginning of current stack
-			k2 = k1 + sectorCount + 1;      // beginning of next stack
-
-			for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+			for (int j = 0; j < cols; ++j)
 			{
-				// 2 triangles per sector excluding 1st and last stacks
-				if (i != 0)
-				{
-					indices.push_back(k1);
-					indices.push_back(k2);
-					indices.push_back(k1 + 1);
+                int first = (i * cols) + j;
+                int second = first + cols;
 
-				}
+                if (i < rows - 1 && j < cols - 1)
+                {
+                    indices.push_back(first);
+                    indices.push_back(second);
+                    indices.push_back(first + 1);
 
-				if (i != (stackCount - 1))
-				{
-					indices.push_back(k1 + 1);
-					indices.push_back(k2);
-					indices.push_back(k2 + 1);
-				}
-
-				// vertical lines for all stacks
-				lineIndices.push_back(k1);
-				lineIndices.push_back(k2);
-				if (i != 0)  // horizontal lines except 1st stack
-				{
-					lineIndices.push_back(k1);
-					lineIndices.push_back(k1 + 1);
-				}
+                    indices.push_back(second);
+                    indices.push_back(second + 1);
+                    indices.push_back(first + 1);
+                }
 			}
 		}
 		return indices;

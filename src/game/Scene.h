@@ -88,7 +88,7 @@ public:
 		// create a few spheres
 		
 
-		glm::vec3 position = glm::vec3(10,5,0);
+		glm::vec3 position = glm::vec3(0);
 		float radius =5;
 		glm::vec3 color = glm::vec3(1,0,0);
 		Sphere* sphere = new Sphere(position, radius, color);
