@@ -46,8 +46,8 @@ public:
     static unsigned int mirrorFBO;
     static unsigned int mirrorColorTex;
     static unsigned int mirrorDepthRBO;
-    static const int MIRROR_WIDTH = 512;
-    static const int MIRROR_HEIGHT = 512;
+    static const int MIRROR_WIDTH = 2048;
+    static const int MIRROR_HEIGHT = 1024;
     
     // camera moving
     static float lastX;

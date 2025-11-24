@@ -54,7 +54,9 @@ public:
 private:
     void loadModel(string path);
     void processNode(aiNode* node, const aiScene* scene);
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    Mesh processMesh(aiMesh* mesh,
+        const aiScene* scene,
+        const std::string& nodeName);
 
     float scale = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);

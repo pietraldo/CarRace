@@ -1,6 +1,5 @@
 #include "Scene.h"
 #include "../gfx/Model.h"
-#include "Objects/mirror/MirrorQuad.h"
 
 Scene::Scene()
 {
@@ -29,19 +28,6 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-	MirrorQuad* leftMirror = new MirrorQuad(
-		glm::vec3(-0.07f, 0.32f, 0.97f),
-		glm::vec2(0.12f, 0.12f)
-	);
-	leftMirror->SetRotationDeg(glm::vec3(0.0f, 202.0f, 0.0f));
-	gameObjects.push_back(leftMirror);
-
-	MirrorQuad* rightMirror = new MirrorQuad(
-		glm::vec3(-0.07f, 0.32f, -0.97f),
-		glm::vec2(0.12f, 0.12f)
-	);
-	rightMirror->SetRotationDeg(glm::vec3(0.0f, -202.0f, 0.0f));
-	gameObjects.push_back(rightMirror);
 }
 
 
@@ -166,7 +152,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.use();
 
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix());
+	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setBool("fogEnabled", fog);
 
@@ -212,7 +198,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/car.gltf";
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 

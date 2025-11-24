@@ -1,5 +1,4 @@
 #include "Rendering.h"
-#include "../game/Objects/mirror/MirrorQuad.h"
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -278,8 +277,7 @@ void Rendering::RenderImGui()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,
-    bool skipMirror)
+static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects)
 {
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
@@ -294,18 +292,14 @@ static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,
 
     for (GameObject* gameObj : gameObjects)
     {
-        if (skipMirror) {
-            if (dynamic_cast<MirrorQuad*>(gameObj) != nullptr)
-                continue;
-        }
-        gameObj->Draw();
+        gameObj->Draw();   
     }
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
     (*Rendering::scene).DrawTerrain(*Rendering::colorShader, Rendering::VAO_sphere);
-
 }
+
 
 
 
@@ -325,21 +319,18 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
         }
     }
 
-    glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);  
-    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f); 
-    glm::vec3 right = glm::normalize(glm::cross(forward, up)); 
+    glm::vec3 forward = glm::normalize(carRot * glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::vec3 up = glm::normalize(carRot * glm::vec3(0.0f, 1.0f, 0.0f));
 
     float height = 1.2f;   
-    float sideOffset = 1.2f;   
-    float forwardOffset = 0.2f;   
+    float backOffset = -0.5f;  
 
     glm::vec3 mirrorPos =
         carPos
-        + up * height          
-        - right * sideOffset  
-        + forward * forwardOffset;
+        + up * height
+        + forward * backOffset;
 
-    glm::vec3 lookDir = glm::normalize(-forward - 0.35f * right);
+    glm::vec3 lookDir = glm::normalize(-forward);
 
     glm::mat4 mirrorView = glm::lookAt(
         mirrorPos,
@@ -347,14 +338,14 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
         up
     );
 
-    Rendering::SetExternalView(mirrorView);
+    Rendering::SetExternalView(mirrorView);;
 
     glBindFramebuffer(GL_FRAMEBUFFER, mirrorFBO);
     glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderSceneCommon(gameObjects,true);
+    RenderSceneCommon(gameObjects);
 
     Rendering::ClearExternalView();
 
@@ -363,10 +354,10 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderSceneCommon(gameObjects,false);
-
+    RenderSceneCommon(gameObjects);
 
     RenderImGui();
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
 }
+

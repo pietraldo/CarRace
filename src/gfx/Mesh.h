@@ -34,8 +34,14 @@ public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
+    std::string name;
+    bool isMirror = false;
 
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+    Mesh(vector<Vertex> vertices,
+        vector<unsigned int> indices,
+        vector<Texture> textures,
+        const std::string& name = "");
+    
     void Draw(Shader& shader);
 private:
     unsigned int VAO, VBO, EBO;
