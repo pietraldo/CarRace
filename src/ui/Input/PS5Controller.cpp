@@ -9,14 +9,66 @@ bool PS5Controller::updateInput() {
     return true;
 }
 
+bool PS5Controller::setEffectsOnInputer(bool vibration) {
+
+    clearOutputReport();
+    setL2AndR2Triggers();
+    std::cout << "Vibration: " << vibration << std::endl;
+    setVibration(vibration ? 0.9f : 0.0f, vibration ? 0.9f : 0.0f);
+
+    writeOutputReport();
+    return true;
+}
+
+
+
+bool PS5Controller::setL2AndR2Triggers() {
+
+    // right trigger
+    outputBuf[11] = 0x0;
+    outputBuf[12] = 0x0;
+    outputBuf[13] = 0x0;
+    outputBuf[14] = 0x0;
+
+    // left trigger
+    outputBuf[22] = 0x26;
+    outputBuf[23] = 0x90;
+    outputBuf[24] = 0xA0;
+    outputBuf[25] = 0xFF;
+    return true;
+}
+
+void PS5Controller::setVibration(float leftMotor, float rightMotor)
+{
+    outputBuf[3] = static_cast<unsigned char>(leftMotor * 255);
+    outputBuf[4] = static_cast<unsigned char>(rightMotor * 255);
+    //outputBuf[3] = 0xFF;
+    //outputBuf[4] = 0xFF;
+}
+
+void PS5Controller::clearOutputReport() {
+    for (int i = 0; i < OUTPUT_REPORT_SIZE; i++) {
+        outputBuf[i] = 0;
+    }
+}
+
+bool PS5Controller::writeOutputReport()
+{
+    outputBuf[0] = 0x02;                // Report ID
+    outputBuf[1] = 0xFF;                // Enable all features
+    outputBuf[2] = 0xFF;
+    int res = hid_write(handle, outputBuf, OUTPUT_REPORT_SIZE);
+    return false;
+}
+
 std::vector<float> PS5Controller::getLeftStick() {
     float X = (inputBuf[1] - 128) / 128.0f;
     float Y = (inputBuf[2] - 128) / 128.0f;
 
-    if (std::abs(X)+10 < std::abs(lastLX))
+   /*if (std::abs(X) + 10 < std::abs(lastLX))
         X = 0.0f;
     if (std::abs(Y)+10 < std::abs(lastLY))
-        Y = 0.0f;
+        Y = 0.0f;*/
 
     if (std::abs(X) < leftStickDeadzone)
         X = 0.0f;
@@ -32,7 +84,7 @@ std::vector<float> PS5Controller::getRightStick() {
     float X = (inputBuf[3] - 128) / 128.0f;
     float Y = (inputBuf[4] - 128) / 128.0f;
 
-    if (std::abs(X) < std::abs(lastRX)+rightStickDeadzone)
+    /*if (std::abs(X) < std::abs(lastRX)+rightStickDeadzone)
         X = 0.0f;
     if (std::abs(Y) < std::abs(lastRY)+rightStickDeadzone)
         Y = 0.0f;
@@ -43,9 +95,11 @@ std::vector<float> PS5Controller::getRightStick() {
         Y = 0.0f;
 
     lastRX = X;
-    lastRY = Y;
+    lastRY = Y;*/
     return { X,Y };
 }
+
+
 
 bool PS5Controller::isButtonPressed(ControllerButton button) {
     return inputBuf[8] == buttonCode[static_cast<int>(button)];
@@ -58,9 +112,31 @@ bool PS5Controller::isButtonJustPressed(ControllerButton button) {
     return justPressed;
 }
 
+float PS5Controller::getLeftTrigger() {
+    return inputBuf[5] / 255.0f;
+}
+float PS5Controller::getRightTrigger() {
+    return inputBuf[6] / 255.0f;
+}
+
 CarControlInput PS5Controller::getCarControlInput()
 {
-    return CarControlInput();
+    CarControlInput input;
+
+    std::vector<float> leftStick = getLeftStick();
+
+    if(isButtonJustPressed(PS5Controller::ControllerButton::ARROW_LEFT))
+        input.gear=-1;
+    if (isButtonJustPressed(PS5Controller::ControllerButton::ARROW_RIGHT))
+        input.gear = +1;
+
+    input.steer = -leftStick[0];
+    input.throttle = getRightTrigger();
+    input.brake = getLeftTrigger();
+    input.handbrake = isButtonPressed(PS5Controller::ControllerButton::CROSS) ? 1.0f : 0.0f;
+
+
+    return input;
 }
 
 CameraControlInput PS5Controller::getCameraControlInput()

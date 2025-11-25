@@ -48,6 +48,8 @@ public:
 	bool fog = false;
 	bool userFlashlight = false;
 
+    bool setVibration = false;
+
 	LightSpot* flashlight;
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;

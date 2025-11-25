@@ -33,18 +33,20 @@ Scene::Scene()
 void Scene::UpdateCar(InputData input, float deltaTime)
 {
 	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
-    for (RaceCar* v : vehicles)
+	for (RaceCar* v : vehicles)
 	{
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
 		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
 
 		car->SetWheelRotationFromPhysx(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
-        float steer = -input.carControl1.steer*45;
+		float steer = -input.carControl1.steer * 45;
 		car->SetSteer(steer);
 
 		car->Update(deltaTime, position, rotation);
-    }
+
+		setVibration = (v->computeDriftFactor() > 0.1f);
+	}
 }
 
 void Scene::UpdateCamera()
