@@ -8,26 +8,23 @@ Shader* Rendering::texturedShader = nullptr;
 
 bool Rendering::showBoxColliders = false;
 
+// mirror
 unsigned int Rendering::leftMirrorFBO = 0;
 unsigned int Rendering::rightMirrorFBO = 0;
-
 unsigned int Rendering::leftMirrorColorTex = 0;
 unsigned int Rendering::rightMirrorColorTex = 0;
-
-float Rendering::mirrorHeightOffset = 0.32f;  // do góry
-float Rendering::mirrorSideOffset = 0.981f;  // na bok
-float Rendering::mirrorForwardOffset = 0.127f;  // do przodu
-
-float Rendering::mirrorLookSide = -0.241f;      // w bok
+float Rendering::mirrorHeightOffset = 0.32f;  
+float Rendering::mirrorSideOffset = 0.981f;  
+float Rendering::mirrorForwardOffset = 0.127f;  
+float Rendering::mirrorLookSide = -0.241f;      
 float Rendering::mirrorLookUp = -0.695f;
-
 float Rendering::mirrorFov = 140.0f;
-
 unsigned int Rendering::mirrorDepthRBO = 0;
 bool   Rendering::useExternalView = false;
 glm::mat4 Rendering::externalView = glm::mat4(1.0f);
 bool   Rendering::useExternalProj = false;
 glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
+
 
 Scene* Rendering::scene = nullptr;
 
@@ -298,6 +295,7 @@ void Rendering::RenderImGui()
     {
         ImGui::Begin("Mirror settings");
 
+        ImGui::Separator();
         ImGui::Text("Offsets (position)");
         ImGui::SliderFloat("Height", &mirrorHeightOffset, 0.0f, 1.0f);
         ImGui::SliderFloat("Side", &mirrorSideOffset, 0.5f, 2.0f);
@@ -342,105 +340,13 @@ static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects)
     (*Rendering::scene).DrawTerrain(*Rendering::colorShader, Rendering::VAO_sphere);
 }
 
-
-
-
 void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 {
-    glm::vec3 carPos(0.0f);
-    glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
-
-    if (scene) {
-        Car* car = scene->GetCar();
-        if (car && car->GetBody()) {
-            const auto& body = car->GetBody();
-            carPos = body->GetPosition();
-
-            physx::PxQuat pxRot = body->GetRotation();
-            carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
-        }
+    Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
+    if (activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA)
+    {
+        RenderMirrors(gameObjects);
     }
-
-    glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
-    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 right = glm::normalize(glm::cross(forward, up));
-
-
-    auto computeMirror = [&](float sideSign) -> std::pair<glm::vec3, glm::vec3>
-        {
-            glm::vec3 pos =
-                carPos
-                + up * mirrorHeightOffset
-                + right * (sideSign * mirrorSideOffset)
-                + forward * mirrorForwardOffset;
-
-            float sideCoeff = (sideSign < 0.0f) ? mirrorLookSide : -mirrorLookSide;
-
-            glm::vec3 dir = glm::normalize(
-                -forward
-                + right * sideCoeff
-                + up * mirrorLookUp
-            );
-
-            return std::make_pair(pos, dir);
-        };
-
-    std::pair<glm::vec3, glm::vec3> leftMirror = computeMirror(-1.0f);
-    glm::vec3 leftMirrorPos = leftMirror.first;
-    glm::vec3 leftLookDir = leftMirror.second;
-
-    std::pair<glm::vec3, glm::vec3> rightMirror = computeMirror(+1.0f);
-    glm::vec3 rightMirrorPos = rightMirror.first;
-    glm::vec3 rightLookDir = rightMirror.second;
-
-    
-    glm::mat4 leftMirrorView = glm::lookAt(
-        leftMirrorPos,
-        leftMirrorPos + leftLookDir,
-        up
-    );
-
-    glm::mat4 rightMirrorView = glm::lookAt(
-        rightMirrorPos,
-        rightMirrorPos + rightLookDir,
-        up
-    );
-
-    // helper do rysowania jednego lusterka (dowolnego FBO)
-    auto renderMirror = [&](const glm::mat4& view, GLuint fbo)
-        {
-            // ustawiamy widok lusterka
-            Rendering::SetExternalView(view);
-
-            // osobna projekcja dla lusterka (szeroki FOV + aspect FBO)
-            float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;
-            glm::mat4 proj = glm::perspective(
-                glm::radians(mirrorFov),
-                aspect,
-                0.1f,
-                400.0f
-            );
-            Rendering::SetExternalProj(proj);
-
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            RenderSceneCommon(gameObjects);
-
-            // wracamy do normalnych ustawieñ
-            Rendering::ClearExternalView();
-            Rendering::ClearExternalProj();
-        };
-
-
-    // ===== lustra =====
-    renderMirror(leftMirrorView, leftMirrorFBO);
-    renderMirror(rightMirrorView, rightMirrorFBO);
-
-    // ===== g³ówna kamera =====
-    Rendering::ClearExternalView();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -452,11 +358,118 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
     RenderImGui();
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
+
 }
 
+void Rendering::RenderMirrors(const std::vector<GameObject*>& gameObjects)
+{
+    if (!scene) return;
+
+    glm::vec3 carPos(0.0f);
+    glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
+
+    Car* car = scene->GetCar();
+    if (car && car->GetBody()) {
+        const auto& body = car->GetBody();
+        carPos = body->GetPosition();
+
+        physx::PxQuat pxRot = body->GetRotation();
+        carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
+    }
+
+    glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
+    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 right = glm::normalize(glm::cross(forward, up));
+
+    MirrorData leftMirror = ComputeMirrorData(-1.0f, carPos, forward, up, right);
+    MirrorData rightMirror = ComputeMirrorData(+1.0f, carPos, forward, up, right);
+
+    glm::mat4 leftMirrorView = glm::lookAt(
+        leftMirror.position,
+        leftMirror.position + leftMirror.direction,
+        up
+    );
+
+    glm::mat4 rightMirrorView = glm::lookAt(
+        rightMirror.position,
+        rightMirror.position + rightMirror.direction,
+        up
+    );
 
 
+    RenderSingleMirror(leftMirrorView, leftMirrorFBO, gameObjects);
+    RenderSingleMirror(rightMirrorView, rightMirrorFBO, gameObjects);
 
+}
 
+Rendering::MirrorData Rendering::ComputeMirrorData(float sideSign, const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up, const glm::vec3& right)
+{
+    MirrorData data;
+
+    data.position =
+        carPos
+        + up * mirrorHeightOffset
+        + right * (sideSign * mirrorSideOffset)
+        + forward * mirrorForwardOffset;
+
+    float sideCoeff = (sideSign < 0.0f) ? mirrorLookSide : -mirrorLookSide;
+
+    data.direction = glm::normalize(
+        -forward
+        + right * sideCoeff
+        + up * mirrorLookUp
+    );
+
+    return data;
+}
+
+void Rendering::RenderSingleMirror(const glm::mat4& view, GLuint fbo, const std::vector<GameObject*>& gameObjects)
+{
+    SetExternalView(view);
+
+    float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;
+
+    glm::mat4 proj = glm::perspective(
+        glm::radians(mirrorFov),
+        aspect,
+        0.1f,
+        400.0f
+    );
+
+    SetExternalProj(proj);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    RenderSceneCommon(gameObjects);
+
+    ClearExternalView();
+    ClearExternalProj();
+}
+
+void Rendering::SetExternalView(const glm::mat4& view)
+{
+    externalView = view;
+    useExternalView = true;
+}
+
+void Rendering::SetExternalProj(const glm::mat4& proj)
+{
+    externalProj = proj;
+    useExternalProj = true;
+}
+
+void Rendering::ClearExternalProj()
+{
+    useExternalProj = false;
+}
+
+void Rendering::ClearExternalView()
+{
+    useExternalView = false;
+}
 
 

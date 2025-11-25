@@ -13,10 +13,17 @@ Mesh::Mesh(vector<Vertex> vertices,
 
     if (name.rfind("MirrorGlass", 0) == 0) {
         isMirror = true;
-    }
 
+        if (name.find("Right") != std::string::npos) {
+            mirrorSide = MirrorSide::Right;
+        }
+        else {
+            mirrorSide = MirrorSide::Left;
+        }
+    }
     setupMesh();
 }
+
 
 void Mesh::setupMesh()
 {
@@ -59,7 +66,15 @@ void Mesh::Draw(Shader& shader)
         shader.setBool("uHasBaseColorMap", true);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, Rendering::GetMirrorTexture());
+
+        unsigned int mirrorTex = 0;
+        if (mirrorSide == MirrorSide::Right) {
+            mirrorTex = Rendering::GetRightMirrorTexture();
+        }else {
+            mirrorTex = Rendering::GetLeftMirrorTexture();
+        }
+
+        glBindTexture(GL_TEXTURE_2D, mirrorTex);
         shader.setInt("uBaseColorMap", 0);
     }
     else {
@@ -97,3 +112,4 @@ void Mesh::Draw(Shader& shader)
 
     glActiveTexture(GL_TEXTURE0);
 }
+

@@ -28,6 +28,12 @@ struct Texture {
     string path;
 };
 
+enum class MirrorSide
+{
+    None = 0,
+    Left,
+    Right
+};
 
 class Mesh {
 public:
@@ -36,6 +42,7 @@ public:
     vector<Texture>      textures;
     std::string name;
     bool isMirror = false;
+    MirrorSide mirrorSide = MirrorSide::None;
 
     Mesh(vector<Vertex> vertices,
         vector<unsigned int> indices,
