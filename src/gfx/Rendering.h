@@ -43,11 +43,23 @@ public:
     static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;;
 
     //mirror
-    static unsigned int mirrorFBO;
-    static unsigned int mirrorColorTex;
+    static unsigned int leftMirrorFBO;
+    static unsigned int rightMirrorFBO;
+
+    static unsigned int leftMirrorColorTex;
+    static unsigned int rightMirrorColorTex;
+
     static unsigned int mirrorDepthRBO;
-    static const int MIRROR_WIDTH = 2048;
-    static const int MIRROR_HEIGHT = 1024;
+
+    static float mirrorHeightOffset;
+    static float mirrorSideOffset;
+    static float mirrorForwardOffset;
+    static float mirrorLookSide;
+    static float mirrorLookUp;
+    static float mirrorFov;
+
+    static const int MIRROR_WIDTH = 1024;
+    static const int MIRROR_HEIGHT = 512;
     
     // camera moving
     static float lastX;
@@ -92,12 +104,23 @@ public:
         useExternalView = true;
     }
 
+    static void SetExternalProj(const glm::mat4& proj)
+    {
+        externalProj = proj;
+        useExternalProj = true;
+    }
+
+    static void ClearExternalProj()
+    {
+        useExternalProj = false;
+    }
+
     static void ClearExternalView()
     {
         useExternalView = false;
     }
 
-    static unsigned int GetMirrorTexture() { return mirrorColorTex; }
+    static unsigned int GetMirrorTexture() { return leftMirrorColorTex;}
 
     static Scene* scene;
 

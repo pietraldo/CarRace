@@ -1,4 +1,5 @@
 #include "Rendering.h"
+#include <utility>
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -7,8 +8,21 @@ Shader* Rendering::texturedShader = nullptr;
 
 bool Rendering::showBoxColliders = false;
 
-unsigned int Rendering::mirrorFBO = 0;
-unsigned int Rendering::mirrorColorTex = 0;
+unsigned int Rendering::leftMirrorFBO = 0;
+unsigned int Rendering::rightMirrorFBO = 0;
+
+unsigned int Rendering::leftMirrorColorTex = 0;
+unsigned int Rendering::rightMirrorColorTex = 0;
+
+float Rendering::mirrorHeightOffset = 0.32f;  // do góry
+float Rendering::mirrorSideOffset = 0.981f;  // na bok
+float Rendering::mirrorForwardOffset = 0.127f;  // do przodu
+
+float Rendering::mirrorLookSide = -0.241f;      // w bok
+float Rendering::mirrorLookUp = -0.695f;
+
+float Rendering::mirrorFov = 140.0f;
+
 unsigned int Rendering::mirrorDepthRBO = 0;
 bool   Rendering::useExternalView = false;
 glm::mat4 Rendering::externalView = glm::mat4(1.0f);
@@ -33,14 +47,14 @@ unsigned int Rendering::lightVAO = *(new unsigned);
 
 namespace
 {
-    void InitMirrorRenderTarget()
+    void CreateMirrorTarget(GLuint& fbo, GLuint& colorTex)
     {
-        glGenFramebuffers(1, &Rendering::mirrorFBO);
-        glBindFramebuffer(GL_FRAMEBUFFER, Rendering::mirrorFBO);
+        glGenFramebuffers(1, &fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
         // kolor
-        glGenTextures(1, &Rendering::mirrorColorTex);
-        glBindTexture(GL_TEXTURE_2D, Rendering::mirrorColorTex);
+        glGenTextures(1, &colorTex);
+        glBindTexture(GL_TEXTURE_2D, colorTex);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
             Rendering::MIRROR_WIDTH, Rendering::MIRROR_HEIGHT,
             0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -50,13 +64,9 @@ namespace
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D, Rendering::mirrorColorTex, 0);
+            GL_TEXTURE_2D, colorTex, 0);
 
-        // depth+stencil
-        glGenRenderbuffers(1, &Rendering::mirrorDepthRBO);
-        glBindRenderbuffer(GL_RENDERBUFFER, Rendering::mirrorDepthRBO);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-            Rendering::MIRROR_WIDTH, Rendering::MIRROR_HEIGHT);
+        // u¿ywamy wspólnego depth RBO
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
             GL_RENDERBUFFER, Rendering::mirrorDepthRBO);
 
@@ -66,6 +76,18 @@ namespace
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void InitMirrorRenderTarget()
+    {
+        glGenRenderbuffers(1, &Rendering::mirrorDepthRBO);
+        glBindRenderbuffer(GL_RENDERBUFFER, Rendering::mirrorDepthRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+            Rendering::MIRROR_WIDTH, Rendering::MIRROR_HEIGHT);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        CreateMirrorTarget(Rendering::leftMirrorFBO, Rendering::leftMirrorColorTex);
+        CreateMirrorTarget(Rendering::rightMirrorFBO, Rendering::rightMirrorColorTex);
     }
 }
 
@@ -273,6 +295,26 @@ void Rendering::RenderImGui()
         ImGui::End();
     }
 
+    {
+        ImGui::Begin("Mirror settings");
+
+        ImGui::Text("Offsets (position)");
+        ImGui::SliderFloat("Height", &mirrorHeightOffset, 0.0f, 1.0f);
+        ImGui::SliderFloat("Side", &mirrorSideOffset, 0.5f, 2.0f);
+        ImGui::SliderFloat("Forward", &mirrorForwardOffset, -0.5f, 0.5f);
+
+        ImGui::Separator();
+        ImGui::Text("Direction (look)");
+        ImGui::SliderFloat("Look side", &mirrorLookSide, -1.0f, 1.0f);
+        ImGui::SliderFloat("Look up", &mirrorLookUp, -1.0f, 1.0f);
+
+        ImGui::Separator();
+        ImGui::Text("Projection");
+        ImGui::SliderFloat("Mirror FOV", &mirrorFov, 40.0f, 140.0f);
+
+        ImGui::End();
+    }
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -319,34 +361,85 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
         }
     }
 
-    glm::vec3 forward = glm::normalize(carRot * glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::vec3 up = glm::normalize(carRot * glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
+    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 right = glm::normalize(glm::cross(forward, up));
 
-    float height = 1.2f;   
-    float backOffset = -0.5f;  
 
-    glm::vec3 mirrorPos =
-        carPos
-        + up * height
-        + forward * backOffset;
+    auto computeMirror = [&](float sideSign) -> std::pair<glm::vec3, glm::vec3>
+        {
+            glm::vec3 pos =
+                carPos
+                + up * mirrorHeightOffset
+                + right * (sideSign * mirrorSideOffset)
+                + forward * mirrorForwardOffset;
 
-    glm::vec3 lookDir = glm::normalize(-forward);
+            float sideCoeff = (sideSign < 0.0f) ? mirrorLookSide : -mirrorLookSide;
 
-    glm::mat4 mirrorView = glm::lookAt(
-        mirrorPos,
-        mirrorPos + lookDir,
+            glm::vec3 dir = glm::normalize(
+                -forward
+                + right * sideCoeff
+                + up * mirrorLookUp
+            );
+
+            return std::make_pair(pos, dir);
+        };
+
+    std::pair<glm::vec3, glm::vec3> leftMirror = computeMirror(-1.0f);
+    glm::vec3 leftMirrorPos = leftMirror.first;
+    glm::vec3 leftLookDir = leftMirror.second;
+
+    std::pair<glm::vec3, glm::vec3> rightMirror = computeMirror(+1.0f);
+    glm::vec3 rightMirrorPos = rightMirror.first;
+    glm::vec3 rightLookDir = rightMirror.second;
+
+    
+    glm::mat4 leftMirrorView = glm::lookAt(
+        leftMirrorPos,
+        leftMirrorPos + leftLookDir,
         up
     );
 
-    Rendering::SetExternalView(mirrorView);;
+    glm::mat4 rightMirrorView = glm::lookAt(
+        rightMirrorPos,
+        rightMirrorPos + rightLookDir,
+        up
+    );
 
-    glBindFramebuffer(GL_FRAMEBUFFER, mirrorFBO);
-    glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // helper do rysowania jednego lusterka (dowolnego FBO)
+    auto renderMirror = [&](const glm::mat4& view, GLuint fbo)
+        {
+            // ustawiamy widok lusterka
+            Rendering::SetExternalView(view);
 
-    RenderSceneCommon(gameObjects);
+            // osobna projekcja dla lusterka (szeroki FOV + aspect FBO)
+            float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;
+            glm::mat4 proj = glm::perspective(
+                glm::radians(mirrorFov),
+                aspect,
+                0.1f,
+                400.0f
+            );
+            Rendering::SetExternalProj(proj);
 
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+            glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            RenderSceneCommon(gameObjects);
+
+            // wracamy do normalnych ustawieñ
+            Rendering::ClearExternalView();
+            Rendering::ClearExternalProj();
+        };
+
+
+    // ===== lustra =====
+    renderMirror(leftMirrorView, leftMirrorFBO);
+    renderMirror(rightMirrorView, rightMirrorFBO);
+
+    // ===== g³ówna kamera =====
     Rendering::ClearExternalView();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -360,4 +453,10 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
 }
+
+
+
+
+
+
 
