@@ -205,7 +205,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 void Scene::CreateModels()
 {
 	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
