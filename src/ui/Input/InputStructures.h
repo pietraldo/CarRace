@@ -1,5 +1,10 @@
 #pragma once
 
+struct EffectsOnInputer
+{
+    float vibration = 0.0;
+};
+
 struct CarControlInput
 {
     float brake = 0; // 0-1
@@ -24,6 +29,12 @@ struct AdditionalInputInfo
 {
     bool startSimulation = false;
     bool exit = false;
+};
+
+struct OutputData
+{
+    EffectsOnInputer effectsOnInputer1;
+    EffectsOnInputer effectsOnInputer2;
 };
 
 struct InputData

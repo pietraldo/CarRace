@@ -40,6 +40,7 @@ public:
 
         glm::vec3 forward = glm::normalize(carRotation * glm::vec3(0.0f, 0.0f, 1.0f));
         float totalBack = static_cast<float>(distanceFromTarget) + localBackward;
+        forward.y = 0.0f; 
 
         Position = targetPos - forward * totalBack + glm::vec3(0.0f, eyeHeight, 0.0f);
 

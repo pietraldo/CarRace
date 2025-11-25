@@ -93,6 +93,7 @@ int main()
 			Physics::getInstance()->update(deltaTime, input.carControl1);
 		}
 		
+        scene->setOutput();
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
 
