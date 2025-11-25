@@ -94,7 +94,7 @@ int main()
 			Physics::getInstance()->update(deltaTime, input.carControl1);
 		}
 		
-		InputManager::getInstance().setEffectsOnInputer(scene->setVibration);
+        scene->setOutput();
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
 

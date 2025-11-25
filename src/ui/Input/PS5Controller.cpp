@@ -9,12 +9,11 @@ bool PS5Controller::updateInput() {
     return true;
 }
 
-bool PS5Controller::setEffectsOnInputer(bool vibration) {
+bool PS5Controller::setEffectsOnInputer(EffectsOnInputer effects) {
 
     clearOutputReport();
     setL2AndR2Triggers();
-    std::cout << "Vibration: " << vibration << std::endl;
-    setVibration(vibration ? 0.9f : 0.0f, vibration ? 0.9f : 0.0f);
+    setVibration(effects.vibration);
 
     writeOutputReport();
     return true;
@@ -38,12 +37,10 @@ bool PS5Controller::setL2AndR2Triggers() {
     return true;
 }
 
-void PS5Controller::setVibration(float leftMotor, float rightMotor)
+void PS5Controller::setVibration(float vibration)
 {
-    outputBuf[3] = static_cast<unsigned char>(leftMotor * 255);
-    outputBuf[4] = static_cast<unsigned char>(rightMotor * 255);
-    //outputBuf[3] = 0xFF;
-    //outputBuf[4] = 0xFF;
+    outputBuf[3] = static_cast<unsigned char>(vibration * 255);
+    outputBuf[4] = static_cast<unsigned char>(vibration * 255);
 }
 
 void PS5Controller::clearOutputReport() {
@@ -87,7 +84,7 @@ std::vector<float> PS5Controller::getRightStick() {
     /*if (std::abs(X) < std::abs(lastRX)+rightStickDeadzone)
         X = 0.0f;
     if (std::abs(Y) < std::abs(lastRY)+rightStickDeadzone)
-        Y = 0.0f;
+        Y = 0.0f;*/
 
     if (std::abs(X) < rightStickDeadzone)
         X = 0.0f;
@@ -95,7 +92,7 @@ std::vector<float> PS5Controller::getRightStick() {
         Y = 0.0f;
 
     lastRX = X;
-    lastRY = Y;*/
+    lastRY = Y;
     return { X,Y };
 }
 

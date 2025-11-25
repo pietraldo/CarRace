@@ -44,8 +44,8 @@ public:
     void setInputController2(InputController* controller) { inputController2 = controller; }
 
     InputData getInputData();
-    void setEffectsOnInputer(bool vibration = false) {
-        if (inputController1) inputController1->setEffectsOnInputer(vibration);
-        if (inputController2) inputController2->setEffectsOnInputer(vibration);
+    void setEffectsOnInputer(OutputData output) {
+        if (inputController1) inputController1->setEffectsOnInputer(output.effectsOnInputer1);
+        if (inputController2) inputController2->setEffectsOnInputer(output.effectsOnInputer2);
     }
 };

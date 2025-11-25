@@ -48,7 +48,7 @@ private:
     bool isButtonJustPressed(ControllerButton button);
 
     bool setL2AndR2Triggers();
-    void setVibration(float leftMotor, float rightMotor);
+    void setVibration(float vibration);
     void clearOutputReport();
 
     bool writeOutputReport();
@@ -60,7 +60,7 @@ public:
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override { return AdditionalInputInfo(); }
     bool updateInput() override;
-    bool setEffectsOnInputer(bool vibration) override;
+    bool setEffectsOnInputer(EffectsOnInputer effects) override;
 
     bool connect();
     bool isConnected();

@@ -45,7 +45,6 @@ void Scene::UpdateCar(InputData input, float deltaTime)
 
 		car->Update(deltaTime, position, rotation);
 
-		setVibration = (v->computeDriftFactor() > 0.1f);
 	}
 }
 
@@ -112,6 +111,8 @@ void Scene::Update(InputData input, float deltaTime)
 	}
 	
 	UpdateFlashLight();
+
+
 }
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
@@ -261,6 +262,16 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(user_flashlight);
 	flashlight = (LightSpot*)user_flashlight;
+}
+
+void Scene::setOutput()
+{
+    auto vehicle = Physics::getInstance()->getVehicles()[0];
+    float driftFactor = vehicle->computeDriftFactor();
+	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
+    OutputData output;
+    output.effectsOnInputer1.vibration = driftFactorOutput;
+	InputManager::getInstance().setEffectsOnInputer(output);
 }
 
 void Scene::UpdateFlashLight()

@@ -19,6 +19,8 @@
 
 #include "./physics/vehicle.h"
 #include "./gfx/camera/CameraManager.h"
+#include "./ui/Input/InputManager.h"
+#include "./ui/Input/InputStructures.h"
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -48,8 +50,6 @@ public:
 	bool fog = false;
 	bool userFlashlight = false;
 
-    bool setVibration = false;
-
 	LightSpot* flashlight;
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
@@ -65,6 +65,8 @@ public:
 	void AddLight(Light* light) { lights.push_back(light); }
 	void UpdateFlashLight();
 	void CreateLights();
+
+	void setOutput();
 
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
