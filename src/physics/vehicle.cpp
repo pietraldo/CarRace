@@ -71,7 +71,7 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.mCommandState.steer = carControll.steer;
     int currrentGear = gVehicle.mEngineDriveState.gearboxState.currentGear;
     int targetGear = currrentGear + carControll.gear;
-    if (targetGear >= 0 && targetGear < 5 && carControll.gear!=0)
+    if (targetGear >= 0 && targetGear < 8 && carControll.gear!=0)
     {
         gVehicle.mTransmissionCommandState.targetGear = targetGear;
     }
