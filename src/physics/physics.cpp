@@ -93,6 +93,11 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
         *gPhysics, physx::PxTransform(physx::PxVec3(6, 0.5f, 0), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(2.0f, 0.25f, 2.0f)), *material);
     gScene->addActor(*boxCollider3);
     gameObjects[4]->actor = boxCollider3;
+
+    physx::PxRigidStatic* boxCollider4 = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(-35, 0.5f, -40), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
+    gScene->addActor(*boxCollider4);
+    gameObjects[5]->actor = boxCollider4;
 }
 
 
@@ -163,7 +168,7 @@ void Physics::createTerrain()
     delete[] hfSamples;
 
     PxTransform localPose;
-    localPose.p = PxVec3(-(terrainWidth * 0.5f),    // make it so that the center of the
+    localPose.p = PxVec3(-(terrainWidth * 0.5f)-150,    // make it so that the center of the
         minHeight, -(terrainWidth * 0.5f));         // heightfield is at world (0,minHeight,0)
     localPose.q = PxQuat(PxIdentity);
     PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);

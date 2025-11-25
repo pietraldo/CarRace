@@ -23,28 +23,33 @@ Scene::Scene()
 
 	CubeObject* cube4 = new  CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f), glm::vec3(0.0f, 0.0f, 1.0f), true);
 	gameObjects.push_back(cube4);
+	
+	CubeObject* cube5 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+	gameObjects.push_back(cube5);
 
 	CubeObject* cube3 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), false);
 	gameObjects.push_back(cube3);
 	cube = cube3;
+
 }
 
 
 void Scene::UpdateCar(InputData input, float deltaTime)
 {
 	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
-    for (RaceCar* v : vehicles)
+	for (RaceCar* v : vehicles)
 	{
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
 		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
 
 		car->SetWheelRotationFromPhysx(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
-        float steer = -input.carControl1.steer*45;
+		float steer = -input.carControl1.steer * 45;
 		car->SetSteer(steer);
 
 		car->Update(deltaTime, position, rotation);
-    }
+
+	}
 }
 
 void Scene::UpdateCamera()
@@ -110,6 +115,8 @@ void Scene::Update(InputData input, float deltaTime)
 	}
 	
 	UpdateFlashLight();
+
+
 }
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
@@ -259,6 +266,16 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(user_flashlight);
 	flashlight = (LightSpot*)user_flashlight;
+}
+
+void Scene::setOutput()
+{
+    auto vehicle = Physics::getInstance()->getVehicles()[0];
+    float driftFactor = vehicle->computeDriftFactor();
+	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
+    OutputData output;
+    output.effectsOnInputer1.vibration = driftFactorOutput;
+	InputManager::getInstance().setEffectsOnInputer(output);
 }
 
 void Scene::UpdateFlashLight()

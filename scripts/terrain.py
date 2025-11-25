@@ -1,0 +1,177 @@
+# skrypt z chata gpt
+from typing import Tuple, Optional
+import numpy as np
+
+
+def _next_pow2_plus_one(n: int) -> int:
+    """Return the next size of form (2^k)+1 >= n."""
+    k = 0
+    while (1 << k) + 1 < n:
+        k += 1
+    return (1 << k) + 1
+
+
+def _diamond_square(size: int, roughness: float, seed: Optional[int] = None) -> np.ndarray:
+    """
+    Diamond-square algorithm on a (size x size) grid where size == 2^k + 1.
+    roughness controls the amplitude decay of the random offset (typical range 0.3..1.2).
+    """
+    if seed is not None:
+        rng = np.random.RandomState(seed)
+    else:
+        rng = np.random.RandomState()
+
+    # Start with zeros
+    grid = np.zeros((size, size), dtype=float)
+
+    # Initialize corners with small random values
+    grid[0, 0] = rng.rand()
+    grid[0, -1] = rng.rand()
+    grid[-1, 0] = rng.rand()
+    grid[-1, -1] = rng.rand()
+
+    step_size = size - 1
+    scale = 1.0
+
+    while step_size > 1:
+        half = step_size // 2
+
+        # Diamond step
+        for x in range(0, size - 1, step_size):
+            for y in range(0, size - 1, step_size):
+                a = grid[x, y]
+                b = grid[x + step_size, y]
+                c = grid[x, y + step_size]
+                d = grid[x + step_size, y + step_size]
+                avg = (a + b + c + d) / 4.0
+                offset = (rng.rand() - 0.5) * 2 * scale
+                grid[x + half, y + half] = avg + offset
+
+        # Square step
+        for x in range(0, size, half):
+            for y in range((x + half) % step_size, size, step_size):
+                s = []
+                if x - half >= 0:
+                    s.append(grid[x - half, y])
+                if x + half < size:
+                    s.append(grid[x + half, y])
+                if y - half >= 0:
+                    s.append(grid[x, y - half])
+                if y + half < size:
+                    s.append(grid[x, y + half])
+                avg = np.mean(s)
+                offset = (rng.rand() - 0.5) * 2 * scale
+                grid[x, y] = avg + offset
+
+        # reduce step
+        step_size //= 2
+        scale *= roughness
+
+    return grid
+
+
+def _gaussian_smoothing(grid: np.ndarray, sigma: float) -> np.ndarray:
+    """
+    Apply a separable Gaussian blur to `grid` with standard deviation `sigma`.
+    Implemented via convolution with a small kernel created from sigma.
+    If sigma <= 0, returns the original grid (no smoothing).
+    """
+    if sigma <= 0:
+        return grid
+
+    # Kernel radius: cover at least 3 sigma on each side
+    radius = max(1, int(3 * sigma))
+    x = np.arange(-radius, radius + 1)
+    kernel = np.exp(-(x ** 2) / (2 * sigma * sigma))
+    kernel = kernel / kernel.sum()
+
+    # Convolve rows then columns (separable)
+    # pad with reflect to avoid boundary artifacts
+    temp = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='same'), axis=1, arr=grid)
+    smoothed = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='same'), axis=0, arr=temp)
+    return smoothed
+
+
+def generate_terrain(n: int,
+                     roughness: float = 0.7,
+                     seed: Optional[int] = None,
+                     smooth_sigma: float = 0.0,
+                     normalize: bool = True) -> np.ndarray:
+    """
+    Generate an n x n terrain heightmap.
+
+    Parameters
+    ----------
+    n : int
+        Desired output size (n x n). Can be any positive integer; internally the algorithm
+        will build a (2^k + 1) grid and crop to n.
+    roughness : float
+        Controls how rough the terrain is. Lower -> smoother large-scale features. Typical 0.3..1.2
+    seed : Optional[int]
+        RNG seed for reproducibility.
+    smooth_sigma : float
+        Optional Gaussian smoothing sigma in grid units. Use 0 for no extra smoothing.
+    normalize : bool
+        If True, the returned grid will be normalized to [0, 1].
+
+    Returns
+    -------
+    np.ndarray
+        n x n array of floats representing heights.
+    """
+    if n <= 0:
+        raise ValueError("n must be positive")
+
+    size = _next_pow2_plus_one(n)
+    grid = _diamond_square(size, roughness, seed=seed)
+
+    if smooth_sigma > 0:
+        grid = _gaussian_smoothing(grid, smooth_sigma)
+
+    # Crop to n x n from top-left corner (you can center-crop if you prefer)
+    cropped = grid[:n, :n]
+
+    if normalize:
+        minv = cropped.min()
+        maxv = cropped.max()
+        if maxv > minv:
+            cropped = (cropped - minv) / (maxv - minv)
+        else:
+            cropped = np.zeros_like(cropped)
+
+    return cropped
+
+
+# Small convenience CLI when run directly
+if __name__ == '__main__':
+    import argparse
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:
+        plt = None
+
+    parser = argparse.ArgumentParser(description='Generate an n x n terrain heightmap (diamond-square).')
+    parser.add_argument('n', type=int, help='size (n) of the output grid (n x n)')
+    parser.add_argument('--roughness', type=float, default=0.7, help='roughness (0.3..1.2 default 0.7)')
+    parser.add_argument('--seed', type=int, default=None, help='random seed (int)')
+    parser.add_argument('--smooth', type=float, default=0.0, help='gaussian smoothing sigma (0 = none)')
+    parser.add_argument('--outfile', type=str, default=None, help='save heights as plain text (.txt)')
+    parser.add_argument('--show', action='store_true', help='show a quick matplotlib image (requires matplotlib)')
+
+    args = parser.parse_args()
+    h = generate_terrain(args.n, roughness=args.roughness, seed=args.seed, smooth_sigma=args.smooth)
+
+    if args.outfile:
+        # Save as plain text
+        np.savetxt(args.outfile, h, fmt='%.6f')
+        print(f'Saved heightmap as plain text to {args.outfile}')(f'Saved heightmap to {args.outfile}')
+
+    if args.show:
+        if plt is None:
+            print('matplotlib not available; cannot show image.')
+        else:
+            plt.figure(figsize=(6, 6))
+            plt.imshow(h, cmap='terrain', origin='lower')
+            plt.colorbar(label='height')
+            plt.title(f'Terrain {args.n}x{args.n} (roughness={args.roughness}, smooth={args.smooth})')
+            plt.show()

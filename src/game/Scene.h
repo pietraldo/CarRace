@@ -19,6 +19,8 @@
 
 #include "./physics/vehicle.h"
 #include "./gfx/camera/CameraManager.h"
+#include "./ui/Input/InputManager.h"
+#include "./ui/Input/InputStructures.h"
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -64,6 +66,8 @@ public:
 	void UpdateFlashLight();
 	void CreateLights();
 
+	void setOutput();
+
 	void DrawModels(Shader& shaderTex, Shader& shaderCol);
 	void DrawModel(Shader& shader, Model& model);
 	void DrawLights(Shader& shader, unsigned int& lightVAO);
@@ -84,7 +88,7 @@ public:
 	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
 	void CreateTerrain()
 	{
-		glm::vec3 position = glm::vec3(-100,0,-100);
+		glm::vec3 position = glm::vec3(-250,0,-100);
 		glm::vec3 color = glm::vec3(1,0,0);
 		terrain = new Terrain(position, color);
 	

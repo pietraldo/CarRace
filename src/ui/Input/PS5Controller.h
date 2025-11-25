@@ -23,9 +23,12 @@ public:
     };
 
 private:
+    const int OUTPUT_REPORT_SIZE = 48;
+
     bool connected = false;
     hid_device* handle;
     unsigned char inputBuf[78];
+    unsigned char outputBuf[48];
 
     float lastLX = 0.0f, lastLY = 0.0f;
     float lastRX = 0.0f, lastRY = 0.0f;
@@ -38,10 +41,17 @@ private:
 
     std::vector<float> getLeftStick();
     std::vector<float> getRightStick();
+    float getLeftTrigger();
+    float getRightTrigger();
+
     bool isButtonPressed(ControllerButton button);
     bool isButtonJustPressed(ControllerButton button);
 
+    bool setL2AndR2Triggers();
+    void setVibration(float vibration);
+    void clearOutputReport();
 
+    bool writeOutputReport();
 public:
 
     PS5Controller() {}
@@ -50,6 +60,7 @@ public:
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override { return AdditionalInputInfo(); }
     bool updateInput() override;
+    bool setEffectsOnInputer(EffectsOnInputer effects) override;
 
     bool connect();
     bool isConnected();
