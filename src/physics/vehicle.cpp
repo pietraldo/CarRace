@@ -29,39 +29,72 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
 float RaceCar::computeDriftFactor() const
 {
     PxRigidBody* body = gVehicle.mPhysXState.physxActor.rigidBody;
-    PxVec3 vel = body->getLinearVelocity();
-    PxVec3 forward = body->getGlobalPose().q.getBasisVector2();
 
-    float speed = vel.magnitude();
+    const PxVec3 vel = body->getLinearVelocity();
+    const PxVec3 forward = body->getGlobalPose().q.getBasisVector2();
 
+    const float speed = vel.magnitude();
     if (speed < 5.0f)
         return 0.0f;
 
-    float forwardSpeed = vel.dot(forward);
-    PxVec3 forwardVel = forward * forwardSpeed;
-    PxVec3 lateralVel = vel - forwardVel;
 
-    float lateralSpeed = lateralVel.magnitude();
+    const PxVec3 pos = body->getGlobalPose().p;
 
-    float slipAngle = std::atan2f(lateralSpeed, std::fabs(forwardSpeed) + 0.1f);
+    static bool  groundHeightInitialized = false;
+    static float approxGroundHeight = 0.0f;
+
+    if (!groundHeightInitialized)
+    {
+        approxGroundHeight = pos.y;
+        groundHeightInitialized = true;
+    }
+
+    const float verticalSpeed = PxAbs(vel.y);
+    float heightAboveGround = pos.y - approxGroundHeight;
+
+    const bool nearGroundNow =
+        (verticalSpeed < 2.0f) && (PxAbs(heightAboveGround) < 0.4f);
+
+    if (nearGroundNow)
+    {
+        const float alpha = 0.1f; 
+        approxGroundHeight = approxGroundHeight * (1.0f - alpha) + pos.y * alpha;
+        heightAboveGround = pos.y - approxGroundHeight;
+    }
+
+    if (heightAboveGround > 1.0f)
+        return 0.0f;
+
+
+    const float forwardSpeed = vel.dot(forward);
+    const PxVec3 forwardVel = forward * forwardSpeed;
+    const PxVec3 lateralVel = vel - forwardVel;
+
+    const float lateralSpeed = lateralVel.magnitude();
+
+    const float slipAngle =
+        std::atan2f(lateralSpeed, std::fabs(forwardSpeed) + 0.1f);
 
     const float DRIFT_ANGLE_START = 8.0f * 3.14159265f / 180.0f;
     const float DRIFT_ANGLE_FULL = 35.0f * 3.14159265f / 180.0f;
 
-    float drift = (slipAngle - DRIFT_ANGLE_START) / (DRIFT_ANGLE_FULL - DRIFT_ANGLE_START);
+    float drift = (slipAngle - DRIFT_ANGLE_START) /
+        (DRIFT_ANGLE_FULL - DRIFT_ANGLE_START);
     drift = glm::clamp(drift, 0.0f, 1.0f);
 
-    bool throttleOn = (gVehicle.mCommandState.throttle > 0.25f);
-    bool handbrakeOn = (gVehicle.mCommandState.brakes[1] > 0.2f);
+    const bool throttleOn = (gVehicle.mCommandState.throttle > 0.25f);
+    const bool handbrakeOn = (gVehicle.mCommandState.brakes[1] > 0.2f);
 
     if (!throttleOn && !handbrakeOn)
-        drift *= 0.3f; 
+        drift *= 0.3f;
 
     if (drift < 0.05f)
         return 0.0f;
 
     return drift;
 }
+
+
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
     gVehicle.mCommandState.brakes[0] = carControll.brake;
