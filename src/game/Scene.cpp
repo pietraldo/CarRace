@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "../gfx/Model.h"
+#include "helper_functions.h"
 
 Scene::Scene()
 {
@@ -314,7 +315,7 @@ glm::vec3 Scene::GetCarPosition() const
 		return glm::vec3(0.0f);
 
 	PxVec3 pos = vehicles[0]->getVehiclePosition();
-	return glm::vec3(pos.x, pos.y, pos.z);
+	return PxVec3ToGlmVec3(pos);
 }
 
 glm::quat Scene::GetCarRotation() const
@@ -324,5 +325,5 @@ glm::quat Scene::GetCarRotation() const
 		return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
 	PxQuat rot = vehicles[0]->getVehicleRotation();
-	return glm::quat(rot.w, rot.x, rot.y, rot.z);
+	return PxQuatToGlmQuat(rot);
 }
