@@ -28,7 +28,7 @@ class Scene;
 class Rendering
 {
 public:
-
+    static Scene* scene;
     static GLFWwindow* window;
 
     static unsigned CubeVAO;
@@ -42,37 +42,10 @@ public:
 
     static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;;
 
-    //mirror
-    static unsigned int leftMirrorFBO;
-    static unsigned int rightMirrorFBO;
-
-    static unsigned int leftMirrorColorTex;
-    static unsigned int rightMirrorColorTex;
-
-    static unsigned int mirrorDepthRBO;
-
-    static float mirrorHeightOffset;
-    static float mirrorSideOffset;
-    static float mirrorForwardOffset;
-    static float mirrorLookSide;
-    static float mirrorLookUp;
-    static float mirrorFov;
-
-    static const int MIRROR_WIDTH = 1024;  
-    static const int MIRROR_HEIGHT = 512;
-
-    struct MirrorData
-    {
-        glm::vec3 position;
-        glm::vec3 direction;
-    };
-    
     // camera moving
     static float lastX;
     static float lastY;
     static bool firstMouse;
-
-    
 
     static int Initialize();
     static GLFWwindow* CreateGLFWWindow(int width, int height, const char* title);
@@ -81,41 +54,18 @@ public:
 
     static void RenderImGui();
 
+    static glm::mat4 GetProjectionMatrix();
+    static glm::mat4 GetViewMatrix();
     static void RenderFrame(std::vector<GameObject*> gameObjects);
-    static void RenderMirrors(const std::vector<GameObject*>& gameObjects);
-
-    static glm::mat4 GetProjectionMatrix()
-    {
-        if (useExternalProj)
-            return externalProj;
-
-        return glm::perspective(
-            glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom),
-            (float)SCR_WIDTH / (float)SCR_HEIGHT,
-            0.1f,
-            400.0f
-        );
-    }
-
-    static glm::mat4 GetViewMatrix()
-    {
-        if (useExternalView)
-            return externalView;
-
-        return CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix();
-    }
+    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects);
 
     static void SetExternalView(const glm::mat4& view);
     static void SetExternalProj(const glm::mat4& proj);
     static void ClearExternalProj();
     static void ClearExternalView();
+    static unsigned int GetLeftMirrorTexture();
+    static unsigned int GetRightMirrorTexture();
 
-    static unsigned int GetLeftMirrorTexture() { return leftMirrorColorTex; }
-    static unsigned int GetRightMirrorTexture() { return rightMirrorColorTex; }
-    static MirrorData ComputeMirrorData(float sideSign,const glm::vec3& carPos,const glm::vec3& forward,const glm::vec3& up,const glm::vec3& right);
-    static void RenderSingleMirror(const glm::mat4& view,GLuint fbo,const std::vector<GameObject*>& gameObjects);
-
-    static Scene* scene;
 
 private:
     static bool useExternalView;

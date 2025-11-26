@@ -30,7 +30,6 @@ struct Texture {
 
 enum class MirrorSide
 {
-    None = 0,
     Left,
     Right
 };
@@ -42,7 +41,7 @@ public:
     vector<Texture>      textures;
     std::string name;
     bool isMirror = false;
-    MirrorSide mirrorSide = MirrorSide::None;
+    MirrorSide mirrorSide;
 
     Mesh(vector<Vertex> vertices,
         vector<unsigned int> indices,
