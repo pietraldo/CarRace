@@ -35,8 +35,6 @@ public:
         const std::vector<GameObject*>& gameObjects
     );
 
-    void RenderMirrors(const std::vector<GameObject*>& gameObjects);
-
     unsigned int GetLeftMirrorTexture()  const { return leftMirrorColorTex; }
     unsigned int GetRightMirrorTexture() const { return rightMirrorColorTex; }
 

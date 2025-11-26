@@ -87,47 +87,6 @@ void Mirrors::RenderForCar(
 }
 
 
-
-void Mirrors::RenderMirrors(const std::vector<GameObject*>& objects)
-{
-    Scene* scene = Rendering::scene;
-
-    glm::vec3 carPos(0.0f);
-    glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
-
-    Car* car = scene->GetCar();
-    if (car && car->GetBody()) {
-        const auto& body = car->GetBody();
-        carPos = body->GetPosition();
-
-        physx::PxQuat pxRot = body->GetRotation();
-        carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
-    }
-
-    glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
-    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 right = glm::normalize(glm::cross(forward, up));
-
-    MirrorData leftMirror = ComputeMirrorData(-1.0f, carPos, forward, up, right);
-    MirrorData rightMirror = ComputeMirrorData(+1.0f, carPos, forward, up, right);
-
-    glm::mat4 leftMirrorView = glm::lookAt(
-        leftMirror.position,
-        leftMirror.position + leftMirror.direction,
-        up
-    );
-
-    glm::mat4 rightMirrorView = glm::lookAt(
-        rightMirror.position,
-        rightMirror.position + rightMirror.direction,
-        up
-    );
-
-
-    RenderSingleMirror(leftMirrorView, leftMirrorFBO, objects);
-    RenderSingleMirror(rightMirrorView, rightMirrorFBO, objects);
-}
-
 Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign,const glm::vec3& carPos,const glm::vec3& forward,const glm::vec3& up,const glm::vec3& right)
 {
     MirrorData data;

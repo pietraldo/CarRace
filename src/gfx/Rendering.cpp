@@ -297,10 +297,28 @@ glm::mat4 Rendering::GetViewMatrix()
 
 void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 {
+    Scene* scene = Rendering::scene;
+
     Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
     if (activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
-        player1Mirrors.RenderMirrors(gameObjects);
+        glm::vec3 carPos(0.0f);
+        glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
+
+        Car* car = scene->GetCar();
+        if (car && car->GetBody()) {
+            const auto& body = car->GetBody();
+            carPos = body->GetPosition();
+
+            physx::PxQuat pxRot = body->GetRotation();
+            carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
+        }
+
+        glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
+        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 right = glm::normalize(glm::cross(forward, up));
+
+        player1Mirrors.RenderForCar(carPos, forward, up, right, gameObjects);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
