@@ -41,11 +41,12 @@ struct SpotLight {
 in vec3 Normal;
 in vec3 FragPos;
 in vec4 fposition;
-in vec2 TexCoords;          // z vertex shadera
+in vec2 TexCoords;          
 
 uniform vec3 viewPos;
-uniform vec3 objectColor;   // opcjonalny tint (np. (1,1,1))
+uniform vec3 objectColor;   
 uniform bool fogEnabled;
+uniform bool uIsMirror;
 
 uniform sampler2D uBaseColorMap;
 
@@ -73,11 +74,15 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    // 1. bazowy kolor z tekstury + ewentualny tint
     vec3 texColor = texture(uBaseColorMap, TexCoords).rgb;
+
+    if (uIsMirror) {
+        FragColor = vec4(texColor, 1.0);
+        return;
+    }
+
     surfaceColor = texColor;
 
-    // 2. liczenie świateł jak w Twoim shaderze
     int IT_DIR_LIGHT   = min(NR_DIR_LIGHTS,   MAX_NR_DIR_LIGHTS);
     int IT_POINT_LIGHT = min(NR_POINT_LIGHTS, MAX_NR_POINT_LIGHTS);
     int IT_SPOT_LIGHT  = min(NR_SPOT_LIGHTS,  MAX_NR_SPOT_LIGHTS);
@@ -112,7 +117,6 @@ void main()
         FragColor = shadedColor;
 }
 
-// poniżej – dokładnie jak u Ciebie, tylko zamiast objectColor → surfaceColor
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {

@@ -1,13 +1,29 @@
 #include "Mesh.h"
+#include "Rendering.h" 
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
+Mesh::Mesh(vector<Vertex> vertices,
+    vector<unsigned int> indices,
+    vector<Texture> textures,
+    const std::string& name)
 {
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    this->name = name;
 
+    if (name.rfind("MirrorGlass", 0) == 0) {
+        isMirror = true;
+
+        if (name.find("Right") != std::string::npos) {
+            mirrorSide = MirrorSide::Right;
+        }
+        else {
+            mirrorSide = MirrorSide::Left;
+        }
+    }
     setupMesh();
 }
+
 
 void Mesh::setupMesh()
 {
@@ -45,32 +61,55 @@ void Mesh::setupMesh()
 
 void Mesh::Draw(Shader& shader)
 {
-    bool hasDiffuse = false;
+    if (isMirror) {
+        shader.setBool("uIsMirror", true);
+        shader.setBool("uHasBaseColorMap", true);
 
-    for (const auto& tex : textures)
-    {
-        if (tex.type == "texture_diffuse")
+        glActiveTexture(GL_TEXTURE0);
+
+        unsigned int mirrorTex = 0;
+        if (mirrorSide == MirrorSide::Right) {
+            mirrorTex = Rendering::GetRightMirrorTexture();
+        }else {
+            mirrorTex = Rendering::GetLeftMirrorTexture();
+        }
+
+        glBindTexture(GL_TEXTURE_2D, mirrorTex);
+        shader.setInt("uBaseColorMap", 0);
+    }
+    else {
+        shader.setBool("uIsMirror", false);
+
+        bool hasDiffuse = false;
+
+        for (const auto& tex : textures)
         {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, tex.id);
+            if (tex.type == "texture_diffuse")
+            {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, tex.id);
 
-            shader.setInt("uBaseColorMap", 0);
-            shader.setBool("uHasBaseColorMap", true);
+                shader.setInt("uBaseColorMap", 0);
+                shader.setBool("uHasBaseColorMap", true);
 
-            hasDiffuse = true;
-            break; 
+                hasDiffuse = true;
+                break;
+            }
+        }
+
+        if (!hasDiffuse)
+        {
+            shader.setBool("uHasBaseColorMap", false);
         }
     }
 
-    if (!hasDiffuse)
-    {
-        shader.setBool("uHasBaseColorMap", false);
-    }
-
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES,
+        static_cast<GLsizei>(indices.size()),
+        GL_UNSIGNED_INT,
+        0);
     glBindVertexArray(0);
 
-    // dla porz¹dku
     glActiveTexture(GL_TEXTURE0);
 }
+

@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "../gfx/Model.h"
+#include "helper_functions.h"
 
 Scene::Scene()
 {
@@ -133,6 +134,7 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
 void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 {
 	shader.use();
+	shader.setBool("uIsMirror", false);
 
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
@@ -157,7 +159,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.use();
 
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix());
+	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setBool("fogEnabled", fog);
 
@@ -178,6 +180,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 void Scene::DrawModel(Shader& shader, Model& model)
 {
 	shader.use();
+	shader.setBool("uIsMirror", false);
 	shader.setMat4("projection", Rendering::GetProjectionMatrix());
 	shader.setMat4("view", Rendering::GetViewMatrix());
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
@@ -202,7 +205,7 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/car.gltf";
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
 	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
@@ -303,4 +306,24 @@ LightBuffer Scene::LoadLights() {
 		light->AddTo(lightBuffer);
 	}
 	return lightBuffer;
+}
+
+glm::vec3 Scene::GetCarPosition() const
+{
+	auto vehicles = Physics::getInstance()->getVehicles();
+	if (vehicles.empty())
+		return glm::vec3(0.0f);
+
+	PxVec3 pos = vehicles[0]->getVehiclePosition();
+	return PxVec3ToGlmVec3(pos);
+}
+
+glm::quat Scene::GetCarRotation() const
+{
+	auto vehicles = Physics::getInstance()->getVehicles();
+	if (vehicles.empty())
+		return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	PxQuat rot = vehicles[0]->getVehicleRotation();
+	return PxQuatToGlmQuat(rot);
 }

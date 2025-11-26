@@ -42,7 +42,9 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		std::string nodeName = node->mName.C_Str();
+
+		meshes.push_back(processMesh(mesh, scene, nodeName));
 	}
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
@@ -50,7 +52,10 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+
+Mesh Model::processMesh(aiMesh* mesh,
+	const aiScene* scene,
+	const std::string& nodeName)
 {
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
@@ -177,7 +182,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	}
 
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures, nodeName);
 }
 
 unsigned int TextureFromFile(const char* path, const string& directory)

@@ -36,7 +36,6 @@ public:
 private:
     std::shared_ptr<Model> body;
     std::array<std::unique_ptr<Wheel>, 4> wheels{};
-
     std::array<glm::vec3, 4> wheelPositionOffsets{};
     std::array<physx::PxQuat, 4> wheelRotationOffsets{};
 

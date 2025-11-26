@@ -28,14 +28,26 @@ struct Texture {
     string path;
 };
 
+enum class MirrorSide
+{
+    Left,
+    Right
+};
 
 class Mesh {
 public:
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
     vector<Texture>      textures;
+    std::string name;
+    bool isMirror = false;
+    MirrorSide mirrorSide;
 
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+    Mesh(vector<Vertex> vertices,
+        vector<unsigned int> indices,
+        vector<Texture> textures,
+        const std::string& name = "");
+    
     void Draw(Shader& shader);
 private:
     unsigned int VAO, VBO, EBO;

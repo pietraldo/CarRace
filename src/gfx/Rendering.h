@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -23,11 +24,12 @@
 #include "../game/terrain.h"
 
 class Scene;
+class Mirrors;
 
 class Rendering
 {
 public:
-
+    static Scene* scene;
     static GLFWwindow* window;
 
     static unsigned CubeVAO;
@@ -46,29 +48,33 @@ public:
     static float lastY;
     static bool firstMouse;
 
-    
-
     static int Initialize();
-    static GLFWwindow* CreateWindow(int width, int height, const char* title);
+    static GLFWwindow* CreateGLFWWindow(int width, int height, const char* title);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
     static void RenderImGui();
 
-    static void RenderFrame(vector<GameObject*> gameObjects);
+    static glm::mat4 GetProjectionMatrix();
+    static glm::mat4 GetViewMatrix();
+    static void RenderFrame(std::vector<GameObject*> gameObjects);
+    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects);
 
-    static glm::mat4 GetProjectionMatrix()
-    {
-        return glm::perspective(glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 400.0f);
-    }
+    static void SetExternalView(const glm::mat4& view);
+    static void SetExternalProj(const glm::mat4& proj);
+    static void ClearExternalProj();
+    static void ClearExternalView();
+    static unsigned int GetLeftMirrorTexture();
+    static unsigned int GetRightMirrorTexture();
 
-    static glm::mat4 GetViewMatrix()
-    {
-        return CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix();
-    }
 
-    static Scene* scene;
+private:
+    static Mirrors player1Mirrors;
 
-       
+    static bool useExternalView;
+    static glm::mat4 externalView;
+    static bool useExternalProj;
+    static glm::mat4 externalProj;
+
 };
 

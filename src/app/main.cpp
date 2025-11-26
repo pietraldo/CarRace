@@ -63,7 +63,6 @@ int main()
 	AudioEngine::instance().init();
 
 	scene->CreateTerrain();
-
     if (Rendering::Initialize() == -1) return -1;
 
     InputManager::getInstance().setUp();
