@@ -15,18 +15,6 @@ public:
         glm::vec3 direction;
     };
 
-    static void Initialize();
-    static void RenderMirrors(const std::vector<GameObject*>& gameObjects);
-    static unsigned int GetLeftMirrorTexture();
-    static unsigned int GetRightMirrorTexture();
-
-private:
-    static unsigned int leftMirrorFBO;
-    static unsigned int rightMirrorFBO;
-    static unsigned int leftMirrorColorTex;
-    static unsigned int rightMirrorColorTex;
-    static unsigned int mirrorDepthRBO;
-
     static float mirrorHeightOffset;
     static float mirrorSideOffset;
     static float mirrorForwardOffset;
@@ -37,12 +25,42 @@ private:
     static constexpr int MIRROR_WIDTH = 1024;
     static constexpr int MIRROR_HEIGHT = 512;
 
+    void Initialize();
 
-    static MirrorData ComputeMirrorData(float sideSign,const glm::vec3& carPos,const glm::vec3& forward,const glm::vec3& up,const glm::vec3& right);
-    static void RenderSingleMirror(const glm::mat4& view,unsigned int fbo,const std::vector<GameObject*>& gameObjects);
+    void RenderForCar(
+        const glm::vec3& carPos,
+        const glm::vec3& forward,
+        const glm::vec3& up,
+        const glm::vec3& right,
+        const std::vector<GameObject*>& gameObjects
+    );
 
-    static void InitMirrorRenderTarget();
-    static void CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex);
+    void RenderMirrors(const std::vector<GameObject*>& gameObjects);
 
+    unsigned int GetLeftMirrorTexture()  const { return leftMirrorColorTex; }
+    unsigned int GetRightMirrorTexture() const { return rightMirrorColorTex; }
 
+private:
+    unsigned int leftMirrorFBO = 0;
+    unsigned int rightMirrorFBO = 0;
+    unsigned int leftMirrorColorTex = 0;
+    unsigned int rightMirrorColorTex = 0;
+    unsigned int mirrorDepthRBO = 0;
+
+    static MirrorData ComputeMirrorData(
+        float sideSign,
+        const glm::vec3& carPos,
+        const glm::vec3& forward,
+        const glm::vec3& up,
+        const glm::vec3& right
+    );
+
+    void RenderSingleMirror(
+        const glm::mat4& view,
+        unsigned int fbo,
+        const std::vector<GameObject*>& gameObjects
+    );
+
+    void InitMirrorRenderTarget();
+    void CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex);
 };

@@ -30,6 +30,7 @@ bool Rendering::firstMouse = true;
 unsigned int Rendering::uboLights = *(new unsigned);
 unsigned int Rendering::lightVAO = *(new unsigned);
 
+Mirrors Rendering::player1Mirrors;
 
 int Rendering::Initialize()
 {
@@ -103,7 +104,7 @@ int Rendering::Initialize()
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    Mirrors::Initialize();
+    player1Mirrors.Initialize();
     return 0;
 }
 
@@ -299,7 +300,7 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
     Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
     if (activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
-        Mirrors::RenderMirrors(gameObjects);
+        player1Mirrors.RenderMirrors(gameObjects);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -339,12 +340,12 @@ void Rendering::ClearExternalView()
 
 unsigned int Rendering::GetLeftMirrorTexture()
 {
-    return Mirrors::GetLeftMirrorTexture();
+    return player1Mirrors.GetLeftMirrorTexture();
 }
 
 unsigned int Rendering::GetRightMirrorTexture()
 {
-    return Mirrors::GetRightMirrorTexture();
+    return player1Mirrors.GetRightMirrorTexture();
 }
 
 

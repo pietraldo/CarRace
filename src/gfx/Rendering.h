@@ -24,6 +24,7 @@
 #include "../game/terrain.h"
 
 class Scene;
+class Mirrors;
 
 class Rendering
 {
@@ -68,6 +69,8 @@ public:
 
 
 private:
+    static Mirrors player1Mirrors;
+
     static bool useExternalView;
     static glm::mat4 externalView;
     static bool useExternalProj;

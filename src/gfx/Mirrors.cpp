@@ -2,12 +2,7 @@
 #include "Rendering.h"
 #include "../game/Scene.h"
 #include <glad/glad.h>
-
-unsigned int Mirrors::leftMirrorFBO = 0;
-unsigned int Mirrors::rightMirrorFBO = 0;
-unsigned int Mirrors::leftMirrorColorTex = 0;
-unsigned int Mirrors::rightMirrorColorTex = 0;
-unsigned int Mirrors::mirrorDepthRBO = 0;
+#include <iostream>  
 
 float Mirrors::mirrorHeightOffset = 0.32f;
 float Mirrors::mirrorSideOffset = 0.981f;
@@ -26,13 +21,13 @@ void Mirrors::InitMirrorRenderTarget()
 {
     glGenRenderbuffers(1, &mirrorDepthRBO);
     glBindRenderbuffer(GL_RENDERBUFFER, mirrorDepthRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
-                          MIRROR_WIDTH, MIRROR_HEIGHT);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, MIRROR_WIDTH, MIRROR_HEIGHT);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     CreateMirrorTarget(leftMirrorFBO, leftMirrorColorTex);
     CreateMirrorTarget(rightMirrorFBO, rightMirrorColorTex);
 }
+
 
 void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex)
 {
@@ -63,9 +58,35 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Mirrors::RenderForCar(
+    const glm::vec3& carPos,
+    const glm::vec3& forward,
+    const glm::vec3& up,
+    const glm::vec3& right,
+    const std::vector<GameObject*>& objects)
+{
+    {
+        MirrorData data = ComputeMirrorData(-1.0f, carPos, forward, up, right);
+        glm::mat4 view = glm::lookAt(
+            data.position,
+            data.position + data.direction,
+            up
+        );
+        RenderSingleMirror(view, leftMirrorFBO, objects);
+    }
 
-unsigned int Mirrors::GetLeftMirrorTexture() { return leftMirrorColorTex; }
-unsigned int Mirrors::GetRightMirrorTexture() { return rightMirrorColorTex; }
+    {
+        MirrorData data = ComputeMirrorData(+1.0f, carPos, forward, up, right);
+        glm::mat4 view = glm::lookAt(
+            data.position,
+            data.position + data.direction,
+            up
+        );
+        RenderSingleMirror(view, rightMirrorFBO, objects);
+    }
+}
+
+
 
 void Mirrors::RenderMirrors(const std::vector<GameObject*>& objects)
 {
