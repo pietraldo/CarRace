@@ -4,11 +4,11 @@
 #include <glad/glad.h>
 #include <iostream>  
 
-float Mirrors::mirrorHeightOffset = 0.32f;
-float Mirrors::mirrorSideOffset = 0.981f;
-float Mirrors::mirrorForwardOffset = 0.127f;
-float Mirrors::mirrorLookSide = -0.241f;
-float Mirrors::mirrorLookUp = -0.695f;
+float Mirrors::mirrorHeightOffset = 0.328f;
+float Mirrors::mirrorSideOffset = 1.041f;
+float Mirrors::mirrorForwardOffset = 0.135f;
+float Mirrors::mirrorLookSide = 0.378f;
+float Mirrors::mirrorLookUp = -0.683f;
 float Mirrors::mirrorFov = 140.0f;
 
 
@@ -72,7 +72,7 @@ void Mirrors::RenderForCar(
             data.position + data.direction,
             up
         );
-        RenderSingleMirror(view, leftMirrorFBO, objects);
+        RenderSingleMirror(view, rightMirrorFBO, objects);
     }
 
     {
@@ -82,7 +82,7 @@ void Mirrors::RenderForCar(
             data.position + data.direction,
             up
         );
-        RenderSingleMirror(view, rightMirrorFBO, objects);
+        RenderSingleMirror(view, leftMirrorFBO, objects);
     }
 }
 
