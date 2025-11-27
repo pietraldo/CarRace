@@ -34,4 +34,5 @@ public:
 		:position(position), color(color) {};
 
 	static vector<float> CreateVerticesAndIndices();
+	static bool loadTexture();
 };

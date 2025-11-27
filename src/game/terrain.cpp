@@ -57,6 +57,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
+            vertices.push_back(0);
+            vertices.push_back(0);
 
             // vertex 2
             vertices.push_back(x2);
@@ -65,6 +67,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
+            vertices.push_back(0.5);
+            vertices.push_back(1);
 
             // vertex 3
             vertices.push_back(x3);
@@ -73,6 +77,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
+            vertices.push_back(1);
+            vertices.push_back(1);
 
             // second triangle
 
@@ -83,6 +89,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
+            vertices.push_back(0);
+            vertices.push_back(0);
 
             // vertex 3
             vertices.push_back(x3);
@@ -91,6 +99,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
+            vertices.push_back(0.5);
+            vertices.push_back(1);
 
             // vertex 2
             vertices.push_back(x2);
@@ -99,6 +109,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
+            vertices.push_back(1);
+            vertices.push_back(1);
 
             // insert indices
             int count = (vertices.size() / 6) - 6;

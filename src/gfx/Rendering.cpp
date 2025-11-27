@@ -1,4 +1,6 @@
 #include "Rendering.h"
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <utility>
 #include "Mirrors.h"
 
@@ -6,6 +8,13 @@ unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
 Shader* Rendering::texturedShader = nullptr;
+Shader* Rendering::terrainShader = nullptr;
+
+ int Rendering::texWidth=0;
+int Rendering::texHeight=0;
+unsigned char* Rendering::textureData=nullptr;
+int Rendering::nbChannels=0;
+unsigned int Rendering::textureID=0;
 
 bool Rendering::showBoxColliders = false;
 
@@ -40,10 +49,25 @@ int Rendering::Initialize()
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader_terrain.txt", "../assets/shaders/fragment_textured_shader.txt");
 
     Terrain::CreateVerticesAndIndices();
     vector<float> vert = Terrain::vertices;
     vector<int> ind = Terrain::indices;
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    textureData = stbi_load("C:\\Users\\pietr\\Desktop\\container.jpg", &texWidth, &texHeight, &nbChannels, 0);
+    if (!textureData)
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    else
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+    }
+    stbi_image_free(textureData);
+    
 
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
@@ -57,9 +81,11 @@ int Rendering::Initialize()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * ind.size(), ind.data(), GL_STATIC_DRAW);
 
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -270,7 +296,7 @@ void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects)
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
-    (*Rendering::scene).DrawTerrain(*Rendering::colorShader, Rendering::VAO_sphere);
+    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere);
 }
 
 glm::mat4 Rendering::GetProjectionMatrix()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stb_image.h"
+
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -38,6 +40,7 @@ public:
     static Shader* colorShader;
     static Shader* lightShader;
     static Shader* texturedShader;
+    static Shader* terrainShader;
 
     static bool showBoxColliders;
 
@@ -67,6 +70,12 @@ public:
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
 
+    // texture
+    static int texWidth;
+    static int texHeight;
+    static unsigned char* textureData;
+    static int nbChannels;
+    static unsigned int textureID;
 
 private:
     static Mirrors player1Mirrors;
