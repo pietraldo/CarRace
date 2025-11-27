@@ -49,7 +49,7 @@ int Rendering::Initialize()
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
-    terrainShader = new Shader("../assets/shaders/vertex_shader_terrain.txt", "../assets/shaders/fragment_textured_shader.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader_terrain.txt", "../assets/shaders/fragment_shader_terrain.txt");
 
     Terrain::CreateVerticesAndIndices();
     vector<float> vert = Terrain::vertices;
@@ -86,7 +86,7 @@ int Rendering::Initialize()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
