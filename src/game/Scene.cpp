@@ -172,6 +172,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.setMat4("model", model);
 	shader.setVec3("objectColor", terrain->color);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
 	glBindVertexArray(sphereVAO);
 	glDrawElements(GL_TRIANGLES, Terrain::indices.size(), GL_UNSIGNED_INT, 0);

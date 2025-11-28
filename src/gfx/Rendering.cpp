@@ -49,7 +49,7 @@ int Rendering::Initialize()
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
-    terrainShader = new Shader("../assets/shaders/vertex_shader_terrain.txt", "../assets/shaders/fragment_shader_terrain.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
 
     Terrain::CreateVerticesAndIndices();
     vector<float> vert = Terrain::vertices;
@@ -57,7 +57,12 @@ int Rendering::Initialize()
 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    textureData = stbi_load("C:\\Users\\pietr\\Desktop\\container.jpg", &texWidth, &texHeight, &nbChannels, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    textureData = stbi_load("C:\\Users\\pietr\\Desktop\\texturaKuba.jpg", &texWidth, &texHeight, &nbChannels, 0);
     if (!textureData)
     {
         std::cout << "Failed to load texture" << std::endl;
