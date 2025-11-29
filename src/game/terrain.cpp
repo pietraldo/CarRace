@@ -38,6 +38,7 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float y4 = heights[(i + 1) * cols + j + 1] * y_size;
             float z4 = (i + 1) * z_size;
 
+
             // first triangle normals
             glm::vec3 u11 = glm::vec3(x2 - x1, y2 - y1, z2 - z1);
             glm::vec3 v11 = glm::vec3(x3 - x1, y3 - y1, z3 - z1);

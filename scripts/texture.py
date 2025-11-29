@@ -29,6 +29,6 @@ def generate_texture(road_mark):
     for y in range(height):         # row index
         for x in range(width):      # column index
             if road_mark[y][x] == 1:
-                set_pixel(img, x, y, (0, 0, 0))
+                set_pixel(img, x, y, (40, 40, 40))
 
     save_image(img, "road_texture.png")
