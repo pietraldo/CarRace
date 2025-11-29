@@ -60,9 +60,9 @@ int Rendering::Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    textureData = stbi_load("C:\\Users\\pietr\\Desktop\\texturaKuba.jpg", &texWidth, &texHeight, &nbChannels, 0);
+    textureData = stbi_load("C:/Users/pietr/Desktop/Inzynierka/CarRace/scripts/road_texture.png", &texWidth, &texHeight, &nbChannels, 0);
     if (!textureData)
     {
         std::cout << "Failed to load texture" << std::endl;

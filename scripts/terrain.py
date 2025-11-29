@@ -140,10 +140,21 @@ def generate_terrain(n: int,
             cropped = np.zeros_like(cropped)
 
     return cropped
-
+def flatten(heightmap, road_mark):
+    """
+    Flatten the terrain heightmap where the road_mark indicates road cells.
+    road_mark: 2D array of same size as heightmap, with 1 for road cells and 0 for non-road.
+    """
+    flattened = heightmap.copy()
+    n, m = heightmap.shape
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                flattened[i][j] = 0.5  # Set road cells to height 0
+    return flattened
 
 # Small convenience CLI when run directly
-if __name__ == '__main__':
+def main2():
     import argparse
     try:
         import matplotlib.pyplot as plt
@@ -175,3 +186,18 @@ if __name__ == '__main__':
             plt.colorbar(label='height')
             plt.title(f'Terrain {args.n}x{args.n} (roughness={args.roughness}, smooth={args.smooth})')
             plt.show()
+
+if __name__ == '__main__':
+    
+    from road_mark import generate_track
+    from texture import generate_texture
+    
+    n=100
+    m=100
+    road_mark = generate_track(n, m, road_width=7)
+    generate_texture(road_mark)
+    h = generate_terrain(n, roughness=0.2, seed=42, smooth_sigma=1.0)
+    h = flatten(h, road_mark)
+    
+    np.savetxt("terrain.txt", h, fmt='%.6f')
+    print(f'Saved heightmap as plain text to terrain.txt')
