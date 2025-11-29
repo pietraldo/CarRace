@@ -256,7 +256,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
 
     PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
     shape->setGeometry(newGeom);
-    physx::PxTransform localOffset = PxTransform(0, 0.85f, 1.59f);
+    physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
     shape->setLocalPose(localOffset);
 
 
