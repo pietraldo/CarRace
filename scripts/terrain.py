@@ -91,45 +91,42 @@ def _gaussian_smoothing(grid: np.ndarray, sigma: float) -> np.ndarray:
     smoothed = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='same'), axis=0, arr=temp)
     return smoothed
 
-
 def generate_terrain(n: int,
+                     m: int,
                      roughness: float = 0.7,
                      seed: Optional[int] = None,
                      smooth_sigma: float = 0.0,
                      normalize: bool = True) -> np.ndarray:
     """
-    Generate an n x n terrain heightmap.
+    Generate an n x m terrain heightmap.
 
     Parameters
     ----------
-    n : int
-        Desired output size (n x n). Can be any positive integer; internally the algorithm
-        will build a (2^k + 1) grid and crop to n.
+    n, m : int
+        Desired output size (n x m).
     roughness : float
-        Controls how rough the terrain is. Lower -> smoother large-scale features. Typical 0.3..1.2
+        Controls how rough the terrain is. Lower -> smoother large-scale features.
     seed : Optional[int]
         RNG seed for reproducibility.
     smooth_sigma : float
-        Optional Gaussian smoothing sigma in grid units. Use 0 for no extra smoothing.
+        Optional Gaussian smoothing sigma in grid units.
     normalize : bool
         If True, the returned grid will be normalized to [0, 1].
-
-    Returns
-    -------
-    np.ndarray
-        n x n array of floats representing heights.
     """
-    if n <= 0:
-        raise ValueError("n must be positive")
 
-    size = _next_pow2_plus_one(n)
+    if n <= 0 or m <= 0:
+        raise ValueError("n and m must be positive")
+
+    # Diamond-square needs a square (2^k + 1) grid; pick size big enough for both dims
+    size = _next_pow2_plus_one(max(n, m))
+
     grid = _diamond_square(size, roughness, seed=seed)
 
     if smooth_sigma > 0:
         grid = _gaussian_smoothing(grid, smooth_sigma)
 
-    # Crop to n x n from top-left corner (you can center-crop if you prefer)
-    cropped = grid[:n, :n]
+    # Crop to n × m
+    cropped = grid[:n, :m]
 
     if normalize:
         minv = cropped.min()
@@ -137,9 +134,11 @@ def generate_terrain(n: int,
         if maxv > minv:
             cropped = (cropped - minv) / (maxv - minv)
         else:
-            cropped = np.zeros_like(cropped)
+            cropped[:] = 0.0
 
     return cropped
+
+
 def flatten(heightmap, road_mark):
     """
     Flatten the terrain heightmap where the road_mark indicates road cells.
@@ -147,6 +146,8 @@ def flatten(heightmap, road_mark):
     """
     flattened = heightmap.copy()
     n, m = heightmap.shape
+    print(n)
+    print(m)
     for i in range(n):
         for j in range(m):
             if road_mark[i][j] == 1:
@@ -192,12 +193,12 @@ if __name__ == '__main__':
     from road_mark import generate_track
     from texture import generate_texture
     
-    n=100
+    n=300
     m=100
     road_mark = generate_track(n, m, road_width=7)
     generate_texture(road_mark)
-    h = generate_terrain(n, roughness=0.2, seed=42, smooth_sigma=1.0)
-    h = flatten(h, road_mark)
+    h = generate_terrain(n,m, roughness=0.5, seed=42, smooth_sigma=0.4)
+    #h = flatten(h, road_mark)
     
     np.savetxt("terrain.txt", h, fmt='%.6f')
     print(f'Saved heightmap as plain text to terrain.txt')

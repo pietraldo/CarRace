@@ -81,22 +81,22 @@ vector<float> Terrain::CreateVerticesAndIndices()
     {
         for (int j = 0; j < cols - 1; ++j)
         {
-            // point 1 (i, j)
+            // point 1 
             float x1 = j * scalex;
-            float y1 = heightData[i ][ j] * scaley;
+            float y1 = heightData[i][j] * scaley;
             float z1 = i * scalez;
 
-            // point 2 (i, j+1)
+            // point 2 
             float x2 = (j + 1) * scalex;
             float y2 = heightData[i][j + 1] * scaley;
             float z2 = i * scalez;
 
-            // point 3 (i+1, j)
+            // point 3 
             float x3 = j * scalex;
             float y3 = heightData[i + 1][j] * scaley;
             float z3 = (i + 1) * scalez;
 
-            // point 4 (i+1, j+1)
+            // point 4 
             float x4 = (j + 1) * scalex;
             float y4 = heightData[i + 1][ j + 1] * scaley;
             float z4 = (i + 1) * scalez;

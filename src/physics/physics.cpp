@@ -139,15 +139,15 @@ void Physics::createTerrain()
     PxHeightFieldSample* hfSamples = new PxHeightFieldSample[rows * cols];
 
     PxU32 index = 0;
-    for (PxU32 col = 0; col < cols; col++)
+    for (PxU32 row = 0; row < rows; row++)
     {
-        for (PxU32 row = 0; row < rows; row++)
+        for (PxU32 col = 0; col < cols; col++)
         {
             PxI16 height;
-            height = PxI16(quantization * ((heightData[col][row] - minHeight) /
+            height = PxI16(quantization * ((heightData[row][col] - minHeight) /
                 deltaHeight));
 
-            PxHeightFieldSample& smp = hfSamples[(row * cols) + col];
+            PxHeightFieldSample& smp = hfSamples[(col * rows) + row];
             smp.height = height;
             smp.materialIndex0 = 0;
             smp.materialIndex1 = 0;
@@ -157,8 +157,8 @@ void Physics::createTerrain()
     // Build PxHeightFieldDesc from samples
     PxHeightFieldDesc terrainDesc;
     terrainDesc.format = PxHeightFieldFormat::eS16_TM;
-    terrainDesc.nbColumns = cols;
-    terrainDesc.nbRows = rows;
+    terrainDesc.nbColumns = rows;
+    terrainDesc.nbRows = cols;
     terrainDesc.samples.data = hfSamples;
     terrainDesc.samples.stride = sizeof(PxHeightFieldSample);
     terrainDesc.flags = PxHeightFieldFlags();
