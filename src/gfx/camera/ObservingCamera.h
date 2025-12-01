@@ -92,9 +92,11 @@ public:
         // --------------------------------------------------------
         glm::vec3 right = glm::normalize(glm::cross(smoothedForward, glm::vec3(0, 1, 0)));
 
+        
         float turn = glm::dot(right, glm::normalize(carVel));
         float tiltAngle = turn * tiltStrength;
 
+        if (speed < 0.5f) tiltAngle = 0.0f;
         glm::mat4 tiltMat =
             glm::rotate(glm::mat4(1.0f), glm::radians(tiltAngle), smoothedForward);
 
