@@ -193,11 +193,11 @@ if __name__ == '__main__':
     from road_mark import generate_track
     from texture import generate_texture
     
-    n=300
-    m=100
+    n=500
+    m=300
     road_mark = generate_track(n, m, road_width=7)
     generate_texture(road_mark)
-    h = generate_terrain(n,m, roughness=0.2, seed=42, smooth_sigma=1.0)
+    h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = flatten(h, road_mark)
     
     np.savetxt("terrain.txt", h, fmt='%.6f')

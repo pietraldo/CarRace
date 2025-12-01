@@ -37,7 +37,7 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-    terrain = new Terrain(glm::vec3(20.0f, 0.0f,-30.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain = new Terrain(glm::vec3(0.0f, 0.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 }	
 
@@ -63,35 +63,28 @@ void Scene::UpdateCar(InputData input, float deltaTime)
 void Scene::UpdateCamera()
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
+
+	RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+	PxVec3 pxPos = vehicle->getVehiclePosition();
+	PxQuat pxRot = vehicle->getVehicleRotation();
+
+    glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
+    glm::quat carRot = PxQuatToGlmQuat(pxRot);
+
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
-        RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
-
-        PxVec3 pos = vehicle->getVehiclePosition();
-        PxQuat rot = vehicle->getVehicleRotation();
-
-        glm::vec3 carPos = glm::vec3(pos.x, pos.y, pos.z);
-        glm::quat carRot = glm::quat(rot.w, rot.x, rot.y, rot.z);
-
 		firstPersonCamera.Update(carPos, carRot);
 		
     }
     else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
     {
         ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-        observingCamera.SetTarget(car->GetBody()->GetPosition());
+		observingCamera.Update(carPos, carRot);
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
 		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
-		RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
-		PxVec3 pxPos = vehicle->getVehiclePosition();
-		PxQuat pxRot = vehicle->getVehicleRotation();
-
-		glm::vec3 carPos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
-		glm::quat carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
-
 		fol.Update(carPos, carRot);
 	}
 
@@ -99,11 +92,10 @@ void Scene::UpdateCamera()
 
 void Scene::Update(InputData input, float deltaTime)
 {
-	UpdateCamera();
-	UpdateFlashLight();
 
 	UpdateCar(input, deltaTime);
 
+	UpdateCamera();
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)

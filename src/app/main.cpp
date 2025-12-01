@@ -82,7 +82,6 @@ int main()
 
         InputData input = InputManager::getInstance().getInputData();
 
-		scene->Update(input, deltaTime);
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
         continueGame = !input.additionalInfo.exit;
@@ -92,7 +91,9 @@ int main()
 		{
 			Physics::getInstance()->update(deltaTime, input.carControl1);
 		}
+		scene->Update(input, deltaTime);
 		
+
         scene->setOutput();
         Rendering::RenderFrame(scene->GetGameObjects());
 	}
