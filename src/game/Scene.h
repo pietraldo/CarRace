@@ -90,7 +90,7 @@ public:
 	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
 	void CreateTerrain()
 	{
-		glm::vec3 position = glm::vec3(-248,0,-98);
+		glm::vec3 position = glm::vec3(-99,0,-99);
 		glm::vec3 color = glm::vec3(1,0,0);
 		terrain = new Terrain(position, color);
 	

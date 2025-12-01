@@ -125,6 +125,11 @@ vector<float> Terrain::CreateVerticesAndIndices()
             indices.push_back(count + 3);
             indices.push_back(count + 4);
             indices.push_back(count + 5);
+
+           /* cout << " Vertex1: (" << x1 << "," << y1 << "," << z1 << ") ";
+            cout << " Vertex2: (" << x2 << "," << y2 << "," << z2 << ") ";
+            cout << " Vertex3: (" << x3 << "," << y3 << "," << z3 << ") ";
+            cout << " Vertex4: (" << x4 << "," << y4 << "," << z4 << ") " << endl;*/
         }
     }
     return vertices;
