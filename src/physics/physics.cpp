@@ -12,7 +12,9 @@ Physics* Physics::getInstance() {
     return physicsObj;
 }
 
-int Physics::initialize() {
+int Physics::initialize(Scene* scene) {
+    this->scene = scene;
+
     gFoundation = PxCreateFoundation(
         PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
     if (!gFoundation) {
@@ -114,16 +116,17 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
 
 void Physics::createTerrain()
 {
+    Terrain* terrain = scene->GetTerrain();
+    int outRows = terrain->GetRows();
+    int outCols = terrain->GetCols();
+    std::vector<std::vector<float>> heightData = terrain->GetHeightData();
+
     // create the actor for heightfield
     PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
     // iterate over source data points and find minimum and maximum heights
     PxReal minHeight = 0;
     PxReal maxHeight = 1;
-
-    int outRows, outCols;
-    vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", outRows, outCols);
-    cout << "Heightmap rows: " << outRows << ", cols: " << outCols << endl;
 
     // compute maximum height difference
     PxReal deltaHeight = maxHeight - minHeight;
@@ -144,7 +147,7 @@ void Physics::createTerrain()
         for (PxU32 row = 0; row < outRows; row++)
         {
             PxI16 height;
-            height = PxI16(quantization * ((heights[(col * outRows) + row] - minHeight) /
+            height = PxI16(quantization * ((heightData[col][row] - minHeight) /
                 deltaHeight));
 
             PxHeightFieldSample& smp = hfSamples[(row * outRows) + col];

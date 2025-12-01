@@ -37,7 +37,9 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-}
+    terrain = new Terrain(glm::vec3(-99.0f, 0.0f, -99.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
+}	
 
 
 void Scene::UpdateCar(InputData input, float deltaTime)
@@ -168,7 +170,6 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setBool("fogEnabled", fog);
 
-	
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, terrain->position);/*
 	model = glm::rotate(model, glm::radians(terrain->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -180,7 +181,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
 	glBindVertexArray(sphereVAO);
-	glDrawElements(GL_TRIANGLES, Terrain::indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	
 }
 

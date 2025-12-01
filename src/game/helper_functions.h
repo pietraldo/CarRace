@@ -17,4 +17,3 @@ physx::PxVec3 GlmVec3ToPxVec3(const glm::vec3& v);
 glm::quat PxQuatToGlmQuat(const physx::PxQuat& q);
 physx::PxQuat GlmQuatToPxQuat(const glm::quat& q);
 
-std::vector<float> readHeightmap(const std::string& filename, int& outRows, int& outCols);

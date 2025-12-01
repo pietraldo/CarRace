@@ -51,9 +51,9 @@ int Rendering::Initialize()
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
     terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
 
-    Terrain::CreateVerticesAndIndices();
-    vector<float> vert = Terrain::vertices;
-    vector<int> ind = Terrain::indices;
+    
+    vector<float> vert = scene->GetTerrain()->GetVertices();
+    vector<int> ind = scene->GetTerrain()->GetIndices();
 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);

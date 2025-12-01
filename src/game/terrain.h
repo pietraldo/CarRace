@@ -14,15 +14,21 @@ class Terrain
 private:
 
 
+	int rows;
+	int cols;
+	vector<float> vertices;
+	vector<int> indices;
 
+	vector<vector<float>> heightData;
+
+	vector<float> CreateVerticesAndIndices();
+	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
 
 
 public:
-
-	static int rows;
-	static int cols;
-    static vector<float> vertices;
-    static vector<int> indices;
+    vector<float> GetVertices() { return vertices; }
+    vector<int> GetIndices() { return indices; }
+	
 
 
 	glm::vec3 position;
@@ -33,6 +39,11 @@ public:
     Terrain(glm::vec3 position, glm::vec3 color)
 		:position(position), color(color) {};
 
-	static vector<float> CreateVerticesAndIndices();
-	static bool loadTexture();
+	void LoadTerrain(const char* heightmapPath);
+
+	bool loadTexture();
+
+    int GetRows() { return rows; }
+    int GetCols() { return cols; }
+    vector<vector<float>> GetHeightData() { return heightData; }
 };

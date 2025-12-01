@@ -1,14 +1,53 @@
 #include "terrain.h"
 
 
-int Terrain::rows = 0;
-int Terrain::cols = 0;
-vector<float> Terrain::vertices = vector<float>();
-vector<int> Terrain::indices = vector<int>();
+void Terrain::LoadTerrain(const char* heightmapPath)
+{
+    loadHeightmap(heightmapPath, rows, cols);
+    CreateVerticesAndIndices();
+}
+
+void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+        throw std::runtime_error("Cannot open file: " + filename);
+
+    std::string line;
+    outRows = 0;
+    outCols = -1;
+
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        heightData.push_back(std::vector<float>());
+
+        std::stringstream ss(line);
+        float val;
+        int colCount = 0;
+
+        while (ss >> val) {
+            heightData[outRows].push_back(val);
+            colCount++;
+        }
+
+        if (colCount == 0) continue; // skip whitespace-only lines
+
+        if (outCols == -1)
+            outCols = colCount;          // first line defines column count
+        else if (colCount != outCols)
+            throw std::runtime_error("Inconsistent column count in file.");
+
+        outRows++;
+    }
+
+    if (outRows == 0 || outCols == -1)
+        throw std::runtime_error("File is empty or contains no valid numbers.");
+}
+
 
 vector<float> Terrain::CreateVerticesAndIndices()
 {
-    vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", rows, cols);
 
     for (int i = 0; i < rows - 1; ++i)
     {
@@ -20,22 +59,22 @@ vector<float> Terrain::CreateVerticesAndIndices()
 
             // point 1 (i, j)
             float x1 = j * x_size;
-            float y1 = heights[i * cols + j] * y_size;
+            float y1 = heightData[i ][ j] * y_size;
             float z1 = i * z_size;
 
             // point 2 (i, j+1)
             float x2 = (j + 1) * x_size;
-            float y2 = heights[i * cols + j + 1] * y_size;
+            float y2 = heightData[i][j + 1] * y_size;
             float z2 = i * z_size;
 
             // point 3 (i+1, j)
             float x3 = j * x_size;
-            float y3 = heights[(i + 1) * cols + j] * y_size;
+            float y3 = heightData[i + 1][j] * y_size;
             float z3 = (i + 1) * z_size;
 
             // point 4 (i+1, j+1)
             float x4 = (j + 1) * x_size;
-            float y4 = heights[(i + 1) * cols + j + 1] * y_size;
+            float y4 = heightData[i + 1][ j + 1] * y_size;
             float z4 = (i + 1) * z_size;
 
 
