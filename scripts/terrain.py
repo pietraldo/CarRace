@@ -197,8 +197,8 @@ if __name__ == '__main__':
     m=100
     road_mark = generate_track(n, m, road_width=7)
     generate_texture(road_mark)
-    h = generate_terrain(n,m, roughness=0.5, seed=42, smooth_sigma=0.4)
-    #h = flatten(h, road_mark)
+    h = generate_terrain(n,m, roughness=0.2, seed=42, smooth_sigma=1.0)
+    h = flatten(h, road_mark)
     
     np.savetxt("terrain.txt", h, fmt='%.6f')
     print(f'Saved heightmap as plain text to terrain.txt')
