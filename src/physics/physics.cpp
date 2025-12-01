@@ -163,11 +163,12 @@ void Physics::createTerrain()
     terrainDesc.samples.stride = sizeof(PxHeightFieldSample);
     terrainDesc.flags = PxHeightFieldFlags();
 
-    float terrainWidth = 198;
+    float terrainWidth = terrain->GetTerrainWidth();
+    float terrainDepth = terrain->GetTerrainDepth();
 
     PxHeightFieldGeometry hfGeom;
-    hfGeom.columnScale = terrain->GetScaleX();
-    hfGeom.rowScale = terrain->GetScaleZ();
+    hfGeom.columnScale = terrain->GetScaleZ();
+    hfGeom.rowScale = terrain->GetScaleX();
     hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
     hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
 
@@ -179,7 +180,7 @@ void Physics::createTerrain()
         PxVec3(
             terrain->position.x - (terrainWidth * 0.5f),    // make it so that the center of the
             terrain->position.y + minHeight,
-            terrain->position.z - (terrainWidth * 0.5f));         // heightfield is at world (0,minHeight,0)
+            terrain->position.z - (terrainDepth * 0.5f));         // heightfield is at world (0,minHeight,0)
     localPose.q = PxQuat(PxIdentity);
     PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);
     shape->setLocalPose(localPose);

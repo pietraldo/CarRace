@@ -25,7 +25,7 @@ private:
 	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
 
 
-    float scalex = 2.0f;
+    float scalex = 4.0f;
     float scaley = 10.0f;
     float scalez = 2.0f;
 
