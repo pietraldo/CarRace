@@ -61,7 +61,7 @@ public:
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCar(InputData input, float deltaTime);
-	void UpdateCamera();
+	void UpdateCamera(float deltaTime);
 	void CreateModels();
 
 	void AddLight(Light* light) { lights.push_back(light); }

@@ -60,7 +60,7 @@ void Scene::UpdateCar(InputData input, float deltaTime)
 	}
 }
 
-void Scene::UpdateCamera()
+void Scene::UpdateCamera(float dt)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
@@ -80,7 +80,7 @@ void Scene::UpdateCamera()
     else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
     {
         ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-		observingCamera.Update(carPos, carRot);
+		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
@@ -93,9 +93,9 @@ void Scene::UpdateCamera()
 void Scene::Update(InputData input, float deltaTime)
 {
 
+	UpdateCamera(deltaTime);
 	UpdateCar(input, deltaTime);
 
-	UpdateCamera();
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::DIRECTIONAL)
