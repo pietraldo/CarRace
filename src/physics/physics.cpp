@@ -120,12 +120,12 @@ void Physics::createTerrain()
     int rows = terrain->GetRows();
     int cols = terrain->GetCols();
     std::vector<std::vector<float>> heightData = terrain->GetHeightData();
-
-    // create the actor for heightfield
-    PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
-
     PxReal minHeight = terrain->GetMinHeightFromHeightData();
     PxReal maxHeight = terrain->GetMaxHeightFromHeightData();
+    float scaley = terrain->GetScaleY();
+    
+    // create the actor for heightfield
+    PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
     PxReal deltaHeight = maxHeight - minHeight;
 
@@ -134,7 +134,7 @@ void Physics::createTerrain()
     // compute heightScale such that the forward transform will generate the closest point
     // to the source
     // clamp to at least PX_MIN_HEIGHTFIELD_Y_SCALE to respect the PhysX API specs
-    PxReal heightScale = PxMax(deltaHeight * 10 / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
+    PxReal heightScale = PxMax(deltaHeight * scaley / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
 
     PxHeightFieldSample* hfSamples = new PxHeightFieldSample[rows * cols];
 
@@ -151,8 +151,6 @@ void Physics::createTerrain()
             smp.height = height;
             smp.materialIndex0 = 0;
             smp.materialIndex1 = 0;
-            /*if (userFlipEdge)
-                smp.setTessFlag();*/
         }
     }
 
@@ -168,9 +166,8 @@ void Physics::createTerrain()
     float terrainWidth = 198;
 
     PxHeightFieldGeometry hfGeom;
-    hfGeom.columnScale = terrainWidth / (rows - 1); // compute column and row scale from input terrain
-    // height grid
-    hfGeom.rowScale = terrainWidth / (rows - 1);
+    hfGeom.columnScale = terrain->GetScaleX();
+    hfGeom.rowScale = terrain->GetScaleZ();
     hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
     hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
 

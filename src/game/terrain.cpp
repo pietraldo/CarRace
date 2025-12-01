@@ -81,29 +81,25 @@ vector<float> Terrain::CreateVerticesAndIndices()
     {
         for (int j = 0; j < cols - 1; ++j)
         {
-            float x_size = 2.0f;
-            float y_size = 10.0f;
-            float z_size = 2.0f;
-
             // point 1 (i, j)
-            float x1 = j * x_size;
-            float y1 = heightData[i ][ j] * y_size;
-            float z1 = i * z_size;
+            float x1 = j * scalex;
+            float y1 = heightData[i ][ j] * scaley;
+            float z1 = i * scalez;
 
             // point 2 (i, j+1)
-            float x2 = (j + 1) * x_size;
-            float y2 = heightData[i][j + 1] * y_size;
-            float z2 = i * z_size;
+            float x2 = (j + 1) * scalex;
+            float y2 = heightData[i][j + 1] * scaley;
+            float z2 = i * scalez;
 
             // point 3 (i+1, j)
-            float x3 = j * x_size;
-            float y3 = heightData[i + 1][j] * y_size;
-            float z3 = (i + 1) * z_size;
+            float x3 = j * scalex;
+            float y3 = heightData[i + 1][j] * scaley;
+            float z3 = (i + 1) * scalez;
 
             // point 4 (i+1, j+1)
-            float x4 = (j + 1) * x_size;
-            float y4 = heightData[i + 1][ j + 1] * y_size;
-            float z4 = (i + 1) * z_size;
+            float x4 = (j + 1) * scalex;
+            float y4 = heightData[i + 1][ j + 1] * scaley;
+            float z4 = (i + 1) * scalez;
 
 
             // first triangle normals
@@ -192,11 +188,6 @@ vector<float> Terrain::CreateVerticesAndIndices()
             indices.push_back(count + 3);
             indices.push_back(count + 4);
             indices.push_back(count + 5);
-
-           /* cout << " Vertex1: (" << x1 << "," << y1 << "," << z1 << ") ";
-            cout << " Vertex2: (" << x2 << "," << y2 << "," << z2 << ") ";
-            cout << " Vertex3: (" << x3 << "," << y3 << "," << z3 << ") ";
-            cout << " Vertex4: (" << x4 << "," << y4 << "," << z4 << ") " << endl;*/
         }
     }
     return vertices;
