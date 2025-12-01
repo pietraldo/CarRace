@@ -37,7 +37,7 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-    terrain = new Terrain(glm::vec3(-99.0f, 0.0f, -99.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain = new Terrain(glm::vec3(3.0f, 0.0f, 10.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 }	
 
@@ -171,10 +171,8 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.setBool("fogEnabled", fog);
 
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, terrain->position);/*
-	model = glm::rotate(model, glm::radians(terrain->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(terrain->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(terrain->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));*/
+    glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
+	model = glm::translate(model, terrain->position-centerPosition);
 	shader.setMat4("model", model);
 	shader.setVec3("objectColor", terrain->color);
 
