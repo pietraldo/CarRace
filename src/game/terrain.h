@@ -25,6 +25,10 @@ private:
 	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
 
 
+    float scalex = 2.0f;
+    float scaley = 10.0f;
+    float scalez = 2.0f;
+
 public:
     vector<float> GetVertices() { return vertices; }
     vector<int> GetIndices() { return indices; }
@@ -46,4 +50,15 @@ public:
     int GetRows() { return rows; }
     int GetCols() { return cols; }
     vector<vector<float>> GetHeightData() { return heightData; }
+
+    float GetMinHeightFromHeightData();
+    float GetMaxHeightFromHeightData();
+
+	
+	float GetTerrainWidth() { return (cols - 1) * scalex; };
+	float GetTerrainDepth() { return (rows - 1) * scalez; };
+
+    float GetScaleX() { return scalex; }
+    float GetScaleY() { return scaley; }
+    float GetScaleZ() { return scalez; }
 };

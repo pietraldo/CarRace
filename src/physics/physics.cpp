@@ -117,21 +117,18 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
 void Physics::createTerrain()
 {
     Terrain* terrain = scene->GetTerrain();
-    int outRows = terrain->GetRows();
-    int outCols = terrain->GetCols();
+    int rows = terrain->GetRows();
+    int cols = terrain->GetCols();
     std::vector<std::vector<float>> heightData = terrain->GetHeightData();
 
     // create the actor for heightfield
     PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
-    // iterate over source data points and find minimum and maximum heights
-    PxReal minHeight = 0;
-    PxReal maxHeight = 1;
+    PxReal minHeight = terrain->GetMinHeightFromHeightData();
+    PxReal maxHeight = terrain->GetMaxHeightFromHeightData();
 
-    // compute maximum height difference
     PxReal deltaHeight = maxHeight - minHeight;
 
-    // maximum positive value that can be represented with signed 16 bit integer
     PxReal quantization = (PxReal)0x7fff;
 
     // compute heightScale such that the forward transform will generate the closest point
@@ -139,18 +136,18 @@ void Physics::createTerrain()
     // clamp to at least PX_MIN_HEIGHTFIELD_Y_SCALE to respect the PhysX API specs
     PxReal heightScale = PxMax(deltaHeight * 10 / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
 
-    PxHeightFieldSample* hfSamples = new PxHeightFieldSample[outRows * outCols];
+    PxHeightFieldSample* hfSamples = new PxHeightFieldSample[rows * cols];
 
     PxU32 index = 0;
-    for (PxU32 col = 0; col < outCols; col++)
+    for (PxU32 col = 0; col < cols; col++)
     {
-        for (PxU32 row = 0; row < outRows; row++)
+        for (PxU32 row = 0; row < rows; row++)
         {
             PxI16 height;
             height = PxI16(quantization * ((heightData[col][row] - minHeight) /
                 deltaHeight));
 
-            PxHeightFieldSample& smp = hfSamples[(row * outRows) + col];
+            PxHeightFieldSample& smp = hfSamples[(row * cols) + col];
             smp.height = height;
             smp.materialIndex0 = 0;
             smp.materialIndex1 = 0;
@@ -162,8 +159,8 @@ void Physics::createTerrain()
     // Build PxHeightFieldDesc from samples
     PxHeightFieldDesc terrainDesc;
     terrainDesc.format = PxHeightFieldFormat::eS16_TM;
-    terrainDesc.nbColumns = outCols;
-    terrainDesc.nbRows = outRows;
+    terrainDesc.nbColumns = cols;
+    terrainDesc.nbRows = rows;
     terrainDesc.samples.data = hfSamples;
     terrainDesc.samples.stride = sizeof(PxHeightFieldSample);
     terrainDesc.flags = PxHeightFieldFlags();
@@ -171,9 +168,9 @@ void Physics::createTerrain()
     float terrainWidth = 198;
 
     PxHeightFieldGeometry hfGeom;
-    hfGeom.columnScale = terrainWidth / (outRows - 1); // compute column and row scale from input terrain
+    hfGeom.columnScale = terrainWidth / (rows - 1); // compute column and row scale from input terrain
     // height grid
-    hfGeom.rowScale = terrainWidth / (outRows - 1);
+    hfGeom.rowScale = terrainWidth / (rows - 1);
     hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
     hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
 

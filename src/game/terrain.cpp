@@ -7,6 +7,34 @@ void Terrain::LoadTerrain(const char* heightmapPath)
     CreateVerticesAndIndices();
 }
 
+float Terrain::GetMinHeightFromHeightData()
+{
+    float min = heightData[0][0];
+    for (const auto& row : heightData)
+    {
+        for (const auto& val : row)
+        {
+            if (val < min)
+                min = val;
+        }
+    }
+    return min;
+}
+
+float Terrain::GetMaxHeightFromHeightData()
+{
+    float max = heightData[0][0];
+    for (const auto& row : heightData)
+    {
+        for (const auto& val : row)
+        {
+            if (val > max)
+                max = val;
+        }
+    }
+    return max;
+}
+
 void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols)
 {
     std::ifstream file(filename);
