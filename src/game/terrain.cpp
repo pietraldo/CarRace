@@ -71,6 +71,8 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
 
     if (outRows == 0 || outCols == -1)
         throw std::runtime_error("File is empty or contains no valid numbers.");
+
+    std::cout << "Loaded heightmap: " << outRows << " rows, " << outCols << " cols." << std::endl;
 }
 
 

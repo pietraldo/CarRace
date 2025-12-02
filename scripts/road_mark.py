@@ -1,6 +1,6 @@
 import math
 
-def generate_track(n, m, road_width=7):
+def generate_track(n, m, road_width=12):
     """
     Generates a 2D array (n x m) containing a racing loop.
     Road cells = 1

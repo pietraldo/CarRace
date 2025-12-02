@@ -154,6 +154,52 @@ def flatten(heightmap, road_mark):
                 flattened[i][j] = 0.5  # Set road cells to height 0
     return flattened
 
+
+import numpy as np
+
+def flatten_heightmap(heightmap, road_mark, radius=3):
+    # Convert lists to numpy arrays if needed
+    heightmap = np.array(heightmap, dtype=float)
+    road_mark = np.array(road_mark, dtype=int)
+
+    flattened = heightmap.copy()
+    n, m = flattened.shape
+
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i, j] == 1:
+
+                # ------ 1) Compute average height in radius ------
+                total = 0.0
+                count = 0
+
+                for di in range(-radius, radius + 1):
+                    for dj in range(-radius, radius + 1):
+                        ni = i + di
+                        nj = j + dj
+                        if 0 <= ni < n and 0 <= nj < m:
+                            total += flattened[ni, nj]
+                            count += 1
+
+                if count == 0:
+                    continue
+
+                avg_height = total / count
+
+                # ------ 2) Apply the averaged height ------
+                for di in range(-radius, radius + 1):
+                    for dj in range(-radius, radius + 1):
+                        ni = i + di
+                        nj = j + dj
+                        if 0 <= ni < n and 0 <= nj < m:
+                            if(road_mark[ni, nj] == 1):
+                                flattened[ni, nj] = avg_height
+                                #road_mark[ni, nj] = 0  # mark processed
+
+    return flattened
+
+
+
 # Small convenience CLI when run directly
 def main2():
     import argparse
@@ -188,17 +234,26 @@ def main2():
             plt.title(f'Terrain {args.n}x{args.n} (roughness={args.roughness}, smooth={args.smooth})')
             plt.show()
 
+def read_terrain_from_file(filename: str) -> np.ndarray:
+    """
+    Read a terrain heightmap from a plain text file.
+    Each line in the file should contain space-separated float values.
+    """
+    return np.loadtxt(filename)
+
 if __name__ == '__main__':
     
     from road_mark import generate_track
     from texture import generate_texture
     
     n=500
-    m=300
-    road_mark = generate_track(n, m, road_width=7)
+    m=600
+    road_mark = generate_track(n, m, road_width=30)
     generate_texture(road_mark)
     h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
-    h = flatten(h, road_mark)
+    h = read_terrain_from_file("heightmap_normalized.txt")
+    #h = flatten(h, road_mark)
+    h= flatten_heightmap(h, road_mark, radius=30)
     
     np.savetxt("terrain.txt", h, fmt='%.6f')
     print(f'Saved heightmap as plain text to terrain.txt')
