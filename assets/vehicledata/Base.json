@@ -380,7 +380,7 @@
     "TireForceParams": [
         {
             "WheelId": 0,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
@@ -412,7 +412,7 @@
         },
         {
             "WheelId": 1,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
@@ -444,7 +444,7 @@
         },
         {
             "WheelId": 2,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
@@ -476,7 +476,7 @@
         },
         {
             "WheelId": 3,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
