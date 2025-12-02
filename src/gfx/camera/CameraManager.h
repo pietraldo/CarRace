@@ -49,4 +49,12 @@ public:
     void CreateCameras();
 
     void ProccessInput(CameraControlInput input, float deltaTime);
+
+    void MoveFreeCameraToPosition(glm::vec3 position)
+    {
+        Camera& activeCam = GetActiveCamera();
+        if (activeCam.cameraType == CameraType::FREE_CAMERA) {
+            activeCam.Position = position;
+        }
+    }
 };

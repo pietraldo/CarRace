@@ -217,6 +217,13 @@ void Rendering::RenderImGui()
         ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
         ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 500);
         ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
+        
+        if (ImGui::Button("Move camera to car"))
+        {
+            glm::vec3 position =PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
+            CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
+        }
+
         ImGui::End();
     }
     {
