@@ -86,6 +86,11 @@ int main()
         CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
         continueGame = !input.additionalInfo.exit;
         startSimulation = startSimulation || input.additionalInfo.startSimulation;
+
+		if (input.additionalInfo.resetCars)
+        {
+            Physics::getInstance()->getVehicles()[0]->resetCar();
+        }
 		
 		if (startSimulation)
 		{

@@ -84,6 +84,14 @@ public:
         return gVehicle.getWheelRotation();
     }
 
+    void resetCar()
+    {
+        PxVec3 position = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+        position.y += 5.0f; 
+        position.x += 3.0f;
+        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(PxTransform(position, PxQuat(PxIdentity)));
+    }
+
     float computeDriftFactor() const;
 
     void Update(float deltaTime, CarControlInput carControll);
