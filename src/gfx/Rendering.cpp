@@ -214,7 +214,7 @@ void Rendering::RenderImGui()
         Camera* activeCam = &cameraManager->GetActiveCamera();
         
         ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
-        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 100);
+        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 500);
         ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
         ImGui::End();
     }
@@ -313,7 +313,7 @@ glm::mat4 Rendering::GetProjectionMatrix()
         glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
-        400.0f
+        1000.0f
     );
 }
 

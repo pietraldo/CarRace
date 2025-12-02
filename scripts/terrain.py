@@ -313,7 +313,7 @@ if __name__ == '__main__':
     
     n=500
     m=500
-    road_mark = generate_track(n, m, road_width=30)
+    road_mark = generate_track(n, m, road_width=15)
     generate_texture(road_mark)
     h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
