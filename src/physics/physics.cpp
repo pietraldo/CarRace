@@ -40,7 +40,7 @@ int Physics::initialize(Scene* scene) {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(30, 20, 0), "vehicle1");
+    createVehicle(PxVec3(0, 10, 0), "vehicle1");
     createTerrain();
 
     return 0;
@@ -120,13 +120,14 @@ void Physics::createTerrain()
     int rows = terrain->GetRows();
     int cols = terrain->GetCols();
     std::vector<std::vector<float>> heightData = terrain->GetHeightData();
-    PxReal minHeight = terrain->GetMinHeightFromHeightData();
-    PxReal maxHeight = terrain->GetMaxHeightFromHeightData();
+    
     float scaley = terrain->GetScaleY();
 
     // create the actor for heightfield
     PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
+    PxReal minHeight = 0;
+    PxReal maxHeight = 1;
     PxReal deltaHeight = maxHeight - minHeight;
 
     PxReal quantization = (PxReal)0x7fff;
@@ -169,7 +170,7 @@ void Physics::createTerrain()
     PxHeightFieldGeometry hfGeom;
     hfGeom.columnScale = terrain->GetScaleZ();
     hfGeom.rowScale = terrain->GetScaleX();
-    hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
+    hfGeom.heightScale = heightScale;
     hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
 
     delete[] hfSamples;
