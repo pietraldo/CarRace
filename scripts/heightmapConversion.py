@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 
 # Load the 16-bit heightmap
-img = Image.open("40_670_73_842_12_600_500_16bit.png")
+img = Image.open("35_846_76_528_12_500_500_16bit.png")
 
 # Read as numpy array (preserves 16-bit values)
 arr = np.array(img, dtype=np.uint16)
