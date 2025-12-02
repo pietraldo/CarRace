@@ -94,7 +94,7 @@ void Terrain::loadRoadmap(const std::string& filename)
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
-        roadData.push_back(std::vector<int>());
+        std::vector<int> row;
 
         std::stringstream ss(line);
         int val;
@@ -105,7 +105,7 @@ void Terrain::loadRoadmap(const std::string& filename)
             if (val != 0 && val != 1)
                 throw std::runtime_error("Roadmap contains values other than 0 or 1.");
 
-            roadData[rows].push_back(val);
+            row.push_back(val);
             colCount++;
         }
 
@@ -116,6 +116,7 @@ void Terrain::loadRoadmap(const std::string& filename)
         else if (colCount != cols)
             throw std::runtime_error("Inconsistent column count in roadmap file.");
 
+        roadData.push_back(std::move(row));
         rows++;
     }
 
