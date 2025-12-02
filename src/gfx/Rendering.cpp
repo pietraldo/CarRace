@@ -62,7 +62,8 @@ int Rendering::Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    textureData = stbi_load("../assets/vehicledata/road_texture.png", &texWidth, &texHeight, &nbChannels, 0);
+    stbi_set_flip_vertically_on_load(true);
+    textureData = stbi_load("../assets/vehicledata/terrain_texture.png", & texWidth, & texHeight, & nbChannels, 0);
     if (!textureData)
     {
         std::cout << "Failed to load texture" << std::endl;

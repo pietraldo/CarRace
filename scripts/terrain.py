@@ -320,5 +320,8 @@ if __name__ == '__main__':
     #h = flatten(h, road_mark)
     h= smooth_road(h, road_mark, iterations=30)
     
+    road_mark = np.array(road_mark, dtype=int)
+    np.savetxt("road_mark.txt", road_mark, fmt='%d')
     np.savetxt("terrain.txt", h, fmt='%.6f')
+    
     print(f'Saved heightmap as plain text to terrain.txt')

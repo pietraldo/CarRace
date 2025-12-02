@@ -20,6 +20,7 @@ private:
 	vector<int> indices;
 
 	vector<vector<float>> heightData;
+    vector<vector<int>> roadData;
 
 	vector<float> CreateVerticesAndIndices();
 	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
@@ -45,7 +46,7 @@ public:
 
 	void LoadTerrain(const char* heightmapPath);
 
-	bool loadTexture();
+	void loadRoadmap(const std::string& filename);
 
     int GetRows() { return rows; }
     int GetCols() { return cols; }

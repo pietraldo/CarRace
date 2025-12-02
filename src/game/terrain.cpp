@@ -3,6 +3,7 @@
 
 void Terrain::LoadTerrain(const char* heightmapPath)
 {
+    loadRoadmap("../assets/vehicledata/road_mark.txt");
     loadHeightmap(heightmapPath, rows, cols);
     CreateVerticesAndIndices();
 }
@@ -75,6 +76,53 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
     std::cout << "Loaded heightmap: " << outRows << " rows, " << outCols << " cols." << std::endl;
 }
 
+void Terrain::loadRoadmap(const std::string& filename)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+        throw std::runtime_error("Cannot open file: " + filename);
+
+    std::string line;
+    int rows = 0;
+    int cols = -1;
+
+    roadData.clear();
+
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        roadData.push_back(std::vector<int>());
+
+        std::stringstream ss(line);
+        int val;
+        int colCount = 0;
+
+        while (ss >> val) {
+            // OPTIONAL: ensure values are 0 or 1
+            if (val != 0 && val != 1)
+                throw std::runtime_error("Roadmap contains values other than 0 or 1.");
+
+            roadData[rows].push_back(val);
+            colCount++;
+        }
+
+        if (colCount == 0) continue;
+
+        if (cols == -1)
+            cols = colCount;                   // first line defines expected column count
+        else if (colCount != cols)
+            throw std::runtime_error("Inconsistent column count in roadmap file.");
+
+        rows++;
+    }
+
+    if (rows == 0 || cols == -1)
+        throw std::runtime_error("Roadmap file is empty or invalid.");
+
+    std::cout << "Loaded roadmap: " << rows << " rows, " << cols << " cols." << std::endl;
+}
+
+
 
 vector<float> Terrain::CreateVerticesAndIndices()
 {
@@ -115,14 +163,33 @@ vector<float> Terrain::CreateVerticesAndIndices()
             glm::vec3 normal2 = glm::normalize(glm::cross(v22, u22));
 
 
-            float u1 = (float)j / (cols - 1);
+            /*float u1 = (float)j / (cols - 1);
             float v1 = (float)i / (rows - 1);
             float u2 = (float)(j + 1) / (cols - 1);
             float v2 = (float)i / (rows - 1);
             float u3 = (float)j / (cols - 1);
             float v3 = (float)(i + 1) / (rows - 1);
             float u4 = (float)(j + 1) / (cols - 1);
-            float v4 = (float)(i + 1) / (rows - 1);
+            float v4 = (float)(i + 1) / (rows - 1);*/
+           
+            float u1, v1, u2, v2, u3, v3, u4, v4;
+
+            if (roadData[i][j] == 1)
+            {
+                // Bottom-right quadrant
+                u1 = 0.5f;  v1 = 0.0f;
+                u2 = 1.0f;  v2 = 0.0f;
+                u3 = 0.5f;  v3 = 0.5f;
+                u4 = 1.0f;  v4 = 0.5f;
+            }
+            else
+            {
+                // Top-left quadrant (default)
+                u1 = 0.0f;  v1 = 0.5f;
+                u2 = 0.5f;  v2 = 0.5f;
+                u3 = 0.0f;  v3 = 1.0f;
+                u4 = 0.5f;  v4 = 1.0f;
+            }
 
             // first triangle
 
