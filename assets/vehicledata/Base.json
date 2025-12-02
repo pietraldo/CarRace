@@ -381,7 +381,7 @@
         {
             "WheelId": 0,
             "LongitudinalStiffness": 64525.0,
-            "LateralStiffnessX": 0.009999999776482582,
+            "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
             "RestLoad": 5628.72314453125,
@@ -413,7 +413,7 @@
         {
             "WheelId": 1,
             "LongitudinalStiffness": 64525.0,
-            "LateralStiffnessX": 0.009999999776482582,
+            "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
             "RestLoad": 5628.72314453125,
@@ -445,7 +445,7 @@
         {
             "WheelId": 2,
             "LongitudinalStiffness": 64525.0,
-            "LateralStiffnessX": 0.009999999776482582,
+            "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
             "RestLoad": 4604.3134765625,
@@ -477,7 +477,7 @@
         {
             "WheelId": 3,
             "LongitudinalStiffness": 64525.0,
-            "LateralStiffnessX": 0.009999999776482582,
+            "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
             "RestLoad": 4604.3134765625,

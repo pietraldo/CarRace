@@ -68,8 +68,6 @@ public:
             - smoothedForward * followDistance
             + glm::vec3(0, heightOffset, 0);
 
-       
-
         // Spring-damped smoothing
         glm::vec3 displacement = idealPos - Position;
         velocity += displacement * stiffness * dt;

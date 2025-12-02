@@ -51,14 +51,14 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
-        heightData.push_back(std::vector<float>());
+        std::vector<float> row;
 
         std::stringstream ss(line);
         float val;
         int colCount = 0;
 
         while (ss >> val) {
-            heightData[outRows].push_back(val);
+            row.push_back(val);
             colCount++;
         }
 
@@ -69,6 +69,7 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
         else if (colCount != outCols)
             throw std::runtime_error("Inconsistent column count in file.");
 
+        heightData.push_back(std::move(row));
         outRows++;
     }
 
