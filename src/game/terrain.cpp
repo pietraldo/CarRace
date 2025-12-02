@@ -46,6 +46,8 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
     outRows = 0;
     outCols = -1;
 
+    heightData.clear();
+
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 

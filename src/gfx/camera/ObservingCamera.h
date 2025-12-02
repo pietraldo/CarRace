@@ -20,10 +20,9 @@ private:
     float damping = 4.0f;      // spring damping
     float yawLag = 5.0f;      // how much camera lags behind rotation
 
-    float lookAheadDistance = 20.0f;  // where the camera looks
+    float lookAheadDistance = 20.0f;  
     float tiltStrength = 8.0f;        // camera tilts when turning
 
-    // --- INTERNAL STATE -----------------------------------------
     glm::vec3 velocity{ 0 };
     glm::vec3 smoothedForward{ 0,0,1 };
 public:
@@ -43,9 +42,6 @@ public:
     {
     }
 
-    
-
-
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
    /* glm::mat4 GetViewMatrix() override
     {
@@ -60,14 +56,13 @@ public:
     ) {
         if (glm::length(carVel) < 0.1f)
             carVel = glm::vec3(0.0f,0.1f,0.0f);
-        // 1. Car forward direction
+        
         glm::vec3 forward = glm::normalize(carRot * glm::vec3(0, 0, 1));
         forward.y = 0;
 
-        // 2. Smooth forward (yaw lag) – prevents sharp camera snaps
+        // Smooth forward (yaw lag) – prevents sharp camera snaps
         smoothedForward = glm::mix(smoothedForward, forward, dt * yawLag);
 
-        // 3. Target (ideal) position behind the car
         glm::vec3 idealPos =
             carPos
             - smoothedForward * followDistance
@@ -75,21 +70,19 @@ public:
 
        
 
-        // 5. Spring-damped smoothing
-        // --------------------------------------------------------
+        // Spring-damped smoothing
         glm::vec3 displacement = idealPos - Position;
         velocity += displacement * stiffness * dt;
         velocity *= glm::exp(-damping * dt);
         Position += velocity * dt;
 
-        // 6. Look-ahead point based on speed
+        // Look-ahead point based on speed
         float speed = glm::length(carVel);
         float dynamicLookAhead = lookAheadDistance + speed * 0.3f;
 
         glm::vec3 target = carPos + smoothedForward * dynamicLookAhead;
 
-        // 7. Tilt camera when turning
-        // --------------------------------------------------------
+        // Tilt camera when turning
         glm::vec3 right = glm::normalize(glm::cross(smoothedForward, glm::vec3(0, 1, 0)));
 
         
@@ -102,7 +95,6 @@ public:
 
         Up = glm::vec3(tiltMat * glm::vec4(0, 1, 0, 0));
 
-        // 8. Update final view direction
         Front = glm::normalize(target - Position);
     }
 };
