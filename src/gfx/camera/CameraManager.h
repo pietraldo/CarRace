@@ -14,7 +14,7 @@ class CameraManager {
 private:
     static CameraManager* instance; 
     std::vector<std::unique_ptr<Camera>> cameras; 
-    int active_camera_index = 0;
+    int active_camera_index = 1;
 
     CameraManager() {}
 
