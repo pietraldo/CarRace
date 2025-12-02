@@ -162,6 +162,7 @@ def flatten_heightmap(heightmap, road_mark, radius=3):
     heightmap = np.array(heightmap, dtype=float)
     road_mark = np.array(road_mark, dtype=int)
 
+    road_mark2 = road_mark.copy()
     flattened = heightmap.copy()
     n, m = flattened.shape
 
@@ -194,9 +195,73 @@ def flatten_heightmap(heightmap, road_mark, radius=3):
                         if 0 <= ni < n and 0 <= nj < m:
                             if(road_mark[ni, nj] == 1):
                                 flattened[ni, nj] = avg_height
-                                #road_mark[ni, nj] = 0  # mark processed
-
+                                road_mark[ni, nj] = 0  # mark processed
+    
+    #this does not work
+    for num in range(10):  
+        for i in range(n):
+            for j in range(m):
+                if road_mark2[i, j] == 1:
+                    sum = 0.0
+                    count = 0
+                    if(road_mark2[i-1, j] == 0 and i-1 >= 0):
+                        sum += flattened[i-1, j]
+                        count += 1
+                    if(road_mark2[i+1, j] == 0 and i+1 < n):
+                        sum += flattened[i+1, j]
+                        count += 1
+                    if(road_mark2[i, j-1] == 0 and j-1 >= 0):
+                        sum += flattened[i, j-1]
+                        count += 1
+                    if(road_mark2[i, j+1] == 0 and j+1 < m):
+                        sum += flattened[i, j+1]
+                        count += 1
+                    if count > 0:
+                        flattened[i, j] = sum / count
+                        
+                        
+                    
+                    
+                    
     return flattened
+
+import numpy as np
+
+def smooth_road(heightmap, road_mark, iterations=30):
+    heightmap = np.array(heightmap, dtype=float)
+    road_mark = np.array(road_mark, dtype=int)
+
+    n, m = heightmap.shape
+    smoothed = heightmap.copy()
+
+    for _ in range(iterations):
+        new_h = smoothed.copy()
+
+        for i in range(n):
+            for j in range(m):
+                if road_mark[i, j] == 1:
+
+                    total = 0.0
+                    count = 0
+
+                    # 8-neighbor smoothing works best
+                    for di in (-1, 0, 1):
+                        for dj in (-1, 0, 1):
+                            if di == 0 and dj == 0:
+                                continue
+                            ni = i + di
+                            nj = j + dj
+                            if 0 <= ni < n and 0 <= nj < m:
+                                total += smoothed[ni, nj]
+                                count += 1
+
+                    if count > 0:
+                        new_h[i, j] = total / count   # average of surrounding terrain
+
+        smoothed = new_h
+
+    return smoothed
+
 
 
 
@@ -253,7 +318,7 @@ if __name__ == '__main__':
     h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
     #h = flatten(h, road_mark)
-    h= flatten_heightmap(h, road_mark, radius=30)
+    h= smooth_road(h, road_mark, iterations=30)
     
     np.savetxt("terrain.txt", h, fmt='%.6f')
     print(f'Saved heightmap as plain text to terrain.txt')
