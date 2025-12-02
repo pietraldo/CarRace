@@ -40,7 +40,7 @@ int Physics::initialize(Scene* scene) {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(10, 20, 0), "vehicle1");
+    createVehicle(PxVec3(30, 20, 0), "vehicle1");
     createTerrain();
 
     return 0;
