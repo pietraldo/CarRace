@@ -27,12 +27,19 @@ Scene::Scene()
 	
 	CubeObject* cube5 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 	gameObjects.push_back(cube5);
+	
+	CubeObject* cube6 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+	gameObjects.push_back(cube6);
+	CubeObject* cube7 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+	gameObjects.push_back(cube7);
 
 	CubeObject* cube3 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), false);
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-}
+    terrain = new Terrain(glm::vec3(100.0f, -20.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
+}	
 
 
 void Scene::UpdateCar(InputData input, float deltaTime)
@@ -53,38 +60,31 @@ void Scene::UpdateCar(InputData input, float deltaTime)
 	}
 }
 
-void Scene::UpdateCamera()
+void Scene::UpdateCamera(float dt)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
+
+	RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+	PxVec3 pxPos = vehicle->getVehiclePosition();
+	PxQuat pxRot = vehicle->getVehicleRotation();
+
+    glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
+    glm::quat carRot = PxQuatToGlmQuat(pxRot);
+
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
-        RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
-
-        PxVec3 pos = vehicle->getVehiclePosition();
-        PxQuat rot = vehicle->getVehicleRotation();
-
-        glm::vec3 carPos = glm::vec3(pos.x, pos.y, pos.z);
-        glm::quat carRot = glm::quat(rot.w, rot.x, rot.y, rot.z);
-
 		firstPersonCamera.Update(carPos, carRot);
 		
     }
     else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
     {
         ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-        observingCamera.SetTarget(car->GetBody()->GetPosition());
+		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
 		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
-		RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
-		PxVec3 pxPos = vehicle->getVehiclePosition();
-		PxQuat pxRot = vehicle->getVehicleRotation();
-
-		glm::vec3 carPos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
-		glm::quat carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
-
 		fol.Update(carPos, carRot);
 	}
 
@@ -92,9 +92,8 @@ void Scene::UpdateCamera()
 
 void Scene::Update(InputData input, float deltaTime)
 {
-	UpdateCamera();
-	UpdateFlashLight();
 
+	UpdateCamera(deltaTime);
 	UpdateCar(input, deltaTime);
 
 
@@ -163,17 +162,16 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
 	shader.setBool("fogEnabled", fog);
 
-	
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, terrain->position);/*
-	model = glm::rotate(model, glm::radians(terrain->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(terrain->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(terrain->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));*/
+    glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
+	model = glm::translate(model, terrain->position-centerPosition);
 	shader.setMat4("model", model);
 	shader.setVec3("objectColor", terrain->color);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
 	glBindVertexArray(sphereVAO);
-	glDrawElements(GL_TRIANGLES, Terrain::indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	
 }
 

@@ -12,7 +12,9 @@ Physics* Physics::getInstance() {
     return physicsObj;
 }
 
-int Physics::initialize() {
+int Physics::initialize(Scene* scene) {
+    this->scene = scene;
+
     gFoundation = PxCreateFoundation(
         PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
     if (!gFoundation) {
@@ -88,88 +90,98 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
     gScene->addActor(*boxCollider2);
     gameObjects[3]->actor = boxCollider2;
 
-    
+
     physx::PxRigidStatic* boxCollider3 = physx::PxCreateStatic(
         *gPhysics, physx::PxTransform(physx::PxVec3(6, 0.5f, 0), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(2.0f, 0.25f, 2.0f)), *material);
     gScene->addActor(*boxCollider3);
     gameObjects[4]->actor = boxCollider3;
 
     physx::PxRigidStatic* boxCollider4 = physx::PxCreateStatic(
-        *gPhysics, physx::PxTransform(physx::PxVec3(-35, 0.5f, -40), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
+        *gPhysics, physx::PxTransform(physx::PxVec3(-100, 0, -100), physx::PxQuat(physx::PxPi / 2, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
     gScene->addActor(*boxCollider4);
     gameObjects[5]->actor = boxCollider4;
+
+    physx::PxRigidStatic* boxCollider5 = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(100, 0, 100), physx::PxQuat(physx::PxPi / 2, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
+    gScene->addActor(*boxCollider5);
+    gameObjects[6]->actor = boxCollider5;
+
+    physx::PxRigidStatic* boxCollider6 = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(-32, 0.5f, -40), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
+    gScene->addActor(*boxCollider6);
+    gameObjects[7]->actor = boxCollider6;
 }
 
 
 
 void Physics::createTerrain()
 {
-    const PxU32 ts = 100; // user heightfield dimensions (ts = terrain samples)
+    Terrain* terrain = scene->GetTerrain();
+    int rows = terrain->GetRows();
+    int cols = terrain->GetCols();
+    std::vector<std::vector<float>> heightData = terrain->GetHeightData();
+    
+    float scaley = terrain->GetScaleY();
+
     // create the actor for heightfield
     PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
-    // iterate over source data points and find minimum and maximum heights
     PxReal minHeight = 0;
     PxReal maxHeight = 1;
-
-    int outRows, outCols;
-    vector<float> heights = readHeightmap("../assets/vehicledata/terrain.txt", outRows, outCols);
-    cout << "Heightmap rows: " << outRows << ", cols: " << outCols << endl;
-
-    // compute maximum height difference
     PxReal deltaHeight = maxHeight - minHeight;
 
-    // maximum positive value that can be represented with signed 16 bit integer
     PxReal quantization = (PxReal)0x7fff;
 
     // compute heightScale such that the forward transform will generate the closest point
     // to the source
     // clamp to at least PX_MIN_HEIGHTFIELD_Y_SCALE to respect the PhysX API specs
-    PxReal heightScale = PxMax(deltaHeight*10 / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
+    PxReal heightScale = PxMax(deltaHeight * scaley / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
 
-    PxHeightFieldSample* hfSamples = new PxHeightFieldSample[ts * ts];
+    PxHeightFieldSample* hfSamples = new PxHeightFieldSample[rows * cols];
 
     PxU32 index = 0;
-    for (PxU32 col = 0; col < ts; col++)
+    for (PxU32 row = 0; row < rows; row++)
     {
-        for (PxU32 row = 0; row < ts; row++)
+        for (PxU32 col = 0; col < cols; col++)
         {
             PxI16 height;
-            height = PxI16(quantization * ((heights[(col * ts) + row] - minHeight) /
+            height = PxI16(quantization * ((heightData[row][col] - minHeight) /
                 deltaHeight));
 
-            PxHeightFieldSample& smp = hfSamples[(row * ts) + col];
+            PxHeightFieldSample& smp = hfSamples[(col * rows) + row];
             smp.height = height;
             smp.materialIndex0 = 0;
             smp.materialIndex1 = 0;
-            /*if (userFlipEdge)
-                smp.setTessFlag();*/
         }
     }
 
     // Build PxHeightFieldDesc from samples
     PxHeightFieldDesc terrainDesc;
     terrainDesc.format = PxHeightFieldFormat::eS16_TM;
-    terrainDesc.nbColumns = ts;
-    terrainDesc.nbRows = ts;
+    terrainDesc.nbColumns = rows;
+    terrainDesc.nbRows = cols;
     terrainDesc.samples.data = hfSamples;
     terrainDesc.samples.stride = sizeof(PxHeightFieldSample);
     terrainDesc.flags = PxHeightFieldFlags();
 
-    float terrainWidth = 200;
+    float terrainWidth = terrain->GetTerrainWidth();
+    float terrainDepth = terrain->GetTerrainDepth();
 
     PxHeightFieldGeometry hfGeom;
-    hfGeom.columnScale = terrainWidth / (ts - 1); // compute column and row scale from input terrain
-    // height grid
-    hfGeom.rowScale = terrainWidth / (ts - 1);
-    hfGeom.heightScale = deltaHeight != 0.0f ? heightScale : 1.0f;
+    hfGeom.columnScale = terrain->GetScaleZ();
+    hfGeom.rowScale = terrain->GetScaleX();
+    hfGeom.heightScale = heightScale;
     hfGeom.heightField = PxCreateHeightField(terrainDesc, gPhysics->getPhysicsInsertionCallback());
 
     delete[] hfSamples;
 
+
     PxTransform localPose;
-    localPose.p = PxVec3(-(terrainWidth * 0.5f)-150,    // make it so that the center of the
-        minHeight, -(terrainWidth * 0.5f));         // heightfield is at world (0,minHeight,0)
+    localPose.p =
+        PxVec3(
+            terrain->position.x - (terrainWidth * 0.5f),    // make it so that the center of the
+            terrain->position.y + minHeight,
+            terrain->position.z - (terrainDepth * 0.5f));         // heightfield is at world (0,minHeight,0)
     localPose.q = PxQuat(PxIdentity);
     PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);
     shape->setLocalPose(localPose);
@@ -180,10 +192,10 @@ void Physics::update(float deltaTime, CarControlInput carControll)
 {
 
     vehicles[0]->Update(deltaTime, carControll);
-   
+
     //Forward integrate the vehicle by a single timestep.
     //Apply substepping at low forward speed to improve simulation fidelity.
-  
+
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);
@@ -240,7 +252,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     {
         return nullptr;
     }
-    
+
 
     //Apply a start pose to the physx actor and add it to the physx scene.
     PxTransform pose(position, PxQuat(PxIdentity));
@@ -256,7 +268,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
 
     PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
     shape->setGeometry(newGeom);
-    physx::PxTransform localOffset = PxTransform(0, 0.85f, 1.59f);
+    physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
     shape->setLocalPose(localOffset);
 
 

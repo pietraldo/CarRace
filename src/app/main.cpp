@@ -51,9 +51,10 @@ bool startSimulation = false;
 
 int main()
 {
-    Physics::getInstance()->initialize();
-    
 	scene = new Scene();
+    
+	Physics::getInstance()->initialize(scene);
+    
 	Rendering::scene = scene;
 	srand(19);
 
@@ -62,7 +63,6 @@ int main()
 	LightBuffer lightBuffer = scene->LoadLights();
 	AudioEngine::instance().init();
 
-	scene->CreateTerrain();
     if (Rendering::Initialize() == -1) return -1;
 
     InputManager::getInstance().setUp();
@@ -82,17 +82,23 @@ int main()
 
         InputData input = InputManager::getInstance().getInputData();
 
-		scene->Update(input, deltaTime);
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
         continueGame = !input.additionalInfo.exit;
         startSimulation = startSimulation || input.additionalInfo.startSimulation;
+
+		if (input.additionalInfo.resetCars)
+        {
+            Physics::getInstance()->getVehicles()[0]->resetCar();
+        }
 		
 		if (startSimulation)
 		{
 			Physics::getInstance()->update(deltaTime, input.carControl1);
 		}
+		scene->Update(input, deltaTime);
 		
+
         scene->setOutput();
         Rendering::RenderFrame(scene->GetGameObjects());
 	}

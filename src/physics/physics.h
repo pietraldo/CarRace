@@ -12,6 +12,8 @@
 
 #include "./game/Objects/car/Car.h"
 #include "../ui/Input/InputStructures.h"
+#include "../game/Scene.h"
+#include "../game/terrain.h"
 
 
 using namespace physx;
@@ -19,6 +21,7 @@ using namespace vehicle2;
 using namespace snippetvehicle;
 
 class RaceCar;
+class Scene;
 class Physics {
 private:
     static Physics* physicsObj;
@@ -33,7 +36,7 @@ private:
 
     vector<RaceCar*> vehicles;
     
-
+    Scene* scene = nullptr;
 
     Physics() {}
 
@@ -41,7 +44,7 @@ private:
 public:
     static Physics* getInstance();
 
-    int initialize();
+    int initialize(Scene* scene);
 
     physx::PxScene* createScene();
 

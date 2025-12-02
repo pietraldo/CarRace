@@ -91,45 +91,42 @@ def _gaussian_smoothing(grid: np.ndarray, sigma: float) -> np.ndarray:
     smoothed = np.apply_along_axis(lambda m: np.convolve(m, kernel, mode='same'), axis=0, arr=temp)
     return smoothed
 
-
 def generate_terrain(n: int,
+                     m: int,
                      roughness: float = 0.7,
                      seed: Optional[int] = None,
                      smooth_sigma: float = 0.0,
                      normalize: bool = True) -> np.ndarray:
     """
-    Generate an n x n terrain heightmap.
+    Generate an n x m terrain heightmap.
 
     Parameters
     ----------
-    n : int
-        Desired output size (n x n). Can be any positive integer; internally the algorithm
-        will build a (2^k + 1) grid and crop to n.
+    n, m : int
+        Desired output size (n x m).
     roughness : float
-        Controls how rough the terrain is. Lower -> smoother large-scale features. Typical 0.3..1.2
+        Controls how rough the terrain is. Lower -> smoother large-scale features.
     seed : Optional[int]
         RNG seed for reproducibility.
     smooth_sigma : float
-        Optional Gaussian smoothing sigma in grid units. Use 0 for no extra smoothing.
+        Optional Gaussian smoothing sigma in grid units.
     normalize : bool
         If True, the returned grid will be normalized to [0, 1].
-
-    Returns
-    -------
-    np.ndarray
-        n x n array of floats representing heights.
     """
-    if n <= 0:
-        raise ValueError("n must be positive")
 
-    size = _next_pow2_plus_one(n)
+    if n <= 0 or m <= 0:
+        raise ValueError("n and m must be positive")
+
+    # Diamond-square needs a square (2^k + 1) grid; pick size big enough for both dims
+    size = _next_pow2_plus_one(max(n, m))
+
     grid = _diamond_square(size, roughness, seed=seed)
 
     if smooth_sigma > 0:
         grid = _gaussian_smoothing(grid, smooth_sigma)
 
-    # Crop to n x n from top-left corner (you can center-crop if you prefer)
-    cropped = grid[:n, :n]
+    # Crop to n × m
+    cropped = grid[:n, :m]
 
     if normalize:
         minv = cropped.min()
@@ -137,13 +134,139 @@ def generate_terrain(n: int,
         if maxv > minv:
             cropped = (cropped - minv) / (maxv - minv)
         else:
-            cropped = np.zeros_like(cropped)
+            cropped[:] = 0.0
 
     return cropped
 
 
+def flatten(heightmap, road_mark):
+    """
+    Flatten the terrain heightmap where the road_mark indicates road cells.
+    road_mark: 2D array of same size as heightmap, with 1 for road cells and 0 for non-road.
+    """
+    flattened = heightmap.copy()
+    n, m = heightmap.shape
+    print(n)
+    print(m)
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                flattened[i][j] = 0.5  # Set road cells to height 0
+    return flattened
+
+
+import numpy as np
+
+def flatten_heightmap(heightmap, road_mark, radius=3):
+    # Convert lists to numpy arrays if needed
+    heightmap = np.array(heightmap, dtype=float)
+    road_mark = np.array(road_mark, dtype=int)
+
+    road_mark2 = road_mark.copy()
+    flattened = heightmap.copy()
+    n, m = flattened.shape
+
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i, j] == 1:
+
+                # ------ 1) Compute average height in radius ------
+                total = 0.0
+                count = 0
+
+                for di in range(-radius, radius + 1):
+                    for dj in range(-radius, radius + 1):
+                        ni = i + di
+                        nj = j + dj
+                        if 0 <= ni < n and 0 <= nj < m:
+                            total += flattened[ni, nj]
+                            count += 1
+
+                if count == 0:
+                    continue
+
+                avg_height = total / count
+
+                # ------ 2) Apply the averaged height ------
+                for di in range(-radius, radius + 1):
+                    for dj in range(-radius, radius + 1):
+                        ni = i + di
+                        nj = j + dj
+                        if 0 <= ni < n and 0 <= nj < m:
+                            if(road_mark[ni, nj] == 1):
+                                flattened[ni, nj] = avg_height
+                                road_mark[ni, nj] = 0  # mark processed
+    
+    #this does not work
+    for num in range(10):  
+        for i in range(n):
+            for j in range(m):
+                if road_mark2[i, j] == 1:
+                    sum = 0.0
+                    count = 0
+                    if(road_mark2[i-1, j] == 0 and i-1 >= 0):
+                        sum += flattened[i-1, j]
+                        count += 1
+                    if(road_mark2[i+1, j] == 0 and i+1 < n):
+                        sum += flattened[i+1, j]
+                        count += 1
+                    if(road_mark2[i, j-1] == 0 and j-1 >= 0):
+                        sum += flattened[i, j-1]
+                        count += 1
+                    if(road_mark2[i, j+1] == 0 and j+1 < m):
+                        sum += flattened[i, j+1]
+                        count += 1
+                    if count > 0:
+                        flattened[i, j] = sum / count
+                        
+                        
+                    
+                    
+                    
+    return flattened
+
+import numpy as np
+
+def smooth_road(heightmap, road_mark, iterations=30):
+    heightmap = np.array(heightmap, dtype=float)
+    road_mark = np.array(road_mark, dtype=int)
+
+    n, m = heightmap.shape
+    smoothed = heightmap.copy()
+
+    for _ in range(iterations):
+        new_h = smoothed.copy()
+
+        for i in range(n):
+            for j in range(m):
+                if road_mark[i, j] == 1:
+
+                    total = 0.0
+                    count = 0
+
+                    # 8-neighbor smoothing works best
+                    for di in (-1, 0, 1):
+                        for dj in (-1, 0, 1):
+                            if di == 0 and dj == 0:
+                                continue
+                            ni = i + di
+                            nj = j + dj
+                            if 0 <= ni < n and 0 <= nj < m:
+                                total += smoothed[ni, nj]
+                                count += 1
+
+                    if count > 0:
+                        new_h[i, j] = total / count   # average of surrounding terrain
+
+        smoothed = new_h
+
+    return smoothed
+
+
+
+
 # Small convenience CLI when run directly
-if __name__ == '__main__':
+def main2():
     import argparse
     try:
         import matplotlib.pyplot as plt
@@ -175,3 +298,30 @@ if __name__ == '__main__':
             plt.colorbar(label='height')
             plt.title(f'Terrain {args.n}x{args.n} (roughness={args.roughness}, smooth={args.smooth})')
             plt.show()
+
+def read_terrain_from_file(filename: str) -> np.ndarray:
+    """
+    Read a terrain heightmap from a plain text file.
+    Each line in the file should contain space-separated float values.
+    """
+    return np.loadtxt(filename)
+
+if __name__ == '__main__':
+    
+    from road_mark import generate_track
+    from texture import generate_texture
+    
+    n=500
+    m=500
+    road_mark = generate_track(n, m, road_width=15)
+    generate_texture(road_mark)
+    h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
+    h = read_terrain_from_file("heightmap_normalized.txt")
+    #h = flatten(h, road_mark)
+    h= smooth_road(h, road_mark, iterations=30)
+    
+    road_mark = np.array(road_mark, dtype=int)
+    np.savetxt("road_mark.txt", road_mark, fmt='%d')
+    np.savetxt("terrain.txt", h, fmt='%.6f')
+    
+    print(f'Saved heightmap as plain text to terrain.txt')

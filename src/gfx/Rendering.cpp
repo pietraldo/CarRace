@@ -1,4 +1,6 @@
 #include "Rendering.h"
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <utility>
 #include "Mirrors.h"
 
@@ -6,6 +8,13 @@ unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
 Shader* Rendering::texturedShader = nullptr;
+Shader* Rendering::terrainShader = nullptr;
+
+ int Rendering::texWidth=0;
+int Rendering::texHeight=0;
+unsigned char* Rendering::textureData=nullptr;
+int Rendering::nbChannels=0;
+unsigned int Rendering::textureID=0;
 
 bool Rendering::showBoxColliders = false;
 
@@ -40,10 +49,31 @@ int Rendering::Initialize()
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
     lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
     texturedShader = new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
 
-    Terrain::CreateVerticesAndIndices();
-    vector<float> vert = Terrain::vertices;
-    vector<int> ind = Terrain::indices;
+    
+    vector<float> vert = scene->GetTerrain()->GetVertices();
+    vector<int> ind = scene->GetTerrain()->GetIndices();
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    stbi_set_flip_vertically_on_load(true);
+    textureData = stbi_load("../assets/vehicledata/terrain_texture.png", & texWidth, & texHeight, & nbChannels, 0);
+    if (!textureData)
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    else
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+    }
+    stbi_image_free(textureData);
+    
 
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
@@ -57,10 +87,12 @@ int Rendering::Initialize()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * ind.size(), ind.data(), GL_STATIC_DRAW);
 
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -183,8 +215,15 @@ void Rendering::RenderImGui()
         Camera* activeCam = &cameraManager->GetActiveCamera();
         
         ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
-        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 100);
+        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 500);
         ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
+        
+        if (ImGui::Button("Move camera to car"))
+        {
+            glm::vec3 position =PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
+            CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
+        }
+
         ImGui::End();
     }
     {
@@ -270,7 +309,7 @@ void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects)
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
-    (*Rendering::scene).DrawTerrain(*Rendering::colorShader, Rendering::VAO_sphere);
+    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere);
 }
 
 glm::mat4 Rendering::GetProjectionMatrix()
@@ -282,7 +321,7 @@ glm::mat4 Rendering::GetProjectionMatrix()
         glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
-        400.0f
+        1000.0f
     );
 }
 

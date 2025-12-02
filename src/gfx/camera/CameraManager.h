@@ -14,7 +14,7 @@ class CameraManager {
 private:
     static CameraManager* instance; 
     std::vector<std::unique_ptr<Camera>> cameras; 
-    int active_camera_index = 2;
+    int active_camera_index = 0;
 
     CameraManager() {}
 
@@ -49,4 +49,12 @@ public:
     void CreateCameras();
 
     void ProccessInput(CameraControlInput input, float deltaTime);
+
+    void MoveFreeCameraToPosition(glm::vec3 position)
+    {
+        Camera& activeCam = GetActiveCamera();
+        if (activeCam.cameraType == CameraType::FREE_CAMERA) {
+            activeCam.Position = position;
+        }
+    }
 };

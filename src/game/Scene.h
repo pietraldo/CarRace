@@ -45,6 +45,8 @@ private:
 	vector<Model*> modelsTex;
 	vector<Model*> modelsCol;
 
+    Terrain* terrain;
+
 public:
 	bool dayNight = false;
 	bool fog = false;
@@ -59,7 +61,7 @@ public:
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCar(InputData input, float deltaTime);
-	void UpdateCamera();
+	void UpdateCamera(float deltaTime);
 	void CreateModels();
 
 	void AddLight(Light* light) { lights.push_back(light); }
@@ -84,17 +86,11 @@ public:
 	glm::vec3 GetCarPosition() const;
 	glm::quat GetCarRotation() const;
 
+    Terrain* GetTerrain() { return terrain; }
+
 	LightBuffer LoadLights();
 
-	Terrain* terrain;
 	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
-	void CreateTerrain()
-	{
-		glm::vec3 position = glm::vec3(-250,0,-100);
-		glm::vec3 color = glm::vec3(1,0,0);
-		terrain = new Terrain(position, color);
-	
-	}
 
 };
 
