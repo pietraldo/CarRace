@@ -37,7 +37,7 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-    terrain = new Terrain(glm::vec3(100.0f, -20.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain = new Terrain(glm::vec3(100.0f, 0.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 }	
 

@@ -53,6 +53,13 @@ public:
         return t.q;
     }
 
+    void setVehiclePosition(PxVec3 position)
+    {
+        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        t.p = position;
+        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
+    }
+
     PxVec3 getVehicleFrontDirection()
     {
         PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();

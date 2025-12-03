@@ -223,6 +223,11 @@ void Rendering::RenderImGui()
             glm::vec3 position =PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
             CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
         }
+        if (ImGui::Button("Move car here"))
+        {
+            glm::vec3 position = CameraManager::GetInstance()->GetActiveCamera().Position;
+            Physics::getInstance()->getVehicles()[0]->setVehiclePosition(GlmVec3ToPxVec3(position));
+        }
 
         ImGui::End();
     }
@@ -321,7 +326,7 @@ glm::mat4 Rendering::GetProjectionMatrix()
         glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
-        1000.0f
+        2000.0f
     );
 }
 

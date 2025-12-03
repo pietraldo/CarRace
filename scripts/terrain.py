@@ -154,6 +154,106 @@ def flatten(heightmap, road_mark):
                 flattened[i][j] = 0.5  # Set road cells to height 0
     return flattened
 
+def is_neightbor_terrain(road_mark, i, j):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    for di in [-1, 0, 1]:
+        for dj in [-1, 0, 1]:
+            if di == 0 and dj == 0:
+                continue
+            ni = i + di
+            nj = j + dj
+            if 0 <= ni < n and 0 <= nj < m:
+                if road_mark[ni][nj] == 0:
+                    return True
+    return False
+
+def flatten_own_function(heightmap, road_mark):
+    flattened = heightmap.copy()
+    n, m = heightmap.shape
+
+
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                if(is_neightbor_terrain(road_mark, i, j)):
+                    road_mark[i][j] = 2  # mark edge cells
+    mark_left_edge(road_mark)
+    
+    # road_mark = np.array(road_mark, dtype=int)
+    # np.savetxt("road_mark_edges.txt", road_mark, fmt='%d')
+    
+    
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                closest_i, closest_j = found_closest_edge(road_mark, i, j)
+                if closest_i != -1 and closest_j != -1:
+                    flattened[i][j] = flattened[closest_i][closest_j]
+    
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] >= 1:
+                road_mark[i][j] = 1  # reset to road cells
+    
+    return flattened
+
+def found_closest_edge(road_mark, i, j):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    min_dist = float('inf')
+    closest_i = -1
+    closest_j = -1
+    
+    
+    distante_limit = 20
+    for di in range(-distante_limit, distante_limit + 1):
+        for dj in range(-distante_limit, distante_limit + 1):
+            ni = i + di
+            nj = j + dj
+            if 0 <= ni < n and 0 <= nj < m:
+                if road_mark[ni][nj] == 3:
+                    dist = abs(di) + abs(dj)
+                    if dist < min_dist:
+                        min_dist = dist
+                        closest_i = ni
+                        closest_j = nj
+    return closest_i, closest_j
+
+def mark_left_edge(road_mark):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    
+    start_i =0
+    start_j =0
+    
+    brak_loop = False
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 2:
+                start_i = i
+                start_j = j
+                brak_loop = True
+                break
+        if brak_loop:
+            break
+    
+    edges_found=[]
+    edges_found.append((start_i, start_j))
+    while len(edges_found) > 0:
+        i, j = edges_found.pop(0)
+        road_mark[i][j] = 3  # mark left edge
+        for di in [-1, 0, 1]:
+            for dj in [-1, 0, 1]:
+                
+                ni = i + di
+                nj = j + dj
+                if 0 <= ni < n and 0 <= nj < m:
+                    if road_mark[ni][nj] == 2:
+                        road_mark[ni][nj] = 3  # mark left edge
+                        edges_found.append((ni, nj))
+    
+    return road_mark
 
 import numpy as np
 
@@ -313,14 +413,15 @@ if __name__ == '__main__':
     from image_to_tarain import image_to_array
     
     n=500
-    m=500
+    m=600
     #road_mark = generate_track(n, m, road_width=15)
     road_mark = image_to_array("race_track_shape.png")
-    generate_texture(road_mark)
-    h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
+    #generate_texture(road_mark)
+    #h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
     #h = flatten(h, road_mark)
-    h= smooth_road(h, road_mark, iterations=30)
+    h = flatten_own_function(h, road_mark)
+    #h= smooth_road(h, road_mark, iterations=30)
     
     road_mark = np.array(road_mark, dtype=int)
     np.savetxt("road_mark.txt", road_mark, fmt='%d')
