@@ -38,7 +38,7 @@ class Scene
 {
 private:
     vector<GameObject*> gameObjects;
-	std::unique_ptr<Car> car;
+	std::array<std::unique_ptr<Car>, 2> cars;
 
 	vector<Light*> lights;
 	vector<Camera*> cameras;
@@ -60,7 +60,7 @@ public:
 
 	Scene();
 	void Update(InputData input, float deltaTime);
-    void UpdateCar(InputData input, float deltaTime);
+    void UpdateCars(InputData input, float deltaTime);
 	void UpdateCamera(float deltaTime);
 	void CreateModels();
 
@@ -77,14 +77,16 @@ public:
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
-	void SetCarSteer(float deg) { if (car) car->SetSteer(deg); }
-    Car* GetCar() { return car.get(); }
+	void SetCarSteer(float deg, int carNumber = 0) { if(cars[carNumber]) cars[carNumber]->SetSteer(deg); }
+    Car* GetCar(int carNumber = 0) { return cars[carNumber].get(); }
 
 	vector<Light*> GetLights() { return lights; }
 	vector<Camera*> GetCameras() { return cameras; }
     vector<GameObject*> GetGameObjects() { return gameObjects; }
 	glm::vec3 GetCarPosition() const;
 	glm::quat GetCarRotation() const;
+
+	std::unique_ptr<Car> CreateCar(const glm::vec3& bodyPosition);
 
     Terrain* GetTerrain() { return terrain; }
 

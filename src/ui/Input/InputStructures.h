@@ -41,10 +41,10 @@ struct OutputData
 struct InputData
 {
     AdditionalInputInfo additionalInfo;
+    CarControlInput carControl0;
+    CameraControlInput cameraControl0;
+
     CarControlInput carControl1;
     CameraControlInput cameraControl1;
-
-    CarControlInput carControl2;
-    CameraControlInput cameraControl2;
 };
 

@@ -42,23 +42,45 @@ Scene::Scene()
 }	
 
 
-void Scene::UpdateCar(InputData input, float deltaTime)
+void Scene::UpdateCars(InputData input, float deltaTime)
 {
-	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
-	for (RaceCar* v : vehicles)
+	auto vehicles = Physics::getInstance()->getVehicles();
+
+	// === SAMOCHÓD 1 (gracz 1) ===
+	if (vehicles.size() > 0 && cars[0])    
 	{
+		RaceCar* v = vehicles[0];
+
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
-		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+		glm::vec3 position(pos.x, pos.y, pos.z);
 
-		car->SetWheelRotationFromPhysx(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
-		float steer = -input.carControl1.steer * 45;
-		car->SetSteer(steer);
+		cars[0]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
-		car->Update(deltaTime, position, rotation);
+		float steer = -input.carControl0.steer * 45.0f;
+		cars[0]->SetSteer(steer);
 
+		cars[0]->Update(deltaTime, position, rotation);
+	}
+
+	// === SAMOCHÓD 2 (gracz 2) ===
+	if (vehicles.size() > 1 && cars[1])    
+	{
+		RaceCar* v = vehicles[1];
+
+		PxVec3 pos = v->getVehiclePosition();
+		PxQuat rotation = v->getVehicleRotation();
+		glm::vec3 position(pos.x, pos.y, pos.z);
+
+		cars[1]->SetWheelRotationFromPhysx(v->getWheelRotation());
+
+		float steer = -input.carControl1.steer * 45.0f;
+		cars[1]->SetSteer(steer);
+
+		cars[1]->Update(deltaTime, position, rotation);
 	}
 }
+
 
 void Scene::UpdateCamera(float dt)
 {
@@ -94,7 +116,7 @@ void Scene::Update(InputData input, float deltaTime)
 {
 
 	UpdateCamera(deltaTime);
-	UpdateCar(input, deltaTime);
+	UpdateCars(input, deltaTime);
 
 
 	for (Light* light : lights) {
@@ -203,39 +225,22 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
-	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
+	cars[0] = CreateCar(glm::vec3(0.f, 0.0f, 0.f));
+	cars[1] = CreateCar(glm::vec3(6.f, 0.0f, 0.f));
 
-	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
-	bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
-	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
-	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
-	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
-	steeringModel->SetPositionOffset(glm::vec3(-0.3f, 0.2f, 0.45f));
-
-	car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
-
-	if (car->GetBody())
-		AddTextureModel(car->GetBody().get());
-
-	for (auto& w : car->Wheels()) {
-		if (!w) continue;
-		const auto& sp = w->GetModel();
-		if (sp)
-			AddTextureModel(sp.get());
-	}
-
-	if (car->GetSteeringWheel()) {
-		AddTextureModel(car->GetSteeringWheel().get());
-	}
-
-	// ---- Map model ----
 	const std::string mapModelPath = "../assets/models/map/scene.gltf";
-	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, 0.01f, 0.0f), 1.0f, glm::vec3(1.0f));
-	mapModel->SetRotation(physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f)));
+	Model* mapModel = new Model(
+		mapModelPath,
+		glm::vec3(0.0f, 0.01f, 0.0f),
+		1.0f,
+		glm::vec3(1.0f)
+	);
+	mapModel->SetRotation(
+		physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f))
+	);
 	AddTextureModel(mapModel);
 }
+
 
 
 void Scene::CreateLights()
@@ -324,4 +329,55 @@ glm::quat Scene::GetCarRotation() const
 
 	PxQuat rot = vehicles[0]->getVehicleRotation();
 	return PxQuatToGlmQuat(rot);
+}
+
+std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
+{
+	const std::string carModelPath = "../assets/models/car/scene.gltf";
+	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
+	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
+
+	auto bodyModel = std::make_shared<Model>(
+		carModelPath,
+		bodyPosition,                 
+		0.01f,
+		glm::vec3(1.f)
+	);
+	bodyModel->SetRotationOffset(
+		physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f))
+	);
+	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
+
+	auto wheelModel = std::make_shared<Model>(
+		wheelModelPath,
+		glm::vec3(0.f),
+		1.30f,
+		glm::vec3(1.f)
+	);
+
+	auto steeringModel = std::make_shared<Model>(
+		steringWheelModelPath,
+		glm::vec3(0.f),
+		0.3f,
+		glm::vec3(1.f)
+	);
+	steeringModel->SetPositionOffset(glm::vec3(-0.3f, 0.2f, 0.45f));
+
+	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
+
+	if (car->GetBody())
+		AddTextureModel(car->GetBody().get());
+
+	for (auto& w : car->Wheels()) {
+		if (!w) continue;
+		const auto& sp = w->GetModel();
+		if (sp)
+			AddTextureModel(sp.get());
+	}
+
+	if (car->GetSteeringWheel()) {
+		AddTextureModel(car->GetSteeringWheel().get());
+	}
+
+	return car;
 }

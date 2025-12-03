@@ -94,7 +94,7 @@ int main()
 		
 		if (startSimulation)
 		{
-			Physics::getInstance()->update(deltaTime, input.carControl1);
+			Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
 		}
 		scene->Update(input, deltaTime);
 		
