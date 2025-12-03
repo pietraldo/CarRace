@@ -182,6 +182,12 @@ def flatten_own_function(heightmap, road_mark):
     
     # road_mark = np.array(road_mark, dtype=int)
     # np.savetxt("road_mark_edges.txt", road_mark, fmt='%d')
+    flattened=flatt_edge_and_unmark(road_mark, flattened)
+    mark_left_edge(road_mark)
+    flattened=flatt_edge_and_unmark(road_mark, flattened)
+    mark_left_edge(road_mark)
+    flattened=flatt_edge_and_unmark(road_mark, flattened)
+    mark_left_edge(road_mark)
     
     
     for i in range(n):
@@ -254,6 +260,55 @@ def mark_left_edge(road_mark):
                         edges_found.append((ni, nj))
     
     return road_mark
+def flatt_edge_and_unmark(road_mark, flattened):
+    n = len(road_mark)
+    m = len(road_mark[0])
+
+    start_i =0
+    start_j =0
+
+    brak_loop = False
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 3:
+                start_i = i
+                start_j = j
+                brak_loop = True
+                break
+        if brak_loop:
+            break
+
+    iteration = 0
+    edges_found=[]
+    edges_found.append((start_i, start_j))
+    while len(edges_found) > 0:
+        iteration += 1
+        if(iteration%1000 == 0):
+            print("Edges left to flatten: ", len(edges_found))
+        i, j = edges_found.pop(0)
+        if(road_mark[i][j] != 3):
+            continue
+        road_mark[i][j] = 2
+        # unmark left edge
+        #print("Flattening edge at: ", i, j)
+        sum_height = 0.0
+        num_count = 0
+        for di in range(-10,11):
+            for dj in range(-10,11):
+                
+                ni = i + di
+                nj = j + dj
+                if 0 <= ni < n and 0 <= nj < m:
+                    if road_mark[ni][nj] == 3:
+                        sum_height += flattened[ni][nj]
+                        num_count += 1
+                        edges_found.append((ni, nj))
+        if num_count > 0:
+            avg_height = sum_height / num_count
+            flattened[i][j] = avg_height
+        
+            
+    return flattened
 
 import numpy as np
 
