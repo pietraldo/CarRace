@@ -22,9 +22,9 @@
         "Scale": 1.0
     },
     "RigidBodyParams": {
-        "Mass": 814.4000244140625,
+        "Mass": 1814.4000244140625,
         "MOI": [
-            1400.0,
+            2400.0,
             1614.0,
             320.0
         ]
@@ -326,25 +326,25 @@
             "WheelId": 0,
             "Damping": 8528.1201171875,
             "Stiffness": 32833.30078125,
-            "SprungMass": 223.7739868164063
+            "SprungMass": 253.7739868164063
         },
         {
             "WheelId": 1,
             "Damping": 8742.1904296875,
             "Stiffness": 33657.3984375,
-            "SprungMass": 223.6749877929688
+            "SprungMass": 253.6749877929688
         },
         {
             "WheelId": 2,
             "Damping": 6765.97021484375,
             "Stiffness": 26049.0,
-            "SprungMass": 190.3489990234375
+            "SprungMass": 653.3489990234375
         },
         {
             "WheelId": 3,
             "Damping": 6985.47998046875,
             "Stiffness": 26894.099609375,
-            "SprungMass": 190.6029968261719
+            "SprungMass": 653.6029968261719
         }
     ],
     "SuspensionForceLegacyParams": [
@@ -380,7 +380,7 @@
     "TireForceParams": [
         {
             "WheelId": 0,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
@@ -405,14 +405,14 @@
                     0.23080000281333924
                 ],
                 [
-                    3.0,
-                    3.0
+                    10.0,
+                    20.0
                 ]
             ]
         },
         {
             "WheelId": 1,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 418699.637252138,
             "CamberStiffness": 0.0,
@@ -437,14 +437,14 @@
                     0.23080000281333924
                 ],
                 [
-                    3.0,
-                    3.0
+                    10.0,
+                    20.0
                 ]
             ]
         },
         {
             "WheelId": 2,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
@@ -469,14 +469,14 @@
                     0.23080000281333924
                 ],
                 [
-                    3.0,
-                    3.0
+                    10.0,
+                    20.0
                 ]
             ]
         },
         {
             "WheelId": 3,
-            "LongitudinalStiffness": 64525.0,
+            "LongitudinalStiffness": 164525.0,
             "LateralStiffnessX": 9.999999776482582,
             "LateralStiffnessY": 443930.84033118,
             "CamberStiffness": 0.0,
@@ -501,8 +501,8 @@
                     0.23080000281333924
                 ],
                 [
-                    3.0,
-                    3.0
+                    10.0,
+                    20.0
                 ]
             ]
         }
