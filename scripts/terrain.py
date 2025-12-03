@@ -181,26 +181,27 @@ def flatten_own_function(heightmap, road_mark):
     mark_left_edge(road_mark)
     
     # road_mark = np.array(road_mark, dtype=int)
+    
     # np.savetxt("road_mark_edges.txt", road_mark, fmt='%d')
-    flattened=flatt_edge_and_unmark(road_mark, flattened)
-    mark_left_edge(road_mark)
-    flattened=flatt_edge_and_unmark(road_mark, flattened)
-    mark_left_edge(road_mark)
-    flattened=flatt_edge_and_unmark(road_mark, flattened)
-    mark_left_edge(road_mark)
+    # for i in range(40):
+    #     flattened=flatt_edge_and_unmark(road_mark, flattened)
+    #     mark_left_edge(road_mark)
+    
     
     
     for i in range(n):
         for j in range(m):
-            if road_mark[i][j] == 1:
+            if road_mark[i][j] == 1 or road_mark[i][j] == 2:
                 closest_i, closest_j = found_closest_edge(road_mark, i, j)
                 if closest_i != -1 and closest_j != -1:
                     flattened[i][j] = flattened[closest_i][closest_j]
+                    #flattened[i][j] = 0.5
     
     for i in range(n):
         for j in range(m):
             if road_mark[i][j] >= 1:
                 road_mark[i][j] = 1  # reset to road cells
+                flattened[i][j] = 0.5
     
     return flattened
 
@@ -293,8 +294,8 @@ def flatt_edge_and_unmark(road_mark, flattened):
         #print("Flattening edge at: ", i, j)
         sum_height = 0.0
         num_count = 0
-        for di in range(-10,11):
-            for dj in range(-10,11):
+        for di in range(-2,3):
+            for dj in range(-2,3):
                 
                 ni = i + di
                 nj = j + dj
