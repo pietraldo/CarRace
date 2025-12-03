@@ -310,10 +310,12 @@ if __name__ == '__main__':
     
     from road_mark import generate_track
     from texture import generate_texture
+    from image_to_tarain import image_to_array
     
     n=500
     m=500
-    road_mark = generate_track(n, m, road_width=15)
+    #road_mark = generate_track(n, m, road_width=15)
+    road_mark = image_to_array("race_track_shape.png")
     generate_texture(road_mark)
     h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
