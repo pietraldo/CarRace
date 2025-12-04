@@ -43,18 +43,16 @@ InputData InputManager::getInputData() {
     //  - player 0: controller (car 0)
     //  - player 1: keyboard (car 1)
     if (currentInputType == CONTROLLER_AND_KEYBOARD) {
-        inputController0->updateInput();  // PS5Controller
-        inputController1->updateInput();  // KeyboardController
+        inputController0->updateInput();  // PS5 controller
+        inputController1->updateInput();  // Keyboard
 
-        // Player 0 – Controller
         inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController0->getCameraControlInput();
+        inputData.cameraControl0 = inputController1->getCameraControlInput();
 
-		// Player 1 – Keyboard
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
 
-		// Additional info from player 0 (controller)
+        // Dodatkowe info z keyboardu
         inputData.additionalInfo = inputController1->getAdditionalInputInfo();
     }
 
@@ -64,15 +62,12 @@ InputData InputManager::getInputData() {
         inputController1->updateInput();
 
         inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController0->getCameraControlInput();
-
+        //inputData.cameraControl0 = inputController0->getCameraControlInput();
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
 
-
         inputData.additionalInfo = inputController0->getAdditionalInputInfo();
-
     }
 
     return inputData;

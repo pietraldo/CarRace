@@ -46,7 +46,7 @@ public:
 
     InputData getInputData();
     void setEffectsOnInputer(OutputData output) {
-        if (inputController0) inputController0->setEffectsOnInputer(output.effectsOnInputer1);
-        if (inputController1) inputController1->setEffectsOnInputer(output.effectsOnInputer2);
+        if (inputController0) inputController0->setEffectsOnInputer(output.effectsOnInputer0);
+        if (inputController1) inputController1->setEffectsOnInputer(output.effectsOnInputer1);
     }
 };
