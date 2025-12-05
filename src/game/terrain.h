@@ -26,9 +26,9 @@ private:
 	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
 
 
-    float scalex = 2.0f;
-    float scaley = 250.0f;
-    float scalez = 2.0f;
+    float scalex = 4.0f;
+    float scaley = 550.0f;
+    float scalez = 4.0f;
 
 public:
     vector<float> GetVertices() { return vertices; }
