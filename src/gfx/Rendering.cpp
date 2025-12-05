@@ -201,31 +201,124 @@ void Rendering::RenderImGui()
 
     {
         ImGui::Begin("Camera settings");
+
         CameraManager* cameraManager = CameraManager::GetInstance();
+
+        // --- View mode wybór (3 tryby) ---
+
+        ViewMode currentMode = cameraManager->GetViewMode();
+        int modeIndex = 0;
+        switch (currentMode) {
+        case ViewMode::SINGLE_SCREEN:
+            modeIndex = 0;
+            break;
+        case ViewMode::SPLIT_SCREEN:
+            modeIndex = 1;
+            break;
+        case ViewMode::EDIT_SCREEN:
+            modeIndex = 2;
+            break;
+        }
+
+        ImGui::Text("View mode:");
+        if (ImGui::RadioButton("Single screen", modeIndex == 0)) {
+            modeIndex = 0;
+            cameraManager->SetViewMode(ViewMode::SINGLE_SCREEN);
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Split screen", modeIndex == 1)) {
+            modeIndex = 1;
+            cameraManager->SetViewMode(ViewMode::SPLIT_SCREEN);
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Edit (free camera)", modeIndex == 2)) {
+            modeIndex = 2;
+            cameraManager->SetViewMode(ViewMode::EDIT_SCREEN);
+        }
+
+        if (cameraManager->GetViewMode() == ViewMode::SPLIT_SCREEN) {
+            ImGui::Spacing();
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f),
+                "Split-screen: na razie render jak single (Etap 1).");
+        }
+
+        if (cameraManager->GetViewMode() == ViewMode::EDIT_SCREEN) {
+            ImGui::Spacing();
+            ImGui::TextColored(ImVec4(0.6f, 0.9f, 1.0f, 1.0f),
+                "Edit mode: uzywana jest FreeCamera (Camera 0).");
+        }
+
+        ImGui::Separator();
+
         int camera_numer = cameraManager->GetNumberOfCameras();
-        int activeIndex = cameraManager->GetActiveCameraIndex();
-        for (int i = 0; i < camera_numer; i++)
+        ViewMode viewMode = cameraManager->GetViewMode();
+
+        // --- Konfiguracja kamer w zale¿noœci od trybu ---
+
+        if (viewMode == ViewMode::SINGLE_SCREEN)
         {
-            std::string label = "Camera " + std::to_string(i);
-            if (ImGui::RadioButton(label.c_str(), activeIndex == i))
+            // W single-screen zak³adamy, ¿e:
+            // 0 = FreeCamera (u¿ywana w EDIT), 1+ = kamery gameplayowe
+            int activeIndex = cameraManager->GetActiveCameraIndex();
+
+            for (int i = 1; i < camera_numer; i++) // zaczynamy od 1, pomijamy free cam
             {
-                cameraManager->SetActiveCamera(i);
+                std::string label = "Camera " + std::to_string(i);
+                if (ImGui::RadioButton(label.c_str(), activeIndex == i))
+                {
+                    cameraManager->SetActiveCamera(i);
+                }
             }
         }
+        else if (viewMode == ViewMode::SPLIT_SCREEN)
+        {
+            const int firstSplitCamera = 1; // 1+ dla graczy, 0 = free cam
+
+            for (int playerIdx = 0; playerIdx < 2; ++playerIdx)
+            {
+                ImGui::Spacing();
+                ImGui::Text("Player %d camera:", playerIdx + 1);
+
+                int currentPlayerCamera = cameraManager->GetPlayerActiveCameraIndex(playerIdx);
+
+                for (int i = firstSplitCamera; i < camera_numer; i++)
+                {
+                    std::string label = "Camera " + std::to_string(i);
+                    if (ImGui::RadioButton(
+                        (std::string("P") + std::to_string(playerIdx + 1) + " " + label).c_str(),
+                        currentPlayerCamera == i))
+                    {
+                        cameraManager->SetPlayerActiveCameraIndex(playerIdx, i);
+                    }
+                }
+            }
+        }
+        else if (viewMode == ViewMode::EDIT_SCREEN)
+        {
+            // W trybie edycji nie wybieramy kamer – zawsze u¿ywamy kamery 0 (FreeCamera).
+            ImGui::Text("Edit mode: aktywna kamera 0 (FreeCamera).");
+        }
+
+        // --- Parametry aktywnej kamery (dzia³aj¹ w ka¿dym trybie) ---
+
         Camera* activeCam = &cameraManager->GetActiveCamera();
-        
-        ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
+
+        ImGui::Text("Position: x: %.2f y: %.2f z: %.2f",
+            activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
         ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 500);
-        ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
-        
+        ImGui::Text("Front: x: %.2f y: %.2f z: %.2f",
+            activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
+
         if (ImGui::Button("Move camera to car"))
         {
-            glm::vec3 position =PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
+            glm::vec3 position =
+                PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
             CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
         }
 
         ImGui::End();
     }
+
     {
         ImGui::Begin("Light settings");
         ImGui::Checkbox("Day/Night", &(*scene).dayNight);
@@ -337,6 +430,7 @@ glm::mat4 Rendering::GetViewMatrix()
 void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 {
     Scene* scene = Rendering::scene;
+    CameraManager* cameraManager = CameraManager::GetInstance();
 
     Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
     if (activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA)

@@ -9,12 +9,57 @@
 #include "./ObservingCamera.h"
 #include "../../ui/Input/InputStructures.h"
 
+enum class ViewMode {
+    SINGLE_SCREEN,
+    SPLIT_SCREEN,
+    EDIT_SCREEN   
+};
+
+class PlayerCameraSet {
+public:
+    std::vector<std::unique_ptr<Camera>> cameras;
+
+   
+    CameraType activeType = CameraType::FOLLOWING_CAR_CAMERA;
+
+    void SetActiveCameraByIndex(int index) {
+        switch (index) {
+        case 1:
+            activeType = CameraType::FOLLOWING_CAR_CAMERA;
+            break;
+        case 2:
+            activeType = CameraType::FIRST_PERSON_CAMERA;
+            break;
+        case 3:
+            activeType = CameraType::OBSERVING_CAMERA;
+            break;
+        default:
+            activeType = CameraType::FOLLOWING_CAR_CAMERA;
+            break;
+        }
+    }
+
+    int GetActiveCameraIndex() const {
+        switch (activeType) {
+        case CameraType::FOLLOWING_CAR_CAMERA:
+            return 1;
+        case CameraType::FIRST_PERSON_CAMERA:
+            return 2;
+        case CameraType::OBSERVING_CAMERA:
+            return 3;
+        default:
+            return 1;
+        }
+    }
+};
 
 class CameraManager {
 private:
     static CameraManager* instance; 
-    std::vector<std::unique_ptr<Camera>> cameras; 
-    int active_camera_index = 1;
+   
+
+	PlayerCameraSet playersCamera[2];
+    ViewMode viewMode = ViewMode::SINGLE_SCREEN;
 
     CameraManager() {}
 
@@ -26,35 +71,48 @@ public:
         return instance;
     }
 
-    void AddCamera(std::unique_ptr<Camera> camera) {
-        cameras.push_back(std::move(camera));
+    void AddCamera(std::unique_ptr<Camera> camera, int playerNumber = 0) {
+        playersCamera[playerNumber].cameras.push_back(std::move(camera));
     }
 
-    int GetNumberOfCameras() {
-        return cameras.size();
+    int GetNumberOfCameras(int playerNumber = 0) {
+        return playersCamera[playerNumber].cameras.size();
     }
 
-    void SetActiveCamera(int index) {
-        active_camera_index = index;
-    }
+    void SetActiveCamera(int index, int playerNumber = 0);
 
-    Camera& GetActiveCamera() {
-        return *cameras[active_camera_index];
-    }
+    Camera& GetActiveCamera(int playerNumber = 0);
 
-    int GetActiveCameraIndex() {
-        return active_camera_index;
-    }
+    int GetActiveCameraIndex(int playerNumber = 0);
 
     void CreateCameras();
 
     void ProccessInput(CameraControlInput input, float deltaTime);
 
-    void MoveFreeCameraToPosition(glm::vec3 position)
-    {
-        Camera& activeCam = GetActiveCamera();
-        if (activeCam.cameraType == CameraType::FREE_CAMERA) {
-            activeCam.Position = position;
+    void MoveFreeCameraToPosition(glm::vec3 position);
+
+    void SetViewMode(ViewMode mode) {
+        viewMode = mode;
+    }
+
+    ViewMode GetViewMode() const {
+        return viewMode;
+    }
+
+    int GetPlayerActiveCameraIndex(int playerIdx) const {
+        if (playerIdx < 0 || playerIdx >= 2) {
+            return 1; // fallback
         }
+        return playersCamera[playerIdx].activeType;
+    }
+
+    void SetPlayerActiveCameraIndex(int playerIdx, int cameraIndex) {
+        if (playerIdx < 0 || playerIdx >= 2) {
+            return;
+        }
+        if (cameraIndex < 0 || cameraIndex >= GetNumberOfCameras(playerIdx)) {
+            return;
+        }
+		playersCamera[playerIdx].SetActiveCameraByIndex(cameraIndex);
     }
 };
