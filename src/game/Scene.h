@@ -61,7 +61,8 @@ public:
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
-	void UpdateCamera(float deltaTime);
+	void UpdatePlayerCamera(float deltaTime, int playerNumber);
+	void UpdatePlayersCamera(float deltaTime);
 	void CreateModels();
 
 	void AddLight(Light* light) { lights.push_back(light); }
@@ -70,8 +71,8 @@ public:
 
 	void setOutput();
 
-	void DrawModels(Shader& shaderTex, Shader& shaderCol);
-	void DrawModel(Shader& shader, Model& model);
+	void DrawModels(Shader& shaderTex, Shader& shaderCol, glm::vec3 cameraPosition);
+	void DrawModel(Shader& shader, Model& model, glm::vec3 cameraPosition);
 	void DrawLights(Shader& shader, unsigned int& lightVAO);
 
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
@@ -92,7 +93,7 @@ public:
 
 	LightBuffer LoadLights();
 
-	void DrawTerrain(Shader& shader, unsigned int& sphereVAO);
+	void DrawTerrain(Shader& shader, unsigned int& sphereVAO, glm::vec3 cameraPosition);
 
 };
 

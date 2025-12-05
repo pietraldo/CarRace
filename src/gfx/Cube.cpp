@@ -67,7 +67,7 @@ void Cube::Draw(glm::mat4 model, glm::vec3 color)
 {
 	Shader& shader = *Rendering::colorShader;
 	unsigned int cubeVAO = Rendering::CubeVAO;
-    Camera& camera = CameraManager::GetInstance()->GetActiveCamera();
+    Camera& camera = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
 
 	shader.use();
 
