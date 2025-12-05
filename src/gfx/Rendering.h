@@ -58,8 +58,8 @@ public:
 
     static void RenderImGui();
 
-    static glm::mat4 GetProjectionMatrix(int playerNumber = 0);
-    static glm::mat4 GetViewMatrix(int playerNumber = 0);
+    static glm::mat4 GetProjectionMatrix(Camera& camera);
+    static glm::mat4 GetViewMatrix(Camera& camera);
     static void RenderFrame(std::vector<GameObject*> gameObjects);
     static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,Camera& activeCam);
 

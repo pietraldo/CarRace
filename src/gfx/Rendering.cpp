@@ -231,6 +231,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person Camera", activeCamera == CameraType::FOLLOWING_CAR_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera", activeCamera == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
+            }
 
             Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam.Position.x, activeCam.Position.y, activeCam.Position.z);
@@ -244,6 +247,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person Camera (Player 1)", activeCamera0 == CameraType::FOLLOWING_CAR_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
+            }
 
             Camera& activeCam0 = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Player 1 - Position: x: %.2f y: %.2f z: %.2f", activeCam0.Position.x, activeCam0.Position.y, activeCam0.Position.z);
@@ -255,6 +261,9 @@ void Rendering::RenderImGui()
             }
             if (ImGui::RadioButton("Third Person Camera (Player 2)", activeCamera1 == CameraType::FOLLOWING_CAR_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 1);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 1);
             }
 
             Camera& activeCam1 = cameraManager->GetPlayerActiveCamera(1);
@@ -355,33 +364,33 @@ void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects, 
 
     for (GameObject* gameObj : gameObjects)
     {
-        gameObj->Draw();   
+        gameObj->Draw(activeCam);
     }
 
-    (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
-    (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam.Position);
-    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam.Position);
+    (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
+    (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
+    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
 
-glm::mat4 Rendering::GetProjectionMatrix(int playerNumber)
+glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {
     if (useExternalProj)
         return externalProj;
 
     return glm::perspective(
-        glm::radians(CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber).Zoom),
+        glm::radians(camera.Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
-        1000.0f
+        300.0f
     );
 }
 
-glm::mat4 Rendering::GetViewMatrix(int playerNumber)
+glm::mat4 Rendering::GetViewMatrix(Camera& camera)
 {
     if (useExternalView)
         return externalView;
 
-    return CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber).GetViewMatrix();
+    return camera.GetViewMatrix();
 }
 
 

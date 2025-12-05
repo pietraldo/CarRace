@@ -46,7 +46,6 @@ public:
     void MoveFreeCameraToPosition(glm::vec3 position);
 
     void SetViewMode(ViewMode mode) {
-        std::cout << "Setting view mode to: " << (mode == ViewMode::SINGLE_SCREEN ? "SINGLE_SCREEN" : "SPLIT_SCREEN") << std::endl;
         viewMode = mode;
     }
 

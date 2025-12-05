@@ -27,6 +27,6 @@ public:
         return actor ? actor->getGlobalPose().q : physx::PxQuat(0, 0, 0, 1);
     }
 
-    virtual void Draw() = 0;
+    virtual void Draw(Camera& activeCam) = 0;
 };
 

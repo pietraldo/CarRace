@@ -71,9 +71,9 @@ public:
 
 	void setOutput();
 
-	void DrawModels(Shader& shaderTex, Shader& shaderCol, glm::vec3 cameraPosition);
-	void DrawModel(Shader& shader, Model& model, glm::vec3 cameraPosition);
-	void DrawLights(Shader& shader, unsigned int& lightVAO);
+	void DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam);
+	void DrawModel(Shader& shader, Model& model, Camera& activeCam);
+	void DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam);
 
 	void AddTextureModel(Model* model) { modelsTex.push_back(model); }
 	void AddColorModel(Model* model) { modelsCol.push_back(model); }
@@ -93,7 +93,7 @@ public:
 
 	LightBuffer LoadLights();
 
-	void DrawTerrain(Shader& shader, unsigned int& sphereVAO, glm::vec3 cameraPosition);
+	void DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam);
 
 };
 

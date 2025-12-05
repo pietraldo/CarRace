@@ -86,7 +86,7 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
-	RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+	RaceCar* vehicle = Physics::getInstance()->getVehicles()[playerNumber];
 	PxVec3 pxPos = vehicle->getVehiclePosition();
 	PxQuat pxRot = vehicle->getVehicleRotation();
 
@@ -104,6 +104,12 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
 		fol.Update(carPos, carRot);
 	}
+	else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
+	{
+		ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
+		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
+	}
+
 
 }
 
@@ -147,24 +153,24 @@ void Scene::Update(InputData input, float deltaTime)
 
 }
 
-void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, glm::vec3 cameraPosition)
+void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
 {
 	for (Model* model : modelsTex)
 	{
-		DrawModel(shaderTex, *model, cameraPosition);
+		DrawModel(shaderTex, *model, activeCam);
 	}
 	for (Model* model : modelsCol)
 	{
-		DrawModel(shaderCol, *model, cameraPosition);
+		DrawModel(shaderCol, *model, activeCam);
 	}
 }
-void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
+void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
 {
 	shader.use();
 	shader.setBool("uIsMirror", false);
 
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::POINT)
@@ -181,13 +187,13 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 	}
 }
 
-void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, glm::vec3 cameraPosition)
+void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam)
 {
 	shader.use();
 
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", cameraPosition);
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+	shader.setVec3("viewPos", activeCam.Position);
 	shader.setBool("fogEnabled", fog);
 
 	glm::mat4 model = glm::mat4(1.0f);
@@ -203,13 +209,13 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, glm::vec3 camer
 	
 }
 
-void Scene::DrawModel(Shader& shader, Model& model, glm::vec3 cameraPosition)
+void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 {
 	shader.use();
 	shader.setBool("uIsMirror", false);
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", cameraPosition);
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+	shader.setVec3("viewPos", activeCam.Position);
 	shader.setVec3("objectColor", model.GetColor());
 	shader.setBool("fogEnabled", fog);
 
