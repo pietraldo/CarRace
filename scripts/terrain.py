@@ -156,19 +156,7 @@ def flatten(heightmap, road_mark):
                 flattened[i][j] = 0.5  # Set road cells to height 0
     return flattened
 
-def is_neightbor_terrain(road_mark, i, j):
-    n = len(road_mark)
-    m = len(road_mark[0])
-    for di in [-1, 0, 1]:
-        for dj in [-1, 0, 1]:
-            if di == 0 and dj == 0:
-                continue
-            ni = i + di
-            nj = j + dj
-            if 0 <= ni < n and 0 <= nj < m:
-                if road_mark[ni][nj] == 0:
-                    return True
-    return False
+
 
 def flatten_own_function(heightmap, road_mark):
     flattened = heightmap.copy()
@@ -183,7 +171,6 @@ def flatten_own_function(heightmap, road_mark):
     mark_left_edge(road_mark)
     
    
-    flattened = apply_smooth_heights(road_mark, flattened)
     
     # road_mark = np.array(road_mark, dtype=int)
     
@@ -194,23 +181,25 @@ def flatten_own_function(heightmap, road_mark):
     
    
     
-    # for i in range(n):
-    #     for j in range(m):
-    #         if road_mark[i][j] == 1:
-    #             closest_i, closest_j, dist1 = found_closest_edge(road_mark, i, j, number_edge=4)
-    #             # closest_i2, closest_j2, dist2 = found_closest_edge(road_mark, i, j, number_edge=5)
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                closest_i, closest_j, dist1 = found_closest_edge(road_mark, i, j, number_edge=3)
+                # closest_i2, closest_j2, dist2 = found_closest_edge(road_mark, i, j, number_edge=5)
                 
-    #             # value1 = flattened[closest_i][closest_j] 
-    #             # value2 = flattened[closest_i2][closest_j2]
-    #             # proc1 = dist2 / (dist1 + dist2)
-    #             # proc2 = dist1 / (dist1 + dist2)
-    #             # flattened[i][j] = value1 * proc1 + value2 * proc2
-    #             #print("value: ", value1, value2, " proc: ", proc1, proc2, " final: ", flattened[i][j], " dist: ", dist1, dist2)
+                # value1 = flattened[closest_i][closest_j] 
+                # value2 = flattened[closest_i2][closest_j2]
+                # proc1 = dist2 / (dist1 + dist2)
+                # proc2 = dist1 / (dist1 + dist2)
+                # flattened[i][j] = value1 * proc1 + value2 * proc2
+                #print("value: ", value1, value2, " proc: ", proc1, proc2, " final: ", flattened[i][j], " dist: ", dist1, dist2)
                 
-    #             # if(flattened[i][j] > 1.0 or flattened[i][j] < 0.0):
-    #             #     print("Error in blending heights at: ", i, j    )
-    #             flattened[i][j] = flattened[closest_i][closest_j]
+                # if(flattened[i][j] > 1.0 or flattened[i][j] < 0.0):
+                #     print("Error in blending heights at: ", i, j    )
+                flattened[i][j] = flattened[closest_i][closest_j]
                 
+    flattened = apply_smooth_heights(road_mark, flattened,10)
+    
     for i in range(n):
         for j in range(m):
             if road_mark[i][j] >= 1:
@@ -218,27 +207,7 @@ def flatten_own_function(heightmap, road_mark):
                 #flattened[i][j] = 0.5
     
     return flattened
-def found_closest_edge(road_mark, i, j, number_edge):
-    n = len(road_mark)
-    m = len(road_mark[0])
-    min_dist = float('inf')
-    closest_i = -1
-    closest_j = -1
-    
-    
-    distante_limit = 20
-    for di in range(-distante_limit, distante_limit + 1):
-        for dj in range(-distante_limit, distante_limit + 1):
-            ni = i + di
-            nj = j + dj
-            if 0 <= ni < n and 0 <= nj < m:
-                if road_mark[ni][nj] == number_edge:
-                    dist = abs(di) + abs(dj)
-                    if dist < min_dist:
-                        min_dist = dist
-                        closest_i = ni
-                        closest_j = nj
-    return closest_i, closest_j, min_dist
+
 
 def mark_left_edge(road_mark):
     n = len(road_mark)

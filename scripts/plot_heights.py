@@ -1,7 +1,44 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
+from scipy.ndimage import uniform_filter
 
+
+def is_neightbor_terrain(road_mark, i, j):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    for di in [-1, 0, 1]:
+        for dj in [-1, 0, 1]:
+            if di == 0 and dj == 0:
+                continue
+            ni = i + di
+            nj = j + dj
+            if 0 <= ni < n and 0 <= nj < m:
+                if road_mark[ni][nj] == 0:
+                    return True
+    return False
+
+def found_closest_edge(road_mark, i, j, number_edge):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    min_dist = float('inf')
+    closest_i = -1
+    closest_j = -1
+    
+    
+    distante_limit = 10
+    for di in range(-distante_limit, distante_limit + 1):
+        for dj in range(-distante_limit, distante_limit + 1):
+            ni = i + di
+            nj = j + dj
+            if 0 <= ni < n and 0 <= nj < m:
+                if road_mark[ni][nj] == number_edge:
+                    dist = abs(di) + abs(dj)
+                    if dist < min_dist:
+                        min_dist = dist
+                        closest_i = ni
+                        closest_j = nj
+    return closest_i, closest_j, min_dist
 
 def get_heights(road_mark, flattened, edge_number):
     n = len(road_mark)
@@ -51,18 +88,32 @@ def get_heights(road_mark, flattened, edge_number):
     return (heights, indexes)
 
 def smooth_heights(heights, sigma=50):
-    return gaussian_filter1d(heights, sigma=sigma)
+    smoothed = uniform_filter(heights, size=sigma)
+    return smoothed
+    #return gaussian_filter1d(heights, sigma=sigma)
 
-def apply_smooth_heights(road_mark, heights, sigma=50):
+def apply_smooth_heights(road_mark, heights, sigma=5):
     road_mark = np.array(road_mark)
     heights = np.array(heights)
-    smoothed_heights = smooth_heights(heights, sigma=sigma)
+    
+    heights_copy = heights.copy()
+    n,m  = heights.shape
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 0:
+                ni, nj, dist = found_closest_edge(road_mark, i, j, 1)
+                heights_copy[i][j] = heights[ni][nj]
+                
+    
+    smoothed_heights = smooth_heights(heights_copy, sigma=sigma)
+    smoothed_heights = smooth_heights(smoothed_heights, sigma=sigma)
 
     # copy original terrain
     result = heights.copy()
 
     # replace only road cells with smoothed values
     result[road_mark >= 1] = smoothed_heights[road_mark >= 1]
+    #result = smoothed_heights
 
     return result
 
