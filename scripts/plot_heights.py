@@ -53,23 +53,19 @@ def get_heights(road_mark, flattened, edge_number):
 def smooth_heights(heights, sigma=50):
     return gaussian_filter1d(heights, sigma=sigma)
 
-def apply_smooth_heights(road_mark, flattened):
-    (heights, indexes) = get_heights(road_mark, flattened,3)
-    smoothed_heights = smooth_heights(heights, sigma=50)
-    
-    plot_heights(smoothed_heights)
-    
-    for idx, (i, j) in enumerate(indexes):
-        flattened[i][j] = smoothed_heights[idx]
-        road_mark[i][j] = 4  
-    
-    (heights, indexes) = get_heights(road_mark, flattened,2)
-    smoothed_heights = smooth_heights(heights, sigma=50)
-    for idx, (i, j) in enumerate(indexes):
-        flattened[i][j] = smoothed_heights[idx]
-        road_mark[i][j] = 5  
-    
-    return flattened
+def apply_smooth_heights(road_mark, heights, sigma=50):
+    road_mark = np.array(road_mark)
+    heights = np.array(heights)
+    smoothed_heights = smooth_heights(heights, sigma=sigma)
+
+    # copy original terrain
+    result = heights.copy()
+
+    # replace only road cells with smoothed values
+    result[road_mark >= 1] = smoothed_heights[road_mark >= 1]
+
+    return result
+
 
 import matplotlib.pyplot as plt
 

@@ -194,22 +194,22 @@ def flatten_own_function(heightmap, road_mark):
     
    
     
-    for i in range(n):
-        for j in range(m):
-            if road_mark[i][j] == 1:
-                closest_i, closest_j, dist1 = found_closest_edge(road_mark, i, j, number_edge=4)
-                # closest_i2, closest_j2, dist2 = found_closest_edge(road_mark, i, j, number_edge=5)
+    # for i in range(n):
+    #     for j in range(m):
+    #         if road_mark[i][j] == 1:
+    #             closest_i, closest_j, dist1 = found_closest_edge(road_mark, i, j, number_edge=4)
+    #             # closest_i2, closest_j2, dist2 = found_closest_edge(road_mark, i, j, number_edge=5)
                 
-                # value1 = flattened[closest_i][closest_j] 
-                # value2 = flattened[closest_i2][closest_j2]
-                # proc1 = dist2 / (dist1 + dist2)
-                # proc2 = dist1 / (dist1 + dist2)
-                # flattened[i][j] = value1 * proc1 + value2 * proc2
-                #print("value: ", value1, value2, " proc: ", proc1, proc2, " final: ", flattened[i][j], " dist: ", dist1, dist2)
+    #             # value1 = flattened[closest_i][closest_j] 
+    #             # value2 = flattened[closest_i2][closest_j2]
+    #             # proc1 = dist2 / (dist1 + dist2)
+    #             # proc2 = dist1 / (dist1 + dist2)
+    #             # flattened[i][j] = value1 * proc1 + value2 * proc2
+    #             #print("value: ", value1, value2, " proc: ", proc1, proc2, " final: ", flattened[i][j], " dist: ", dist1, dist2)
                 
-                # if(flattened[i][j] > 1.0 or flattened[i][j] < 0.0):
-                #     print("Error in blending heights at: ", i, j    )
-                flattened[i][j] = flattened[closest_i][closest_j]
+    #             # if(flattened[i][j] > 1.0 or flattened[i][j] < 0.0):
+    #             #     print("Error in blending heights at: ", i, j    )
+    #             flattened[i][j] = flattened[closest_i][closest_j]
                 
     for i in range(n):
         for j in range(m):
