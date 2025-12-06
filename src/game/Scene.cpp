@@ -46,7 +46,6 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 {
 	auto vehicles = Physics::getInstance()->getVehicles();
 
-	// === SAMOCHÓD 1 (gracz 1) ===
 	if (vehicles.size() > 0 && cars[0])    
 	{
 		RaceCar* v = vehicles[0];
@@ -63,7 +62,6 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 		cars[0]->Update(deltaTime, position, rotation);
 	}
 
-	// === SAMOCHÓD 2 (gracz 2) ===
 	if (vehicles.size() > 1 && cars[1])    
 	{
 		RaceCar* v = vehicles[1];
@@ -155,14 +153,59 @@ void Scene::Update(InputData input, float deltaTime)
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
 {
-	for (Model* model : modelsTex)
-	{
-		DrawModel(shaderTex, *model, activeCam);
-	}
-	for (Model* model : modelsCol)
-	{
-		DrawModel(shaderCol, *model, activeCam);
-	}
+    shaderTex.use();
+    shaderTex.setBool("uIsMirror", false);
+    shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderTex.setVec3("viewPos", activeCam.Position);
+    shaderTex.setBool("fogEnabled", fog);
+
+    for (Model* model : modelsTex)
+    {
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius())) 
+            continue;
+
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 position = model->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+        modelMatrix = glm::translate(modelMatrix, position);
+        modelMatrix *= glm::toMat4(rotation);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        shaderTex.setMat4("model", modelMatrix);
+        shaderTex.setVec3("objectColor", model->GetColor());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model->textureID);
+        model->Draw(shaderTex);
+    }
+
+    shaderCol.use();
+    shaderCol.setBool("uIsMirror", false);
+    shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderCol.setVec3("viewPos", activeCam.Position);
+    shaderCol.setBool("fogEnabled", fog);
+
+    for (Model* model : modelsCol)
+    {
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+            continue;
+
+         glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 position = model->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+        modelMatrix = glm::translate(modelMatrix, position);
+        modelMatrix *= glm::toMat4(rotation);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        shaderCol.setMat4("model", modelMatrix);
+        shaderCol.setVec3("objectColor", model->GetColor());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model->textureID);
+        model->Draw(shaderCol);
+    }
 }
 void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
 {
@@ -239,18 +282,6 @@ void Scene::CreateModels()
 {
 	cars[0] = CreateCar(glm::vec3(0.f, 0.0f, 0.f));
 	cars[1] = CreateCar(glm::vec3(6.f, 0.0f, 0.f));
-
-	const std::string mapModelPath = "../assets/models/map/scene.gltf";
-	Model* mapModel = new Model(
-		mapModelPath,
-		glm::vec3(0.0f, 0.01f, 0.0f),
-		1.0f,
-		glm::vec3(1.0f)
-	);
-	mapModel->SetRotation(
-		physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f))
-	);
-	AddTextureModel(mapModel);
 }
 
 
@@ -262,7 +293,6 @@ void Scene::CreateLights()
 		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(point_light1_ceneter_of_board);
 
-	/* Point light 2 - in the center of board */
 	Light* point_light2_ceneter_of_board = new LightPoint(glm::vec3(10.2f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));

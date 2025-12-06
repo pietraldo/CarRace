@@ -45,6 +45,7 @@ public:
     physx::PxQuat GetRotation() const { return rotation * rotationOffset; }
     float GetScale() const { return scale; }
     glm::vec3 GetColor() const { return color; }
+    float GetRadius() const { return radius * scale; }
 
     void SetPositionOffset(const glm::vec3& offset) { positionOffset = offset; }
     void SetRotationOffset(const physx::PxQuat& offset) { rotationOffset = offset; }
@@ -59,6 +60,7 @@ private:
         const std::string& nodeName);
 
     float scale = 1.0f;
+    float radius = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);
 
     glm::vec3 position = glm::vec3(0.0f);

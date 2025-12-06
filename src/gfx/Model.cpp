@@ -16,7 +16,6 @@ void Model::Draw(Shader& shader)
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].Draw(shader);
 }
-
 const std::vector<Mesh>& Model::GetMeshes() const
 {
 	return meshes;
@@ -35,6 +34,15 @@ void Model::loadModel(string path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 	processNode(scene->mRootNode, scene);
+
+    float maxDist = 0.0f;
+    for (const auto& mesh : meshes) {
+        for (const auto& vertex : mesh.vertices) {
+                float dist = glm::length(vertex.Position);
+                if (dist > maxDist) maxDist = dist;
+        }
+    }
+    radius = maxDist;
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)

@@ -59,13 +59,19 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
+unsigned int Mesh::lastBoundTexture = 0;
+
+void Mesh::ResetTextureCache()
+{
+    lastBoundTexture = 0;
+}
+
 void Mesh::Draw(Shader& shader)
 {
     if (isMirror) {
         shader.setBool("uIsMirror", true);
         shader.setBool("uHasBaseColorMap", true);
 
-        glActiveTexture(GL_TEXTURE0);
 
         unsigned int mirrorTex = 0;
         if (mirrorSide == MirrorSide::Right) {
@@ -74,7 +80,11 @@ void Mesh::Draw(Shader& shader)
             mirrorTex = Rendering::GetLeftMirrorTexture();
         }
 
-        glBindTexture(GL_TEXTURE_2D, mirrorTex);
+        if (lastBoundTexture != mirrorTex) {
+            glBindTexture(GL_TEXTURE_2D, mirrorTex);
+            lastBoundTexture = mirrorTex;
+        }
+
         shader.setInt("uBaseColorMap", 0);
     }
     else {
@@ -86,8 +96,11 @@ void Mesh::Draw(Shader& shader)
         {
             if (tex.type == "texture_diffuse")
             {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, tex.id);
+                if (lastBoundTexture != tex.id) {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, tex.id);
+                    lastBoundTexture = tex.id;
+                }
 
                 shader.setInt("uBaseColorMap", 0);
                 shader.setBool("uHasBaseColorMap", true);
@@ -108,8 +121,5 @@ void Mesh::Draw(Shader& shader)
         static_cast<GLsizei>(indices.size()),
         GL_UNSIGNED_INT,
         0);
-    glBindVertexArray(0);
-
-    glActiveTexture(GL_TEXTURE0);
 }
 

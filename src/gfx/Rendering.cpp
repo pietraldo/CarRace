@@ -3,6 +3,7 @@
 
 #include <utility>
 #include "Mirrors.h"
+#include "Mesh.h"
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -207,7 +208,7 @@ void Rendering::RenderImGui()
 
         ImGui::Text("View mode:");
 
-        // Wybór trybu widoku
+        // WybÃ³r trybu widoku
         if (ImGui::RadioButton("Single screen", currentMode == ViewMode::SINGLE_SCREEN)) {
             cameraManager->SetViewMode(ViewMode::SINGLE_SCREEN);
         }
@@ -349,10 +350,13 @@ void Rendering::RenderImGui()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam)
+void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam)
 {
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
+
+    Mesh::ResetTextureCache(); // Phase 3 Optimization: Reset cache to ensure fresh state
+
 
     LightBuffer lightBuffer = (*Rendering::scene).LoadLights();
     lightBuffer.spotLights[0].position = glm::vec3(activeCam.Position);
@@ -361,6 +365,14 @@ void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects, 
     glBindBuffer(GL_UNIFORM_BUFFER, Rendering::uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // Optimized: HOISTED UNIFORMS for gameObjects loop (Cubes)
+    shaderColor.use();
+    shaderColor.setBool("uIsMirror", false);
+    shaderColor.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderColor.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderColor.setVec3("viewPos", activeCam.Position);
+    shaderColor.setBool("fogEnabled", false); 
 
     for (GameObject* gameObj : gameObjects)
     {
@@ -462,5 +474,3 @@ unsigned int Rendering::GetRightMirrorTexture()
 {
     return player1Mirrors.GetRightMirrorTexture();
 }
-
-

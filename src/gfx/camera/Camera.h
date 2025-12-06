@@ -5,10 +5,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_access.hpp>
 
 #include "../../ui/Input/InputStructures.h"
 
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -23,14 +23,12 @@ enum CameraType {
     OBSERVING_CAMERA
 };
 
-// Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 20.5f;
-const float ZOOM = 75.0f;
+const float ZOOM = 45.0f;
 
 
-// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
 
@@ -108,13 +106,11 @@ public:
         Yaw += velocity * input.yaw;
         Pitch += velocity * input.pitch;
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
         if (Pitch > 89.0f)
             Pitch = 89.0f;
         if (Pitch < -89.0f)
             Pitch = -89.0f;
 
-        // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors();
     }
 
@@ -138,8 +134,37 @@ private:
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Front = glm::normalize(front);
         // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
+    }
+
+public:
+    bool IsSphereVisible(const glm::vec3& center, float radius) const
+    {
+        
+        glm::mat4 proj = glm::perspective(glm::radians(Zoom), (float)1920 / (float)1080, 0.1f, 300.0f);
+        glm::mat4 view = glm::lookAt(Position, Position + Front, Up);
+        glm::mat4 viewProj = proj * view;
+
+        glm::vec4 planes[6];
+        planes[0] = glm::row(viewProj, 3) + glm::row(viewProj, 0);
+        planes[1] = glm::row(viewProj, 3) - glm::row(viewProj, 0);
+        planes[2] = glm::row(viewProj, 3) + glm::row(viewProj, 1);
+        planes[3] = glm::row(viewProj, 3) - glm::row(viewProj, 1);
+        planes[4] = glm::row(viewProj, 3) + glm::row(viewProj, 2);
+        planes[5] = glm::row(viewProj, 3) - glm::row(viewProj, 2);
+
+        for (int i = 0; i < 6; i++)
+        {
+            float length = glm::length(glm::vec3(planes[i]));
+            planes[i] /= length;
+
+            if (glm::dot(glm::vec3(planes[i]), center) + planes[i].w <= -radius)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 #endif
