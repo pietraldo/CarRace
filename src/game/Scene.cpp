@@ -375,7 +375,7 @@ glm::quat Scene::GetCarRotation() const
 
 std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 {
-	const std::string carModelPath = "../assets/models/car/scene.gltf";
+	const std::string carModelPath = "../assets/models/car/car.gltf";
 	const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
