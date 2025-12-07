@@ -376,7 +376,7 @@ glm::quat Scene::GetCarRotation() const
 std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 {
 	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
+	const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
 	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
 	auto bodyModel = std::make_shared<Model>(
@@ -393,7 +393,7 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 	auto wheelModel = std::make_shared<Model>(
 		wheelModelPath,
 		glm::vec3(0.f),
-		1.30f,
+		0.29f,
 		glm::vec3(1.f)
 	);
 

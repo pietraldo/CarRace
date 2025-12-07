@@ -17,20 +17,21 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
         steeringWheel = std::move(steeringModel);
     }
 
-    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
-    wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
+    
     wheels[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearRight);
     wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::RearLeft);
+    wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
+    wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
 
-    wheelPositionOffsets[0] = glm::vec3(1.35f, -0.35f, -0.9f); // FR
-    wheelPositionOffsets[1] = glm::vec3(1.35f, -0.35f, 0.9f); // FL
-    wheelPositionOffsets[2] = glm::vec3(-1.35f, -0.35f, -0.9f); // RR
-    wheelPositionOffsets[3] = glm::vec3(-1.35f, -0.35f, 0.9f); // RL
+    wheelPositionOffsets[0] = glm::vec3(1.32f, -0.30f, -0.82f); // RR
+    wheelPositionOffsets[1] = glm::vec3(1.32f, -0.30f, 0.82f); // RL
+    wheelPositionOffsets[2] = glm::vec3(-1.38f, -0.30f, -0.82f); // FR
+    wheelPositionOffsets[3] = glm::vec3(-1.38f, -0.30f, 0.82f); // FL
 
-    wheelRotationOffsets[0] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // FR
-    wheelRotationOffsets[1] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // FL
-    wheelRotationOffsets[2] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // RR
-    wheelRotationOffsets[3] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // RL
+    wheelRotationOffsets[0] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // RR
+    wheelRotationOffsets[1] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // RL
+    wheelRotationOffsets[2] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // FR
+    wheelRotationOffsets[3] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // FL
 
 }
 
