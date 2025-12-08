@@ -416,19 +416,6 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 
 	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
-	if (car->GetBody())
-		AddTextureModel(car->GetBody().get());
-
-	for (auto& w : car->Wheels()) {
-		if (!w) continue;
-		const auto& sp = w->GetModel();
-		if (sp)
-			AddTextureModel(sp.get());
-	}
-
-	if (car->GetSteeringWheel()) {
-		AddTextureModel(car->GetSteeringWheel().get());
-	}
-
+	
 	return car;
 }
