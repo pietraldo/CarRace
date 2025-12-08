@@ -18,6 +18,7 @@
 #include "../game/helper_functions.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include <functional>
 using namespace std;
 
 class Model
@@ -36,7 +37,7 @@ public:
     {
         loadModel(path);
     }
-    void Draw(Shader& shader);
+    void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr);
     void Update(float deltaTime);
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
     const std::vector<Mesh>& GetMeshes() const;
