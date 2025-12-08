@@ -2,16 +2,44 @@
 
 CameraManager* CameraManager::instance = nullptr;
 
+void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber)
+{
+    if (viewMode == ViewMode::EDIT_SCREEN) {
+        return;
+    }
+
+    playersCamera[playerNumber].SetActiveCamera(type);
+}
+
+Camera& CameraManager::GetPlayerActiveCamera(int playerNumber)
+{
+    if (viewMode == ViewMode::EDIT_SCREEN) {
+		return GetFreeCamera();
+    }
+
+    return playersCamera[playerNumber].GetActiveCamera();
+}
+
+
 void CameraManager::CreateCameras() {
-    AddCamera(std::make_unique<FreeCamera>(glm::vec3(0.0f, 5.0f, 20.0f)));
-    AddCamera(std::make_unique<ObservingCamera>(glm::vec3(0.0f, 5.0f, 30.0f)));
-    AddCamera(std::make_unique<FollowingCarCamera>(glm::vec3(0.0f, 5.0f, 30.0f)));
-    AddCamera(std::make_unique<FirstPersonCamera>(glm::vec3(0.0f, 5.0f, 30.0f)));
+	playersCamera[0] = PlayerCameraSet();
+	playersCamera[1] = PlayerCameraSet();
 }
 
 void CameraManager::ProccessInput(CameraControlInput input, float deltaTime) {
-    Camera& activeCam = GetActiveCamera();
-    
-    if(activeCam.cameraType == CameraType::FREE_CAMERA)
-        activeCam.processInput(input, deltaTime);
+    ViewMode activeViewMode = GetViewMode();
+
+    if (activeViewMode == ViewMode::EDIT_SCREEN) {
+        FreeCamera& freeCam = GetFreeCamera();
+        freeCam.processInput(input, deltaTime);
+    }
+}
+
+void CameraManager::MoveFreeCameraToPosition(glm::vec3 position)
+{
+    ViewMode activeViewMode = GetViewMode();
+    if (activeViewMode == ViewMode::EDIT_SCREEN) {
+        FreeCamera& freeCam = GetFreeCamera();
+        freeCam.Position = position;
+    }
 }

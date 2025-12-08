@@ -3,6 +3,7 @@
 
 #include <utility>
 #include "Mirrors.h"
+#include "Mesh.h"
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -63,7 +64,7 @@ int Rendering::Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     //stbi_set_flip_vertically_on_load(true);
-    textureData = stbi_load("../assets/vehicledata/baseColor3.png", & texWidth, & texHeight, & nbChannels, 0);
+    textureData = stbi_load("../assets/vehicledata/baseColor4.png", & texWidth, & texHeight, & nbChannels, 0);
     if (!textureData)
     {
         std::cout << "Failed to load texture" << std::endl;
@@ -201,36 +202,98 @@ void Rendering::RenderImGui()
 
     {
         ImGui::Begin("Camera settings");
+
         CameraManager* cameraManager = CameraManager::GetInstance();
-        int camera_numer = cameraManager->GetNumberOfCameras();
-        int activeIndex = cameraManager->GetActiveCameraIndex();
-        for (int i = 0; i < camera_numer; i++)
-        {
-            std::string label = "Camera " + std::to_string(i);
-            if (ImGui::RadioButton(label.c_str(), activeIndex == i))
-            {
-                cameraManager->SetActiveCamera(i);
-            }
+        ViewMode currentMode = cameraManager->GetViewMode();
+
+        ImGui::Text("View mode:");
+
+        // Wybór trybu widoku
+        if (ImGui::RadioButton("Single screen", currentMode == ViewMode::SINGLE_SCREEN)) {
+            cameraManager->SetViewMode(ViewMode::SINGLE_SCREEN);
         }
-        Camera* activeCam = &cameraManager->GetActiveCamera();
-        
-        ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam->Position.x, activeCam->Position.y, activeCam->Position.z);
-        ImGui::SliderFloat("Speed", &activeCam->MovementSpeed, 1, 500);
-        ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam->Front.x, activeCam->Front.y, activeCam->Front.z);
-        
-        if (ImGui::Button("Move camera to car"))
-        {
-            glm::vec3 position =PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
-            CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Split screen", currentMode == ViewMode::SPLIT_SCREEN)) {
+            cameraManager->SetViewMode(ViewMode::SPLIT_SCREEN);
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Edit (free camera)", currentMode == ViewMode::EDIT_SCREEN)) {
+            cameraManager->SetViewMode(ViewMode::EDIT_SCREEN);
+        }
+
+        ImGui::Separator();
+
+        if (currentMode == ViewMode::SINGLE_SCREEN) {
+            CameraType activeCamera = cameraManager->GetPlayerActiveCamera(0).cameraType;
+
+            if (ImGui::RadioButton("First Person Camera", activeCamera == CameraType::FIRST_PERSON_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FIRST_PERSON_CAMERA, 0);
+            }
+            if (ImGui::RadioButton("Third Person Camera", activeCamera == CameraType::FOLLOWING_CAR_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 0);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera", activeCamera == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
+            }
+
+            Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
+            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam.Position.x, activeCam.Position.y, activeCam.Position.z);
+            ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam.Front.x, activeCam.Front.y, activeCam.Front.z);
+        }
+        else if (currentMode == ViewMode::SPLIT_SCREEN) {
+            CameraType activeCamera0 = cameraManager->GetPlayerActiveCamera(0).cameraType;
+            if (ImGui::RadioButton("First Person Camera (Player 1)", activeCamera0 == CameraType::FIRST_PERSON_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FIRST_PERSON_CAMERA, 0);
+            }
+            if (ImGui::RadioButton("Third Person Camera (Player 1)", activeCamera0 == CameraType::FOLLOWING_CAR_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 0);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
+            }
+
+            Camera& activeCam0 = cameraManager->GetPlayerActiveCamera(0);
+            ImGui::Text("Player 1 - Position: x: %.2f y: %.2f z: %.2f", activeCam0.Position.x, activeCam0.Position.y, activeCam0.Position.z);
+            ImGui::Text("Player 1 - Front: x: %.2f y: %.2f z: %.2f", activeCam0.Front.x, activeCam0.Front.y, activeCam0.Front.z);
+
+            CameraType activeCamera1 = cameraManager->GetPlayerActiveCamera(1).cameraType;
+            if (ImGui::RadioButton("First Person Camera (Player 2)", activeCamera1 == CameraType::FIRST_PERSON_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FIRST_PERSON_CAMERA, 1);
+            }
+            if (ImGui::RadioButton("Third Person Camera (Player 2)", activeCamera1 == CameraType::FOLLOWING_CAR_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::FOLLOWING_CAR_CAMERA, 1);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 1);
+            }
+
+            Camera& activeCam1 = cameraManager->GetPlayerActiveCamera(1);
+            ImGui::Text("Player 2 - Position: x: %.2f y: %.2f z: %.2f", activeCam1.Position.x, activeCam1.Position.y, activeCam1.Position.z);
+            ImGui::Text("Player 2 - Front: x: %.2f y: %.2f z: %.2f", activeCam1.Front.x, activeCam1.Front.y, activeCam1.Front.z);
+        }
+        else if (currentMode == ViewMode::EDIT_SCREEN) {
+            ImGui::Text("Free Camera Mode (no camera selection needed).");
+
+            Camera& freeCam = cameraManager->GetFreeCamera();
+            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", freeCam.Position.x, freeCam.Position.y, freeCam.Position.z);
+            ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", freeCam.Front.x, freeCam.Front.y, freeCam.Front.z);
+
+            ImGui::SliderFloat("Movement Speed", &freeCam.MovementSpeed, 0.1f, 500.0f);
+
+            if (ImGui::Button("Move camera to car")) {
+                glm::vec3 position = PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
+                CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
+            }
         }
         if (ImGui::Button("Move car here"))
         {
-            glm::vec3 position = CameraManager::GetInstance()->GetActiveCamera().Position;
+            glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
             Physics::getInstance()->getVehicles()[0]->setVehiclePosition(GlmVec3ToPxVec3(position));
         }
 
         ImGui::End();
     }
+
     {
         ImGui::Begin("Light settings");
         ImGui::Checkbox("Day/Night", &(*scene).dayNight);
@@ -294,89 +357,98 @@ void Rendering::RenderImGui()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Rendering:: RenderSceneCommon(const std::vector<GameObject*>& gameObjects)
+void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam)
 {
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
 
+    Mesh::ResetTextureCache(); // Phase 3 Optimization: Reset cache to ensure fresh state
+
+
     LightBuffer lightBuffer = (*Rendering::scene).LoadLights();
-    lightBuffer.spotLights[0].position = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Position);
-    lightBuffer.spotLights[0].direction = glm::vec3(CameraManager::GetInstance()->GetActiveCamera().Front);
+    lightBuffer.spotLights[0].position = glm::vec3(activeCam.Position);
+    lightBuffer.spotLights[0].direction = glm::vec3(activeCam.Front);
 
     glBindBuffer(GL_UNIFORM_BUFFER, Rendering::uboLights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    // Optimized: HOISTED UNIFORMS for gameObjects loop (Cubes)
+    shaderColor.use();
+    shaderColor.setBool("uIsMirror", false);
+    shaderColor.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderColor.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderColor.setVec3("viewPos", activeCam.Position);
+    shaderColor.setBool("fogEnabled", false); 
+
     for (GameObject* gameObj : gameObjects)
     {
-        gameObj->Draw();   
+        gameObj->Draw(activeCam);
     }
 
-    (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO);
-    (*Rendering::scene).DrawModels(shaderTextured, shaderColor);
-    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere);
+    (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
+    (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
+    (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
 
-glm::mat4 Rendering::GetProjectionMatrix()
+glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {
     if (useExternalProj)
         return externalProj;
 
     return glm::perspective(
-        glm::radians(CameraManager::GetInstance()->GetActiveCamera().Zoom),
+        glm::radians(camera.Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
         2000.0f
     );
 }
 
-glm::mat4 Rendering::GetViewMatrix()
+glm::mat4 Rendering::GetViewMatrix(Camera& camera)
 {
     if (useExternalView)
         return externalView;
 
-    return CameraManager::GetInstance()->GetActiveCamera().GetViewMatrix();
+    return camera.GetViewMatrix();
 }
 
 
 void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 {
     Scene* scene = Rendering::scene;
-
-    Camera& activeCam = CameraManager::GetInstance()->GetActiveCamera();
-    if (activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA)
-    {
-        glm::vec3 carPos(0.0f);
-        glm::quat carRot(1.0f, 0.0f, 0.0f, 0.0f);
-
-        Car* car = scene->GetCar();
-        if (car && car->GetBody()) {
-            const auto& body = car->GetBody();
-            carPos = body->GetPosition();
-
-            physx::PxQuat pxRot = body->GetRotation();
-            carRot = glm::quat(pxRot.w, pxRot.x, pxRot.y, pxRot.z);
-        }
-
-        glm::vec3 forward = carRot * glm::vec3(-1.0f, 0.0f, 0.0f);
-        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 right = glm::normalize(glm::cross(forward, up));
-
-        player1Mirrors.RenderForCar(carPos, forward, up, right, gameObjects);
-    }
+    CameraManager* cameraManager = CameraManager::GetInstance();
+    ViewMode currentViewMode = cameraManager->GetViewMode();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    RenderSceneCommon(gameObjects);
+    if (currentViewMode == ViewMode::EDIT_SCREEN) {
+        Camera& freeCam = cameraManager->GetFreeCamera();
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        RenderSceneCommon(gameObjects, freeCam);
+    }
+    else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
+        Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); 
+        RenderSceneCommon(gameObjects, activeCam);
+    }
+    else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
+        glViewport(0, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(0);
+        RenderSceneCommon(gameObjects, activePlayer0Cam);
+
+        glViewport(SCR_WIDTH / 2, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(1);
+        RenderSceneCommon(gameObjects, activePlayer1Cam);
+    }
 
     RenderImGui();
+
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
-
 }
+
 
 void Rendering::SetExternalView(const glm::mat4& view)
 {
@@ -409,5 +481,3 @@ unsigned int Rendering::GetRightMirrorTexture()
 {
     return player1Mirrors.GetRightMirrorTexture();
 }
-
-

@@ -34,17 +34,18 @@ struct AdditionalInputInfo
 
 struct OutputData
 {
+    EffectsOnInputer effectsOnInputer0;
     EffectsOnInputer effectsOnInputer1;
-    EffectsOnInputer effectsOnInputer2;
 };
 
 struct InputData
 {
     AdditionalInputInfo additionalInfo;
+
+    CarControlInput carControl0;
+    CameraControlInput cameraControl0;
+
     CarControlInput carControl1;
     CameraControlInput cameraControl1;
-
-    CarControlInput carControl2;
-    CameraControlInput cameraControl2;
 };
 

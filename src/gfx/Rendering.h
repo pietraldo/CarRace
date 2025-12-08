@@ -58,10 +58,10 @@ public:
 
     static void RenderImGui();
 
-    static glm::mat4 GetProjectionMatrix();
-    static glm::mat4 GetViewMatrix();
+    static glm::mat4 GetProjectionMatrix(Camera& camera);
+    static glm::mat4 GetViewMatrix(Camera& camera);
     static void RenderFrame(std::vector<GameObject*> gameObjects);
-    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects);
+    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,Camera& activeCam);
 
     static void SetExternalView(const glm::mat4& view);
     static void SetExternalProj(const glm::mat4& proj);

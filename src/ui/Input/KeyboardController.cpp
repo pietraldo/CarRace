@@ -17,36 +17,60 @@ void KeyboardController::scrollCallback(float deltaOffsetY) {
 CarControlInput KeyboardController::getCarControlInput() {
     CarControlInput input;
 
-    if (isKeyPressed(GLFW_KEY_RIGHT))
-        input.steer = -1;
-    else if (isKeyPressed(GLFW_KEY_LEFT))
-        input.steer = 1;
-    
-    if (isKeyPressed(GLFW_KEY_UP))
-        input.throttle = 1;
-    else if (isKeyPressed(GLFW_KEY_DOWN))
-        input.brake = 1;
-    
-    if (isKeyPressed(GLFW_KEY_SPACE))
-        input.handbrake = 1;
+    if (playerIndex == PlayerIndex::Player0)
+    {
+        if (isKeyPressed(GLFW_KEY_RIGHT))
+            input.steer = -1;
+        else if (isKeyPressed(GLFW_KEY_LEFT))
+            input.steer = 1;
 
-    if (isKeyJustPressed(GLFW_KEY_Z))
-        input.gear = -1;   
-    if (isKeyJustPressed(GLFW_KEY_X))
-        input.gear = +1;  
+        if (isKeyPressed(GLFW_KEY_UP))
+            input.throttle = 1;
+        else if (isKeyPressed(GLFW_KEY_DOWN))
+            input.brake = 1;
+
+        if (isKeyPressed(GLFW_KEY_SPACE))
+            input.handbrake = 1;
+
+        if (isKeyJustPressed(GLFW_KEY_N))
+            input.gear = -1;
+        if (isKeyJustPressed(GLFW_KEY_M))
+            input.gear = +1;
+    }
+    else // Player1
+    {
+        // Gracz 1 – np. WASD + LSHIFT + Q/E
+        if (isKeyPressed(GLFW_KEY_D))
+            input.steer = -1;
+        else if (isKeyPressed(GLFW_KEY_A))
+            input.steer = 1;
+
+        if (isKeyPressed(GLFW_KEY_W))
+            input.throttle = 1;
+        else if (isKeyPressed(GLFW_KEY_S))
+            input.brake = 1;
+
+        if (isKeyPressed(GLFW_KEY_LEFT_SHIFT))
+            input.handbrake = 1;
+
+        if (isKeyJustPressed(GLFW_KEY_Z))
+            input.gear = -1;
+        if (isKeyJustPressed(GLFW_KEY_X))
+            input.gear = +1;
+    }
 
     return input;
 }
 CameraControlInput KeyboardController::getCameraControlInput() {
     CameraControlInput input;
 
-    if(isKeyPressed(GLFW_KEY_W))
+    if(isKeyPressed(GLFW_KEY_I))
         input.moveForward = 1;
-    if (isKeyPressed(GLFW_KEY_S))
+    if (isKeyPressed(GLFW_KEY_K))
         input.moveForward = -1;
-    if (isKeyPressed(GLFW_KEY_A))
+    if (isKeyPressed(GLFW_KEY_J))
         input.moveRight = -1;
-    if (isKeyPressed(GLFW_KEY_D))
+    if (isKeyPressed(GLFW_KEY_L))
         input.moveRight = 1;
 
     double mouseX, mouseY;
@@ -76,7 +100,7 @@ CameraControlInput KeyboardController::getCameraControlInput() {
 }
 AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     AdditionalInputInfo info;
-    info.startSimulation = isKeyJustPressed(GLFW_KEY_SPACE);
+    info.startSimulation = isKeyJustPressed(GLFW_KEY_P);
     info.exit = isKeyJustPressed(GLFW_KEY_ESCAPE);
     info.resetCars = isKeyJustPressed(GLFW_KEY_R);
     return info;

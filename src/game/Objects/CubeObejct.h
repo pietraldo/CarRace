@@ -23,5 +23,5 @@ public:
         :GameObject(body), scale(scale), color(color), positionToDisplay(position), simulatePhysics(simulatePhysics) {
     };
 
-    void Draw() override;
+    void Draw(Camera& activeCam) override;
 };
