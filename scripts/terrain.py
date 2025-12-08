@@ -444,20 +444,38 @@ def read_terrain_from_file(filename: str) -> np.ndarray:
     """
     return np.loadtxt(filename)
 
+def compress_heightmap(heightmap, n,m):
+    """
+    Compress the heightmap to size n x m by averaging blocks.
+    """
+    original_n, original_m = heightmap.shape
+    compressed = np.zeros((n, m), dtype=float)
+
+    block_n = original_n // n
+    block_m = original_m // m
+
+    for i in range(n):
+        for j in range(m):
+            block = heightmap[i*block_n:(i+1)*block_n, j*block_m:(j+1)*block_m]
+            compressed[i, j] = np.mean(block)
+
+    return compressed
+
 if __name__ == '__main__':
     
     from road_mark import generate_track
     from texture import generate_texture
     from image_to_tarain import image_to_array
     
-    n=1024
-    m=1024
+    n=512
+    m=512
     #road_mark = generate_track(n, m, road_width=15)
     #road_mark = image_to_array("race_track_shape.png")
     road_mark=np.zeros((n,m))
     #generate_texture(road_mark)
     #h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
+    h = compress_heightmap(h, n, m)
     #h = flatten(h, road_mark)
     #h = flatten_own_function(h, road_mark)
     #h= smooth_road(h, road_mark, iterations=30)
