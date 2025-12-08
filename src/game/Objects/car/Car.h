@@ -48,7 +48,7 @@ private:
     float steerSpeed = 180.f; // deg/s
     float maxSteer = 45.f;  // deg
 
-    bool isBraking = false;
+	bool isBraking = false; // state for brake lights
 
     std::vector<physx::PxQuat> wheelRotationsFromPhysx;
 
