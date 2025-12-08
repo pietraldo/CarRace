@@ -46,38 +46,30 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 {
 	auto vehicles = Physics::getInstance()->getVehicles();
 
-	if (vehicles.size() > 0 && cars[0])    
-	{
-		RaceCar* v = vehicles[0];
+	const size_t maxPlayers = 2;
+	size_t count = vehicles.size();
+	if (count > maxPlayers)
+		count = maxPlayers;
 
+	for (size_t i = 0; i < count; ++i)
+	{
+		if (!vehicles[i] || !cars[i])
+			continue;
+
+		RaceCar* v = vehicles[i];
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
 		glm::vec3 position(pos.x, pos.y, pos.z);
 
-		cars[0]->SetWheelRotationFromPhysx(v->getWheelRotation());
+		cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
-		float steer = -input.carControl0.steer * 45.0f;
-		cars[0]->SetSteer(steer);
-
-		cars[0]->Update(deltaTime, position, rotation);
-	}
-
-	if (vehicles.size() > 1 && cars[1])    
-	{
-		RaceCar* v = vehicles[1];
-
-		PxVec3 pos = v->getVehiclePosition();
-		PxQuat rotation = v->getVehicleRotation();
-		glm::vec3 position(pos.x, pos.y, pos.z);
-
-		cars[1]->SetWheelRotationFromPhysx(v->getWheelRotation());
-
-		float steer = -input.carControl1.steer * 45.0f;
-		cars[1]->SetSteer(steer);
-
-		cars[1]->Update(deltaTime, position, rotation);
+		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
+		float steer = -carControl.steer * 45.0f;
+		cars[i]->SetSteer(steer);
+		cars[i]->Update(deltaTime, position, rotation);
 	}
 }
+
 
 
 void Scene::UpdatePlayerCamera(float dt, int playerNumber)
@@ -403,7 +395,7 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 		0.3f,
 		glm::vec3(1.f)
 	);
-	steeringModel->SetPositionOffset(glm::vec3(-0.3f, 0.2f, 0.45f));
+	steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
 
 	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 

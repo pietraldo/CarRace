@@ -14,7 +14,7 @@ class FirstPersonCamera : public Camera {
 private:
     glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 directionFromTarget = glm::vec3(0.0f, 0.0f, 1.0f);
-    glm::vec3 localOffset = glm::vec3(0.4f, 0.99f, 1.04f); 
+    glm::vec3 localOffset = glm::vec3(0.4f, 1.00f, 1.02f); 
 
 public:
     // constructor with vectors
