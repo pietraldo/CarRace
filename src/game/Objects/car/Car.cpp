@@ -108,13 +108,43 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 
 void Car::Draw(Shader& shader)
 {
-    if (body) body->Draw(shader);
+    auto setModelMatrix = [&](const std::shared_ptr<Model>& model) {
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 position = model->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
 
-    if (steeringWheel) steeringWheel->Draw(shader);
+        modelMatrix = glm::translate(modelMatrix, position);
+        modelMatrix *= glm::toMat4(rotation);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        shader.setMat4("model", modelMatrix);
+    };
+
+    if (body) {
+         setModelMatrix(body);
+         body->Draw(shader, [this](const Mesh& mesh, Shader& shader) {
+            if (mesh.name == "brake_lights") {
+                shader.setBool("uIsBrakeLight", true);
+                shader.setBool("uIsBraking", isBraking);
+            }
+            else {
+                shader.setBool("uIsBrakeLight", false);
+            }
+        });
+    }
+
+    if (steeringWheel) {
+        setModelMatrix(steeringWheel);
+        shader.setBool("uIsBrakeLight", false);
+        steeringWheel->Draw(shader);
+    } 
 
     for (auto& w : wheels) {
-        const auto& model = w->GetModel();
-        if (model) model->Draw(shader);
+        auto& model = w->GetModel();
+        if (model) {
+            setModelMatrix(model);
+             shader.setBool("uIsBrakeLight", false);
+            model->Draw(shader);
+        }
     }
 }
 

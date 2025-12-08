@@ -66,6 +66,7 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
 		float steer = -carControl.steer * 45.0f;
 		cars[i]->SetSteer(steer);
+        cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
 		cars[i]->Update(deltaTime, position, rotation);
 	}
 }
@@ -197,6 +198,22 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, model->textureID);
         model->Draw(shaderCol);
+        model->Draw(shaderCol);
+    }
+}
+
+void Scene::DrawCars(Shader& shader, Camera& activeCam)
+{
+    shader.use();
+    shader.setBool("uIsMirror", false);
+    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shader.setVec3("viewPos", activeCam.Position);
+    shader.setBool("fogEnabled", fog);
+    shader.setVec3("objectColor", glm::vec3(1.0f));
+
+    for (auto& car : cars) {
+        car->Draw(shader);      
     }
 }
 void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
@@ -398,20 +415,6 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 	steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
 
 	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
-
-	if (car->GetBody())
-		AddTextureModel(car->GetBody().get());
-
-	for (auto& w : car->Wheels()) {
-		if (!w) continue;
-		const auto& sp = w->GetModel();
-		if (sp)
-			AddTextureModel(sp.get());
-	}
-
-	if (car->GetSteeringWheel()) {
-		AddTextureModel(car->GetSteeringWheel().get());
-	}
 
 	return car;
 }

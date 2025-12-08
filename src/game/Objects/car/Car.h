@@ -27,6 +27,7 @@ public:
     void SetSteerSpeed(float degPerSec);
     void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
     void SetWheelRotationFromPhysx(vector<physx::PxQuat> rotations) { wheelRotationsFromPhysx = rotations; }
+    void SetBraking(bool braking) { isBraking = braking; }
 
     void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
     float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth; }
@@ -46,6 +47,8 @@ private:
     float steerCurrent = 0.f;   // deg
     float steerSpeed = 180.f; // deg/s
     float maxSteer = 45.f;  // deg
+
+    bool isBraking = false;
 
     std::vector<physx::PxQuat> wheelRotationsFromPhysx;
 

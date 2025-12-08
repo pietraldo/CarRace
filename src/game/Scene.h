@@ -72,6 +72,7 @@ public:
 	void setOutput();
 
 	void DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam);
+    void DrawCars(Shader& shader, Camera& activeCam);
 	void DrawModel(Shader& shader, Model& model, Camera& activeCam);
 	void DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam);
 

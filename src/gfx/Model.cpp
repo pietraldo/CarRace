@@ -11,10 +11,14 @@ glm::vec3 Model::GetPosition() const
     return position + positionOffset;
 }
 
-void Model::Draw(Shader& shader)
+void Model::Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback)
 {
-	for (unsigned int i = 0; i < meshes.size(); i++)
+	for (unsigned int i = 0; i < meshes.size(); i++) {
+        if (perMeshCallback) {
+            perMeshCallback(meshes[i], shader);
+        }
 		meshes[i].Draw(shader);
+    }
 }
 const std::vector<Mesh>& Model::GetMeshes() const
 {
