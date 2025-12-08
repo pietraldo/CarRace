@@ -49,7 +49,11 @@ public:
         const std::string& name = "");
     
     void Draw(Shader& shader);
+    
+    static void ResetTextureCache();
+
 private:
+    static unsigned int lastBoundTexture;
     unsigned int VAO, VBO, EBO;
 
     void setupMesh();

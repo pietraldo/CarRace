@@ -110,6 +110,7 @@ Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign,const glm::vec3& c
 
 void Mirrors::RenderSingleMirror(const glm::mat4& view,unsigned int fbo,const std::vector<GameObject*>& objects)
 {
+    Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
     Rendering::SetExternalView(view);
 
     float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;
@@ -129,7 +130,7 @@ void Mirrors::RenderSingleMirror(const glm::mat4& view,unsigned int fbo,const st
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Rendering::RenderSceneCommon(objects);
+    Rendering::RenderSceneCommon(objects, activeCam);
 
     Rendering::ClearExternalView();
     Rendering::ClearExternalProj();

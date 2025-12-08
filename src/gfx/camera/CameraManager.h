@@ -8,13 +8,21 @@
 #include "./FollowingCarCamera.h"
 #include "./ObservingCamera.h"
 #include "../../ui/Input/InputStructures.h"
+#include "PlayerCameraSet.h"
 
+enum class ViewMode {
+    SINGLE_SCREEN,
+    SPLIT_SCREEN,
+    EDIT_SCREEN   
+};
 
 class CameraManager {
 private:
     static CameraManager* instance; 
-    std::vector<std::unique_ptr<Camera>> cameras; 
-    int active_camera_index = 1;
+   
+    std::unique_ptr<Camera> freeCamera = std::make_unique<FreeCamera>(glm::vec3(0.0f, 5.0f, 20.0f));
+	PlayerCameraSet playersCamera[2];
+    ViewMode viewMode = ViewMode::EDIT_SCREEN;
 
     CameraManager() {}
 
@@ -26,35 +34,25 @@ public:
         return instance;
     }
 
-    void AddCamera(std::unique_ptr<Camera> camera) {
-        cameras.push_back(std::move(camera));
-    }
+    void SetPlayerActiveCamera(CameraType type, int playerNumber);
 
-    int GetNumberOfCameras() {
-        return cameras.size();
-    }
+    Camera& GetPlayerActiveCamera(int playerNumber);
 
-    void SetActiveCamera(int index) {
-        active_camera_index = index;
-    }
-
-    Camera& GetActiveCamera() {
-        return *cameras[active_camera_index];
-    }
-
-    int GetActiveCameraIndex() {
-        return active_camera_index;
-    }
 
     void CreateCameras();
 
     void ProccessInput(CameraControlInput input, float deltaTime);
 
-    void MoveFreeCameraToPosition(glm::vec3 position)
-    {
-        Camera& activeCam = GetActiveCamera();
-        if (activeCam.cameraType == CameraType::FREE_CAMERA) {
-            activeCam.Position = position;
-        }
+    void MoveFreeCameraToPosition(glm::vec3 position);
+
+    void SetViewMode(ViewMode mode) {
+        viewMode = mode;
+    }
+
+    ViewMode GetViewMode() const {
+        return viewMode;
+    }
+    FreeCamera& GetFreeCamera() {
+        return dynamic_cast<FreeCamera&>(*freeCamera);
     }
 };

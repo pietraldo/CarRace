@@ -1,8 +1,0 @@
-Model Information:
-* title:	WHEEL
-* source:	https://sketchfab.com/3d-models/wheel-33e25594a8f440dba8b33ef4551ca38d
-* author:	Uder Gidro (https://sketchfab.com/ertere10)
-
-Model License:
-* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
-* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

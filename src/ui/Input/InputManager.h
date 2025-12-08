@@ -10,20 +10,21 @@
 class InputManager {
     
 private:
+    InputController* inputController0;
     InputController* inputController1;
-    InputController* inputController2;
     static InputManager* inputManager;
 
     InputManager() {
+        inputController0 = nullptr;
         inputController1 = nullptr;
-        inputController2 = nullptr;
-        inputManager = nullptr;
+        currentInputType = KEYBOARD_AND_KEYBOARD;
     }
 
     enum inputType {
         CONTROLLER,
         KEYBOARD,
-        CONTROLLER_AND_KEYBOARD
+        CONTROLLER_AND_KEYBOARD,
+        KEYBOARD_AND_KEYBOARD
     };
 
     inputType currentInputType;
@@ -40,12 +41,12 @@ public:
 
     void setUp();
 
-    void setInputController1(InputController* controller) { inputController1 = controller; }
-    void setInputController2(InputController* controller) { inputController2 = controller; }
+    void setInputController1(InputController* controller) { inputController0 = controller; }
+    void setInputController2(InputController* controller) { inputController1 = controller; }
 
     InputData getInputData();
     void setEffectsOnInputer(OutputData output) {
+        if (inputController0) inputController0->setEffectsOnInputer(output.effectsOnInputer0);
         if (inputController1) inputController1->setEffectsOnInputer(output.effectsOnInputer1);
-        if (inputController2) inputController2->setEffectsOnInputer(output.effectsOnInputer2);
     }
 };

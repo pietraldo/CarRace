@@ -42,29 +42,41 @@ Scene::Scene()
 }	
 
 
-void Scene::UpdateCar(InputData input, float deltaTime)
+void Scene::UpdateCars(InputData input, float deltaTime)
 {
-	vector<RaceCar*> vehicles = Physics::getInstance()->getVehicles();
-	for (RaceCar* v : vehicles)
+	auto vehicles = Physics::getInstance()->getVehicles();
+
+	const size_t maxPlayers = 2;
+	size_t count = vehicles.size();
+	if (count > maxPlayers)
+		count = maxPlayers;
+
+	for (size_t i = 0; i < count; ++i)
 	{
+		if (!vehicles[i] || !cars[i])
+			continue;
+
+		RaceCar* v = vehicles[i];
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
-		glm::vec3 position = glm::vec3(pos.x, pos.y, pos.z);
+		glm::vec3 position(pos.x, pos.y, pos.z);
 
-		car->SetWheelRotationFromPhysx(Physics::getInstance()->getVehicles()[0]->getWheelRotation());
-		float steer = -input.carControl1.steer * 45;
-		car->SetSteer(steer);
+		cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
-		car->Update(deltaTime, position, rotation);
-
+		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
+		float steer = -carControl.steer * 45.0f;
+		cars[i]->SetSteer(steer);
+		cars[i]->Update(deltaTime, position, rotation);
 	}
 }
 
-void Scene::UpdateCamera(float dt)
-{
-    Camera& activeCamera = CameraManager::GetInstance()->GetActiveCamera();
 
-	RaceCar* vehicle = Physics::getInstance()->getVehicles()[0];
+
+void Scene::UpdatePlayerCamera(float dt, int playerNumber)
+{
+    Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
+
+	RaceCar* vehicle = Physics::getInstance()->getVehicles()[playerNumber];
 	PxVec3 pxPos = vehicle->getVehiclePosition();
 	PxQuat pxRot = vehicle->getVehicleRotation();
 
@@ -77,24 +89,36 @@ void Scene::UpdateCamera(float dt)
 		firstPersonCamera.Update(carPos, carRot);
 		
     }
-    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
-    {
-        ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
-    }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
 		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
 		fol.Update(carPos, carRot);
 	}
+	else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
+	{
+		ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
+		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
+	}
 
+
+}
+
+void Scene::UpdatePlayersCamera(float dt) {
+	ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
+	if( activeViewMode == ViewMode::SINGLE_SCREEN) {
+		UpdatePlayerCamera(dt, 0);
+	}
+	if( activeViewMode == ViewMode::SPLIT_SCREEN) {
+		UpdatePlayerCamera(dt, 0);
+		UpdatePlayerCamera(dt, 1);
+	}
 }
 
 void Scene::Update(InputData input, float deltaTime)
 {
 
-	UpdateCamera(deltaTime);
-	UpdateCar(input, deltaTime);
+	UpdatePlayersCamera(deltaTime);
+	UpdateCars(input, deltaTime);
 
 
 	for (Light* light : lights) {
@@ -119,24 +143,69 @@ void Scene::Update(InputData input, float deltaTime)
 
 }
 
-void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol)
+void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
 {
-	for (Model* model : modelsTex)
-	{
-		DrawModel(shaderTex, *model);
-	}
-	for (Model* model : modelsCol)
-	{
-		DrawModel(shaderCol, *model);
-	}
+    shaderTex.use();
+    shaderTex.setBool("uIsMirror", false);
+    shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderTex.setVec3("viewPos", activeCam.Position);
+    shaderTex.setBool("fogEnabled", fog);
+
+    for (Model* model : modelsTex)
+    {
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius())) 
+            continue;
+
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 position = model->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+        modelMatrix = glm::translate(modelMatrix, position);
+        modelMatrix *= glm::toMat4(rotation);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        shaderTex.setMat4("model", modelMatrix);
+        shaderTex.setVec3("objectColor", model->GetColor());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model->textureID);
+        model->Draw(shaderTex);
+    }
+
+    shaderCol.use();
+    shaderCol.setBool("uIsMirror", false);
+    shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderCol.setVec3("viewPos", activeCam.Position);
+    shaderCol.setBool("fogEnabled", fog);
+
+    for (Model* model : modelsCol)
+    {
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+            continue;
+
+         glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 position = model->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+        modelMatrix = glm::translate(modelMatrix, position);
+        modelMatrix *= glm::toMat4(rotation);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        shaderCol.setMat4("model", modelMatrix);
+        shaderCol.setVec3("objectColor", model->GetColor());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model->textureID);
+        model->Draw(shaderCol);
+    }
 }
-void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
+void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
 {
 	shader.use();
 	shader.setBool("uIsMirror", false);
 
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
 
 	for (Light* light : lights) {
 		if (light->GetType() != LightType::POINT)
@@ -153,13 +222,13 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO)
 	}
 }
 
-void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
+void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam)
 {
 	shader.use();
 
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+	shader.setVec3("viewPos", activeCam.Position);
 	shader.setBool("fogEnabled", fog);
 
 	glm::mat4 model = glm::mat4(1.0f);
@@ -175,13 +244,13 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO)
 	
 }
 
-void Scene::DrawModel(Shader& shader, Model& model)
+void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 {
 	shader.use();
 	shader.setBool("uIsMirror", false);
-	shader.setMat4("projection", Rendering::GetProjectionMatrix());
-	shader.setMat4("view", Rendering::GetViewMatrix());
-	shader.setVec3("viewPos", CameraManager::GetInstance()->GetActiveCamera().Position);
+	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+	shader.setVec3("viewPos", activeCam.Position);
 	shader.setVec3("objectColor", model.GetColor());
 	shader.setBool("fogEnabled", fog);
 
@@ -203,39 +272,10 @@ void Scene::DrawModel(Shader& shader, Model& model)
 
 void Scene::CreateModels()
 {
-	const std::string carModelPath = "../assets/models/car/scene.gltf";
-	const std::string wheelModelPath = "../assets/models/wheel/wheel.gltf";
-	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
-
-	auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.f, 0.0f, 0.f), 0.01f, glm::vec3(1.f));
-	bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
-	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
-	auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), 1.30f, glm::vec3(1.f));
-	auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
-	steeringModel->SetPositionOffset(glm::vec3(-0.3f, 0.2f, 0.45f));
-
-	car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
-
-	if (car->GetBody())
-		AddTextureModel(car->GetBody().get());
-
-	for (auto& w : car->Wheels()) {
-		if (!w) continue;
-		const auto& sp = w->GetModel();
-		if (sp)
-			AddTextureModel(sp.get());
-	}
-
-	if (car->GetSteeringWheel()) {
-		AddTextureModel(car->GetSteeringWheel().get());
-	}
-
-	// ---- Map model ----
-	const std::string mapModelPath = "../assets/models/map/scene.gltf";
-	Model* mapModel = new Model(mapModelPath, glm::vec3(0.0f, 0.01f, 0.0f), 1.0f, glm::vec3(1.0f));
-	mapModel->SetRotation(physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(1.0f, 0.0f, 0.0f)));
-	AddTextureModel(mapModel);
+	cars[0] = CreateCar(glm::vec3(0.f, 0.0f, 0.f));
+	cars[1] = CreateCar(glm::vec3(6.f, 0.0f, 0.f));
 }
+
 
 
 void Scene::CreateLights()
@@ -245,7 +285,6 @@ void Scene::CreateLights()
 		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(point_light1_ceneter_of_board);
 
-	/* Point light 2 - in the center of board */
 	Light* point_light2_ceneter_of_board = new LightPoint(glm::vec3(10.2f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -324,4 +363,55 @@ glm::quat Scene::GetCarRotation() const
 
 	PxQuat rot = vehicles[0]->getVehicleRotation();
 	return PxQuatToGlmQuat(rot);
+}
+
+std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
+{
+	const std::string carModelPath = "../assets/models/car/car.gltf";
+	const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
+	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
+
+	auto bodyModel = std::make_shared<Model>(
+		carModelPath,
+		bodyPosition,                 
+		0.01f,
+		glm::vec3(1.f)
+	);
+	bodyModel->SetRotationOffset(
+		physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f))
+	);
+	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
+
+	auto wheelModel = std::make_shared<Model>(
+		wheelModelPath,
+		glm::vec3(0.f),
+		0.29f,
+		glm::vec3(1.f)
+	);
+
+	auto steeringModel = std::make_shared<Model>(
+		steringWheelModelPath,
+		glm::vec3(0.f),
+		0.3f,
+		glm::vec3(1.f)
+	);
+	steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
+
+	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
+
+	if (car->GetBody())
+		AddTextureModel(car->GetBody().get());
+
+	for (auto& w : car->Wheels()) {
+		if (!w) continue;
+		const auto& sp = w->GetModel();
+		if (sp)
+			AddTextureModel(sp.get());
+	}
+
+	if (car->GetSteeringWheel()) {
+		AddTextureModel(car->GetSteeringWheel().get());
+	}
+
+	return car;
 }

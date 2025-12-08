@@ -1,7 +1,7 @@
 #include "CubeObejct.h"
 #include "../../gfx/Cube.h"
 
-void CubeObject::Draw()
+void CubeObject::Draw(Camera& activeCam)
 {
     physx::PxVec3 pxPos = GetPosition();
     physx::PxQuat pxQuat = GetRotation();
@@ -20,5 +20,5 @@ void CubeObject::Draw()
         pxQuat.y,
         pxQuat.z
     );
-    Cube::Draw(pos, quat, scale, color);
+    Cube::Draw(pos, quat, scale, color,activeCam);
 }

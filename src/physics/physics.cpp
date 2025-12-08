@@ -40,7 +40,8 @@ int Physics::initialize(Scene* scene) {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(0, 10, 0), "vehicle1");
+    createVehicle(PxVec3(0, 10, 0), "vehicle0");
+    createVehicle(PxVec3(6, 10, 0), "vehicle1");
     createTerrain();
 
     return 0;
@@ -188,14 +189,20 @@ void Physics::createTerrain()
     gScene->addActor(*actor);
 }
 
-void Physics::update(float deltaTime, CarControlInput carControll)
+void Physics::update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1)
 {
 
-    vehicles[0]->Update(deltaTime, carControll);
+    // Car 1 (player 1)
+    if (vehicles.size() > 0 && vehicles[0])
+    {
+        vehicles[0]->Update(deltaTime, carControll0);
+    }
 
-    //Forward integrate the vehicle by a single timestep.
-    //Apply substepping at low forward speed to improve simulation fidelity.
-
+    // Car 2 (player 2)
+    if (vehicles.size() > 1 && vehicles[1])
+    {
+        vehicles[1]->Update(deltaTime, carControll1);
+    }
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);

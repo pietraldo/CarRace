@@ -51,7 +51,7 @@ public:
     void createObjects(const std::vector<GameObject*>& gameObjects);
 
     void createTerrain();
-    void update(float deltaTime, CarControlInput carControll);
+    void update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1);
 
     void cleanup();
 
