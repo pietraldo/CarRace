@@ -27,7 +27,7 @@ private:
 
 
     float scalex = 2.0f;
-    float scaley = 550.0f;
+    float scaley = 350.0f;
     float scalez = 2.0f;
 
 public:
