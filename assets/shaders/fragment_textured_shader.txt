@@ -47,6 +47,8 @@ uniform vec3 viewPos;
 uniform vec3 objectColor;   
 uniform bool fogEnabled;
 uniform bool uIsMirror;
+uniform bool uIsBrakeLight;
+uniform bool uIsBraking;
 
 uniform sampler2D uBaseColorMap;
 
@@ -108,6 +110,14 @@ void main()
     float dist = length(fposition.xyz);
     float fog_factor = (fog_maxdist - dist) / (fog_maxdist - fog_mindist);
     fog_factor = clamp(fog_factor, 0.0, 1.0);
+
+    if (uIsBrakeLight) {
+        if (uIsBraking) {
+            result += vec3(1.0, 0.0, 0.0) * 1.5; 
+        } else {
+            result += vec3(0.3, 0.0, 0.0);
+        }
+    }
 
     vec4 shadedColor = vec4(result, 1.0);
 

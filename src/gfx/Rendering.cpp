@@ -388,6 +388,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
+    (*Rendering::scene).DrawCars(shaderTextured, activeCam);
     (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
 
