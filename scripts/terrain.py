@@ -450,15 +450,16 @@ if __name__ == '__main__':
     from texture import generate_texture
     from image_to_tarain import image_to_array
     
-    n=500
-    m=600
+    n=1024
+    m=1024
     #road_mark = generate_track(n, m, road_width=15)
-    road_mark = image_to_array("race_track_shape.png")
+    #road_mark = image_to_array("race_track_shape.png")
+    road_mark=np.zeros((n,m))
     #generate_texture(road_mark)
     #h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
     #h = flatten(h, road_mark)
-    h = flatten_own_function(h, road_mark)
+    #h = flatten_own_function(h, road_mark)
     #h= smooth_road(h, road_mark, iterations=30)
     
     road_mark = np.array(road_mark, dtype=int)
