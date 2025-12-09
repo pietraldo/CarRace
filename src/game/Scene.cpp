@@ -37,7 +37,7 @@ Scene::Scene()
 	gameObjects.push_back(cube3);
 	cube = cube3;
 
-    terrain = new Terrain(glm::vec3(100.0f, -20.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+    terrain = new Terrain(glm::vec3(100.0f, 0.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 }	
 
@@ -416,5 +416,6 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 
 	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
+	
 	return car;
 }

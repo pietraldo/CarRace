@@ -2,6 +2,8 @@
 from typing import Tuple, Optional
 import numpy as np
 
+from plot_heights import *
+
 
 def _next_pow2_plus_one(n: int) -> int:
     """Return the next size of form (2^k)+1 >= n."""
@@ -155,6 +157,142 @@ def flatten(heightmap, road_mark):
     return flattened
 
 
+
+def flatten_own_function(heightmap, road_mark):
+    flattened = heightmap.copy()
+    n, m = heightmap.shape
+
+
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                if(is_neightbor_terrain(road_mark, i, j)):
+                    road_mark[i][j] = 2  # mark edge cells
+    mark_left_edge(road_mark)
+    
+   
+    
+    # road_mark = np.array(road_mark, dtype=int)
+    
+    #np.savetxt("road_mark_edges.txt", road_mark, fmt='%d')
+    # for i in range(40):
+    #     flattened=flatt_edge_and_unmark(road_mark, flattened)
+    #     mark_left_edge(road_mark)
+    
+   
+    
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 1:
+                closest_i, closest_j, dist1 = found_closest_edge(road_mark, i, j, number_edge=3)
+                # closest_i2, closest_j2, dist2 = found_closest_edge(road_mark, i, j, number_edge=5)
+                
+                # value1 = flattened[closest_i][closest_j] 
+                # value2 = flattened[closest_i2][closest_j2]
+                # proc1 = dist2 / (dist1 + dist2)
+                # proc2 = dist1 / (dist1 + dist2)
+                # flattened[i][j] = value1 * proc1 + value2 * proc2
+                #print("value: ", value1, value2, " proc: ", proc1, proc2, " final: ", flattened[i][j], " dist: ", dist1, dist2)
+                
+                # if(flattened[i][j] > 1.0 or flattened[i][j] < 0.0):
+                #     print("Error in blending heights at: ", i, j    )
+                flattened[i][j] = flattened[closest_i][closest_j]
+                
+    flattened = apply_smooth_heights(road_mark, flattened,10)
+    
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] >= 1:
+                road_mark[i][j] = 1  # reset to road cells
+                #flattened[i][j] = 0.5
+    
+    return flattened
+
+
+def mark_left_edge(road_mark):
+    n = len(road_mark)
+    m = len(road_mark[0])
+    
+    start_i =0
+    start_j =0
+    
+    brak_loop = False
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 2:
+                start_i = i
+                start_j = j
+                brak_loop = True
+                break
+        if brak_loop:
+            break
+    
+    edges_found=[]
+    edges_found.append((start_i, start_j))
+    while len(edges_found) > 0:
+        i, j = edges_found.pop(0)
+        road_mark[i][j] = 3  # mark left edge
+        for di in [-1, 0, 1]:
+            for dj in [-1, 0, 1]:
+                
+                ni = i + di
+                nj = j + dj
+                if 0 <= ni < n and 0 <= nj < m:
+                    if road_mark[ni][nj] == 2:
+                        road_mark[ni][nj] = 3  # mark left edge
+                        edges_found.append((ni, nj))
+                
+    return road_mark
+def flatt_edge_and_unmark(road_mark, flattened):
+    n = len(road_mark)
+    m = len(road_mark[0])
+
+    start_i =0
+    start_j =0
+
+    brak_loop = False
+    for i in range(n):
+        for j in range(m):
+            if road_mark[i][j] == 3:
+                start_i = i
+                start_j = j
+                brak_loop = True
+                break
+        if brak_loop:
+            break
+
+    iteration = 0
+    edges_found=[]
+    edges_found.append((start_i, start_j))
+    while len(edges_found) > 0:
+        iteration += 1
+        if(iteration%1000 == 0):
+            print("Edges left to flatten: ", len(edges_found))
+        i, j = edges_found.pop(0)
+        if(road_mark[i][j] != 3):
+            continue
+        road_mark[i][j] = 2
+        # unmark left edge
+        #print("Flattening edge at: ", i, j)
+        sum_height = 0.0
+        num_count = 0
+        for di in range(-2,3):
+            for dj in range(-2,3):
+                
+                ni = i + di
+                nj = j + dj
+                if 0 <= ni < n and 0 <= nj < m:
+                    if road_mark[ni][nj] == 3:
+                        sum_height += flattened[ni][nj]
+                        num_count += 1
+                        edges_found.append((ni, nj))
+        if num_count > 0:
+            avg_height = sum_height / num_count
+            flattened[i][j] = avg_height
+        
+            
+    return flattened
+
 import numpy as np
 
 def flatten_heightmap(heightmap, road_mark, radius=3):
@@ -306,21 +444,41 @@ def read_terrain_from_file(filename: str) -> np.ndarray:
     """
     return np.loadtxt(filename)
 
+def compress_heightmap(heightmap, n,m):
+    """
+    Compress the heightmap to size n x m by averaging blocks.
+    """
+    original_n, original_m = heightmap.shape
+    compressed = np.zeros((n, m), dtype=float)
+
+    block_n = original_n // n
+    block_m = original_m // m
+
+    for i in range(n):
+        for j in range(m):
+            block = heightmap[i*block_n:(i+1)*block_n, j*block_m:(j+1)*block_m]
+            compressed[i, j] = np.mean(block)
+
+    return compressed
+
 if __name__ == '__main__':
     
     from road_mark import generate_track
     from texture import generate_texture
     from image_to_tarain import image_to_array
     
-    n=500
-    m=500
+    n=512
+    m=512
     #road_mark = generate_track(n, m, road_width=15)
-    road_mark = image_to_array("race_track_shape.png")
-    generate_texture(road_mark)
-    h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
+    #road_mark = image_to_array("race_track_shape.png")
+    road_mark=np.zeros((n,m))
+    #generate_texture(road_mark)
+    #h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)
     h = read_terrain_from_file("heightmap_normalized.txt")
+    h = compress_heightmap(h, n, m)
     #h = flatten(h, road_mark)
-    h= smooth_road(h, road_mark, iterations=30)
+    #h = flatten_own_function(h, road_mark)
+    #h= smooth_road(h, road_mark, iterations=30)
     
     road_mark = np.array(road_mark, dtype=int)
     np.savetxt("road_mark.txt", road_mark, fmt='%d')

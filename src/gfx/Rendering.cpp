@@ -61,10 +61,9 @@ int Rendering::Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    stbi_set_flip_vertically_on_load(true);
-    textureData = stbi_load("../assets/vehicledata/terrain_texture.png", & texWidth, & texHeight, & nbChannels, 0);
+    textureData = stbi_load("../assets/vehicledata/baseColor4.png", & texWidth, & texHeight, & nbChannels, 0);
     if (!textureData)
     {
         std::cout << "Failed to load texture" << std::endl;
@@ -278,10 +277,17 @@ void Rendering::RenderImGui()
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", freeCam.Position.x, freeCam.Position.y, freeCam.Position.z);
             ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", freeCam.Front.x, freeCam.Front.y, freeCam.Front.z);
 
+            ImGui::SliderFloat("Movement Speed", &freeCam.MovementSpeed, 0.1f, 500.0f);
+
             if (ImGui::Button("Move camera to car")) {
                 glm::vec3 position = PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
                 CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
             }
+        }
+        if (ImGui::Button("Move car here"))
+        {
+            glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
+            Physics::getInstance()->getVehicles()[0]->setVehiclePosition(GlmVec3ToPxVec3(position));
         }
 
         ImGui::End();
@@ -394,7 +400,7 @@ glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
         glm::radians(camera.Zoom),
         (float)SCR_WIDTH / (float)SCR_HEIGHT,
         0.1f,
-        300.0f
+        2000.0f
     );
 }
 
