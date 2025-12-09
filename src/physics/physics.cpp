@@ -239,7 +239,7 @@ void Physics::InitVehicleSystem()
     gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
     gVehicleSimulationContext.frame.vrtAxis = PxVehicleAxes::ePosY;
     gVehicleSimulationContext.scale.scale = 1.0f; // it tells that we use meters, if we use centimeters set scale to 0.01f
-    gVehicleSimulationContext.gravity = gGravity+PxVec3(0,-4,0);
+    gVehicleSimulationContext.gravity = gGravity;
     gVehicleSimulationContext.physxScene = gScene;
     gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 }
