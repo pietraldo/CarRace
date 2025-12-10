@@ -7,22 +7,40 @@ Comprehensive unit test suite for the CarRace project using Google Test framewor
 This test suite contains **285+ unit tests** covering the following modules:
 
 ### Game Module (80 tests)
-- **Helper Functions** (30 tests): Conversion functions between GLM and PhysX types, quaternion operations
-- **Math Utilities** (50 tests): Matrix transformations, vector operations, interpolation, quaternions
+- **Helper Functions** (30 tests):
+    - GLM <-> PhysX vector and quaternion conversions (accuracy, edge cases like zero/negative values).
+    - Rotation calculations (e.g., extracting X-axis rotation from quaternions).
+- **Math Utilities** (50 tests): Matrix transformations, vector operations, interpolation, quaternions.
 
 ### Graphics Module (140 tests)
-- **Camera** (40 tests): Construction, pitch/zoom clamping, vector calculations, frustum culling
-- **Lights** (50 tests): Light structures, attenuation calculations, spotlight cutoffs, color management
-- **Mesh** (50 tests): Vertex/texture structures, normal calculations, tangent/bitangent generation
+- **Camera** (40 tests): Construction, pitch/zoom clamping, vector calculations, frustum culling logic.
+- **Lights** (50 tests): Light structures, attenuation calculations, spotlight cutoffs, color management.
+- **Mesh** (50 tests): Vertex/texture structures, normal calculations, tangent/bitangent generation.
 
 ### Input Module (60 tests)
-- **Input Structures** (60 tests): Camera control input, normalization, deadzone, smoothing, state management
+- **Input Structures** (60 tests): Camera control input, normalization, deadzone handling, smoothing algorithms, state management.
 
 ### Physics Module (50 tests)
-- **Car Control** (50 tests): Steering, throttle, brake, handbrake, velocity, acceleration
+- **Car Control** (50 tests):
+    - Steering: Clamping logic, visual smoothing limits.
+    - Throttle/Brake: Input clamping (0.0-1.0), conflicting input handling.
+    - Gear Logic: Shifting mechanics, neutral/reverse states.
+    - Velocity/Acceleration: Speed calculations from vectors, acceleration over time.
 
 ### Audio Module (45 tests)
-- **Audio Calculations** (45 tests): Volume, pitch, distance attenuation, Doppler effect, stereo panning
+- **Audio Calculations** (45 tests): Volume, pitch, distance attenuation, Doppler effect formulations, stereo panning.
+
+## Manual Tests
+
+Manual test scenarios for physical testing (gameplay, controls, visuals) are available in:  
+`c:\Users\Grzesiu\OneDrive\Pulpit\sem7\Inzynierka\CarRace\scenariusze_testowe.txt`
+
+These scenarios cover:
+1. **Driving Mechanics**: Acceleration, braking (with lights), gear shifting (Z/X, M/N), handbrake.
+2. **Physics**: Collisions, hill climbing, suspension.
+3. **Split-Screen**: Independent control/camera for 2 players.
+4. **Visuals**: Day/night cycle, shadows, fog.
+5. **Stability**: Long sessions, reset functionality.
 
 ## Building the Tests
 
@@ -94,7 +112,7 @@ tests/
 ├── physics/
 │   └── car_control_test.cpp       # 50 tests
 └── audio/
-    └── audio_test.cpp             # 45 tests
+│   └── audio_test.cpp             # 45 tests
 ```
 
 ## Test Utilities
