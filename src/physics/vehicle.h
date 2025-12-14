@@ -110,6 +110,8 @@ public:
         return gVehicle.getWheelRotation();
     }
 
+    vector<bool> getWheelIsGrounded();
+
     void resetCar()
     {
         PxVec3 position = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
@@ -119,6 +121,7 @@ public:
     }
 
     float computeDriftFactor();
+    std::vector<float> computeDriftFactorPerWheel();
     float computeDriftFactor2() const;
 
     void Update(float deltaTime, CarControlInput carControll);

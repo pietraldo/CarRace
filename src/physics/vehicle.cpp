@@ -29,6 +29,20 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
 
 float RaceCar::computeDriftFactor()
 {
+    std::vector<float> driftFactors = computeDriftFactorPerWheel();
+
+    float max = 0.0f;
+    for (float df : driftFactors)
+    {
+        if (df > max)
+            max = df;
+    }
+    cout << "Drift Factor: " << max << endl;
+    return max;
+}
+
+std::vector<float> RaceCar::computeDriftFactorPerWheel()
+{
     float linearVelocity = std::abs(getSpeed());
     float wheelRadius = gVehicle.mBaseParams.wheelParams[0].radius;
 
@@ -39,6 +53,8 @@ float RaceCar::computeDriftFactor()
     {
         wheelVelocities[i] = std::abs(wheelRadius * gVehicle.mBaseState.wheelRigidBody1dStates[i].correctedRotationSpeed);
         
+        //float slip1 = gVehicle.mBaseState.tireSlipStates[i].slips[0];
+        //float slip2 = gVehicle.mBaseState.tireSlipStates[i].slips[1];
         if (wheelVelocities[i] < 1)
         {
             driftFactor[i] = 0;
@@ -51,6 +67,7 @@ float RaceCar::computeDriftFactor()
         }
         driftFactor[i] = 1 - linearVelocity / wheelVelocities[i];
     }
+    
 
     // print velocities and driftfactors for debugging
     std::cout<<"Linear: " << linearVelocity << " | ";
@@ -64,11 +81,16 @@ float RaceCar::computeDriftFactor()
     {
         std::cout << driftFactor[i] << " ";
     }
+    std::cout << "| Slips Factors: ";
+    for (int i = 0; i < 4; i++)
+    {
+        float slip1 = gVehicle.mBaseState.tireSlipStates[i].slips[0];
+        float slip2 = gVehicle.mBaseState.tireSlipStates[i].slips[1];
+        std::cout << "(" << slip1 << ", " << slip2 << ") ";
+    }
     std::cout << std::endl;
 
-
-
-    return driftFactor[0];
+    return driftFactor;
 }
 
 float RaceCar::computeDriftFactor2() const
@@ -139,6 +161,22 @@ float RaceCar::computeDriftFactor2() const
     return drift;
 }
 
+std::vector<bool> RaceCar::getWheelIsGrounded()
+{
+    std::vector<bool> grounded(4, false);
+    for (int i = 0; i < 4; i++)
+    {
+        grounded[i] = gVehicle.mBaseState.roadGeomStates[i].hitState;
+    }
+    //print 
+    std::cout << "Wheel Grounded: ";
+    for (int i = 0; i < 4; i++)
+    {
+        std::cout << grounded[i] << " ";
+    }
+    std::cout << std::endl;
+    return grounded;
+}
 
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
@@ -167,7 +205,8 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.step(deltaTime, *gVehicleSimulationContext);
 
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
-    UpdateTireSqueal(computeDriftFactor(), getSpeed());
+    UpdateTireSqueal(computeDriftFactor2(), getSpeed());
+    getWheelIsGrounded();
 }
 
 void RaceCar::UpdateSteer(float deltaTime, float steer)
