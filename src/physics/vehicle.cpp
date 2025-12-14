@@ -31,12 +31,9 @@ float RaceCar::computeDriftFactor()
 {
     std::vector<float> driftFactors = computeDriftFactorPerWheel();
 
-    float max = 0.0f;
-    for (float df : driftFactors)
-    {
-        if (df > max)
-            max = df;
-    }
+    float mid1 = (driftFactors[0] + driftFactors[1])/2;
+    float mid2 = (driftFactors[2] + driftFactors[3]) / 2;
+    float max = std::max(mid1, mid2);
     return max;
 }
 
@@ -170,7 +167,6 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
 
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
     UpdateTireSqueal(computeDriftFactor(), computeDriftFactor2(), getSpeed());
-    getWheelIsGrounded();
 }
 
 void RaceCar::UpdateSteer(float deltaTime, float steer)
