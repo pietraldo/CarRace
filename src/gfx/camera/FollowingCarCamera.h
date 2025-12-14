@@ -49,11 +49,9 @@ public:
         forward.y = 0.0f; 
 
         // smoth y_car_rotation
-        std::cout << "Y car rotation: " << y_car_rotation;
         target_y_car_rotation = y_car_rotation;
         current_y_car_rotation += (target_y_car_rotation - current_y_car_rotation) * 0.02f;
         y_car_rotation = current_y_car_rotation;
-        std::cout << " Smoothed: " << y_car_rotation << std::endl;
 
         float cam_y = eyeHeight + y_car_rotation * 80.0f;
         Position = targetPos - forward * distanceFromTarget + glm::vec3(0.0f, cam_y, 0.0f);

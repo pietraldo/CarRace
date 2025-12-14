@@ -48,6 +48,8 @@ public:
         const glm::quat& carRot,
         glm::vec3 carVel
     ) {
+
+
         if (glm::length(carVel) < 0.1f)
             carVel = glm::vec3(0.0f,0.1f,0.0f);
         

@@ -67,6 +67,7 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 	
+
 	RaceCar* vehicle;
 	if (playerNumber < CAR_COUNT)
 	{
@@ -83,12 +84,12 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
     glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
     glm::quat carRot = PxQuatToGlmQuat(pxRot);
 
+	std::cout << "isCarVisible: " << Rendering::isCarVisible(carPos) << std::endl;
+
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
 		firstPersonCamera.Update(carPos, carRot);
-
-		
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{

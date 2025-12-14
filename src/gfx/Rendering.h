@@ -71,6 +71,9 @@ public:
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
 
+
+    bool static isCarVisible(glm::vec3 carPos);
+
     // texture
     static int texWidth;
     static int texHeight;

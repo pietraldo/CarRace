@@ -9,6 +9,7 @@
 
 #include "../../ui/Input/InputStructures.h"
 
+
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
