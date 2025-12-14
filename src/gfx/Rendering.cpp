@@ -351,6 +351,13 @@ void Rendering::RenderImGui()
 
         ImGui::End();
     }
+    {
+        ImGui::Begin("Car controller settings");
+        ImGui::SliderFloat("Steering speed", &Physics::getInstance()->getVehicles()[0]->steeringSpeed, 0.1f, 10.0f);
+        ImGui::SliderFloat("Returning speed", &Physics::getInstance()->getVehicles()[0]->steeringReturnSpeed, 0.1f, 30.0f);
+        ImGui::End();
+
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -11,7 +11,7 @@ public:
     Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel);
 
     void SetSteer(float deg);  
-    void Update(float dt, glm::vec3 position, physx::PxQuat rotation);
+    void Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc);
     void Draw(Shader& shader);
 
     float GetSteer()        const { return steerCurrent; }
@@ -46,7 +46,7 @@ private:
     float steerTarget = 0.f;
     float steerCurrent = 0.f;   // deg
     float steerSpeed = 180.f; // deg/s
-    float maxSteer = 45.f;  // deg
+    float maxSteer = 60.0f;  // deg
 
 	bool isBraking = false; // state for brake lights
 

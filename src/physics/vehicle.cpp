@@ -97,11 +97,12 @@ float RaceCar::computeDriftFactor() const
 
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
+    UpdateSteer(deltaTime, carControll.steer);
     gVehicle.mCommandState.brakes[0] = carControll.brake;
     gVehicle.mCommandState.brakes[1] = carControll.handbrake;
     gVehicle.mCommandState.nbBrakes = 2;
     gVehicle.mCommandState.throttle = carControll.throttle;
-    gVehicle.mCommandState.steer = carControll.steer;
+    gVehicle.mCommandState.steer = currentSteeringAngle;
     int currrentGear = gVehicle.mEngineDriveState.gearboxState.currentGear;
     int targetGear = currrentGear + carControll.gear;
     if (targetGear >= 0 && targetGear < 8 && carControll.gear!=0)
@@ -122,6 +123,20 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
 
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
     UpdateTireSqueal(computeDriftFactor(), getSpeed());
+}
+
+void RaceCar::UpdateSteer(float deltaTime, float steer)
+{
+    std::cout << "PRZED Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle << std::endl;
+
+
+    targetSteeringAngle = steer;
+    float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
+    currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
+    currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
+
+
+    std::cout << "PO    Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle << std::endl;
 }
 
 void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear)

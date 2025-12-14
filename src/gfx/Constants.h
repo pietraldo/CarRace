@@ -5,5 +5,7 @@ const int MAX_POINT_LIGHTS = 10;
 const int MAX_SPOT_LIGHTS = 10;
 
 // settings
-const unsigned int SCR_WIDTH = 3200;
-const unsigned int SCR_HEIGHT = 2000;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1000;
+
+const unsigned int CAR_COUNT = 1;

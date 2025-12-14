@@ -33,6 +33,9 @@ private:
     const char* gVehicleName;
     const char* gVehicleDataPath = "..\\assets\\vehicledata";
 
+    float targetSteeringAngle = 0.0f;
+    float currentSteeringAngle = 0.0f;
+
     EngineSound engineSound;
     bool engineSoundStarted = false;
 
@@ -42,6 +45,10 @@ private:
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath, PxVehiclePhysXSimulationContext* simulationContext);
 
+    float steeringSpeed = 5.0f; 
+    float steeringReturnSpeed = 10.0f;
+
+    void UpdateSteer(float deltaTime, float steerInput);
     PxVec3 getVehiclePosition()
     {
         PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
@@ -51,6 +58,16 @@ public:
     {
         PxTransform t  = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
         return t.q;
+    }
+
+    float getMaxSteeringAngle()
+    {
+        return gVehicle.mBaseParams.steerResponseParams.maxResponse;
+    }
+
+    float getCurrentSteeringAngle()
+    {
+        return currentSteeringAngle;
     }
 
     void setVehiclePosition(PxVec3 position)

@@ -46,16 +46,8 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 {
 	auto vehicles = Physics::getInstance()->getVehicles();
 
-	const size_t maxPlayers = 2;
-	size_t count = vehicles.size();
-	if (count > maxPlayers)
-		count = maxPlayers;
-
-	for (size_t i = 0; i < count; ++i)
+	for (int i = 0; i<CAR_COUNT; i++)
 	{
-		if (!vehicles[i] || !cars[i])
-			continue;
-
 		RaceCar* v = vehicles[i];
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
@@ -64,10 +56,8 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 		cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
 		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
-		float steer = -carControl.steer * 45.0f;
-		cars[i]->SetSteer(steer);
         cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
-		cars[i]->Update(deltaTime, position, rotation);
+		cars[i]->Update(deltaTime, position, rotation, vehicles[i]->getCurrentSteeringAngle());
 	}
 }
 
@@ -289,8 +279,10 @@ void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 
 void Scene::CreateModels()
 {
-	cars[0] = CreateCar(glm::vec3(0.f, 0.0f, 0.f));
-	cars[1] = CreateCar(glm::vec3(6.f, 0.0f, 0.f));
+	for (int i = 0; i < CAR_COUNT; i++)
+	{
+		cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
+	}
 }
 
 
