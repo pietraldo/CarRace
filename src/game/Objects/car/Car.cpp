@@ -64,7 +64,7 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation, float ste
         else {
             w->SetSteer(0.0f);
         }
-        w->SetSpin(getXRotationDegrees(wheelRotationsFromPhysx[i]));
+        w->SetSpin(wheelRotationsFromPhysx[i]);
 
         wheelModel->SetRotation(body->GetRotation());
     }

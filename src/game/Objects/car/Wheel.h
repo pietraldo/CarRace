@@ -15,13 +15,13 @@ public:
 
     WheelPos pos;
     float currentSteerDeg;
-    float currentSpinDeg;
+    float currentSpinRad;
 
     void UpdateWheelRotation();
 
 private:
     void SetSteer(float steerDeg);
-    void SetSpin(float deltaDeg);
+    void SetSpin(float spinAngleRadians);
     std::shared_ptr<Model> model;
 
 };

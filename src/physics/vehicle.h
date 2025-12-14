@@ -85,7 +85,9 @@ public:
 
     float getSpeed()
     {
-        return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
+        PxVec3 forward = getVehicleFrontDirection();
+        float speed = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().dot(forward);
+        return speed;
     }
 
     PxVec3 getVelocity()
@@ -103,7 +105,7 @@ public:
         return gVehicle.mEngineDriveState.gearboxState.currentGear;
     }
 
-    vector<PxQuat> getWheelRotation()
+    vector<float> getWheelRotation()
     {
         return gVehicle.getWheelRotation();
     }
@@ -116,7 +118,8 @@ public:
         gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(PxTransform(position, PxQuat(PxIdentity)));
     }
 
-    float computeDriftFactor() const;
+    float computeDriftFactor();
+    float computeDriftFactor2() const;
 
     void Update(float deltaTime, CarControlInput carControll);
 	void UpdateEngineSound(float rpm, float throttle,float speed,int  gear);

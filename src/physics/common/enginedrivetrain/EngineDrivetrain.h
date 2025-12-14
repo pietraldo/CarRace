@@ -115,14 +115,14 @@ class EngineDriveVehicle
 	, public PxVehicleEngineDrivetrainComponent
 {
 public:
-	std::vector<PxQuat> getWheelRotation()
+	std::vector<float> getWheelRotation()
 	{
-		std::vector<PxQuat> rotations;
+		std::vector<float> rotations;
 		rotations.reserve(4);
 
 		for (int i = 0; i < 4; i++)
 		{
-			rotations.push_back(mBaseState.wheelLocalPoses[i].localPose.q);
+			rotations.push_back(mBaseState.wheelRigidBody1dStates[0].rotationAngle);
 		}
 		return rotations;
 	}

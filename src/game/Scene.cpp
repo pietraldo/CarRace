@@ -320,7 +320,8 @@ void Scene::CreateLights()
 void Scene::setOutput()
 {
     auto vehicle = Physics::getInstance()->getVehicles()[0];
-    float driftFactor = vehicle->computeDriftFactor();
+    //float driftFactor = vehicle->computeDriftFactor();
+    float driftFactor = 0;
 	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
     OutputData output;
     output.effectsOnInputer1.vibration = driftFactorOutput;
