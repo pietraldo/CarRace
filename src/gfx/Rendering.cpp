@@ -17,6 +17,9 @@ unsigned char* Rendering::textureData=nullptr;
 int Rendering::nbChannels=0;
 unsigned int Rendering::textureID=0;
 
+int Rendering::window_width = START_SCR_WIDTH;
+int Rendering::window_height = START_SCR_HEIGHT;
+
 bool Rendering::showBoxColliders = false;
 
 bool   Rendering::useExternalView = false;
@@ -33,8 +36,6 @@ unsigned int Rendering::VBO = 0;
 
 GLFWwindow* Rendering::window = nullptr;
 
-float Rendering::lastX = SCR_WIDTH / 2.0f;
-float Rendering::lastY = SCR_HEIGHT / 2.0f;
 bool Rendering::firstMouse = true;
 
 unsigned int Rendering::uboLights = *(new unsigned);
@@ -44,7 +45,7 @@ Mirrors Rendering::player1Mirrors;
 
 int Rendering::Initialize()
 {
-    window = CreateGLFWWindow(SCR_WIDTH, SCR_HEIGHT, "Rendering 3D scene");
+    window = CreateGLFWWindow(window_width, window_height, "Rendering 3D scene");
     if (window == nullptr) return -1;
 
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
@@ -184,6 +185,8 @@ GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title
 
 void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    Rendering::window_width = width;
+    Rendering::window_height = height;
     glViewport(0, 0, width, height);
 }
 
@@ -402,10 +405,18 @@ glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {
     if (useExternalProj)
         return externalProj;
+    ViewMode viewMode = CameraManager::GetInstance()->GetViewMode();
+    
+    float ratio = (float)window_width / (float)window_height;
+    if (viewMode == ViewMode::SPLIT_SCREEN)
+    {
+        ratio /= 2;
+    }
+
 
     return glm::perspective(
         glm::radians(camera.Zoom),
-        (float)SCR_WIDTH / (float)SCR_HEIGHT,
+        ratio,
         0.1f,
         2000.0f
     );
@@ -432,20 +443,20 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 
     if (currentViewMode == ViewMode::EDIT_SCREEN) {
         Camera& freeCam = cameraManager->GetFreeCamera();
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, freeCam);
     }
     else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); 
+        glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, activeCam);
     }
     else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
-        glViewport(0, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(gameObjects, activePlayer0Cam);
 
-        glViewport(SCR_WIDTH / 2, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(gameObjects, activePlayer1Cam);
     }

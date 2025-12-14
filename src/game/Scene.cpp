@@ -66,8 +66,17 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
+	
+	RaceCar* vehicle;
+	if (playerNumber < CAR_COUNT)
+	{
+		vehicle = Physics::getInstance()->getVehicles()[playerNumber];
+	}
+	else
+	{
+        vehicle = Physics::getInstance()->getVehicles()[0];
+	}
 
-	RaceCar* vehicle = Physics::getInstance()->getVehicles()[playerNumber];
 	PxVec3 pxPos = vehicle->getVehiclePosition();
 	PxQuat pxRot = vehicle->getVehicleRotation();
 

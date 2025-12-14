@@ -31,6 +31,9 @@ class Mirrors;
 class Rendering
 {
 public:
+    static int window_width;
+    static int window_height;
+
     static Scene* scene;
     static GLFWwindow* window;
 
@@ -47,8 +50,6 @@ public:
     static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;;
 
     // camera moving
-    static float lastX;
-    static float lastY;
     static bool firstMouse;
 
     static int Initialize();
