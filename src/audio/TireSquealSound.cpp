@@ -61,7 +61,7 @@ void TireSquealSound::stop()
     started = false;
 }
 
-void TireSquealSound::update(float driftAmount, float speed)
+void TireSquealSound::update(float tireForwardSlip, float tireSideSlip, float speed)
 {
     if (!loaded) return;
 
@@ -70,20 +70,25 @@ void TireSquealSound::update(float driftAmount, float speed)
     }
 
     if (speed < 2.0f) {
-        driftAmount = 0.0f;
+        tireSideSlip = 0.0f;
     }
 
-    driftAmount = glm::clamp(driftAmount, 0.0f, 1.0f);
+    tireSideSlip = glm::clamp(tireSideSlip, 0.0f, 1.0f);
 
     float speedFactor = glm::clamp((speed - 5.0f) / 35.0f, 0.0f, 1.0f);
 
-    float driftForVolume = std::pow(driftAmount, 0.65f);
-    float driftForPitch = std::pow(driftAmount, 0.5f);
+    float driftForVolume = std::pow(tireSideSlip, 0.65f);
+    float driftForPitch = std::pow(tireSideSlip, 0.5f);
 
     float targetVolume = 0.0f;
-    if (driftAmount > 0.02f && speedFactor > 0.0f) {
+    if (tireSideSlip > 0.02f && speedFactor > 0.0f) {
         float rawVol = 0.15f + driftForVolume * 0.9f * speedFactor;
         targetVolume = glm::clamp(rawVol, 0.0f, 1.0f);
+    }
+    if (tireForwardSlip > 0.2)
+    {
+        targetVolume += tireForwardSlip;
+        targetVolume = glm::clamp(targetVolume, 0.0f, 1.0f);
     }
 
     float basePitch = 0.9f + speedFactor * 0.4f;        
@@ -98,7 +103,12 @@ void TireSquealSound::update(float driftAmount, float speed)
         ? volumeSmoothFactor * attackMult
         : volumeSmoothFactor * releaseMult;
 
-    if (driftAmount > 0.6f && volumeSmoothed < 0.2f && dv > 0.0f) {
+    if (tireSideSlip > 0.6f && volumeSmoothed < 0.2f && dv > 0.0f) {
+        volFactor = volumeSmoothFactor * 8.0f;
+    }
+
+    if (tireForwardSlip > 0.5f && volumeSmoothed < 0.2f && dv > 0.0f)
+    {
         volFactor = volumeSmoothFactor * 8.0f;
     }
 

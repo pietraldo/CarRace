@@ -12,7 +12,7 @@ public:
     void start();   
     void stop();
 
-    void update(float driftAmount, float speed);
+    void update(float tireForwardSlip, float tireSideSlip, float speed);
 
 private:
     ma_sound sound{};
