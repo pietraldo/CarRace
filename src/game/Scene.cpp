@@ -87,6 +87,7 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
     {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
 		firstPersonCamera.Update(carPos, carRot);
+
 		
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
@@ -99,6 +100,11 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 		ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
 		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
 	}
+    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA_UP)
+    {
+        ObservingCameraUp& observingCameraUp = static_cast<ObservingCameraUp&>(activeCamera);
+        observingCameraUp.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
+    }
 
 
 }

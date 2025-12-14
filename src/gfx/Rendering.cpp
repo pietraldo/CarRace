@@ -237,6 +237,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person boost Camera", activeCamera == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera Up", activeCamera == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 0);
+            }
 
             Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam.Position.x, activeCam.Position.y, activeCam.Position.z);
@@ -253,6 +256,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person boost Camera (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera Up (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 0);
+            }
 
             Camera& activeCam0 = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Player 1 - Position: x: %.2f y: %.2f z: %.2f", activeCam0.Position.x, activeCam0.Position.y, activeCam0.Position.z);
@@ -267,6 +273,9 @@ void Rendering::RenderImGui()
             }
             if (ImGui::RadioButton("Third Person boost Camera (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 1);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera Up (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 1);
             }
 
             Camera& activeCam1 = cameraManager->GetPlayerActiveCamera(1);

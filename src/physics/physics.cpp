@@ -42,7 +42,7 @@ int Physics::initialize(Scene* scene) {
 
     for (int i = 0; i < CAR_COUNT; i++)
     {
-        createVehicle(PxVec3(6.0f * i, 10.0f, 0.0f), "vehicle" + std::to_string(i));
+        createVehicle(PxVec3(-49.0f+10 * i, 31.0f, 239.0f), "vehicle" + std::to_string(i));
     }
     createTerrain();
 

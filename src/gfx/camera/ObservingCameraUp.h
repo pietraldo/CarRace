@@ -9,7 +9,7 @@
 
 #include "Camera.h"
 
-class ObservingCamera : public Camera {
+class ObservingCameraUp : public Camera {
 
 private:
 
@@ -27,26 +27,20 @@ private:
     glm::vec3 smoothedForward{ 0,0,1 };
 public:
     // constructor with vectors
-    ObservingCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+    ObservingCameraUp(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
         float yaw = YAW, float pitch = PITCH)
-        : Camera(CameraType::OBSERVING_CAMERA, position, up, yaw, pitch)
+        : Camera(CameraType::OBSERVING_CAMERA_UP, position, up, yaw, pitch)
     {
     }
 
     // constructor with scalar values
-    ObservingCamera(float posX, float posY, float posZ,
+    ObservingCameraUp(float posX, float posY, float posZ,
         float upX, float upY, float upZ,
         float yaw, float pitch)
-        : Camera(CameraType::OBSERVING_CAMERA, posX, posY, posZ, upX, upY, upZ, yaw, pitch)
+        : Camera(CameraType::OBSERVING_CAMERA_UP, posX, posY, posZ, upX, upY, upZ, yaw, pitch)
     {
     }
-
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-   /* glm::mat4 GetViewMatrix() override
-    {
-        return glm::lookAt(Position, targetPos, Up);
-    }*/
 
     void Update(
         float dt,
@@ -58,15 +52,15 @@ public:
             carVel = glm::vec3(0.0f,0.1f,0.0f);
         
         glm::vec3 forward = glm::normalize(carRot * glm::vec3(0, 0, 1));
-
+        float y_car_rotation = std::abs(forward.y);
 
         // Smooth forward (yaw lag) – prevents sharp camera snaps
         smoothedForward = glm::mix(smoothedForward, forward, dt * yawLag);
 
         glm::vec3 idealPos =
             carPos
-            - smoothedForward * followDistance
-            + glm::vec3(0, heightOffset, 0);
+            - smoothedForward * (followDistance+y_car_rotation*30)
+            + glm::vec3(0, heightOffset+ y_car_rotation * 60, 0);
 
         // Spring-damped smoothing
         glm::vec3 displacement = idealPos - Position;
@@ -78,7 +72,9 @@ public:
         float speed = glm::length(carVel);
         float dynamicLookAhead = lookAheadDistance + speed * 0.3f;
 
-        glm::vec3 target = carPos + smoothedForward * dynamicLookAhead;
+
+        y_car_rotation = glm::clamp(y_car_rotation, 0.0f, 1.0f);
+        glm::vec3 target = carPos + smoothedForward * dynamicLookAhead * (1-y_car_rotation);
 
         // Tilt camera when turning
         glm::vec3 right = glm::normalize(glm::cross(smoothedForward, glm::vec3(0, 1, 0)));

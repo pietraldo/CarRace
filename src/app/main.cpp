@@ -77,6 +77,8 @@ int main()
 	{
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
+        if (deltaTime > 0.2f)
+            deltaTime = 0.2f;// avoid big jumps
         //deltaTime = 0.016f; // fixed timestep
 		lastFrame = currentFrame;
 
