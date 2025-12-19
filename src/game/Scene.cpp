@@ -203,7 +203,6 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, model->textureID);
         model->Draw(shaderCol);
-        model->Draw(shaderCol);
     }
 }
 
@@ -218,7 +217,11 @@ void Scene::DrawCars(Shader& shader, Camera& activeCam)
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
-        car->Draw(shader);      
+        if (!car->GetBody()) continue;
+
+        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius())) {
+             car->Draw(shader);
+        }
     }
 }
 void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
@@ -335,7 +338,6 @@ void Scene::CreateLights()
 void Scene::setOutput()
 {
     auto vehicle = Physics::getInstance()->getVehicles()[0];
-    //float driftFactor = vehicle->computeDriftFactor();
     float driftFactor = 0;
 	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
     OutputData output;
