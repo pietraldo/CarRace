@@ -37,6 +37,12 @@ int Physics::initialize(Scene* scene) {
     gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
     createScene();
+    gScene->setSimulationEventCallback(this);
+    
+    if (!collisionSound.init()) {
+         std::cerr << "Physics: Failed to initialize collision sounds\n";
+    }
+
     initMaterialFrictionTable();
     InitVehicleSystem();
 
@@ -49,12 +55,33 @@ int Physics::initialize(Scene* scene) {
     return 0;
 }
 
+physx::PxFilterFlags CollisionFilterShader(
+    physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0,
+    physx::PxFilterObjectAttributes attributes1, physx::PxFilterData filterData1,
+    physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize)
+{
+    // Group 2 = Ground/Terrain. We do not want audio events for tires rolling on ground (constant contact).
+    if (filterData0.word0 == 2 || filterData1.word0 == 2)
+    {
+         pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+    }
+    else
+    {
+        // For everything else (Car vs Car, Car vs Wall), enable notifications
+        pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT 
+                  | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND 
+                  | physx::PxPairFlag::eNOTIFY_TOUCH_CCD;
+    }
+    
+    return physx::PxFilterFlag::eDEFAULT;
+}
+
 physx::PxScene* Physics::createScene() {
     physx::PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
     //sceneDesc.filterShader = VehicleFilterShader; // Use custom filter shader for vehicles
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    sceneDesc.filterShader = CollisionFilterShader; // Use custom brute-force shader
     gScene = gPhysics->createScene(sceneDesc);
     return gScene;
 }
@@ -113,6 +140,36 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects)
         *gPhysics, physx::PxTransform(physx::PxVec3(-32, 0.5f, -40), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))), physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
     gScene->addActor(*boxCollider6);
     gameObjects[7]->actor = boxCollider6;
+
+    // Ensure all created static/dynamic objects have collision masks set to colliding with everything (Group 0, Mask All)
+    // This allows them to pass the DefaultSimulationFilterShader when colliding with the Car (Group 1, Mask All)
+    // Ensure all created static/dynamic objects have collision masks set appropriately
+    // Group 2 = Floor (Ignore sound), Group 0 = Walls/Objects (Play sound)
+    for (size_t i = 0; i < gameObjects.size(); i++) {
+        GameObject* go = gameObjects[i];
+        if (go && go->actor) {
+            PxRigidActor* actor = go->actor->is<PxRigidActor>();
+            if (actor) {
+                 PxU32 nbShapes = actor->getNbShapes();
+                 if (nbShapes > 0) {
+                    std::vector<PxShape*> shapes(nbShapes);
+                    actor->getShapes(shapes.data(), nbShapes);
+                    for (PxShape* shape : shapes) {
+                        PxFilterData fd = shape->getSimulationFilterData();
+                        
+                        // Index 2 is the large ground plane box
+                        if (i == 2) 
+                            fd.word0 = 2; // Group 2 = Ground
+                        else 
+                            fd.word0 = 0; // Group 0 = Walls/Objects
+                            
+                        fd.word1 = 0xffffffff; // Collide with everything
+                        shape->setSimulationFilterData(fd);
+                    }
+                 }
+            }
+        }
+    }
 }
 
 
@@ -188,6 +245,12 @@ void Physics::createTerrain()
     localPose.q = PxQuat(PxIdentity);
     PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);
     shape->setLocalPose(localPose);
+    
+    PxFilterData terrainFD;
+    terrainFD.word0 = 2; // Group 2 = Ground
+    terrainFD.word1 = 0xffffffff;
+    shape->setSimulationFilterData(terrainFD);
+
     gScene->addActor(*actor);
 }
 
@@ -270,17 +333,75 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     int shapeNum = vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getNbShapes();
     physx::PxShape** shapes = new physx::PxShape * [shapeNum];
     vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getShapes(shapes, sizeof(PxShape*) * shapeNum, 0);
-    PxShape* shape = shapes[0];
+    
+    for (int i = 0; i < shapeNum; i++)
+    {
+        PxShape* s = shapes[i];
+        s->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
-    // Add colision shape
-    shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        PxFilterData fd = s->getSimulationFilterData();
+        fd.word2 |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT;
+        s->setSimulationFilterData(fd);
 
-    PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
-    shape->setGeometry(newGeom);
-    physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
-    shape->setLocalPose(localOffset);
+        // Apply geometry tweak only to the first shape (chassis?)
+        if (i == 0)
+        {
+            PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
+            s->setGeometry(newGeom);
+            physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
+            s->setLocalPose(localOffset);
+        }
+    }
+    delete[] shapes;
 
+    // Reset filtering to ensure new flags take effect
+    gScene->resetFiltering(*vehicle->gVehicle.mPhysXState.physxActor.rigidBody);
 
     return vehicle;
 
+}
+
+void Physics::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+    // Iterate through all contact pairs
+    for (PxU32 i = 0; i < nbPairs; i++)
+    {
+        const PxContactPair& cp = pairs[i];
+
+        // Check if contact has been found
+        if (cp.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
+        {
+             // Iterate bodies
+             PxRigidActor* actor0 = pairHeader.actors[0]->is<PxRigidActor>();
+             PxRigidActor* actor1 = pairHeader.actors[1]->is<PxRigidActor>();
+             
+             if(actor0 && actor1)
+             {
+                 // Calculate relative velocity
+                 PxRigidBody* body0 = actor0->is<PxRigidBody>();
+                 PxRigidBody* body1 = actor1->is<PxRigidBody>();
+
+                 PxVec3 vel0 = body0 ? body0->getLinearVelocity() : PxVec3(0);
+                 PxVec3 vel1 = body1 ? body1->getLinearVelocity() : PxVec3(0);
+                 
+                 float relativeSpeed = (vel0 - vel1).magnitude();
+                 
+                 // Thresholds
+                 if (relativeSpeed > 3.0f) {
+                     // Hard impact
+                     float intensity = (relativeSpeed - 3.0f) / 10.0f;
+                     if (intensity > 1.0f) intensity = 1.0f;
+                     if (intensity < 0.2f) intensity = 0.2f; // Min audible
+                     collisionSound.playImpact(intensity); // "pukniecie"
+                 } 
+                 else if (relativeSpeed > 0.5f) {
+                     // Scrape / light impact
+                      float intensity = (relativeSpeed - 0.5f) / 2.5f;
+                      if (intensity > 1.0f) intensity = 1.0f;
+                      if (intensity < 0.2f) intensity = 0.2f; // Min audible
+                      collisionSound.playScrape(intensity); // "przecierka"
+                 }
+             }
+        }
+    }
 }

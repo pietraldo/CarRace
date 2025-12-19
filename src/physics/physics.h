@@ -16,13 +16,15 @@
 #include "../game/terrain.h"
 
 
+#include "../audio/CollisionSound.h"
+
 using namespace physx;
 using namespace vehicle2;
 using namespace snippetvehicle;
 
 class RaceCar;
 class Scene;
-class Physics {
+class Physics : public PxSimulationEventCallback {
 private:
     static Physics* physicsObj;
 
@@ -32,6 +34,16 @@ private:
     physx::PxPhysics* gPhysics = nullptr;
     physx::PxFoundation* gFoundation = nullptr;
     physx::PxScene* gScene = nullptr;
+
+    CollisionSound collisionSound;
+
+    // PxSimulationEventCallback implementation
+    void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override {}
+    void onWake(PxActor** actors, PxU32 count) override {}
+    void onSleep(PxActor** actors, PxU32 count) override {}
+    void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+    void onTrigger(PxTriggerPair* pairs, PxU32 count) override {}
+    void onAdvance(const PxRigidBody* const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override {}
 
 
     vector<RaceCar*> vehicles;
