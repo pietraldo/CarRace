@@ -143,7 +143,7 @@ int Rendering::Initialize()
 
 bool Rendering::isCarVisible(glm::vec3 carPos)
 {
-    Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
+  /*  Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
     glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
     glm::mat4 view = Rendering::GetViewMatrix(activeCam);
 
@@ -157,7 +157,8 @@ bool Rendering::isCarVisible(glm::vec3 carPos)
     float depth;
     glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
     std::cout << "Car depth: " << carDepth << " , depth buffer: " << depth << std::endl;
-    return carDepth <= depth + 0.01f;
+    return carDepth <= depth + 0.01f;*/
+	return true;
 }
 
 GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title)

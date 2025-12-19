@@ -84,7 +84,6 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
     glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
     glm::quat carRot = PxQuatToGlmQuat(pxRot);
 
-	std::cout << "isCarVisible: " << Rendering::isCarVisible(carPos) << std::endl;
 
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
