@@ -3,7 +3,7 @@
 
 
 Wheel::Wheel(std::shared_ptr<Model> wheelModel, WheelPos p)
-    : model(std::move(wheelModel)), pos(p), currentSteerDeg(0.0f), currentSpinDeg(0.0f)
+    : model(std::move(wheelModel)), pos(p), currentSteerDeg(0.0f), currentSpinRad(0.0f)
 {
     model->SetRotation(physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f));
 }
@@ -14,16 +14,16 @@ void Wheel::SetSteer(float steerDeg)
     UpdateWheelRotation();
 }
 
-void Wheel::SetSpin(float deltaDeg)
+void Wheel::SetSpin(float spinAngleRaians)
 {
-    currentSpinDeg = deltaDeg;
+    currentSpinRad = spinAngleRaians;
     UpdateWheelRotation();
 }
 
 void Wheel::UpdateWheelRotation()
 {
     float steerRad = glm::radians(currentSteerDeg);
-    float spinRad = glm::radians(currentSpinDeg);
+    float spinRad = currentSpinRad;
 
     glm::quat qFlip(1.0f, 0.0f, 0.0f, 0.0f);
     if (pos == WheelPos::FrontLeft || pos == WheelPos::RearLeft) {

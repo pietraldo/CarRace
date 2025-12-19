@@ -33,6 +33,9 @@ private:
     const char* gVehicleName;
     const char* gVehicleDataPath = "..\\assets\\vehicledata";
 
+    float targetSteeringAngle = 0.0f;
+    float currentSteeringAngle = 0.0f;
+
     EngineSound engineSound;
     bool engineSoundStarted = false;
 
@@ -42,6 +45,10 @@ private:
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath, PxVehiclePhysXSimulationContext* simulationContext);
 
+    float steeringSpeed = 5.0f; 
+    float steeringReturnSpeed = 10.0f;
+
+    void UpdateSteer(float deltaTime, float steerInput);
     PxVec3 getVehiclePosition()
     {
         PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
@@ -53,6 +60,16 @@ public:
         return t.q;
     }
 
+    float getMaxSteeringAngle()
+    {
+        return gVehicle.mBaseParams.steerResponseParams.maxResponse;
+    }
+
+    float getCurrentSteeringAngle()
+    {
+        return currentSteeringAngle;
+    }
+
     void setVehiclePosition(PxVec3 position)
     {
         PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
@@ -60,23 +77,25 @@ public:
         gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
     }
 
-    PxVec3 getVehicleFrontDirection()
+    PxVec3 getVehicleFrontDirection() const 
     {
         PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
         return PxVec3(v.x, v.y, v.z);
     }
 
-    float getSpeed()
+    float getSpeed() const
     {
-        return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().magnitude();
+        PxVec3 forward = getVehicleFrontDirection();
+        float speed = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().dot(forward);
+        return speed;
     }
 
-    PxVec3 getVelocity()
+    PxVec3 getVelocity() const
     {
         return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity();
     }
 
-    int getEngineRPM()
+    int getEngineRPM() const
     {
         return (int)gVehicle.mEngineDriveState.engineState.rotationSpeed;
     }
@@ -86,9 +105,23 @@ public:
         return gVehicle.mEngineDriveState.gearboxState.currentGear;
     }
 
-    vector<PxQuat> getWheelRotation()
+    vector<float> getWheelRotation()
     {
         return gVehicle.getWheelRotation();
+    }
+
+    vector<bool> getWheelIsGrounded();
+
+    bool isCarInAir() const
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (gVehicle.mBaseState.roadGeomStates[i].hitState)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     void resetCar()
@@ -99,11 +132,13 @@ public:
         gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(PxTransform(position, PxQuat(PxIdentity)));
     }
 
-    float computeDriftFactor() const;
+    float computeDriftFactor();
+    std::vector<float> computeDriftFactorPerWheel();
+    float computeDriftFactor2() const;
 
     void Update(float deltaTime, CarControlInput carControll);
 	void UpdateEngineSound(float rpm, float throttle,float speed,int  gear);
-    void UpdateTireSqueal(float driftFactor, float speed);
+    void UpdateTireSqueal(float forwardDriftFactor, float driftFactor, float speed);
 
     friend class Physics;
 };

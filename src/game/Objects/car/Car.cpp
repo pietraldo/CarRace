@@ -40,19 +40,11 @@ void Car::SetSteer(float deg)
     steerTarget = clampValue(deg, -maxSteer, maxSteer);
 }
 
-void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
-{
 
-    float delta = steerTarget - steerCurrent;
-    float step = steerSpeed * dt;
+void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc)
+{    
+    steerCurrent = steerAngleProc * maxSteer;
 
-    if (std::abs(delta) <= step) {
-        steerCurrent = steerTarget;
-    }
-    else {
-        steerCurrent += (delta > 0 ? step : -step);
-    }
-    
     body->SetPosition(position);
     body->SetRotation(rotation);
 
@@ -63,22 +55,22 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
 
         wheelModel->SetPosition(body->GetPosition());
         wheelModel->SetPositionOffset(wheelPositionOffsets[i]);
-        
+
 
         auto pos = w->GetPos();
         if (pos == WheelPos::FrontLeft || pos == WheelPos::FrontRight) {
-            w->SetSteer(-steerCurrent);
+            w->SetSteer(steerCurrent);
         }
         else {
             w->SetSteer(0.0f);
         }
-        w->SetSpin(getXRotationDegrees(wheelRotationsFromPhysx[i]));
-        
+        w->SetSpin(wheelRotationsFromPhysx[i]);
+
         wheelModel->SetRotation(body->GetRotation());
     }
 
 
-    
+
     // steering wheel
     steeringWheel->SetPosition(body->GetPosition());
     steeringWheel->SetRotation(body->GetRotation());
@@ -86,12 +78,12 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation)
     glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 
     const float steeringWheelMultiplier = 6.0f;
-    float targetSteeringWheelAngle = -steerCurrent * steeringWheelMultiplier;
+    float targetSteeringWheelAngle = steerCurrent * steeringWheelMultiplier;
 
     if (steeringWheelVisualMaxAngle > 0.0f) {
         targetSteeringWheelAngle = glm::clamp(targetSteeringWheelAngle,
-                                                -steeringWheelVisualMaxAngle,
-                                                steeringWheelVisualMaxAngle);
+            -steeringWheelVisualMaxAngle,
+            steeringWheelVisualMaxAngle);
     }
 
     float alpha = glm::clamp(steeringWheelVisualSmooth * dt, 0.0f, 1.0f);

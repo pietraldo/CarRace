@@ -40,8 +40,10 @@ int Physics::initialize(Scene* scene) {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    createVehicle(PxVec3(0, 10, 0), "vehicle0");
-    createVehicle(PxVec3(6, 10, 0), "vehicle1");
+    for (int i = 0; i < CAR_COUNT; i++)
+    {
+        createVehicle(PxVec3(-49.0f+10 * i, 31.0f, 239.0f), "vehicle" + std::to_string(i));
+    }
     createTerrain();
 
     return 0;
@@ -192,17 +194,17 @@ void Physics::createTerrain()
 void Physics::update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1)
 {
 
-    // Car 1 (player 1)
-    if (vehicles.size() > 0 && vehicles[0])
+    
+    if (CAR_COUNT > 0)
     {
         vehicles[0]->Update(deltaTime, carControll0);
     }
 
-    // Car 2 (player 2)
-    if (vehicles.size() > 1 && vehicles[1])
+    if (CAR_COUNT > 1)
     {
         vehicles[1]->Update(deltaTime, carControll1);
     }
+  
 
     gScene->simulate(deltaTime);
     gScene->fetchResults(true);

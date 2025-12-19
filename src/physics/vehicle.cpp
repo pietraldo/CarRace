@@ -14,7 +14,7 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
 
     //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
-    
+
     // audio
     if (!engineSound.load("../assets/audio/loop_2.wav")) {
         std::cerr << "RaceCar: nie udalo sie zaladowac engine_loop.mp3\n";
@@ -26,8 +26,43 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
         tireSquealLoaded = true;
     }
 }
-float RaceCar::computeDriftFactor() const
+
+float RaceCar::computeDriftFactor()
 {
+    std::vector<float> driftFactors = computeDriftFactorPerWheel();
+
+    float mid1 = (driftFactors[0] + driftFactors[1])/2;
+    float mid2 = (driftFactors[2] + driftFactors[3]) / 2;
+    float max = std::max(mid1, mid2);
+    return max;
+}
+
+std::vector<float> RaceCar::computeDriftFactorPerWheel()
+{
+    float linearVelocity = std::abs(getSpeed());
+    float wheelRadius = gVehicle.mBaseParams.wheelParams[0].radius;
+
+    std::vector<float> driftFactor(4, 0);
+    std::vector<float> wheelVelocities(4, 0);
+
+    for (int i = 0; i < 4; i++)
+    {
+        wheelVelocities[i] = std::abs(wheelRadius * gVehicle.mBaseState.wheelRigidBody1dStates[i].correctedRotationSpeed);
+        
+        if (wheelVelocities[i] < 1|| linearVelocity > wheelVelocities[i] || std::abs(linearVelocity-wheelVelocities[i]) < 3.0f)
+        {
+            driftFactor[i] = 0;
+            continue;
+        }
+        driftFactor[i] = 1 - linearVelocity / wheelVelocities[i];
+    }
+    return driftFactor;
+}
+
+float RaceCar::computeDriftFactor2() const
+{
+    if (isCarInAir()) return 0.0f;
+
     PxRigidBody* body = gVehicle.mPhysXState.physxActor.rigidBody;
 
     const PxVec3 vel = body->getLinearVelocity();
@@ -57,7 +92,7 @@ float RaceCar::computeDriftFactor() const
 
     if (nearGroundNow)
     {
-        const float alpha = 0.1f; 
+        const float alpha = 0.1f;
         approxGroundHeight = approxGroundHeight * (1.0f - alpha) + pos.y * alpha;
         heightAboveGround = pos.y - approxGroundHeight;
     }
@@ -94,17 +129,27 @@ float RaceCar::computeDriftFactor() const
     return drift;
 }
 
+std::vector<bool> RaceCar::getWheelIsGrounded()
+{
+    std::vector<bool> grounded(4, false);
+    for (int i = 0; i < 4; i++)
+    {
+        grounded[i] = gVehicle.mBaseState.roadGeomStates[i].hitState;
+    }
+    return grounded;
+}
 
 void RaceCar::Update(float deltaTime, CarControlInput carControll)
 {
+    UpdateSteer(deltaTime, carControll.steer);
     gVehicle.mCommandState.brakes[0] = carControll.brake;
     gVehicle.mCommandState.brakes[1] = carControll.handbrake;
     gVehicle.mCommandState.nbBrakes = 2;
     gVehicle.mCommandState.throttle = carControll.throttle;
-    gVehicle.mCommandState.steer = carControll.steer;
+    gVehicle.mCommandState.steer = currentSteeringAngle;
     int currrentGear = gVehicle.mEngineDriveState.gearboxState.currentGear;
     int targetGear = currrentGear + carControll.gear;
-    if (targetGear >= 0 && targetGear < 8 && carControll.gear!=0)
+    if (targetGear >= 0 && targetGear < 8 && carControll.gear != 0)
     {
         gVehicle.mTransmissionCommandState.targetGear = targetGear;
     }
@@ -121,7 +166,21 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll)
     gVehicle.step(deltaTime, *gVehicleSimulationContext);
 
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
-    UpdateTireSqueal(computeDriftFactor(), getSpeed());
+    UpdateTireSqueal(computeDriftFactor(), computeDriftFactor2(), getSpeed());
+}
+
+void RaceCar::UpdateSteer(float deltaTime, float steer)
+{
+    //std::cout << "PRZED Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle << std::endl;
+
+
+    targetSteeringAngle = steer;
+    float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
+    currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
+    currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
+
+
+    //std::cout << "PO    Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle << std::endl;
 }
 
 void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear)
@@ -133,8 +192,8 @@ void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear
     engineSound.update(rpm, throttle, speed, gear);
 }
 
-void RaceCar::UpdateTireSqueal(float driftFactor, float speed)
+void RaceCar::UpdateTireSqueal(float forwardDriftFactor, float driftFactor, float speed)
 {
     if (!tireSquealLoaded) return;
-    tireSquealSound.update(driftFactor, speed);
+    tireSquealSound.update(forwardDriftFactor, driftFactor, speed);
 }

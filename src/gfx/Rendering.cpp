@@ -17,6 +17,9 @@ unsigned char* Rendering::textureData=nullptr;
 int Rendering::nbChannels=0;
 unsigned int Rendering::textureID=0;
 
+int Rendering::window_width = START_SCR_WIDTH;
+int Rendering::window_height = START_SCR_HEIGHT;
+
 bool Rendering::showBoxColliders = false;
 
 bool   Rendering::useExternalView = false;
@@ -33,8 +36,6 @@ unsigned int Rendering::VBO = 0;
 
 GLFWwindow* Rendering::window = nullptr;
 
-float Rendering::lastX = SCR_WIDTH / 2.0f;
-float Rendering::lastY = SCR_HEIGHT / 2.0f;
 bool Rendering::firstMouse = true;
 
 unsigned int Rendering::uboLights = *(new unsigned);
@@ -44,7 +45,7 @@ Mirrors Rendering::player1Mirrors;
 
 int Rendering::Initialize()
 {
-    window = CreateGLFWWindow(SCR_WIDTH, SCR_HEIGHT, "Rendering 3D scene");
+    window = CreateGLFWWindow(window_width, window_height, "Rendering 3D scene");
     if (window == nullptr) return -1;
 
     colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
@@ -140,6 +141,24 @@ int Rendering::Initialize()
     return 0;
 }
 
+bool Rendering::isCarVisible(glm::vec3 carPos)
+{
+    Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
+    glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
+    glm::mat4 view = Rendering::GetViewMatrix(activeCam);
+
+
+    glm::vec4 clip = projection * view * glm::vec4(carPos, 1.0f);
+    glm::vec3 ndc = glm::vec3(clip) / clip.w;
+    int x = (ndc.x + 1.0f) * 0.5f * Rendering::window_width;
+    int y = (ndc.y * 0.5f + 0.5f) * Rendering::window_height;
+    float carDepth = ndc.z * 0.5f + 0.5f;
+
+    float depth;
+    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    std::cout << "Car depth: " << carDepth << " , depth buffer: " << depth << std::endl;
+    return carDepth <= depth + 0.01f;
+}
 
 GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title)
 {
@@ -184,6 +203,8 @@ GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title
 
 void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    Rendering::window_width = width;
+    Rendering::window_height = height;
     glViewport(0, 0, width, height);
 }
 
@@ -234,6 +255,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person boost Camera", activeCamera == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera Up", activeCamera == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 0);
+            }
 
             Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam.Position.x, activeCam.Position.y, activeCam.Position.z);
@@ -250,6 +274,9 @@ void Rendering::RenderImGui()
             if (ImGui::RadioButton("Third Person boost Camera (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 0);
             }
+            if (ImGui::RadioButton("Third Person boost Camera Up (Player 1)", activeCamera0 == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 0);
+            }
 
             Camera& activeCam0 = cameraManager->GetPlayerActiveCamera(0);
             ImGui::Text("Player 1 - Position: x: %.2f y: %.2f z: %.2f", activeCam0.Position.x, activeCam0.Position.y, activeCam0.Position.z);
@@ -264,6 +291,9 @@ void Rendering::RenderImGui()
             }
             if (ImGui::RadioButton("Third Person boost Camera (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA)) {
                 cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA, 1);
+            }
+            if (ImGui::RadioButton("Third Person boost Camera Up (Player 2)", activeCamera1 == CameraType::OBSERVING_CAMERA_UP)) {
+                cameraManager->SetPlayerActiveCamera(CameraType::OBSERVING_CAMERA_UP, 1);
             }
 
             Camera& activeCam1 = cameraManager->GetPlayerActiveCamera(1);
@@ -351,6 +381,13 @@ void Rendering::RenderImGui()
 
         ImGui::End();
     }
+    {
+        ImGui::Begin("Car controller settings");
+        ImGui::SliderFloat("Steering speed", &Physics::getInstance()->getVehicles()[0]->steeringSpeed, 0.1f, 10.0f);
+        ImGui::SliderFloat("Returning speed", &Physics::getInstance()->getVehicles()[0]->steeringReturnSpeed, 0.1f, 30.0f);
+        ImGui::End();
+
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -395,10 +432,18 @@ glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {
     if (useExternalProj)
         return externalProj;
+    ViewMode viewMode = CameraManager::GetInstance()->GetViewMode();
+    
+    float ratio = (float)window_width / (float)window_height;
+    if (viewMode == ViewMode::SPLIT_SCREEN)
+    {
+        ratio /= 2;
+    }
+
 
     return glm::perspective(
         glm::radians(camera.Zoom),
-        (float)SCR_WIDTH / (float)SCR_HEIGHT,
+        ratio,
         0.1f,
         2000.0f
     );
@@ -425,20 +470,20 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects)
 
     if (currentViewMode == ViewMode::EDIT_SCREEN) {
         Camera& freeCam = cameraManager->GetFreeCamera();
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, freeCam);
     }
     else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); 
+        glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, activeCam);
     }
     else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
-        glViewport(0, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(gameObjects, activePlayer0Cam);
 
-        glViewport(SCR_WIDTH / 2, 0, SCR_WIDTH / 2, SCR_HEIGHT);
+        glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(gameObjects, activePlayer1Cam);
     }

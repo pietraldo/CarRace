@@ -38,7 +38,7 @@ class Scene
 {
 private:
     vector<GameObject*> gameObjects;
-	std::array<std::unique_ptr<Car>, 2> cars;
+	std::array<std::unique_ptr<Car>, CAR_COUNT> cars;
 
 	vector<Light*> lights;
 	vector<Camera*> cameras;

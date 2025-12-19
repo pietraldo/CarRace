@@ -9,6 +9,7 @@
 
 #include "../../ui/Input/InputStructures.h"
 
+
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -20,7 +21,8 @@ enum CameraType {
     FREE_CAMERA,
     FOLLOWING_CAR_CAMERA,
 	FIRST_PERSON_CAMERA,
-    OBSERVING_CAMERA
+    OBSERVING_CAMERA,
+    OBSERVING_CAMERA_UP
 };
 
 const float YAW = -90.0f;

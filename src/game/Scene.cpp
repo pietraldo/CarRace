@@ -46,16 +46,8 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 {
 	auto vehicles = Physics::getInstance()->getVehicles();
 
-	const size_t maxPlayers = 2;
-	size_t count = vehicles.size();
-	if (count > maxPlayers)
-		count = maxPlayers;
-
-	for (size_t i = 0; i < count; ++i)
+	for (int i = 0; i<CAR_COUNT; i++)
 	{
-		if (!vehicles[i] || !cars[i])
-			continue;
-
 		RaceCar* v = vehicles[i];
 		PxVec3 pos = v->getVehiclePosition();
 		PxQuat rotation = v->getVehicleRotation();
@@ -64,10 +56,8 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 		cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
 		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
-		float steer = -carControl.steer * 45.0f;
-		cars[i]->SetSteer(steer);
         cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
-		cars[i]->Update(deltaTime, position, rotation);
+		cars[i]->Update(deltaTime, position, rotation, vehicles[i]->getCurrentSteeringAngle());
 	}
 }
 
@@ -76,19 +66,30 @@ void Scene::UpdateCars(InputData input, float deltaTime)
 void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 {
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
+	
 
-	RaceCar* vehicle = Physics::getInstance()->getVehicles()[playerNumber];
+	RaceCar* vehicle;
+	if (playerNumber < CAR_COUNT)
+	{
+		vehicle = Physics::getInstance()->getVehicles()[playerNumber];
+	}
+	else
+	{
+        vehicle = Physics::getInstance()->getVehicles()[0];
+	}
+
 	PxVec3 pxPos = vehicle->getVehiclePosition();
 	PxQuat pxRot = vehicle->getVehicleRotation();
 
     glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
     glm::quat carRot = PxQuatToGlmQuat(pxRot);
 
+	std::cout << "isCarVisible: " << Rendering::isCarVisible(carPos) << std::endl;
+
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
     {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
 		firstPersonCamera.Update(carPos, carRot);
-		
     }
 	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
 	{
@@ -100,6 +101,11 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber)
 		ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
 		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
 	}
+    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA_UP)
+    {
+        ObservingCameraUp& observingCameraUp = static_cast<ObservingCameraUp&>(activeCamera);
+        observingCameraUp.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
+    }
 
 
 }
@@ -289,8 +295,10 @@ void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 
 void Scene::CreateModels()
 {
-	cars[0] = CreateCar(glm::vec3(0.f, 0.0f, 0.f));
-	cars[1] = CreateCar(glm::vec3(6.f, 0.0f, 0.f));
+	for (int i = 0; i < CAR_COUNT; i++)
+	{
+		cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
+	}
 }
 
 
@@ -328,7 +336,8 @@ void Scene::CreateLights()
 void Scene::setOutput()
 {
     auto vehicle = Physics::getInstance()->getVehicles()[0];
-    float driftFactor = vehicle->computeDriftFactor();
+    //float driftFactor = vehicle->computeDriftFactor();
+    float driftFactor = 0;
 	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
     OutputData output;
     output.effectsOnInputer1.vibration = driftFactorOutput;

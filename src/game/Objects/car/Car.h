@@ -11,7 +11,7 @@ public:
     Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel);
 
     void SetSteer(float deg);  
-    void Update(float dt, glm::vec3 position, physx::PxQuat rotation);
+    void Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc);
     void Draw(Shader& shader);
 
     float GetSteer()        const { return steerCurrent; }
@@ -26,7 +26,7 @@ public:
     void SetMaxSteer(float deg);        
     void SetSteerSpeed(float degPerSec);
     void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
-    void SetWheelRotationFromPhysx(vector<physx::PxQuat> rotations) { wheelRotationsFromPhysx = rotations; }
+    void SetWheelRotationFromPhysx(vector<float> rotations) { wheelRotationsFromPhysx = rotations; }
     void SetBraking(bool braking) { isBraking = braking; }
 
     void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
@@ -46,11 +46,11 @@ private:
     float steerTarget = 0.f;
     float steerCurrent = 0.f;   // deg
     float steerSpeed = 180.f; // deg/s
-    float maxSteer = 45.f;  // deg
+    float maxSteer = 60.0f;  // deg
 
 	bool isBraking = false; // state for brake lights
 
-    std::vector<physx::PxQuat> wheelRotationsFromPhysx;
+    std::vector<float> wheelRotationsFromPhysx; // < -2pi, 2pi >
 
     float steeringWheelVisualAngle = 0.0f;      
     float steeringWheelVisualSmooth = 6.0f;
