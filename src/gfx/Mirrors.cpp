@@ -127,7 +127,9 @@ void Mirrors::RenderSingleMirror(const glm::mat4& view,unsigned int fbo,const st
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glViewport(0, 0, MIRROR_WIDTH, MIRROR_HEIGHT);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    bool isNight = (*Rendering::scene).dayNight;
+    glm::vec3 clearColor = isNight ? glm::vec3(0.02f, 0.05f, 0.12f) : glm::vec3(0.50f, 0.75f, 0.95f);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     Rendering::RenderSceneCommon(objects, activeCam);

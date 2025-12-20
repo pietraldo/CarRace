@@ -86,6 +86,15 @@ copy_assets(shaders)
 copy_assets(models)
 copy_assets(vehicledata)
 copy_assets(audio)
+copy_assets(backgroundTextures)
+
+# Force copy backgroundTextures using POST_BUILD to ensure it ends up in the output directory
+add_custom_command(TARGET carrace POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets/backgroundTextures
+    $<TARGET_FILE_DIR:carrace>/assets/backgroundTextures
+    COMMENT "Force copying backgroundTextures to output..."
+)
 
 # --- Copy DLLs ---
 add_custom_command(TARGET carrace POST_BUILD

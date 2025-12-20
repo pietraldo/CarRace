@@ -58,6 +58,11 @@ public:
 
     CubeObject* cube; // cube that is used for measuring distances TODO: delete in future
 
+	// Skybox
+	unsigned int skyboxVAO, skyboxVBO;
+	unsigned int skyboxCubemapDay, skyboxCubemapNight;
+	Shader* skyboxShader;
+
 	Scene();
 	void Update(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
@@ -95,6 +100,10 @@ public:
 	LightBuffer LoadLights();
 
 	void DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam);
+
+	void DrawSkybox(Camera& activeCam);
+	void InitializeSkybox();
+	unsigned int LoadCubemap(vector<std::string> faces);
 
 };
 

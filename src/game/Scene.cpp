@@ -39,6 +39,9 @@ Scene::Scene()
 
     terrain = new Terrain(glm::vec3(100.0f, 0.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
+    
+    skyboxVBO = 0;
+	fog = true; // Enable fog
 }	
 
 
@@ -132,9 +135,9 @@ void Scene::Update(InputData input, float deltaTime)
 			continue;
 		if (dayNight)
 		{
-			light->ambient = glm::vec3(0.0f);
-			light->diffuse = glm::vec3(0.0f);
-			light->specular = glm::vec3(0.0f);
+			light->ambient = glm::vec3(0.25f);
+			light->diffuse = glm::vec3(0.15f);
+			light->specular = glm::vec3(0.1f);
 		}
 		else
 		{
@@ -157,6 +160,9 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
     shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shaderTex.setVec3("viewPos", activeCam.Position);
     shaderTex.setBool("fogEnabled", fog);
+    shaderTex.setFloat("fogMinDist", 20.0f);
+    shaderTex.setFloat("fogMaxDist", 100.0f);
+    shaderTex.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
 
     for (Model* model : modelsTex)
     {
@@ -184,6 +190,9 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
     shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shaderCol.setVec3("viewPos", activeCam.Position);
     shaderCol.setBool("fogEnabled", fog);
+    shaderCol.setFloat("fogMinDist", 20.0f);
+    shaderCol.setFloat("fogMaxDist", 100.0f);
+    shaderCol.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
 
     for (Model* model : modelsCol)
     {
@@ -214,6 +223,9 @@ void Scene::DrawCars(Shader& shader, Camera& activeCam)
     shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shader.setVec3("viewPos", activeCam.Position);
     shader.setBool("fogEnabled", fog);
+    shader.setFloat("fogMinDist", 20.0f);
+    shader.setFloat("fogMaxDist", 100.0f);
+    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
@@ -255,6 +267,9 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeC
 	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
 	shader.setVec3("viewPos", activeCam.Position);
 	shader.setBool("fogEnabled", fog);
+    shader.setFloat("fogMinDist", 20.0f);
+    shader.setFloat("fogMaxDist", 150.0f);
+    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
 
 	glm::mat4 model = glm::mat4(1.0f);
     glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
@@ -278,6 +293,9 @@ void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 	shader.setVec3("viewPos", activeCam.Position);
 	shader.setVec3("objectColor", model.GetColor());
 	shader.setBool("fogEnabled", fog);
+    shader.setFloat("fogMinDist", 20.0f);
+    shader.setFloat("fogMaxDist", 100.0f);
+    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, model.textureID);
@@ -428,4 +446,128 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
 
 	
 	return car;
+}
+
+void Scene::InitializeSkybox()
+{
+	if (skyboxVAO != 0 && skyboxVBO != 0 && skyboxShader != nullptr)
+		return;
+
+	float skyboxVertices[] = {
+		-1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+		-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+		1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
+
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+	glBindVertexArray(0);
+
+	std::vector<std::string> facesDay{
+	"../assets/backgroundTextures/day/clouds1_east.bmp",   // +X
+	"../assets/backgroundTextures/day/clouds1_west.bmp",   // -X
+	"../assets/backgroundTextures/day/clouds1_up.bmp",     // +Y
+	"../assets/backgroundTextures/day/clouds1_down.bmp",   // -Y
+	"../assets/backgroundTextures/day/clouds1_north.bmp",  // +Z (swap)
+	"../assets/backgroundTextures/day/clouds1_south.bmp"   // -Z (swap)
+	};
+
+	skyboxCubemapDay = LoadCubemap(facesDay);
+
+	vector<std::string> facesNight{
+		"../assets/backgroundTextures/night/nightskyemission.png",
+		"../assets/backgroundTextures/night/nightskyemission.png",
+		"../assets/backgroundTextures/night/nightskyemission.png",
+		"../assets/backgroundTextures/night/nightskyemission.png",
+		"../assets/backgroundTextures/night/nightskyemission.png",
+		"../assets/backgroundTextures/night/nightskyemission.png"};
+	skyboxCubemapNight = LoadCubemap(facesNight);
+
+	skyboxShader = new Shader("../assets/shaders/skybox.vert", "../assets/shaders/skybox.frag");
+	skyboxShader->use();
+	skyboxShader->setInt("skybox", 0);
+}
+
+unsigned int Scene::LoadCubemap(vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (!data && faces[i].rfind("../", 0) == 0)
+		{
+			std::string altPath = faces[i].substr(3);
+			data = stbi_load(altPath.c_str(), &width, &height, &nrChannels, 0);
+		}
+
+		// Try going up one more level (useful for build dirs)
+		if (!data)
+		{
+			std::string altPath2 = "../" + faces[i];
+			data = stbi_load(altPath2.c_str(), &width, &height, &nrChannels, 0);
+		}
+
+		if (!data)
+		{
+			std::cout << "Cubemap texture failed to load at paths: " << faces[i] << " or (stripped) or ../" << faces[i] << std::endl;
+			continue;
+		}
+
+		GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+		glTexImage2D(
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+			0,
+			format,
+			width,
+			height,
+			0,
+			format,
+			GL_UNSIGNED_BYTE,
+			data);
+		stbi_image_free(data);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+
+void Scene::DrawSkybox(Camera &activeCam)
+{
+    if (skyboxShader == nullptr) return; // Safety check
+
+	glDepthFunc(GL_LEQUAL);
+	skyboxShader->use();
+	glm::mat4 view = glm::mat4(glm::mat3(activeCam.GetViewMatrix()));
+	glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
+
+	skyboxShader->setMat4("view", view);
+	skyboxShader->setMat4("projection", projection);
+
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, dayNight ? skyboxCubemapNight : skyboxCubemapDay);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS);
 }

@@ -54,6 +54,8 @@ int Rendering::Initialize()
     terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
 
     
+    // scene->InitializeSkybox(); is called in main.cpp after Rendering::Initialize
+    
     vector<float> vert = scene->GetTerrain()->GetVertices();
     vector<int> ind = scene->GetTerrain()->GetIndices();
 
@@ -433,6 +435,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
         gameObj->Draw(activeCam);
     }
 
+    (*Rendering::scene).DrawSkybox(activeCam);
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
     (*Rendering::scene).DrawCars(shaderTextured, activeCam);
