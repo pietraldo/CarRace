@@ -46,6 +46,9 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform vec3 objectColor;   
 uniform bool fogEnabled;
+uniform float fogMinDist;
+uniform float fogMaxDist;
+uniform vec4 fogColor;
 uniform bool uIsMirror;
 uniform bool uIsBrakeLight;
 uniform bool uIsBraking;
@@ -66,7 +69,7 @@ layout (std140) uniform Lights
     int        NR_SPOT_LIGHTS;
 };
 
-// kolor materiału po teksturze
+// kolor materialu po teksturze
 vec3 surfaceColor;
 
 // deklaracje
@@ -102,15 +105,6 @@ void main()
     for (int i = 0; i < IT_SPOT_LIGHT; i++)
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
-    // 3. mgła – 1:1 jak u Ciebie
-    float fog_maxdist = 40.0;
-    float fog_mindist = 10.0;
-    vec4  fog_colour = vec4(0.0, 0.0, 0.0, 1.0);
-
-    float dist = length(fposition.xyz);
-    float fog_factor = (fog_maxdist - dist) / (fog_maxdist - fog_mindist);
-    fog_factor = clamp(fog_factor, 0.0, 1.0);
-
     if (uIsBrakeLight) {
         if (uIsBraking) {
             result += vec3(1.0, 0.0, 0.0) * 1.5; 
@@ -121,10 +115,15 @@ void main()
 
     vec4 shadedColor = vec4(result, 1.0);
 
-    if (fogEnabled)
-        FragColor = mix(fog_colour, shadedColor, fog_factor);
-    else
+    if (fogEnabled) {
+        float fogRange = max(fogMaxDist - fogMinDist, 0.001);
+        float dist = length(viewPos - FragPos);
+        float fogFactor = (fogMaxDist - dist) / fogRange;
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        FragColor = mix(fogColor, shadedColor, fogFactor);
+    } else {
         FragColor = shadedColor;
+    }
 }
 
 

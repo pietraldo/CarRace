@@ -135,9 +135,9 @@ void Scene::Update(InputData input, float deltaTime)
 			continue;
 		if (dayNight)
 		{
-			light->ambient = glm::vec3(0.25f);
-			light->diffuse = glm::vec3(0.15f);
-			light->specular = glm::vec3(0.1f);
+			light->ambient = glm::vec3(0.02f);
+			light->diffuse = glm::vec3(0.08f, 0.08f, 0.1f);
+			light->specular = glm::vec3(0.08f);
 		}
 		else
 		{
@@ -154,15 +154,19 @@ void Scene::Update(InputData input, float deltaTime)
 
 void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
 {
+    const float fogMinDist = dayNight ? 8.0f : 25.0f;
+    const float fogMaxDist = dayNight ? 70.0f : 150.0f;
+    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
     shaderTex.use();
     shaderTex.setBool("uIsMirror", false);
     shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
     shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shaderTex.setVec3("viewPos", activeCam.Position);
     shaderTex.setBool("fogEnabled", fog);
-    shaderTex.setFloat("fogMinDist", 20.0f);
-    shaderTex.setFloat("fogMaxDist", 100.0f);
-    shaderTex.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
+    shaderTex.setFloat("fogMinDist", fogMinDist);
+    shaderTex.setFloat("fogMaxDist", fogMaxDist);
+    shaderTex.setVec4("fogColor", fogColor);
 
     for (Model* model : modelsTex)
     {
@@ -190,9 +194,9 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
     shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shaderCol.setVec3("viewPos", activeCam.Position);
     shaderCol.setBool("fogEnabled", fog);
-    shaderCol.setFloat("fogMinDist", 20.0f);
-    shaderCol.setFloat("fogMaxDist", 100.0f);
-    shaderCol.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
+    shaderCol.setFloat("fogMinDist", fogMinDist);
+    shaderCol.setFloat("fogMaxDist", fogMaxDist);
+    shaderCol.setVec4("fogColor", fogColor);
 
     for (Model* model : modelsCol)
     {
@@ -217,15 +221,19 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
 
 void Scene::DrawCars(Shader& shader, Camera& activeCam)
 {
+    const float fogMinDist = dayNight ? 8.0f : 25.0f;
+    const float fogMaxDist = dayNight ? 70.0f : 150.0f;
+    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
     shader.use();
     shader.setBool("uIsMirror", false);
     shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
     shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
     shader.setVec3("viewPos", activeCam.Position);
     shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", 20.0f);
-    shader.setFloat("fogMaxDist", 100.0f);
-    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
+    shader.setFloat("fogMinDist", fogMinDist);
+    shader.setFloat("fogMaxDist", fogMaxDist);
+    shader.setVec4("fogColor", fogColor);
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
@@ -261,15 +269,19 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam
 
 void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam)
 {
+    const float fogMinDist = dayNight ? 10.0f : 35.0f;
+    const float fogMaxDist = dayNight ? 90.0f : 200.0f;
+    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
 	shader.use();
 
 	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
 	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
 	shader.setVec3("viewPos", activeCam.Position);
 	shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", 20.0f);
-    shader.setFloat("fogMaxDist", 150.0f);
-    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
+    shader.setFloat("fogMinDist", fogMinDist);
+    shader.setFloat("fogMaxDist", fogMaxDist);
+    shader.setVec4("fogColor", fogColor);
 
 	glm::mat4 model = glm::mat4(1.0f);
     glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
@@ -286,6 +298,10 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeC
 
 void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 {
+    const float fogMinDist = dayNight ? 8.0f : 25.0f;
+    const float fogMaxDist = dayNight ? 70.0f : 150.0f;
+    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
 	shader.use();
 	shader.setBool("uIsMirror", false);
 	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
@@ -293,9 +309,9 @@ void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
 	shader.setVec3("viewPos", activeCam.Position);
 	shader.setVec3("objectColor", model.GetColor());
 	shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", 20.0f);
-    shader.setFloat("fogMaxDist", 100.0f);
-    shader.setVec4("fogColor", dayNight ? glm::vec4(0.01f, 0.01f, 0.01f, 1.0f) : glm::vec4(0.5f, 0.6f, 0.7f, 1.0f));
+    shader.setFloat("fogMinDist", fogMinDist);
+    shader.setFloat("fogMaxDist", fogMaxDist);
+    shader.setVec4("fogColor", fogColor);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, model.textureID);

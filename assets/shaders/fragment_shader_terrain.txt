@@ -43,7 +43,11 @@ in vec3 FragPos;
 in vec4 fposition;
 in vec2 TexCoord;          
 
-uniform vec3 viewPos; 
+uniform vec3 viewPos;
+uniform bool fogEnabled;
+uniform float fogMinDist;
+uniform float fogMaxDist;
+uniform vec4 fogColor;
 
 uniform sampler2D uBaseColorMap;
 
@@ -61,10 +65,7 @@ layout (std140) uniform Lights
     int        NR_SPOT_LIGHTS;
 };
 
-// kolor materia³u po teksturze
 vec3 surfaceColor;
-
-// deklaracje
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -92,7 +93,17 @@ void main()
     for (int i = 0; i < IT_SPOT_LIGHT; i++)
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
-    FragColor = vec4(result, 1.0);
+    vec4 shadedColor = vec4(result, 1.0);
+
+    if (fogEnabled) {
+        float fogRange = max(fogMaxDist - fogMinDist, 0.001);
+        float dist = length(viewPos - FragPos);
+        float fogFactor = (fogMaxDist - dist) / fogRange;
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        FragColor = mix(fogColor, shadedColor, fogFactor);
+    } else {
+        FragColor = shadedColor;
+    }
 }
 
 
