@@ -128,6 +128,7 @@ void Scene::Update(InputData input, float deltaTime)
 
 	UpdatePlayersCamera(deltaTime);
 	UpdateCars(input, deltaTime);
+	UpdateHeadlights();
 
 
 	for (Light* light : lights) {
@@ -367,6 +368,25 @@ void Scene::CreateLights()
 		glm::vec3(1.0f, 1.0f, 1.0f));
 	AddLight(user_flashlight);
 	flashlight = (LightSpot*)user_flashlight;
+
+	// headlights for each car (two spot lights per car)
+	glm::vec3 headlightAmbient(0.03f);
+	glm::vec3 headlightDiffuse(2.0f);
+	glm::vec3 headlightSpecular(2.5f);
+	float cutOff = glm::cos(glm::radians(14.0f));
+	float outerCutOff = glm::cos(glm::radians(24.0f));
+
+	for (int i = 0; i < CAR_COUNT; ++i)
+	{
+		headlightLeft[i] = new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
+			cutOff, outerCutOff, glm::vec3(0, 0, -1),
+			headlightAmbient, headlightDiffuse, headlightSpecular);
+		headlightRight[i] = new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
+			cutOff, outerCutOff, glm::vec3(0, 0, -1),
+			headlightAmbient, headlightDiffuse, headlightSpecular);
+		AddLight(headlightLeft[i]);
+		AddLight(headlightRight[i]);
+	}
 }
 
 void Scene::setOutput()
@@ -392,6 +412,53 @@ void Scene::UpdateFlashLight()
 		flashlight->specular = glm::vec3(0.0f);
 		flashlight->diffuse = glm::vec3(0.0f);
 		flashlight->ambient = glm::vec3(0.0f);
+	}
+}
+
+void Scene::UpdateHeadlights()
+{
+	if (!headlightsOn)
+		return;
+
+	for (int i = 0; i < CAR_COUNT; ++i)
+	{
+		if (!cars[i])
+			continue;
+
+		const auto& body = cars[i]->GetBody();
+		if (!body)
+			continue;
+
+		glm::vec3 pos = body->GetPosition();
+		glm::quat rot = PxQuatToGlmQuat(body->GetRotation());
+
+		// In this model forward points along -X in local space.
+		glm::vec3 forward = rot * glm::vec3(-1.0f, 0.0f, 0.0f);
+		glm::vec3 right = rot * glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 up = rot * glm::vec3(0.0f, 1.0f, 0.0f);
+
+		glm::vec3 baseOffset = forward * 2.0f + up * 0.25f;
+		glm::vec3 lateral = right * 0.6f;
+
+		// Tilt slightly downward to illuminate the road.
+		glm::vec3 beamDir = glm::normalize(forward + up * -0.25f);
+
+		float intensityScale = dayNight ? 1.0f : 0.45f;
+
+		if (headlightLeft[i])
+		{
+			headlightLeft[i]->position = pos + baseOffset + lateral;
+			headlightLeft[i]->direction = beamDir;
+			headlightLeft[i]->diffuse = glm::vec3(2.5f) * intensityScale;
+			headlightLeft[i]->specular = glm::vec3(3.0f) * intensityScale;
+		}
+		if (headlightRight[i])
+		{
+			headlightRight[i]->position = pos + baseOffset - lateral;
+			headlightRight[i]->direction = beamDir;
+			headlightRight[i]->diffuse = glm::vec3(2.5f) * intensityScale;
+			headlightRight[i]->specular = glm::vec3(3.0f) * intensityScale;
+		}
 	}
 }
 

@@ -51,8 +51,11 @@ public:
 	bool dayNight = false;
 	bool fog = false;
 	bool userFlashlight = false;
+	bool headlightsOn = true;
 
 	LightSpot* flashlight;
+	std::array<LightSpot*, CAR_COUNT> headlightLeft{};
+	std::array<LightSpot*, CAR_COUNT> headlightRight{};
 	LightSpot* lightToControl;
 	glm::vec3 originlDirection;
 
@@ -72,6 +75,7 @@ public:
 
 	void AddLight(Light* light) { lights.push_back(light); }
 	void UpdateFlashLight();
+	void UpdateHeadlights();
 	void CreateLights();
 
 	void setOutput();
