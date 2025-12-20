@@ -183,7 +183,6 @@ void Physics::createTerrain()
     
     float scaley = terrain->GetScaleY();
 
-    // create the actor for heightfield
     PxRigidStatic* actor = gPhysics->createRigidStatic(PxTransform(PxIdentity));
 
     PxReal minHeight = 0;
@@ -192,9 +191,6 @@ void Physics::createTerrain()
 
     PxReal quantization = (PxReal)0x7fff;
 
-    // compute heightScale such that the forward transform will generate the closest point
-    // to the source
-    // clamp to at least PX_MIN_HEIGHTFIELD_Y_SCALE to respect the PhysX API specs
     PxReal heightScale = PxMax(deltaHeight * scaley / quantization, PX_MIN_HEIGHTFIELD_Y_SCALE);
 
     PxHeightFieldSample* hfSamples = new PxHeightFieldSample[rows * cols];
@@ -215,7 +211,6 @@ void Physics::createTerrain()
         }
     }
 
-    // Build PxHeightFieldDesc from samples
     PxHeightFieldDesc terrainDesc;
     terrainDesc.format = PxHeightFieldFormat::eS16_TM;
     terrainDesc.nbColumns = rows;
@@ -239,15 +234,15 @@ void Physics::createTerrain()
     PxTransform localPose;
     localPose.p =
         PxVec3(
-            terrain->position.x - (terrainWidth * 0.5f),    // make it so that the center of the
+            terrain->position.x - (terrainWidth * 0.5f), 
             terrain->position.y + minHeight,
-            terrain->position.z - (terrainDepth * 0.5f));         // heightfield is at world (0,minHeight,0)
+            terrain->position.z - (terrainDepth * 0.5f));      
     localPose.q = PxQuat(PxIdentity);
     PxShape* shape = PxRigidActorExt::createExclusiveShape(*actor, hfGeom, *gMaterial, PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE);
     shape->setLocalPose(localPose);
     
     PxFilterData terrainFD;
-    terrainFD.word0 = 2; // Group 2 = Ground
+    terrainFD.word0 = 2;
     terrainFD.word1 = 0xffffffff;
     shape->setSimulationFilterData(terrainFD);
 
@@ -284,10 +279,6 @@ void Physics::cleanup()
 
 void Physics::initMaterialFrictionTable()
 {
-    //Each physx material can be mapped to a tire friction value on a per tire basis.
-    //If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
-    //In this snippet there is only a single material so there can only be a single mapping between material and friction.
-    //In this snippet the same mapping is used by all tires.
     gPhysXMaterialFrictions[0].friction = 1.0f;
     gPhysXMaterialFrictions[0].material = gMaterial;
     gPhysXDefaultMaterialFriction = 1.0f;
@@ -296,14 +287,13 @@ void Physics::initMaterialFrictionTable()
 
 void Physics::InitVehicleSystem()
 {
-    vehicle2::PxInitVehicleExtension(*gFoundation); // this tells that we use vehicle2 
+    vehicle2::PxInitVehicleExtension(*gFoundation);
 
-    // Setting up simulation context for the vehicle.
     gVehicleSimulationContext.setToDefault();
-    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ; // seting what is the forward axis of the vehicle
+    gVehicleSimulationContext.frame.lngAxis = PxVehicleAxes::ePosZ; 
     gVehicleSimulationContext.frame.latAxis = PxVehicleAxes::ePosX;
     gVehicleSimulationContext.frame.vrtAxis = PxVehicleAxes::ePosY;
-    gVehicleSimulationContext.scale.scale = 1.0f; // it tells that we use meters, if we use centimeters set scale to 0.01f
+    gVehicleSimulationContext.scale.scale = 1.0f; 
     gVehicleSimulationContext.gravity = gGravity;
     gVehicleSimulationContext.physxScene = gScene;
     gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
@@ -319,14 +309,12 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
         vehicle->gVehicle.mPhysXParams);
 
 
-    //Set the states to default.
     if (!vehicle->gVehicle.initialize(*gPhysics, PxCookingParams(PxTolerancesScale()), *gMaterial, EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE))
     {
         return nullptr;
     }
 
 
-    //Apply a start pose to the physx actor and add it to the physx scene.
     PxTransform pose(position, PxQuat(PxIdentity));
     vehicle->gVehicle.setUpActor(*gScene, pose, vehicle->gVehicleName);
 
@@ -343,7 +331,6 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
         fd.word2 |= PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT;
         s->setSimulationFilterData(fd);
 
-        // Apply geometry tweak only to the first shape (chassis?)
         if (i == 0)
         {
             PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
@@ -354,7 +341,6 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
     }
     delete[] shapes;
 
-    // Reset filtering to ensure new flags take effect
     gScene->resetFiltering(*vehicle->gVehicle.mPhysXState.physxActor.rigidBody);
 
     return vehicle;
@@ -363,21 +349,17 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
 
 void Physics::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {
-    // Iterate through all contact pairs
     for (PxU32 i = 0; i < nbPairs; i++)
     {
         const PxContactPair& cp = pairs[i];
 
-        // Check if contact has been found
         if (cp.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
         {
-             // Iterate bodies
              PxRigidActor* actor0 = pairHeader.actors[0]->is<PxRigidActor>();
              PxRigidActor* actor1 = pairHeader.actors[1]->is<PxRigidActor>();
              
              if(actor0 && actor1)
              {
-                 // Calculate relative velocity
                  PxRigidBody* body0 = actor0->is<PxRigidBody>();
                  PxRigidBody* body1 = actor1->is<PxRigidBody>();
 
@@ -386,20 +368,17 @@ void Physics::onContact(const PxContactPairHeader& pairHeader, const PxContactPa
                  
                  float relativeSpeed = (vel0 - vel1).magnitude();
                  
-                 // Thresholds
                  if (relativeSpeed > 3.0f) {
-                     // Hard impact
                      float intensity = (relativeSpeed - 3.0f) / 10.0f;
                      if (intensity > 1.0f) intensity = 1.0f;
-                     if (intensity < 0.2f) intensity = 0.2f; // Min audible
-                     collisionSound.playImpact(intensity); // "pukniecie"
+                     if (intensity < 0.2f) intensity = 0.2f;
+                     collisionSound.playImpact(intensity);
                  } 
                  else if (relativeSpeed > 0.5f) {
-                     // Scrape / light impact
                       float intensity = (relativeSpeed - 0.5f) / 2.5f;
                       if (intensity > 1.0f) intensity = 1.0f;
-                      if (intensity < 0.2f) intensity = 0.2f; // Min audible
-                      collisionSound.playScrape(intensity); // "przecierka"
+                      if (intensity < 0.2f) intensity = 0.2f; 
+                      collisionSound.playScrape(intensity); 
                  }
              }
         }

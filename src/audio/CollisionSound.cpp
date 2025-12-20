@@ -24,14 +24,12 @@ bool CollisionSound::init()
     ma_engine* eng = AudioEngine::instance().getEngine();
     ma_result result;
 
-    // Load impact sound ("pukniecie.mp3")
     result = ma_sound_init_from_file(eng, "../assets/audio/colision/pukniecie.mp3", MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC, nullptr, nullptr, &impactSound);
     if (result != MA_SUCCESS) {
         std::cerr << "CollisionSound: failed to load pukniecie.mp3\n";
         return false;
     }
 
-    // Load scrape sound ("przecierka.mp3")
     result = ma_sound_init_from_file(eng, "../assets/audio/colision/przecierka.mp3", MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC, nullptr, nullptr, &scrapeSound);
     if (result != MA_SUCCESS) {
         std::cerr << "CollisionSound: failed to load przecierka.mp3\n";
@@ -44,37 +42,25 @@ bool CollisionSound::init()
 
 void CollisionSound::playImpact(float intensity)
 {
-    if (!loaded) return;
 
-    // Clamp intensity
     intensity = std::max(0.0f, std::min(intensity, 1.0f));
     
-    // Don't play if intensity is too low
     if (intensity < 0.1f) return;
 
-    // Randomize pitch slightly for variety
     float pitch = 0.9f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.2f));
 
     ma_sound_set_volume(&impactSound, intensity);
     ma_sound_set_pitch(&impactSound, pitch);
-    ma_sound_seek_to_pcm_frame(&impactSound, 0); // Restart sound
+    ma_sound_seek_to_pcm_frame(&impactSound, 0);
     ma_sound_start(&impactSound);
 }
 
 void CollisionSound::playScrape(float intensity)
 {
-    if (!loaded) return;
-
-    // Clamp intensity
     intensity = std::max(0.0f, std::min(intensity, 1.0f));
 
     if (intensity < 0.1f) return;
 
-    // Only restart if not already playing or if significantly different? 
-    // For scrapes, we might want to restart often or loop if continuous, but "przecierka.mp3" sounds like a short event.
-    // Let's treat it as one-shot for now, but maybe with a cooldown if it's too frequent.
-    
-    // Simple one-shot for now
     float pitch = 0.95f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.1f));
 
     ma_sound_set_volume(&scrapeSound, intensity);

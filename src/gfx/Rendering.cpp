@@ -419,25 +419,35 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
 
     for (GameObject* gameObj : gameObjects)
     {
-        if (gameObj->actor) {
-             physx::PxBounds3 bounds = gameObj->actor->getWorldBounds();
-             physx::PxVec3 center = bounds.getCenter();
-             physx::PxVec3 extents = bounds.getExtents();
-             float radius = extents.magnitude(); 
-             
-             glm::vec3 c(center.x, center.y, center.z);
-             if (!activeCam.IsSphereVisible(c, radius)) {
-                 continue; 
-             }
-        }
+        if (!Rendering::ShouldRenderGameObject(gameObj, activeCam))
+            continue;
+
         gameObj->Draw(activeCam);
     }
+
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
     (*Rendering::scene).DrawCars(shaderTextured, activeCam);
     (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
+
+bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam)
+{
+    if (!gameObj || !gameObj->actor)
+        return true;
+
+    physx::PxBounds3 bounds = gameObj->actor->getWorldBounds();
+    physx::PxVec3 center = bounds.getCenter();
+    physx::PxVec3 extents = bounds.getExtents();
+
+    float radius = extents.magnitude();
+    glm::vec3 c(center.x, center.y, center.z);
+
+    return cam.IsSphereVisible(c, radius);
+}
+
+
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {
