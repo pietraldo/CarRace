@@ -77,6 +77,13 @@ public:
         gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
     }
 
+    void setVehicleRotation(PxQuat rotation)
+    {
+        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        t.q = rotation;
+        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
+    }
+
     PxVec3 getVehicleFrontDirection() const 
     {
         PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();

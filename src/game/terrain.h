@@ -33,8 +33,6 @@ private:
 public:
     vector<float> GetVertices() { return vertices; }
     vector<int> GetIndices() { return indices; }
-	
-
 
 	glm::vec3 position;
 
@@ -51,7 +49,7 @@ public:
     int GetRows() { return rows; }
     int GetCols() { return cols; }
     vector<vector<float>> GetHeightData() { return heightData; }
-    vector<vector<int>> GetRoadMark() { return roadMark; }
+    const vector<vector<int>>& GetRoadMark() { return roadMark; }
 
     float GetMinHeightFromHeightData();
     float GetMaxHeightFromHeightData();

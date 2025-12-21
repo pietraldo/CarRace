@@ -53,11 +53,11 @@ int Physics::initialize(GameEngine* gameEngine) {
     PxQuat rotation = PxQuat(0.02f, 0.98f, 0.0f, 0.19f);
     if (CAR_COUNT >= 1)
     {
-        createVehicle(PxVec3(405.90f, 25.0f, -17.96f), rotation, "vehicle2");
+        createVehicle(PxVec3(305.90f, 25.0f, -17.96f), rotation, "vehicle2");
     }
     if (CAR_COUNT >= 2)
     {
-        createVehicle(PxVec3(401.05f, 25.0f, -19.65f), rotation, "vehicle1");
+        createVehicle(PxVec3(301.05f, 25.0f, -19.65f), rotation, "vehicle1");
     }
     createTerrain();
 
@@ -248,8 +248,8 @@ void Physics::createTerrain() {
             }
             else
             {
-                smp.materialIndex0 = 0;
-                smp.materialIndex1 = 0;
+                smp.materialIndex0 = 1;
+                smp.materialIndex1 = 1;
             }
             
         }

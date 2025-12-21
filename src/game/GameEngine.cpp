@@ -8,6 +8,8 @@ GameEngine::GameEngine() {
 
     gameObjects = vector<GameObject*>();
 
+    playersStatus = std::vector<PlayerStatus>(CAR_COUNT);
+
     CubeObject* cube1 =
         new CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f, 1.0f, 1.0f),
             glm::vec3(1.0f, 0.50f, 0.50f));
@@ -54,11 +56,11 @@ GameEngine::GameEngine() {
     cube = cube3;
 
     terrain =
-        new Terrain(glm::vec3(100.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+        new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 
     skyboxVBO = 0;
-    fog = true; // Enable fog
+    fog = false; // Enable fog
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
@@ -154,6 +156,7 @@ void GameEngine::Update(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
+    UpdatePlayerStatus();
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol,
@@ -295,8 +298,7 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
     glBindVertexArray(sphereVAO);
-    glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT,
-        0);
+    glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT,0);
 }
 
 void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
@@ -502,6 +504,88 @@ std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
     auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
     return car;
+}
+
+bool GameEngine::isVehicleOnTrack(int carNumber)
+{
+    auto roadMarks = terrain->GetRoadMark();
+    auto vehicle = Physics::getInstance()->getVehicles()[carNumber];
+    PxVec3 pos = vehicle->getVehiclePosition();
+    float x = pos.x;
+    float z = pos.z;
+    float scale_x = terrain->GetScaleX();
+    float scale_z = terrain->GetScaleZ();
+
+    int width = terrain->GetTerrainWidth() / 2.0f;
+    int depth = terrain->GetTerrainDepth() / 2.0f;
+    x = x + width;
+    z = z + depth;
+
+    x = x / scale_x;
+    z = z / scale_z;
+
+    return roadMarks[int(z)][int(x)] == 1;
+}
+
+void GameEngine::UpdatePlayerStatus()
+{
+    const int TIMEOUTSIDE_THRESHOLD = 100;
+    const int CHECKPOINT_THRESHOLD = 300;
+    const int MAX_SAVED_POSITIONS = 100;
+    const int SAVE_POSITION_RETRIVAL = 1;
+
+    for (int i = 0; i < CAR_COUNT; i++)
+    {
+        bool isCarOnTrack = isVehicleOnTrack(i);
+        if (!isCarOnTrack)
+        {
+            playersStatus[i].timeOutsideOfTrack += 1;
+
+            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD)
+            {
+                //reset position to last known position on track
+                if (!playersStatus[i].vehiclePositions.empty())
+                {
+                    int index = playersStatus[i].vehiclePositions.size() - SAVE_POSITION_RETRIVAL - 1;
+                    if (index < 0) index = 0;
+
+                    VehicleStatus lastStatus = playersStatus[i].vehiclePositions[index];
+                    auto vehicle = Physics::getInstance()->getVehicles()[i];
+                    vehicle->resetCar();
+
+                    vehicle->setVehiclePosition(lastStatus.postion);
+                    vehicle->setVehicleRotation(lastStatus.rotation);
+                }
+                playersStatus[i].timeOutsideOfTrack = 0;
+            }
+        }
+        else
+        {
+            playersStatus[i].checkPointTime += 1;
+            playersStatus[i].timeOutsideOfTrack = 0;
+
+            if (playersStatus[i].checkPointTime > CHECKPOINT_THRESHOLD)
+            {
+                if (i == 0)
+                {
+                    std::cout << "Player 1 reached checkpoint!" << std::endl;
+                }
+                playersStatus[i].checkPointTime = 0;
+                
+                auto vehicle = Physics::getInstance()->getVehicles()[i];
+                PxVec3 pos = vehicle->getVehiclePosition();
+                PxQuat rotation = vehicle->getVehicleRotation();
+                if (playersStatus[i].vehiclePositions.size() >= MAX_SAVED_POSITIONS)
+                {
+                    playersStatus[i].vehiclePositions.erase(
+                        playersStatus[i].vehiclePositions.begin());
+                }
+                playersStatus[i].vehiclePositions.push_back({ pos, rotation });
+            }
+            
+        }
+
+    }
 }
 
 void GameEngine::InitializeSkybox() {
