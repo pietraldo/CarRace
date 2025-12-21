@@ -37,7 +37,7 @@ int Physics::initialize(Scene* scene) {
 
     gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
     roadMaterial = gPhysics->createMaterial(1.3f, 1.3f, 0.0f);
-    grassMaterial = gPhysics->createMaterial(0.3f, 0.3f, 0.0f);
+    grassMaterial = gPhysics->createMaterial(0.4f, 0.5f, 0.0f);
 
     createScene();
     gScene->setSimulationEventCallback(&simulationEventCallback);
