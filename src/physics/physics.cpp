@@ -351,7 +351,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const PxQuat rotation, c
 
   PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
   s->setGeometry(newGeom);
-  physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
+  physx::PxTransform localOffset = PxTransform(0, 0.75f, 1.59f);
   s->setLocalPose(localOffset);
 
   delete[] shapes;
