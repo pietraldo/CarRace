@@ -126,11 +126,22 @@ public:
 
     void resetCar()
     {
-        PxVec3 position = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-        position.y += 5.0f; 
-        position.x += 3.0f;
-        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(PxTransform(position, PxQuat(PxIdentity)));
+        PxRigidDynamic* body = (PxRigidDynamic*)(gVehicle.mPhysXState.physxActor.rigidBody);
+
+        PxTransform pose = body->getGlobalPose();
+        pose.p.y += 5.0f;
+        pose.p.x += 3.0f;
+        pose.q = PxQuat(PxIdentity);
+
+        body->setGlobalPose(pose);
+
+        body->setLinearVelocity(PxVec3(0.0f));
+        body->setAngularVelocity(PxVec3(0.0f));
+
+        body->clearForce();
+        body->clearTorque();
     }
+
 
     float computeDriftFactor();
     std::vector<float> computeDriftFactorPerWheel();
