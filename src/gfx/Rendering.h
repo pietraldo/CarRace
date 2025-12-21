@@ -70,7 +70,7 @@ public:
     static void ClearExternalView();
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
-
+    static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
 
     bool static isCarVisible(glm::vec3 carPos);
 

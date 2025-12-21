@@ -399,7 +399,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
 
-    Mesh::ResetTextureCache(); // Phase 3 Optimization: Reset cache to ensure fresh state
+    Mesh::ResetTextureCache(); 
 
 
     LightBuffer lightBuffer = (*Rendering::scene).LoadLights();
@@ -410,7 +410,6 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // Optimized: HOISTED UNIFORMS for gameObjects loop (Cubes)
     shaderColor.use();
     shaderColor.setBool("uIsMirror", false);
     shaderColor.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
@@ -420,14 +419,35 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
 
     for (GameObject* gameObj : gameObjects)
     {
+        if (!Rendering::ShouldRenderGameObject(gameObj, activeCam))
+            continue;
+
         gameObj->Draw(activeCam);
     }
+
 
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
     (*Rendering::scene).DrawCars(shaderTextured, activeCam);
     (*Rendering::scene).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
+
+bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam)
+{
+    if (!gameObj || !gameObj->actor)
+        return true;
+
+    physx::PxBounds3 bounds = gameObj->actor->getWorldBounds();
+    physx::PxVec3 center = bounds.getCenter();
+    physx::PxVec3 extents = bounds.getExtents();
+
+    float radius = extents.magnitude();
+    glm::vec3 c(center.x, center.y, center.z);
+
+    return cam.IsSphereVisible(c, radius);
+}
+
+
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera)
 {

@@ -33,8 +33,8 @@ float RaceCar::computeDriftFactor()
 
     float mid1 = (driftFactors[0] + driftFactors[1])/2;
     float mid2 = (driftFactors[2] + driftFactors[3]) / 2;
-    float max = std::max(mid1, mid2);
-    return max;
+    float driftMax = std::max(mid1, mid2);
+    return driftMax;
 }
 
 std::vector<float> RaceCar::computeDriftFactorPerWheel()
@@ -195,5 +195,20 @@ void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear
 void RaceCar::UpdateTireSqueal(float forwardDriftFactor, float driftFactor, float speed)
 {
     if (!tireSquealLoaded) return;
+    
+    bool isAnyWheelGrounded = false;
+    std::vector<bool> grounded = getWheelIsGrounded();
+    for (bool g : grounded) {
+        if (g) {
+            isAnyWheelGrounded = true;
+            break;
+        }
+    }
+
+    if (!isAnyWheelGrounded) {
+        tireSquealSound.update(0.0f, 0.0f, speed);
+        return;
+    }
+
     tireSquealSound.update(forwardDriftFactor, driftFactor, speed);
 }

@@ -81,14 +81,20 @@ void TireSquealSound::update(float tireForwardSlip, float tireSideSlip, float sp
     float driftForPitch = std::pow(tireSideSlip, 0.5f);
 
     float targetVolume = 0.0f;
+    
+    // Side slip (drift)
     if (tireSideSlip > 0.02f && speedFactor > 0.0f) {
-        float rawVol = 0.15f + driftForVolume * 0.9f * speedFactor;
-        targetVolume = glm::clamp(rawVol, 0.0f, 1.0f);
+        float rawVol = 0.15f + driftForVolume * 0.7f * speedFactor; // Reduced multiplier from 0.9 to 0.7
+        targetVolume = glm::clamp(rawVol, 0.0f, 0.8f); // Clamped max volume to 0.8
     }
-    if (tireForwardSlip > 0.2)
+
+    // Forward slip (acceleration/braking)
+    // Only allows screeching at low speeds (start) and very high slip (hard acceleration)
+    if (tireForwardSlip > 0.6f && speed < 20.0f)
     {
-        targetVolume += tireForwardSlip;
-        targetVolume = glm::clamp(targetVolume, 0.0f, 1.0f);
+        // Reduced volume contribution from forward slip
+        targetVolume += (tireForwardSlip - 0.5f) * 0.3f; 
+        targetVolume = glm::clamp(targetVolume, 0.0f, 0.8f);
     }
 
     float basePitch = 0.9f + speedFactor * 0.4f;        
@@ -103,13 +109,14 @@ void TireSquealSound::update(float tireForwardSlip, float tireSideSlip, float sp
         ? volumeSmoothFactor * attackMult
         : volumeSmoothFactor * releaseMult;
 
+    // Reduced sensitivity for sudden volume jumps
     if (tireSideSlip > 0.6f && volumeSmoothed < 0.2f && dv > 0.0f) {
-        volFactor = volumeSmoothFactor * 8.0f;
+        volFactor = volumeSmoothFactor * 4.0f; 
     }
 
-    if (tireForwardSlip > 0.5f && volumeSmoothed < 0.2f && dv > 0.0f)
+    if (tireForwardSlip > 0.8f && volumeSmoothed < 0.2f && dv > 0.0f)
     {
-        volFactor = volumeSmoothFactor * 8.0f;
+        volFactor = volumeSmoothFactor * 4.0f; 
     }
 
     volumeSmoothed += dv * volFactor;
