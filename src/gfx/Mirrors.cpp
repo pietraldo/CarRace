@@ -1,6 +1,6 @@
 #include "Mirrors.h"
 #include "Rendering.h"
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include <glad/glad.h>
 #include <iostream>  
 

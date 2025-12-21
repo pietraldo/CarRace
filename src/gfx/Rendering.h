@@ -20,7 +20,7 @@
 #include "Cube.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include "./camera/CameraManager.h"
 #include "../ui/Input/KeyboardController.h"
 #include "../game/terrain.h"

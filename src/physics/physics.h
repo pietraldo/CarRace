@@ -10,7 +10,7 @@
 #include "./common/serialization/BaseSerialization.h"
 #include "./common/serialization/EngineDrivetrainSerialization.h"
 
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include "../game/terrain.h"
 #include "../ui/Input/InputStructures.h"
 #include "./game/Objects/car/Car.h"

@@ -17,7 +17,7 @@
 #include "../gfx/Shader.h"
 #include "../gfx/camera/Camera.h"
 #include "../gfx/Model.h"
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include "../gfx/lights/Light.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightDirectional.h"
