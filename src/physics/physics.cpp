@@ -40,9 +40,14 @@ int Physics::initialize(Scene* scene) {
     initMaterialFrictionTable();
     InitVehicleSystem();
 
-    for (int i = 0; i < CAR_COUNT; i++)
+    PxQuat rotation = PxQuat(0.02f, 0.98f, 0.0f, 0.19f);
+    if (CAR_COUNT >= 1)
+    {   
+        createVehicle(PxVec3(405.90f, 25.0f, -17.96f), rotation, "vehicle2");
+    }
+    if (CAR_COUNT >= 2)
     {
-        createVehicle(PxVec3(-49.0f+10 * i, 31.0f, 239.0f), "vehicle" + std::to_string(i));
+        createVehicle(PxVec3(401.05f, 25.0f, -19.65f), rotation, "vehicle1");
     }
     createTerrain();
 
@@ -246,7 +251,7 @@ void Physics::InitVehicleSystem()
     gVehicleSimulationContext.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 }
 
-RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehicleName)
+RaceCar* Physics::createVehicle(const PxVec3& position, const PxQuat rotation, const std::string& vehicleName)
 {
     RaceCar* vehicle = new RaceCar(vehicleName.c_str(), "Base.json", "EngineDrive.json", &gVehicleSimulationContext);
     vehicles.push_back(vehicle);
@@ -264,7 +269,7 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const std::string& vehic
 
 
     //Apply a start pose to the physx actor and add it to the physx scene.
-    PxTransform pose(position, PxQuat(PxIdentity));
+    PxTransform pose(position, rotation);
     vehicle->gVehicle.setUpActor(*gScene, pose, vehicle->gVehicleName);
 
     int shapeNum = vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getNbShapes();
