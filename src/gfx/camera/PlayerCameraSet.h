@@ -24,7 +24,7 @@ public:
         observingCamera = std::make_unique<ObservingCamera>(glm::vec3(0.0f, 5.0f, 30.0f));
         observingCameraUp = std::make_unique<ObservingCameraUp>(glm::vec3(0.0f, 5.0f, 30.0f));
     }
-    CameraType activeType = CameraType::FOLLOWING_CAR_CAMERA;
+    CameraType activeType = CameraType::OBSERVING_CAMERA;
 
     void SetActiveCamera(CameraType type) {
 		activeType = type;
