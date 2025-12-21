@@ -65,7 +65,7 @@ public:
 
   void InitVehicleSystem();
 
-  RaceCar *createVehicle(const PxVec3 &position,
+  RaceCar* createVehicle(const PxVec3& position, PxQuat rotation,
                          const std::string &vehicleName);
 
   PxMaterial *gMaterial = nullptr;

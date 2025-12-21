@@ -72,7 +72,6 @@ public:
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
 
-    bool static isCarVisible(glm::vec3 carPos);
 
     // texture
     static int texWidth;

@@ -71,7 +71,7 @@ int Rendering::Initialize() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  textureData = stbi_load("../assets/vehicledata/baseColor4.png", &texWidth,
+  textureData = stbi_load("../assets/vehicledata/baseColor5.png", &texWidth,
                           &texHeight, &nbChannels, 0);
   if (!textureData) {
     std::cout << "Failed to load texture" << std::endl;
@@ -152,25 +152,7 @@ int Rendering::Initialize() {
   return 0;
 }
 
-bool Rendering::isCarVisible(glm::vec3 carPos) {
-  /*  Camera& activeCam =
-    CameraManager::GetInstance()->GetPlayerActiveCamera(0); glm::mat4 projection
-    = Rendering::GetProjectionMatrix(activeCam); glm::mat4 view =
-    Rendering::GetViewMatrix(activeCam);
 
-
-    glm::vec4 clip = projection * view * glm::vec4(carPos, 1.0f);
-    glm::vec3 ndc = glm::vec3(clip) / clip.w;
-    int x = (ndc.x + 1.0f) * 0.5f * Rendering::window_width;
-    int y = (ndc.y * 0.5f + 0.5f) * Rendering::window_height;
-    float carDepth = ndc.z * 0.5f + 0.5f;
-
-    float depth;
-    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-    std::cout << "Car depth: " << carDepth << " , depth buffer: " << depth <<
-    std::endl; return carDepth <= depth + 0.01f;*/
-  return true;
-}
 
 GLFWwindow *Rendering::CreateGLFWWindow(int width, int height,
                                         const char *title) {
