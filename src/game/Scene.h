@@ -34,7 +34,7 @@
 
 using namespace std;
 
-class Scene {
+class GameEngine {
 private:
   vector<GameObject *> gameObjects;
   std::array<std::unique_ptr<Car>, CAR_COUNT> cars;
@@ -68,7 +68,7 @@ public:
   unsigned int skyboxCubemapDay, skyboxCubemapNight;
   Shader *skyboxShader;
 
-  Scene();
+  GameEngine();
   void Update(InputData input, float deltaTime);
   void UpdateCars(InputData input, float deltaTime);
   void UpdatePlayerCamera(float deltaTime, int playerNumber);

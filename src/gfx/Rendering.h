@@ -25,7 +25,7 @@
 #include "../ui/Input/KeyboardController.h"
 #include "../game/terrain.h"
 
-class Scene;
+class GameEngine;
 class Mirrors;
 
 class Rendering
@@ -34,7 +34,7 @@ public:
     static int window_width;
     static int window_height;
 
-    static Scene* scene;
+    static GameEngine* gameEngine;
     static GLFWwindow* window;
 
     static unsigned CubeVAO;

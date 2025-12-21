@@ -2,7 +2,7 @@
 #include "../gfx/Model.h"
 #include "helper_functions.h"
 
-Scene::Scene() {
+GameEngine::GameEngine() {
     lights = vector<Light*>();
     cameras = vector<Camera*>();
 
@@ -61,7 +61,7 @@ Scene::Scene() {
     fog = true; // Enable fog
 }
 
-void Scene::UpdateCars(InputData input, float deltaTime) {
+void GameEngine::UpdateCars(InputData input, float deltaTime) {
     auto vehicles = Physics::getInstance()->getVehicles();
 
     for (int i = 0; i < CAR_COUNT; i++) {
@@ -80,7 +80,7 @@ void Scene::UpdateCars(InputData input, float deltaTime) {
     }
 }
 
-void Scene::UpdatePlayerCamera(float dt, int playerNumber) {
+void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
     Camera& activeCamera =
         CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
@@ -121,7 +121,7 @@ void Scene::UpdatePlayerCamera(float dt, int playerNumber) {
     }
 }
 
-void Scene::UpdatePlayersCamera(float dt) {
+void GameEngine::UpdatePlayersCamera(float dt) {
     ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
     if (activeViewMode == ViewMode::SINGLE_SCREEN) {
         UpdatePlayerCamera(dt, 0);
@@ -132,7 +132,7 @@ void Scene::UpdatePlayersCamera(float dt) {
     }
 }
 
-void Scene::Update(InputData input, float deltaTime) {
+void GameEngine::Update(InputData input, float deltaTime) {
 
     UpdatePlayersCamera(deltaTime);
     UpdateCars(input, deltaTime);
@@ -156,7 +156,7 @@ void Scene::Update(InputData input, float deltaTime) {
     UpdateFlashLight();
 }
 
-void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol,
+void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol,
     Camera& activeCam) {
     const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
         : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
@@ -222,7 +222,7 @@ void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol,
     }
 }
 
-void Scene::DrawCars(Shader& shader, Camera& activeCam) {
+void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
     const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
         : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
@@ -247,7 +247,7 @@ void Scene::DrawCars(Shader& shader, Camera& activeCam) {
         }
     }
 }
-void Scene::DrawLights(Shader& shader, unsigned int& lightVAO,
+void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO,
     Camera& activeCam) {
     shader.use();
     shader.setBool("uIsMirror", false);
@@ -270,7 +270,7 @@ void Scene::DrawLights(Shader& shader, unsigned int& lightVAO,
     }
 }
 
-void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO,
+void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO,
     Camera& activeCam) {
     const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
         : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
@@ -299,7 +299,7 @@ void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO,
         0);
 }
 
-void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
+void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
     const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
         : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
@@ -329,13 +329,13 @@ void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
     model.Draw(shader);
 }
 
-void Scene::CreateModels() {
+void GameEngine::CreateModels() {
     for (int i = 0; i < CAR_COUNT; i++) {
         cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
     }
 }
 
-void Scene::CreateLights() {
+void GameEngine::CreateLights() {
     Light* point_light1_ceneter_of_board =
         new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
             1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
@@ -388,7 +388,7 @@ void Scene::CreateLights() {
     }
 }
 
-void Scene::setOutput() {
+void GameEngine::setOutput() {
     auto vehicle = Physics::getInstance()->getVehicles()[0];
     float driftFactor = 0;
     float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
@@ -397,7 +397,7 @@ void Scene::setOutput() {
     InputManager::getInstance().setEffectsOnInputer(output);
 }
 
-void Scene::UpdateFlashLight() {
+void GameEngine::UpdateFlashLight() {
     if (userFlashlight) {
         flashlight->specular = glm::vec3(1.0f);
         flashlight->diffuse = glm::vec3(0.6f);
@@ -410,7 +410,7 @@ void Scene::UpdateFlashLight() {
     }
 }
 
-void Scene::UpdateHeadlights() {
+void GameEngine::UpdateHeadlights() {
     if (!headlightsOn)
         return;
 
@@ -451,7 +451,7 @@ void Scene::UpdateHeadlights() {
     }
 }
 
-LightBuffer Scene::LoadLights() {
+LightBuffer GameEngine::LoadLights() {
     LightBuffer lightBuffer;
     lightBuffer.NR_DIR_LIGHTS = 0;
     lightBuffer.NR_POINT_LIGHTS = 0;
@@ -462,7 +462,7 @@ LightBuffer Scene::LoadLights() {
     return lightBuffer;
 }
 
-glm::vec3 Scene::GetCarPosition() const {
+glm::vec3 GameEngine::GetCarPosition() const {
     auto vehicles = Physics::getInstance()->getVehicles();
     if (vehicles.empty())
         return glm::vec3(0.0f);
@@ -471,7 +471,7 @@ glm::vec3 Scene::GetCarPosition() const {
     return PxVec3ToGlmVec3(pos);
 }
 
-glm::quat Scene::GetCarRotation() const {
+glm::quat GameEngine::GetCarRotation() const {
     auto vehicles = Physics::getInstance()->getVehicles();
     if (vehicles.empty())
         return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -480,7 +480,7 @@ glm::quat Scene::GetCarRotation() const {
     return PxQuatToGlmQuat(rot);
 }
 
-std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition) {
+std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
     const std::string carModelPath = "../assets/models/car/car.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath =
@@ -504,7 +504,7 @@ std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition) {
     return car;
 }
 
-void Scene::InitializeSkybox() {
+void GameEngine::InitializeSkybox() {
     if (skyboxVAO != 0 && skyboxVBO != 0 && skyboxShader != nullptr)
         return;
 
@@ -557,7 +557,7 @@ void Scene::InitializeSkybox() {
     skyboxShader->setInt("skybox", 0);
 }
 
-unsigned int Scene::LoadCubemap(vector<std::string> faces) {
+unsigned int GameEngine::LoadCubemap(vector<std::string> faces) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -597,7 +597,7 @@ unsigned int Scene::LoadCubemap(vector<std::string> faces) {
     return textureID;
 }
 
-void Scene::DrawSkybox(Camera& activeCam) {
+void GameEngine::DrawSkybox(Camera& activeCam) {
     if (skyboxShader == nullptr)
         return; // Safety check
 

@@ -26,7 +26,7 @@ using namespace vehicle2;
 using namespace snippetvehicle;
 
 class RaceCar;
-class Scene;
+class GameEngine;
 class Physics {
 private:
     static Physics* physicsObj;
@@ -43,14 +43,14 @@ private:
 
     vector<RaceCar*> vehicles;
 
-    Scene* scene = nullptr;
+    GameEngine* gameEngine = nullptr;
 
     Physics() {}
 
 public:
     static Physics* getInstance();
 
-    int initialize(Scene* scene);
+    int initialize(GameEngine* scene);
 
     physx::PxScene* createScene();
 

@@ -12,8 +12,8 @@ Physics* Physics::getInstance() {
     return physicsObj;
 }
 
-int Physics::initialize(Scene* scene) {
-    this->scene = scene;
+int Physics::initialize(GameEngine* gameEngine) {
+    this->gameEngine = gameEngine;
 
     gFoundation =
         PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
@@ -202,7 +202,7 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
 }
 
 void Physics::createTerrain() {
-    Terrain* terrain = scene->GetTerrain();
+    Terrain* terrain = gameEngine->GetTerrain();
     int rows = terrain->GetRows();
     int cols = terrain->GetCols();
     std::vector<std::vector<float>> heightData = terrain->GetHeightData();

@@ -28,7 +28,7 @@ glm::mat4 Rendering::externalView = glm::mat4(1.0f);
 bool Rendering::useExternalProj = false;
 glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
-Scene *Rendering::scene = nullptr;
+GameEngine* Rendering::gameEngine = nullptr;
 
 unsigned int Rendering::VBO_sphere = 0;
 unsigned int Rendering::VAO_sphere = 0;
@@ -45,7 +45,7 @@ unsigned int Rendering::lightVAO = *(new unsigned);
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::Initialize() {
-  window = CreateGLFWWindow(window_width, window_height, "Rendering 3D scene");
+  window = CreateGLFWWindow(window_width, window_height, "CarRace");
   if (window == nullptr)
     return -1;
 
@@ -61,8 +61,8 @@ int Rendering::Initialize() {
   // scene->InitializeSkybox(); is called in main.cpp after
   // Rendering::Initialize
 
-  vector<float> vert = scene->GetTerrain()->GetVertices();
-  vector<int> ind = scene->GetTerrain()->GetIndices();
+  vector<float> vert = gameEngine->GetTerrain()->GetVertices();
+  vector<int> ind = gameEngine->GetTerrain()->GetIndices();
 
   glGenTextures(1, &textureID);
   glBindTexture(GL_TEXTURE_2D, textureID);
@@ -135,7 +135,7 @@ int Rendering::Initialize() {
       glGetUniformBlockIndex(texturedShader->ID, "Lights");
   glUniformBlockBinding(texturedShader->ID, uniformBlockIndexLightsTex, 0);
 
-  LightBuffer lightBuffer = (*scene).LoadLights();
+  LightBuffer lightBuffer = (*gameEngine).LoadLights();
   glGenBuffers(1, &uboLights);
 
   glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
@@ -359,32 +359,32 @@ void Rendering::RenderImGui() {
 
   {
     ImGui::Begin("Light settings");
-    ImGui::Checkbox("Day/Night", &(*scene).dayNight);
-    ImGui::Checkbox("Fog", &(*scene).fog);
-    ImGui::SliderFloat("Fog Min Dist", &(*scene).fogMinDist, 0.0f, 200.0f);
-    ImGui::SliderFloat("Fog Max Dist", &(*scene).fogMaxDist, 0.0f, 500.0f);
+    ImGui::Checkbox("Day/Night", &(*gameEngine).dayNight);
+    ImGui::Checkbox("Fog", &(*gameEngine).fog);
+    ImGui::SliderFloat("Fog Min Dist", &(*gameEngine).fogMinDist, 0.0f, 200.0f);
+    ImGui::SliderFloat("Fog Max Dist", &(*gameEngine).fogMaxDist, 0.0f, 500.0f);
     ImGui::End();
   }
   {
     ImGui::Begin("Flashlight settings");
-    ImGui::Checkbox("Turn on", &(*scene).userFlashlight);
-    ImGui::SliderFloat("Linear", &(*scene).flashlight->linear, 0, 0.1);
-    ImGui::SliderFloat("Quadratic", &(*scene).flashlight->quadratic, 0, 0.1);
-    ImGui::SliderFloat("CutOff", &(*scene).flashlight->cutOff, 0.9, 1);
-    ImGui::SliderFloat("OuterCutOff", &(*scene).flashlight->outerCutOff, 0.9,
+    ImGui::Checkbox("Turn on", &(*gameEngine).userFlashlight);
+    ImGui::SliderFloat("Linear", &(*gameEngine).flashlight->linear, 0, 0.1);
+    ImGui::SliderFloat("Quadratic", &(*gameEngine).flashlight->quadratic, 0, 0.1);
+    ImGui::SliderFloat("CutOff", &(*gameEngine).flashlight->cutOff, 0.9, 1);
+    ImGui::SliderFloat("OuterCutOff", &(*gameEngine).flashlight->outerCutOff, 0.9,
                        1);
     ImGui::End();
   }
   {
     ImGui::Begin("Box Colliders");
-    ImGui::SliderFloat("ScaleX", &(*scene).cube->scale.x, 0, 10);
-    ImGui::SliderFloat("ScaleY", &(*scene).cube->scale.y, 0, 10);
-    ImGui::SliderFloat("ScaleZ", &(*scene).cube->scale.z, 0, 10);
-    ImGui::SliderFloat("PositionX", &(*scene).cube->positionToDisplay.x, -10,
+    ImGui::SliderFloat("ScaleX", &(*gameEngine).cube->scale.x, 0, 10);
+    ImGui::SliderFloat("ScaleY", &(*gameEngine).cube->scale.y, 0, 10);
+    ImGui::SliderFloat("ScaleZ", &(*gameEngine).cube->scale.z, 0, 10);
+    ImGui::SliderFloat("PositionX", &(*gameEngine).cube->positionToDisplay.x, -10,
                        10);
-    ImGui::SliderFloat("PositionY", &(*scene).cube->positionToDisplay.y, -10,
+    ImGui::SliderFloat("PositionY", &(*gameEngine).cube->positionToDisplay.y, -10,
                        10);
-    ImGui::SliderFloat("PositionZ", &(*scene).cube->positionToDisplay.z, -10,
+    ImGui::SliderFloat("PositionZ", &(*gameEngine).cube->positionToDisplay.z, -10,
                        10);
 
     ImGui::End();
@@ -449,7 +449,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject *> &gameObjects,
 
   Mesh::ResetTextureCache();
 
-  LightBuffer lightBuffer = (*Rendering::scene).LoadLights();
+  LightBuffer lightBuffer = (*Rendering::gameEngine).LoadLights();
   lightBuffer.spotLights[0].position = glm::vec3(activeCam.Position);
   lightBuffer.spotLights[0].direction = glm::vec3(activeCam.Front);
 
@@ -471,12 +471,12 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject *> &gameObjects,
     gameObj->Draw(activeCam);
   }
 
-  (*Rendering::scene).DrawSkybox(activeCam);
-  (*Rendering::scene)
+  (*Rendering::gameEngine).DrawSkybox(activeCam);
+  (*Rendering::gameEngine)
       .DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
-  (*Rendering::scene).DrawModels(shaderTextured, shaderColor, activeCam);
-  (*Rendering::scene).DrawCars(shaderTextured, activeCam);
-  (*Rendering::scene)
+  (*Rendering::gameEngine).DrawModels(shaderTextured, shaderColor, activeCam);
+  (*Rendering::gameEngine).DrawCars(shaderTextured, activeCam);
+  (*Rendering::gameEngine)
       .DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
 
@@ -516,7 +516,7 @@ glm::mat4 Rendering::GetViewMatrix(Camera &camera) {
 }
 
 void Rendering::RenderFrame(std::vector<GameObject *> gameObjects) {
-  Scene *scene = Rendering::scene;
+  GameEngine * gameEngine = Rendering::gameEngine;
   CameraManager *cameraManager = CameraManager::GetInstance();
   ViewMode currentViewMode = cameraManager->GetViewMode();
 
