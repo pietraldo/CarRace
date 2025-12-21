@@ -340,23 +340,20 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const PxQuat rotation, c
   vehicle->gVehicle.mPhysXState.physxActor.rigidBody->getShapes(
       shapes, sizeof(PxShape *) * shapeNum, 0);
 
-  for (int i = 0; i < shapeNum; i++) {
-    PxShape *s = shapes[i];
-    s->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+  PxShape* s = shapes[0];
+  s->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
-    PxFilterData fd = s->getSimulationFilterData();
-    fd.word2 |=
-        (PxU32)(PxPairFlag::eNOTIFY_TOUCH_FOUND |
-                PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT);
-    s->setSimulationFilterData(fd);
+  PxFilterData fd = s->getSimulationFilterData();
+  fd.word2 |=
+      (PxU32)(PxPairFlag::eNOTIFY_TOUCH_FOUND |
+          PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT);
+  s->setSimulationFilterData(fd);
 
-    if (i == 0) {
-      PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
-      s->setGeometry(newGeom);
-      physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
-      s->setLocalPose(localOffset);
-    }
-  }
+  PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
+  s->setGeometry(newGeom);
+  physx::PxTransform localOffset = PxTransform(0, 0.45f, 1.59f);
+  s->setLocalPose(localOffset);
+
   delete[] shapes;
 
   gScene->resetFiltering(*vehicle->gVehicle.mPhysXState.physxActor.rigidBody);
