@@ -341,8 +341,9 @@ RaceCar *Physics::createVehicle(const PxVec3 &position,
     s->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
 
     PxFilterData fd = s->getSimulationFilterData();
-    fd.word2 |= PxPairFlag::eNOTIFY_TOUCH_FOUND |
-                PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT;
+    fd.word2 |=
+        (PxU32)(PxPairFlag::eNOTIFY_TOUCH_FOUND |
+                PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT);
     s->setSimulationFilterData(fd);
 
     if (i == 0) {

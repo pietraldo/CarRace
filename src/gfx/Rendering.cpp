@@ -427,7 +427,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
         gameObj->Draw(activeCam);
     }
 
-
+    (*Rendering::scene).DrawSkybox(activeCam);
     (*Rendering::scene).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
     (*Rendering::scene).DrawModels(shaderTextured, shaderColor,activeCam);
     (*Rendering::scene).DrawCars(shaderTextured, activeCam);
