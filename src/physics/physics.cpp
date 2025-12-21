@@ -358,5 +358,8 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const PxQuat rotation, c
 
   gScene->resetFiltering(*vehicle->gVehicle.mPhysXState.physxActor.rigidBody);
 
+  vehicle->gVehicle.mEngineDriveState.gearboxState.currentGear = 2;
+  vehicle->gVehicle.mEngineDriveState.gearboxState.targetGear = 2;
+
   return vehicle;
 }
