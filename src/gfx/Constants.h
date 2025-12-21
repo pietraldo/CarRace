@@ -9,3 +9,5 @@ const unsigned int START_SCR_WIDTH = 1600;
 const unsigned int START_SCR_HEIGHT = 1000;
 
 const unsigned int CAR_COUNT = 2;
+
+bool useDifferentMaterialsForTerrain = true;
