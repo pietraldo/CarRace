@@ -2,430 +2,612 @@
 #include "../gfx/Model.h"
 #include "helper_functions.h"
 
-Scene::Scene()
-{
-	lights = vector<Light*>(); 
-	cameras = vector<Camera*>(); 
+Scene::Scene() {
+  lights = vector<Light *>();
+  cameras = vector<Camera *>();
 
-    gameObjects = vector<GameObject*>();
+  gameObjects = vector<GameObject *>();
 
+  CubeObject *cube1 =
+      new CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f, 1.0f, 1.0f),
+                     glm::vec3(1.0f, 0.50f, 0.50f));
+  gameObjects.push_back(cube1);
 
-    CubeObject* cube1 =new  CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f,1.0f,1.0f), glm::vec3(1.0f, 0.50f, 0.50f));
-    gameObjects.push_back(cube1);
+  CubeObject *cube2 =
+      new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 1.0f, 1.0f),
+                     glm::vec3(0.50f, 0.50f, 1.0f));
+  gameObjects.push_back(cube2);
 
-	CubeObject* cube2 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f,1.0f, 1.0f), glm::vec3(0.50f, 0.50f, 1.0f));
-	gameObjects.push_back(cube2);
+  CubeObject *floorCube =
+      new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(1000, 1.0f, 1000),
+                     glm::vec3(0.7f, 0.4f, 1.0f));
+  gameObjects.push_back(floorCube);
 
-	CubeObject* floorCube = new CubeObject(1, glm::vec3(0,-0.5,0), glm::vec3(1000, 1.0f, 1000), glm::vec3(0.7f, 0.4f, 1.0f));
-    gameObjects.push_back(floorCube);
+  CubeObject *floorCube2 =
+      new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(10, 1.0f, 10),
+                     glm::vec3(1.0f, 0.4f, 1.0f));
+  gameObjects.push_back(floorCube2);
 
-	CubeObject* floorCube2 = new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(10, 1.0f, 10), glm::vec3(1.0f, 0.4f, 1.0f));
-	gameObjects.push_back(floorCube2);
+  CubeObject *cube4 =
+      new CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f),
+                     glm::vec3(0.0f, 0.0f, 1.0f), true);
+  gameObjects.push_back(cube4);
 
-	CubeObject* cube4 = new  CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f), glm::vec3(0.0f, 0.0f, 1.0f), true);
-	gameObjects.push_back(cube4);
-	
-	CubeObject* cube5 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-	gameObjects.push_back(cube5);
-	
-	CubeObject* cube6 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-	gameObjects.push_back(cube6);
-	CubeObject* cube7 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-	gameObjects.push_back(cube7);
+  CubeObject *cube5 =
+      new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f),
+                     glm::vec3(0.0f, 1.0f, 1.0f));
+  gameObjects.push_back(cube5);
 
-	CubeObject* cube3 = new  CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), false);
-	gameObjects.push_back(cube3);
-	cube = cube3;
+  CubeObject *cube6 =
+      new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f),
+                     glm::vec3(0.0f, 1.0f, 1.0f));
+  gameObjects.push_back(cube6);
+  CubeObject *cube7 =
+      new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f),
+                     glm::vec3(0.0f, 1.0f, 1.0f));
+  gameObjects.push_back(cube7);
 
-    terrain = new Terrain(glm::vec3(100.0f, 0.0f,0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
-    terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
-}	
+  CubeObject *cube3 =
+      new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f),
+                     glm::vec3(0.0f, 0.0f, 1.0f), false);
+  gameObjects.push_back(cube3);
+  cube = cube3;
 
+  terrain =
+      new Terrain(glm::vec3(100.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
+  terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
 
-void Scene::UpdateCars(InputData input, float deltaTime)
-{
-	auto vehicles = Physics::getInstance()->getVehicles();
-
-	for (int i = 0; i<CAR_COUNT; i++)
-	{
-		RaceCar* v = vehicles[i];
-		PxVec3 pos = v->getVehiclePosition();
-		PxQuat rotation = v->getVehicleRotation();
-		glm::vec3 position(pos.x, pos.y, pos.z);
-
-		cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
-
-		const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
-        cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
-		cars[i]->Update(deltaTime, position, rotation, vehicles[i]->getCurrentSteeringAngle());
-	}
+  skyboxVBO = 0;
+  fog = true; // Enable fog
 }
 
+void Scene::UpdateCars(InputData input, float deltaTime) {
+  auto vehicles = Physics::getInstance()->getVehicles();
 
+  for (int i = 0; i < CAR_COUNT; i++) {
+    RaceCar *v = vehicles[i];
+    PxVec3 pos = v->getVehiclePosition();
+    PxQuat rotation = v->getVehicleRotation();
+    glm::vec3 position(pos.x, pos.y, pos.z);
 
-void Scene::UpdatePlayerCamera(float dt, int playerNumber)
-{
-    Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
-	
+    cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
-	RaceCar* vehicle;
-	if (playerNumber < CAR_COUNT)
-	{
-		vehicle = Physics::getInstance()->getVehicles()[playerNumber];
-	}
-	else
-	{
-        vehicle = Physics::getInstance()->getVehicles()[0];
-	}
+    const CarControlInput &carControl =
+        (i == 0) ? input.carControl0 : input.carControl1;
+    cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+    cars[i]->Update(deltaTime, position, rotation,
+                    vehicles[i]->getCurrentSteeringAngle());
+  }
+}
 
-	PxVec3 pxPos = vehicle->getVehiclePosition();
-	PxQuat pxRot = vehicle->getVehicleRotation();
+void Scene::UpdatePlayerCamera(float dt, int playerNumber) {
+  Camera &activeCamera =
+      CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
-    glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
-    glm::quat carRot = PxQuatToGlmQuat(pxRot);
+  RaceCar *vehicle;
+  if (playerNumber < CAR_COUNT) {
+    vehicle = Physics::getInstance()->getVehicles()[playerNumber];
+  } else {
+    vehicle = Physics::getInstance()->getVehicles()[0];
+  }
 
+  PxVec3 pxPos = vehicle->getVehiclePosition();
+  PxQuat pxRot = vehicle->getVehicleRotation();
 
-    if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA)
-    {
-        FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
-		firstPersonCamera.Update(carPos, carRot);
-    }
-	else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) 
-	{
-		FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
-		fol.Update(carPos, carRot);
-	}
-	else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA)
-	{
-		ObservingCamera& observingCamera = static_cast<ObservingCamera&>(activeCamera);
-		observingCamera.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
-	}
-    else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA_UP)
-    {
-        ObservingCameraUp& observingCameraUp = static_cast<ObservingCameraUp&>(activeCamera);
-        observingCameraUp.Update(dt, carPos, carRot, PxVec3ToGlmVec3(vehicle->getVelocity()));
-    }
+  glm::vec3 carPos = PxVec3ToGlmVec3(pxPos);
+  glm::quat carRot = PxQuatToGlmQuat(pxRot);
 
-
+  if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA) {
+    FirstPersonCamera &firstPersonCamera =
+        static_cast<FirstPersonCamera &>(activeCamera);
+    firstPersonCamera.Update(carPos, carRot);
+  } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
+    FollowingCarCamera &fol = static_cast<FollowingCarCamera &>(activeCamera);
+    fol.Update(carPos, carRot);
+  } else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA) {
+    ObservingCamera &observingCamera =
+        static_cast<ObservingCamera &>(activeCamera);
+    observingCamera.Update(dt, carPos, carRot,
+                           PxVec3ToGlmVec3(vehicle->getVelocity()));
+  } else if (activeCamera.cameraType == CameraType::OBSERVING_CAMERA_UP) {
+    ObservingCameraUp &observingCameraUp =
+        static_cast<ObservingCameraUp &>(activeCamera);
+    observingCameraUp.Update(dt, carPos, carRot,
+                             PxVec3ToGlmVec3(vehicle->getVelocity()));
+  }
 }
 
 void Scene::UpdatePlayersCamera(float dt) {
-	ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
-	if( activeViewMode == ViewMode::SINGLE_SCREEN) {
-		UpdatePlayerCamera(dt, 0);
-	}
-	if( activeViewMode == ViewMode::SPLIT_SCREEN) {
-		UpdatePlayerCamera(dt, 0);
-		UpdatePlayerCamera(dt, 1);
-	}
+  ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
+  if (activeViewMode == ViewMode::SINGLE_SCREEN) {
+    UpdatePlayerCamera(dt, 0);
+  }
+  if (activeViewMode == ViewMode::SPLIT_SCREEN) {
+    UpdatePlayerCamera(dt, 0);
+    UpdatePlayerCamera(dt, 1);
+  }
 }
 
-void Scene::Update(InputData input, float deltaTime)
-{
+void Scene::Update(InputData input, float deltaTime) {
 
-	UpdatePlayersCamera(deltaTime);
-	UpdateCars(input, deltaTime);
+  UpdatePlayersCamera(deltaTime);
+  UpdateCars(input, deltaTime);
+  UpdateHeadlights();
 
-
-	for (Light* light : lights) {
-		if (light->GetType() != LightType::DIRECTIONAL)
-			continue;
-		if (dayNight)
-		{
-			light->ambient = glm::vec3(0.0f);
-			light->diffuse = glm::vec3(0.0f);
-			light->specular = glm::vec3(0.0f);
-		}
-		else
-		{
-			light->ambient = glm::vec3(0.05f);
-			light->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-			light->specular = glm::vec3(0.6f, 0.6f, 0.6f);
-		}
-	}
-	
-	UpdateFlashLight();
-
-
-}
-
-void Scene::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam)
-{
-    shaderTex.use();
-    shaderTex.setBool("uIsMirror", false);
-    shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shaderTex.setVec3("viewPos", activeCam.Position);
-    shaderTex.setBool("fogEnabled", fog);
-
-    for (Model* model : modelsTex)
-    {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius())) 
-            continue;
-
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 position = model->GetPosition();
-        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
-
-        modelMatrix = glm::translate(modelMatrix, position);
-        modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
-        shaderTex.setMat4("model", modelMatrix);
-        shaderTex.setVec3("objectColor", model->GetColor());
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textureID);
-        model->Draw(shaderTex);
+  for (Light *light : lights) {
+    if (light->GetType() != LightType::DIRECTIONAL)
+      continue;
+    if (dayNight) {
+      light->ambient = glm::vec3(0.02f);
+      light->diffuse = glm::vec3(0.08f, 0.08f, 0.1f);
+      light->specular = glm::vec3(0.08f);
+    } else {
+      light->ambient = glm::vec3(0.05f);
+      light->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+      light->specular = glm::vec3(0.6f, 0.6f, 0.6f);
     }
+  }
 
-    shaderCol.use();
-    shaderCol.setBool("uIsMirror", false);
-    shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shaderCol.setVec3("viewPos", activeCam.Position);
-    shaderCol.setBool("fogEnabled", fog);
+  UpdateFlashLight();
+}
 
-    for (Model* model : modelsCol)
-    {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
-            continue;
+void Scene::DrawModels(Shader &shaderTex, Shader &shaderCol,
+                       Camera &activeCam) {
+  const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
+                                      : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 position = model->GetPosition();
-        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+  shaderTex.use();
+  shaderTex.setBool("uIsMirror", false);
+  shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shaderTex.setVec3("viewPos", activeCam.Position);
+  shaderTex.setBool("fogEnabled", fog);
+  shaderTex.setFloat("fogMinDist", fogMinDist);
+  shaderTex.setFloat("fogMaxDist", fogMaxDist);
+  shaderTex.setVec4("fogColor", fogColor);
 
-        modelMatrix = glm::translate(modelMatrix, position);
-        modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
-        shaderCol.setMat4("model", modelMatrix);
-        shaderCol.setVec3("objectColor", model->GetColor());
+  for (Model *model : modelsTex) {
+    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+      continue;
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textureID);
-        model->Draw(shaderCol);
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    glm::vec3 position = model->GetPosition();
+    glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix *= glm::toMat4(rotation);
+    modelMatrix =
+        glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+    shaderTex.setMat4("model", modelMatrix);
+    shaderTex.setVec3("objectColor", model->GetColor());
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, model->textureID);
+    model->Draw(shaderTex);
+  }
+
+  shaderCol.use();
+  shaderCol.setBool("uIsMirror", false);
+  shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shaderCol.setVec3("viewPos", activeCam.Position);
+  shaderCol.setBool("fogEnabled", fog);
+  shaderCol.setFloat("fogMinDist", fogMinDist);
+  shaderCol.setFloat("fogMaxDist", fogMaxDist);
+  shaderCol.setVec4("fogColor", fogColor);
+
+  for (Model *model : modelsCol) {
+    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+      continue;
+
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    glm::vec3 position = model->GetPosition();
+    glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix *= glm::toMat4(rotation);
+    modelMatrix =
+        glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+    shaderCol.setMat4("model", modelMatrix);
+    shaderCol.setVec3("objectColor", model->GetColor());
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, model->textureID);
+    model->Draw(shaderCol);
+  }
+}
+
+void Scene::DrawCars(Shader &shader, Camera &activeCam) {
+  const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
+                                      : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
+  shader.use();
+  shader.setBool("uIsMirror", false);
+  shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shader.setVec3("viewPos", activeCam.Position);
+  shader.setBool("fogEnabled", fog);
+  shader.setFloat("fogMinDist", fogMinDist);
+  shader.setFloat("fogMaxDist", fogMaxDist);
+  shader.setVec4("fogColor", fogColor);
+  shader.setVec3("objectColor", glm::vec3(1.0f));
+
+  for (auto &car : cars) {
+    if (!car->GetBody())
+      continue;
+
+    if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(),
+                                  car->GetBody()->GetRadius())) {
+      car->Draw(shader);
     }
+  }
+}
+void Scene::DrawLights(Shader &shader, unsigned int &lightVAO,
+                       Camera &activeCam) {
+  shader.use();
+  shader.setBool("uIsMirror", false);
+
+  shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+
+  for (Light *light : lights) {
+    if (light->GetType() != LightType::POINT)
+      continue;
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, light->GetPosition());
+    model = glm::scale(model, glm::vec3(0.2f));
+    shader.setMat4("model", model);
+
+    shader.setVec3("lightColor", light->GetColor());
+
+    glBindVertexArray(lightVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+  }
 }
 
-void Scene::DrawCars(Shader& shader, Camera& activeCam)
-{
-    shader.use();
-    shader.setBool("uIsMirror", false);
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
-    shader.setBool("fogEnabled", fog);
-    shader.setVec3("objectColor", glm::vec3(1.0f));
+void Scene::DrawTerrain(Shader &shader, unsigned int &sphereVAO,
+                        Camera &activeCam) {
+  const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
+                                      : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    for (auto& car : cars) {
-        if (!car->GetBody()) continue;
+  shader.use();
 
-        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius())) {
-             car->Draw(shader);
-        }
+  shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shader.setVec3("viewPos", activeCam.Position);
+  shader.setBool("fogEnabled", fog);
+  shader.setFloat("fogMinDist", fogMinDist);
+  shader.setFloat("fogMaxDist", fogMaxDist);
+  shader.setVec4("fogColor", fogColor);
+
+  glm::mat4 model = glm::mat4(1.0f);
+  glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f,
+                                       terrain->GetTerrainDepth() / 2.0f);
+  model = glm::translate(model, terrain->position - centerPosition);
+  shader.setMat4("model", model);
+  shader.setVec3("objectColor", terrain->color);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
+  glBindVertexArray(sphereVAO);
+  glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT,
+                 0);
+}
+
+void Scene::DrawModel(Shader &shader, Model &model, Camera &activeCam) {
+  const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
+                                      : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
+  shader.use();
+  shader.setBool("uIsMirror", false);
+  shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+  shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shader.setVec3("viewPos", activeCam.Position);
+  shader.setVec3("objectColor", model.GetColor());
+  shader.setBool("fogEnabled", fog);
+  shader.setFloat("fogMinDist", fogMinDist);
+  shader.setFloat("fogMaxDist", fogMaxDist);
+  shader.setVec4("fogColor", fogColor);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, model.textureID);
+
+  glm::mat4 modelMatrix = glm::mat4(1.0f);
+  glm::vec3 position = model.GetPosition();
+  glm::quat rotation = PxQuatToGlmQuat(model.GetRotation());
+
+  modelMatrix = glm::translate(modelMatrix, position);
+  modelMatrix *= glm::toMat4(rotation);
+  modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.GetScale());
+  shader.setMat4("model", modelMatrix);
+
+  model.Draw(shader);
+}
+
+void Scene::CreateModels() {
+  for (int i = 0; i < CAR_COUNT; i++) {
+    cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
+  }
+}
+
+void Scene::CreateLights() {
+  Light *point_light1_ceneter_of_board =
+      new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+                     1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
+                     glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
+  AddLight(point_light1_ceneter_of_board);
+
+  Light *point_light2_ceneter_of_board =
+      new LightPoint(glm::vec3(10.2f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+                     1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
+                     glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
+  AddLight(point_light2_ceneter_of_board);
+
+  Light *sun_light1 = new LightDirectional(
+      glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f),
+      glm::vec3(0, -1, 0), glm::vec3(0.05f, 0.05f, 0.05f),
+      glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(1.0f, 1.0f, 1.0f));
+  AddLight(sun_light1);
+
+  Light *sun_light2 = new LightDirectional(
+      glm::vec3(-4.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f),
+      glm::vec3(1, -1, 0), glm::vec3(0.05f, 0.05f, 0.05f),
+      glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(1.0f, 1.0f, 1.0f));
+  AddLight(sun_light2);
+
+  Light *user_flashlight = new LightSpot(
+      glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0, 0,
+      0.95f, 0.95f, glm::vec3(0, 0, -1), glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f));
+  AddLight(user_flashlight);
+  flashlight = (LightSpot *)user_flashlight;
+
+  // headlights for each car (two spot lights per car)
+  glm::vec3 headlightAmbient(0.03f);
+  glm::vec3 headlightDiffuse(2.0f);
+  glm::vec3 headlightSpecular(2.5f);
+  float cutOff = glm::cos(glm::radians(14.0f));
+  float outerCutOff = glm::cos(glm::radians(24.0f));
+
+  for (int i = 0; i < CAR_COUNT; ++i) {
+    headlightLeft[i] =
+        new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
+                      cutOff, outerCutOff, glm::vec3(0, 0, -1),
+                      headlightAmbient, headlightDiffuse, headlightSpecular);
+    headlightRight[i] =
+        new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
+                      cutOff, outerCutOff, glm::vec3(0, 0, -1),
+                      headlightAmbient, headlightDiffuse, headlightSpecular);
+    AddLight(headlightLeft[i]);
+    AddLight(headlightRight[i]);
+  }
+}
+
+void Scene::setOutput() {
+  auto vehicle = Physics::getInstance()->getVehicles()[0];
+  float driftFactor = 0;
+  float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
+  OutputData output;
+  output.effectsOnInputer1.vibration = driftFactorOutput;
+  InputManager::getInstance().setEffectsOnInputer(output);
+}
+
+void Scene::UpdateFlashLight() {
+  if (userFlashlight) {
+    flashlight->specular = glm::vec3(1.0f);
+    flashlight->diffuse = glm::vec3(0.6f);
+    flashlight->ambient = glm::vec3(0.0f);
+  } else {
+    flashlight->specular = glm::vec3(0.0f);
+    flashlight->diffuse = glm::vec3(0.0f);
+    flashlight->ambient = glm::vec3(0.0f);
+  }
+}
+
+void Scene::UpdateHeadlights() {
+  if (!headlightsOn)
+    return;
+
+  for (int i = 0; i < CAR_COUNT; ++i) {
+
+    const auto &body = cars[i]->GetBody();
+    if (!body)
+      continue;
+
+    glm::vec3 pos = body->GetPosition();
+    glm::quat rot = PxQuatToGlmQuat(body->GetRotation());
+
+    // In this model forward points along -X in local space.
+    glm::vec3 forward = rot * glm::vec3(-1.0f, 0.0f, 0.0f);
+    glm::vec3 right = rot * glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 up = rot * glm::vec3(0.0f, 1.0f, 0.0f);
+
+    glm::vec3 baseOffset = forward * 2.0f + up * 0.25f;
+    glm::vec3 lateral = right * 0.6f;
+
+    // Tilt slightly downward to illuminate the road.
+    glm::vec3 beamDir = glm::normalize(forward + up * -0.25f);
+
+    float intensityScale = dayNight ? 1.0f : 0.45f;
+
+    if (headlightLeft[i]) {
+      headlightLeft[i]->position = pos + baseOffset + lateral;
+      headlightLeft[i]->direction = beamDir;
+      headlightLeft[i]->diffuse = glm::vec3(2.5f) * intensityScale;
+      headlightLeft[i]->specular = glm::vec3(3.0f) * intensityScale;
     }
-}
-void Scene::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam)
-{
-	shader.use();
-	shader.setBool("uIsMirror", false);
-
-	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-
-	for (Light* light : lights) {
-		if (light->GetType() != LightType::POINT)
-			continue;
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, light->GetPosition());
-		model = glm::scale(model, glm::vec3(0.2f));
-		shader.setMat4("model", model);
-
-		shader.setVec3("lightColor", light->GetColor());
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
-}
-
-void Scene::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam)
-{
-	shader.use();
-
-	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-	shader.setVec3("viewPos", activeCam.Position);
-	shader.setBool("fogEnabled", fog);
-
-	glm::mat4 model = glm::mat4(1.0f);
-    glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
-	model = glm::translate(model, terrain->position-centerPosition);
-	shader.setMat4("model", model);
-	shader.setVec3("objectColor", terrain->color);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
-	glBindVertexArray(sphereVAO);
-	glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
-	
-}
-
-void Scene::DrawModel(Shader& shader, Model& model, Camera& activeCam)
-{
-	shader.use();
-	shader.setBool("uIsMirror", false);
-	shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-	shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-	shader.setVec3("viewPos", activeCam.Position);
-	shader.setVec3("objectColor", model.GetColor());
-	shader.setBool("fogEnabled", fog);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, model.textureID);
-
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	glm::vec3 position = model.GetPosition();
-    glm::quat rotation = PxQuatToGlmQuat(model.GetRotation());
-
-	modelMatrix = glm::translate(modelMatrix, position);
-	modelMatrix *= glm::toMat4(rotation);
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.GetScale());
-	shader.setMat4("model", modelMatrix);
-
-	model.Draw(shader);
-}
-
-
-void Scene::CreateModels()
-{
-	for (int i = 0; i < CAR_COUNT; i++)
-	{
-		cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
-	}
-}
-
-
-
-void Scene::CreateLights()
-{
-	Light* point_light1_ceneter_of_board = new LightPoint(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(point_light1_ceneter_of_board);
-
-	Light* point_light2_ceneter_of_board = new LightPoint(glm::vec3(10.2f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-		1.0f, 0.09f, 0.032f, glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.6f, 0.6f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(point_light2_ceneter_of_board);
-
-	Light* sun_light1 = new LightDirectional(glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, -1, 0),
-		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(sun_light1);
-
-	Light* sun_light2 = new LightDirectional(glm::vec3(-4.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1, -1, 0),
-		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(sun_light2);
-
-	Light* user_flashlight = new LightSpot(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0, 0, 0.95f, 0.95f
-		, glm::vec3(0, 0, -1),
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f),
-		glm::vec3(1.0f, 1.0f, 1.0f));
-	AddLight(user_flashlight);
-	flashlight = (LightSpot*)user_flashlight;
-}
-
-void Scene::setOutput()
-{
-    auto vehicle = Physics::getInstance()->getVehicles()[0];
-    float driftFactor = 0;
-	float driftFactorOutput = driftFactor > 0.1f ? 0.9 : 0;
-    OutputData output;
-    output.effectsOnInputer1.vibration = driftFactorOutput;
-	InputManager::getInstance().setEffectsOnInputer(output);
-}
-
-void Scene::UpdateFlashLight()
-{
-	if (userFlashlight)
-	{
-		flashlight->specular = glm::vec3(1.0f);
-		flashlight->diffuse = glm::vec3(0.6f);
-		flashlight->ambient = glm::vec3(0.0f);
-	}
-	else
-	{
-		flashlight->specular = glm::vec3(0.0f);
-		flashlight->diffuse = glm::vec3(0.0f);
-		flashlight->ambient = glm::vec3(0.0f);
-	}
+    if (headlightRight[i]) {
+      headlightRight[i]->position = pos + baseOffset - lateral;
+      headlightRight[i]->direction = beamDir;
+      headlightRight[i]->diffuse = glm::vec3(2.5f) * intensityScale;
+      headlightRight[i]->specular = glm::vec3(3.0f) * intensityScale;
+    }
+  }
 }
 
 LightBuffer Scene::LoadLights() {
-	LightBuffer lightBuffer;
-	lightBuffer.NR_DIR_LIGHTS = 0;
-	lightBuffer.NR_POINT_LIGHTS = 0;
-	lightBuffer.NR_SPOT_LIGHTS = 0;
-	for (Light* light : lights) {
-		light->AddTo(lightBuffer);
-	}
-	return lightBuffer;
+  LightBuffer lightBuffer;
+  lightBuffer.NR_DIR_LIGHTS = 0;
+  lightBuffer.NR_POINT_LIGHTS = 0;
+  lightBuffer.NR_SPOT_LIGHTS = 0;
+  for (Light *light : lights) {
+    light->AddTo(lightBuffer);
+  }
+  return lightBuffer;
 }
 
-glm::vec3 Scene::GetCarPosition() const
-{
-	auto vehicles = Physics::getInstance()->getVehicles();
-	if (vehicles.empty())
-		return glm::vec3(0.0f);
+glm::vec3 Scene::GetCarPosition() const {
+  auto vehicles = Physics::getInstance()->getVehicles();
+  if (vehicles.empty())
+    return glm::vec3(0.0f);
 
-	PxVec3 pos = vehicles[0]->getVehiclePosition();
-	return PxVec3ToGlmVec3(pos);
+  PxVec3 pos = vehicles[0]->getVehiclePosition();
+  return PxVec3ToGlmVec3(pos);
 }
 
-glm::quat Scene::GetCarRotation() const
-{
-	auto vehicles = Physics::getInstance()->getVehicles();
-	if (vehicles.empty())
-		return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+glm::quat Scene::GetCarRotation() const {
+  auto vehicles = Physics::getInstance()->getVehicles();
+  if (vehicles.empty())
+    return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
-	PxQuat rot = vehicles[0]->getVehicleRotation();
-	return PxQuatToGlmQuat(rot);
+  PxQuat rot = vehicles[0]->getVehicleRotation();
+  return PxQuatToGlmQuat(rot);
 }
 
-std::unique_ptr<Car> Scene::CreateCar(const glm::vec3& bodyPosition)
-{
-	const std::string carModelPath = "../assets/models/car/car.gltf";
-	const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
-	const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
+std::unique_ptr<Car> Scene::CreateCar(const glm::vec3 &bodyPosition) {
+  const std::string carModelPath = "../assets/models/car/car.gltf";
+  const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
+  const std::string steringWheelModelPath =
+      "../assets/models/stering_wheel/scene.gltf";
 
-	auto bodyModel = std::make_shared<Model>(
-		carModelPath,
-		bodyPosition,                 
-		0.01f,
-		glm::vec3(1.f)
-	);
-	bodyModel->SetRotationOffset(
-		physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f))
-	);
-	bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
+  auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, 0.01f,
+                                           glm::vec3(1.f));
+  bodyModel->SetRotationOffset(
+      physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
+  bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 
-	auto wheelModel = std::make_shared<Model>(
-		wheelModelPath,
-		glm::vec3(0.f),
-		0.29f,
-		glm::vec3(1.f)
-	);
+  auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f),
+                                            0.29f, glm::vec3(1.f));
 
-	auto steeringModel = std::make_shared<Model>(
-		steringWheelModelPath,
-		glm::vec3(0.f),
-		0.3f,
-		glm::vec3(1.f)
-	);
-	steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
+  auto steeringModel = std::make_shared<Model>(
+      steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
+  steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
 
-	auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
+  auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
-	
-	return car;
+  return car;
+}
+
+void Scene::InitializeSkybox() {
+  if (skyboxVAO != 0 && skyboxVBO != 0 && skyboxShader != nullptr)
+    return;
+
+  float skyboxVertices[] = {
+      -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,
+      -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f,
+      1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
+      -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+      -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+      -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
+      -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
+      -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+      -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
+
+  glGenVertexArrays(1, &skyboxVAO);
+  glGenBuffers(1, &skyboxVBO);
+  glBindVertexArray(skyboxVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices,
+               GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glBindVertexArray(0);
+
+  std::vector<std::string> facesDay{
+      "../assets/backgroundTextures/day/clouds1_east.bmp",  // +X
+      "../assets/backgroundTextures/day/clouds1_west.bmp",  // -X
+      "../assets/backgroundTextures/day/clouds1_up.bmp",    // +Y
+      "../assets/backgroundTextures/day/clouds1_down.bmp",  // -Y
+      "../assets/backgroundTextures/day/clouds1_north.bmp", // +Z (swap)
+      "../assets/backgroundTextures/day/clouds1_south.bmp"  // -Z (swap)
+  };
+
+  skyboxCubemapDay = LoadCubemap(facesDay);
+
+  vector<std::string> facesNight{
+      "../assets/backgroundTextures/night/nightskyemission.png",
+      "../assets/backgroundTextures/night/nightskyemission.png",
+      "../assets/backgroundTextures/night/nightskyemission.png",
+      "../assets/backgroundTextures/night/nightskyemission.png",
+      "../assets/backgroundTextures/night/nightskyemission.png",
+      "../assets/backgroundTextures/night/nightskyemission.png"};
+  skyboxCubemapNight = LoadCubemap(facesNight);
+
+  skyboxShader = new Shader("../assets/shaders/skybox.vert",
+                            "../assets/shaders/skybox.frag");
+  skyboxShader->use();
+  skyboxShader->setInt("skybox", 0);
+}
+
+unsigned int Scene::LoadCubemap(vector<std::string> faces) {
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  int width, height, nrChannels;
+  for (unsigned int i = 0; i < faces.size(); i++) {
+    unsigned char *data =
+        stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+    if (!data && faces[i].rfind("../", 0) == 0) {
+      std::string altPath = faces[i].substr(3);
+      data = stbi_load(altPath.c_str(), &width, &height, &nrChannels, 0);
+    }
+
+    // Try going up one more level (useful for build dirs)
+    if (!data) {
+      std::string altPath2 = "../" + faces[i];
+      data = stbi_load(altPath2.c_str(), &width, &height, &nrChannels, 0);
+    }
+
+    if (!data) {
+      std::cout << "Cubemap texture failed to load at paths: " << faces[i]
+                << " or (stripped) or ../" << faces[i] << std::endl;
+      continue;
+    }
+
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height,
+                 0, format, GL_UNSIGNED_BYTE, data);
+    stbi_image_free(data);
+  }
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  return textureID;
+}
+
+void Scene::DrawSkybox(Camera &activeCam) {
+  if (skyboxShader == nullptr)
+    return; // Safety check
+
+  glDepthFunc(GL_LEQUAL);
+  skyboxShader->use();
+  glm::mat4 view = glm::mat4(glm::mat3(activeCam.GetViewMatrix()));
+  glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
+
+  skyboxShader->setMat4("view", view);
+  skyboxShader->setMat4("projection", projection);
+
+  glBindVertexArray(skyboxVAO);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_CUBE_MAP,
+                dayNight ? skyboxCubemapNight : skyboxCubemapDay);
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+  glBindVertexArray(0);
+  glDepthFunc(GL_LESS);
 }

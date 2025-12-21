@@ -67,6 +67,8 @@ int main()
 
     InputManager::getInstance().setUp();
 
+    scene->InitializeSkybox();
+
 	scene->CreateModels();
     
 	Physics::getInstance()->createObjects(scene->GetGameObjects());
