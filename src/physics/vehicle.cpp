@@ -176,6 +176,7 @@ void RaceCar::UpdateSteer(float deltaTime, float steer)
 
     targetSteeringAngle = steer;
     float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
+    speed /= (steer==0)? 1:  (1.0f + std::abs(getSpeed())/30); // im szybsza jazda tym wolniejsze skrecanie
     currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
     currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
 
