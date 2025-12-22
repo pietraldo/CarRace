@@ -540,6 +540,8 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
 
     for (int i = 0; i < CAR_COUNT; i++)
     {
+
+        // reseting car to last checkpoint by user comand
         if (resetCarToCheckPoint[i])
         {
             playersStatus[i].timeOutsideOfTrack = 0;
@@ -564,7 +566,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
         {
             playersStatus[i].timeOutsideOfTrack += 1;
 
-            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD)
+            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && autoReturningToTrack)
             {
                 //reset position to last known position on track
                 if (!playersStatus[i].vehiclePositions.empty())
