@@ -77,6 +77,13 @@ public:
         gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
     }
 
+    void setVehicleRotation(PxQuat rotation)
+    {
+        PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
+        t.q = rotation;
+        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(t);
+    }
+
     PxVec3 getVehicleFrontDirection() const 
     {
         PxVec3 v = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().q.getBasisVector2();
@@ -126,11 +133,22 @@ public:
 
     void resetCar()
     {
-        PxVec3 position = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
-        position.y += 5.0f; 
-        position.x += 3.0f;
-        gVehicle.mPhysXState.physxActor.rigidBody->setGlobalPose(PxTransform(position, PxQuat(PxIdentity)));
+        PxRigidDynamic* body = (PxRigidDynamic*)(gVehicle.mPhysXState.physxActor.rigidBody);
+
+        PxTransform pose = body->getGlobalPose();
+        pose.p.y += 5.0f;
+        pose.p.x += 3.0f;
+        pose.q = PxQuat(PxIdentity);
+
+        body->setGlobalPose(pose);
+
+        body->setLinearVelocity(PxVec3(0.0f));
+        body->setAngularVelocity(PxVec3(0.0f));
+
+        body->clearForce();
+        body->clearTorque();
     }
+
 
     float computeDriftFactor();
     std::vector<float> computeDriftFactorPerWheel();

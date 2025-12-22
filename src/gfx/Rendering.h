@@ -20,12 +20,12 @@
 #include "Cube.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include "./camera/CameraManager.h"
 #include "../ui/Input/KeyboardController.h"
 #include "../game/terrain.h"
 
-class Scene;
+class GameEngine;
 class Mirrors;
 
 class Rendering
@@ -34,7 +34,7 @@ public:
     static int window_width;
     static int window_height;
 
-    static Scene* scene;
+    static GameEngine* gameEngine;
     static GLFWwindow* window;
 
     static unsigned CubeVAO;
@@ -72,7 +72,6 @@ public:
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
 
-    bool static isCarVisible(glm::vec3 carPos);
 
     // texture
     static int texWidth;

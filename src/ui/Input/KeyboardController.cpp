@@ -36,6 +36,8 @@ CarControlInput KeyboardController::getCarControlInput() {
             input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_M))
             input.gear = +1;
+        if (isKeyJustPressed(GLFW_KEY_COMMA))
+            input.resetToCheckpoint = true;
     }
     else // Player1
     {
@@ -57,6 +59,8 @@ CarControlInput KeyboardController::getCarControlInput() {
             input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_X))
             input.gear = +1;
+        if (isKeyJustPressed(GLFW_KEY_C))
+            input.resetToCheckpoint = true;
     }
 
     return input;

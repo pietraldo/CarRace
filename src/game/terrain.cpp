@@ -89,7 +89,7 @@ void Terrain::loadRoadmap(const std::string& filename)
     int rows = 0;
     int cols = -1;
 
-    roadData.clear();
+    roadMark.clear();
 
     while (std::getline(file, line)) {
         if (line.empty()) continue;
@@ -116,7 +116,7 @@ void Terrain::loadRoadmap(const std::string& filename)
         else if (colCount != cols)
             throw std::runtime_error("Inconsistent column count in roadmap file.");
 
-        roadData.push_back(std::move(row));
+        roadMark.push_back(std::move(row));
         rows++;
     }
 
@@ -130,7 +130,6 @@ void Terrain::loadRoadmap(const std::string& filename)
 
 vector<float> Terrain::CreateVerticesAndIndices()
 {
-
     for (int i = 0; i < rows - 1; ++i)
     {
         for (int j = 0; j < cols - 1; ++j)
@@ -165,7 +164,6 @@ vector<float> Terrain::CreateVerticesAndIndices()
             glm::vec3 u22 = glm::vec3(x3 - x4, y3 - y4, z3 - z4);
             glm::vec3 v22 = glm::vec3(x2 - x4, y2 - y4, z2 - z4);
             glm::vec3 normal2 = glm::normalize(glm::cross(v22, u22));
-
 
             float u1 = (float)j / (cols - 1);
             float v1 = (float)i / (rows - 1);

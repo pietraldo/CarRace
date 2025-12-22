@@ -20,7 +20,7 @@ class CameraManager {
 private:
     static CameraManager* instance; 
    
-    std::unique_ptr<Camera> freeCamera = std::make_unique<FreeCamera>(glm::vec3(0.0f, 5.0f, 20.0f));
+    std::unique_ptr<Camera> freeCamera = std::make_unique<FreeCamera>(glm::vec3(305.0f, 30.0f, 0.0f));
 	PlayerCameraSet playersCamera[2];
     ViewMode viewMode = ViewMode::EDIT_SCREEN;
 

@@ -17,7 +17,7 @@
 #include "../gfx/Shader.h"
 #include "../gfx/camera/Camera.h"
 #include "../gfx/Model.h"
-#include "../game/Scene.h"
+#include "../game/GameEngine.h"
 #include "../gfx/lights/Light.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightDirectional.h"
@@ -46,32 +46,32 @@ using namespace std;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Scene* scene=nullptr;
+GameEngine* gameEngine =nullptr;
 bool startSimulation = false;
 
 int main()
 {
-	scene = new Scene();
+	gameEngine = new GameEngine();
     
-	Physics::getInstance()->initialize(scene);
+	Physics::getInstance()->initialize(gameEngine);
     
-	Rendering::scene = scene;
+	Rendering::gameEngine = gameEngine;
 	srand(19);
 
-	scene->CreateLights();
+	gameEngine->CreateLights();
 	CameraManager::GetInstance()->CreateCameras();
-	LightBuffer lightBuffer = scene->LoadLights();
+	LightBuffer lightBuffer = gameEngine->LoadLights();
 	AudioEngine::instance().init();
 
     if (Rendering::Initialize() == -1) return -1;
 
     InputManager::getInstance().setUp();
 
-    scene->InitializeSkybox();
+	gameEngine->InitializeSkybox();
 
-	scene->CreateModels();
+	gameEngine->CreateModels();
     
-	Physics::getInstance()->createObjects(scene->GetGameObjects());
+	Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
 
     bool continueGame = true;
@@ -100,11 +100,11 @@ int main()
 		{
 			Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
 		}
-		scene->Update(input, deltaTime);
+		gameEngine->Update(input, deltaTime);
 		
 
-        scene->setOutput();
-        Rendering::RenderFrame(scene->GetGameObjects());
+		gameEngine->setOutput();
+        Rendering::RenderFrame(gameEngine->GetGameObjects());
 	}
 
 	glfwTerminate();

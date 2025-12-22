@@ -10,8 +10,8 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, driveParamsPath, gVehicle.mEngineDriveParams);
 
     //Set the vehicle in 1st gear.
-    gVehicle.mEngineDriveState.gearboxState.currentGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
-    gVehicle.mEngineDriveState.gearboxState.targetGear = gVehicle.mEngineDriveParams.gearBoxParams.neutralGear + 1;
+    gVehicle.mEngineDriveState.gearboxState.currentGear = 2;
+    gVehicle.mEngineDriveState.gearboxState.targetGear =2;
 
     //gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
@@ -176,6 +176,7 @@ void RaceCar::UpdateSteer(float deltaTime, float steer)
 
     targetSteeringAngle = steer;
     float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
+    speed /= (steer==0)? 1:  (1.0f + std::abs(getSpeed())/30); // im szybsza jazda tym wolniejsze skrecanie
     currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
     currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
 

@@ -20,7 +20,7 @@ private:
 	vector<int> indices;
 
 	vector<vector<float>> heightData;
-    vector<vector<int>> roadData;
+    vector<vector<int>> roadMark;
 
 	vector<float> CreateVerticesAndIndices();
 	void loadHeightmap(const std::string& filename, int& outRows, int& outCols);
@@ -33,8 +33,6 @@ private:
 public:
     vector<float> GetVertices() { return vertices; }
     vector<int> GetIndices() { return indices; }
-	
-
 
 	glm::vec3 position;
 
@@ -51,6 +49,7 @@ public:
     int GetRows() { return rows; }
     int GetCols() { return cols; }
     vector<vector<float>> GetHeightData() { return heightData; }
+    const vector<vector<int>>& GetRoadMark() { return roadMark; }
 
     float GetMinHeightFromHeightData();
     float GetMaxHeightFromHeightData();
