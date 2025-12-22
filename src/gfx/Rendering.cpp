@@ -410,6 +410,23 @@ void Rendering::RenderImGui() {
         ImGui::End();
     }
     {
+        if (!gameEngine->modelsTex.empty())
+        {
+            Model* model = gameEngine->modelsTex[0];
+            ImGui::Begin("Model 0 settings");
+            static float modelSensitivity = 0.1f;
+            ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
+            ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
+            ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
+            ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
+            ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
+            ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
+            ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
+            ImGui::End();
+        }
+        
+    }
+    {
         ImGui::Begin("Speed");
         ImGui::Text("Car speed: %.2f km/h",
             Physics::getInstance()->getVehicles()[0]->getSpeed());

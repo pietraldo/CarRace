@@ -41,7 +41,6 @@ private:
 
     vector<Light*> lights;
     vector<Camera*> cameras;
-    vector<Model*> modelsTex;
     vector<Model*> modelsCol;
 
     Terrain* terrain;
@@ -49,6 +48,7 @@ private:
     std::vector<PlayerStatus> playersStatus;
 
 public:
+    vector<Model*> modelsTex;
     bool dayNight = false;
     bool fog = false;
     float fogMinDist = 25.0f;

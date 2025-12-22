@@ -190,7 +190,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol,
         modelMatrix = glm::translate(modelMatrix, position);
         modelMatrix *= glm::toMat4(rotation);
         modelMatrix =
-            glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+            glm::scale(modelMatrix, model->GetScale());
         shaderTex.setMat4("model", modelMatrix);
         shaderTex.setVec3("objectColor", model->GetColor());
 
@@ -330,7 +330,7 @@ void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
 
     modelMatrix = glm::translate(modelMatrix, position);
     modelMatrix *= glm::toMat4(rotation);
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.GetScale());
+    modelMatrix = glm::scale(modelMatrix, model.GetScale());
     shader.setMat4("model", modelMatrix);
 
     model.Draw(shader);
@@ -341,10 +341,12 @@ void GameEngine::CreateModels() {
         cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
     }
 
-    const std::string bridgeModelPath= "../assets/models/bridge/StoneBridge.gltf";
-    glm::vec3 bridgePosition(-228.0f, 80.0f, -269.0f);
-    Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, 1.0f,
+    const std::string bridgeModelPath= "../assets/models/bridge3/bridge.gltf";
+    glm::vec3 bridgePosition(-278.8f, 72.3f, -367.1f);
+    Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, glm::vec3(4.0f,13.4f,8.9f),
         glm::vec3(1.f));
+    glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);
+    bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
 
     
     modelsTex.push_back(bridgeModel);
@@ -501,17 +503,17 @@ std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
     const std::string steringWheelModelPath =
         "../assets/models/stering_wheel/scene.gltf";
 
-    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, 0.01f,
+    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.01f),
         glm::vec3(1.f));
     bodyModel->SetRotationOffset(
         physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
     bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f),
-        0.29f, glm::vec3(1.f));
+        glm::vec3(0.29f), glm::vec3(1.f));
 
     auto steeringModel = std::make_shared<Model>(
-        steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
+        steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));
     steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
 
     auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
