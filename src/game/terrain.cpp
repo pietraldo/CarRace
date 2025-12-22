@@ -174,17 +174,6 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float u4 = (float)(j + 1) / (cols - 1);
             float v4 = (float)(i + 1) / (rows - 1);
       
-           /* if (roadData[i][j] == 1)
-            {
-                u1 = 0;
-                v1 = 0;
-                u2 = 1;
-                v2 = 0;
-                u3 = 0;
-                v3 = 1;
-                u4 = 1;
-                v4 = 1;
-            }*/
 
             // first triangle
 
