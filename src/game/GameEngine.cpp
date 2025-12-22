@@ -50,7 +50,7 @@ GameEngine::GameEngine() {
     gameObjects.push_back(cube7);
     
     CubeObject* bridge =
-        new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 184.85f),
+        new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 173.0f),
             glm::vec3(0.29f, 0.27f, 0.255f));
     gameObjects.push_back(bridge);
 
@@ -342,7 +342,7 @@ void GameEngine::CreateModels() {
     }
 
     const std::string bridgeModelPath= "../assets/models/bridge3/bridge.gltf";
-    glm::vec3 bridgePosition(-278.8f, 72.3f, -367.1f);
+    glm::vec3 bridgePosition(-278.8f, 71.0f, -367.1f);
     Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, glm::vec3(4.0f,13.4f,8.9f),
         glm::vec3(1.f));
     glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);

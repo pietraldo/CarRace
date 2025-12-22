@@ -171,7 +171,7 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
     physx::PxRigidStatic* boxColliderBridge = physx::PxCreateStatic(
         *gPhysics, physx::PxTransform(physx::PxVec3(-228.58f, 82.31f, -269.25f),
         getQuatFromRotationDegrees(glm::vec3(0.0f, 27.55f, 0.0f))),
-        physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 92.425f)), *material);
+        physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 86.5f)), *material);
     gScene->addActor(*boxColliderBridge);
     gameObjects[8]->actor = boxColliderBridge;
 
