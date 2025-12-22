@@ -32,7 +32,7 @@ GameEngine::GameEngine() {
 
     CubeObject* cube4 =
         new CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f), true);
+            glm::vec3(0.0f, 0.0f, 1.0f));
     gameObjects.push_back(cube4);
 
     CubeObject* cube5 =
@@ -48,10 +48,15 @@ GameEngine::GameEngine() {
         new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f),
             glm::vec3(0.0f, 1.0f, 1.0f));
     gameObjects.push_back(cube7);
+    
+    CubeObject* bridge =
+        new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 184.85f),
+            glm::vec3(0.0f, 1.0f, 1.0f));
+    gameObjects.push_back(bridge);
 
     CubeObject* cube3 =
         new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f), false);
+            glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0), false);
     gameObjects.push_back(cube3);
     cube = cube3;
 
@@ -335,6 +340,14 @@ void GameEngine::CreateModels() {
     for (int i = 0; i < CAR_COUNT; i++) {
         cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
     }
+
+    const std::string bridgeModelPath= "../assets/models/bridge/StoneBridge.gltf";
+    glm::vec3 bridgePosition(-228.0f, 80.0f, -269.0f);
+    Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, 1.0f,
+        glm::vec3(1.f));
+
+    
+    modelsTex.push_back(bridgeModel);
 }
 
 void GameEngine::CreateLights() {

@@ -167,6 +167,13 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
         physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
     gScene->addActor(*boxCollider6);
     gameObjects[7]->actor = boxCollider6;
+    
+    physx::PxRigidStatic* boxColliderBridge = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(-228.58f, 82.31f, -269.25f),
+        getQuatFromRotationDegrees(glm::vec3(0.0f, 27.55f, 0.0f))),
+        physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 92.425f)), *material);
+    gScene->addActor(*boxColliderBridge);
+    gameObjects[8]->actor = boxColliderBridge;
 
     // Ensure all created static/dynamic objects have collision masks set to
     // colliding with everything (Group 0, Mask All) This allows them to pass the

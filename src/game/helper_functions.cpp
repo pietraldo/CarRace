@@ -11,6 +11,23 @@ float getXRotationDegrees(const physx::PxQuat& q)
     return roll * 180.0f / 3.1415;
 }
 
+physx::PxQuat getQuatFromRotationDegrees(glm::vec3 rotationAngles)
+{
+    // Convert degrees to radians
+    const float rx = glm::radians(rotationAngles.x);
+    const float ry = glm::radians(rotationAngles.y);
+    const float rz = glm::radians(rotationAngles.z);
+
+    // Create axis-angle quaternions
+    physx::PxQuat qx(rx, physx::PxVec3(1.0f, 0.0f, 0.0f));
+    physx::PxQuat qy(ry, physx::PxVec3(0.0f, 1.0f, 0.0f));
+    physx::PxQuat qz(rz, physx::PxVec3(0.0f, 0.0f, 1.0f));
+
+    // Combine rotations (XYZ order)
+    physx::PxQuat q = qz * qy * qx;
+
+    return q.getNormalized();
+}
 
 glm::vec3 PxVec3ToGlmVec3(const physx::PxVec3& v)
 {
