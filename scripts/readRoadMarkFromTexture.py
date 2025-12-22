@@ -7,7 +7,8 @@ def readRoadMarkFromTexture(texture_path, n, m):
     
     roadColors = {
         "road": (74, 69, 65),
-        "line": (255, 255, 255)
+        "line": (255, 255, 255),
+        "grass": (30, 204, 0)
     }
    
     img = Image.open(texture_path)
@@ -20,6 +21,7 @@ def readRoadMarkFromTexture(texture_path, n, m):
         for j in range(m):
             
             is_road = False
+            is_grass = False
             road_mark[i, j] = 0
             for dx in range(scale_x):
                 for dy in range(scale_y):
@@ -34,13 +36,16 @@ def readRoadMarkFromTexture(texture_path, n, m):
                     if pixel == roadColors["road"]:
                         road_mark[i, j] = 1
                         is_road = True
-                        break
+                        
                     elif pixel == roadColors["line"]:
                         road_mark[i, j] = 1
                         is_road = True
-                        break
-                if is_road:
-                    break
+                        
+                    elif pixel == roadColors["grass"] and not is_road:
+                        road_mark[i, j] = 5
+                        is_grass = True
+                        
+                
 
     return road_mark
 

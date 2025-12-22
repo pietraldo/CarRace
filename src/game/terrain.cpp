@@ -102,7 +102,7 @@ void Terrain::loadRoadmap(const std::string& filename)
 
         while (ss >> val) {
             // OPTIONAL: ensure values are 0 or 1
-            if (val != 0 && val != 1)
+            if (val != 0 && val != 1 && val != 5)
                 throw std::runtime_error("Roadmap contains values other than 0 or 1.");
 
             row.push_back(val);
@@ -173,6 +173,18 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float v3 = (float)(i + 1) / (rows - 1);
             float u4 = (float)(j + 1) / (cols - 1);
             float v4 = (float)(i + 1) / (rows - 1);
+
+            if (roadMark[i][j] == 5)
+            {
+                 u1 = 0.631;
+                 v1 = 1;
+                 u2 = 0.752;
+                 v2 = 1;
+                 u3 = 0.631;
+                 v3 = 0.889;
+                 u4 = 0.752;
+                 v4 = 0.889;
+            }
       
 
             // first triangle
