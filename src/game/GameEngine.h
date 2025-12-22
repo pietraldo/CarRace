@@ -107,7 +107,7 @@ public:
 
     bool isVehicleOnTrack(int carNumber = 0);
 
-    void UpdatePlayerStatus();
+    void UpdatePlayerStatus(InputData& input);
 
     Terrain* GetTerrain() { return terrain; }
 

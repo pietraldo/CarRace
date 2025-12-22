@@ -156,7 +156,7 @@ void GameEngine::Update(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
-    UpdatePlayerStatus();
+    UpdatePlayerStatus(input);
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol,
@@ -527,15 +527,38 @@ bool GameEngine::isVehicleOnTrack(int carNumber)
     return roadMarks[int(z)][int(x)] == 1;
 }
 
-void GameEngine::UpdatePlayerStatus()
+void GameEngine::UpdatePlayerStatus(InputData& input)
 {
     const int TIMEOUTSIDE_THRESHOLD = 100;
     const int CHECKPOINT_THRESHOLD = 300;
     const int MAX_SAVED_POSITIONS = 100;
     const int SAVE_POSITION_RETRIVAL = 1;
 
+    bool resetCarToCheckPoint[2];
+    resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
+    resetCarToCheckPoint[1] = input.carControl1.resetToCheckpoint;
+
     for (int i = 0; i < CAR_COUNT; i++)
     {
+        if (resetCarToCheckPoint[i])
+        {
+            playersStatus[i].timeOutsideOfTrack = 0;
+            playersStatus[i].checkPointTime = CHECKPOINT_THRESHOLD/2;
+
+            int index = playersStatus[i].vehiclePositions.size() - 1;
+            if (index < 0) index = 0;
+            VehicleStatus lastStatus = playersStatus[i].vehiclePositions[index];
+            auto vehicle = Physics::getInstance()->getVehicles()[i];
+            vehicle->resetCar();
+
+            vehicle->setVehiclePosition(lastStatus.postion);
+            vehicle->setVehicleRotation(lastStatus.rotation);
+
+            playersStatus[i].vehiclePositions.pop_back();
+
+            continue;
+        }
+
         bool isCarOnTrack = isVehicleOnTrack(i);
         if (!isCarOnTrack)
         {
@@ -566,10 +589,6 @@ void GameEngine::UpdatePlayerStatus()
 
             if (playersStatus[i].checkPointTime > CHECKPOINT_THRESHOLD)
             {
-                if (i == 0)
-                {
-                    std::cout << "Player 1 reached checkpoint!" << std::endl;
-                }
                 playersStatus[i].checkPointTime = 0;
                 
                 auto vehicle = Physics::getInstance()->getVehicles()[i];
