@@ -51,7 +51,7 @@ GameEngine::GameEngine() {
     
     CubeObject* bridge =
         new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 184.85f),
-            glm::vec3(0.0f, 1.0f, 1.0f));
+            glm::vec3(0.29f, 0.27f, 0.255f));
     gameObjects.push_back(bridge);
 
     CubeObject* cube3 =
