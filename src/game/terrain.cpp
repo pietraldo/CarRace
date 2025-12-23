@@ -138,23 +138,23 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float x1 = j * scalex;
             float y1 = heightData[i][j] * scaley;
             float z1 = i * scalez;
-
+            
             // point 2 
             float x2 = (j + 1) * scalex;
             float y2 = heightData[i][j + 1] * scaley;
             float z2 = i * scalez;
+           
 
             // point 3 
             float x3 = j * scalex;
             float y3 = heightData[i + 1][j] * scaley;
             float z3 = (i + 1) * scalez;
-
+          
             // point 4 
             float x4 = (j + 1) * scalex;
             float y4 = heightData[i + 1][ j + 1] * scaley;
             float z4 = (i + 1) * scalez;
-
-
+           
             // first triangle normals
             glm::vec3 u11 = glm::vec3(x2 - x1, y2 - y1, z2 - z1);
             glm::vec3 v11 = glm::vec3(x3 - x1, y3 - y1, z3 - z1);
@@ -174,7 +174,7 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float u4 = (float)(j + 1) / (cols - 1);
             float v4 = (float)(i + 1) / (rows - 1);
 
-            if (roadMark[i][j] == 5)
+            if (roadMark[i][j] != 1)
             {
                  u1 = 0.631;
                  v1 = 1;
