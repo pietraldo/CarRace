@@ -8,7 +8,7 @@ GameEngine::GameEngine() {
 
     gameObjects = vector<GameObject*>();
 
-    playersStatus = std::vector<PlayerStatus>(CAR_COUNT);
+    playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
     CubeObject* cube1 =
         new CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f, 1.0f, 1.0f),
@@ -71,7 +71,7 @@ GameEngine::GameEngine() {
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     auto vehicles = Physics::getInstance()->getVehicles();
 
-    for (int i = 0; i < CAR_COUNT; i++) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         RaceCar* v = vehicles[i];
         PxVec3 pos = v->getVehiclePosition();
         PxQuat rotation = v->getVehicleRotation();
@@ -92,7 +92,7 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
         CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
     RaceCar* vehicle;
-    if (playerNumber < CAR_COUNT) {
+    if (playerNumber < Settings::Get().CAR_COUNT) {
         vehicle = Physics::getInstance()->getVehicles()[playerNumber];
     }
     else {
@@ -337,7 +337,7 @@ void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
 }
 
 void GameEngine::CreateModels() {
-    for (int i = 0; i < CAR_COUNT; i++) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
     }
 
@@ -391,7 +391,7 @@ void GameEngine::CreateLights() {
     float cutOff = glm::cos(glm::radians(14.0f));
     float outerCutOff = glm::cos(glm::radians(24.0f));
 
-    for (int i = 0; i < CAR_COUNT; ++i) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
         headlightLeft[i] =
             new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
                 cutOff, outerCutOff, glm::vec3(0, 0, -1),
@@ -431,7 +431,7 @@ void GameEngine::UpdateHeadlights() {
     if (!headlightsOn)
         return;
 
-    for (int i = 0; i < CAR_COUNT; ++i) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
 
         const auto& body = cars[i]->GetBody();
         if (!body)
@@ -553,7 +553,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
     resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
     resetCarToCheckPoint[1] = input.carControl1.resetToCheckpoint;
 
-    for (int i = 0; i < CAR_COUNT; i++)
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++)
     {
 
         // reseting car to last checkpoint by user comand
@@ -581,7 +581,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
         {
             playersStatus[i].timeOutsideOfTrack += 1;
 
-            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && autoReturningToTrack)
+            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && Settings::Get().autoReturningToTrack)
             {
                 //reset position to last known position on track
                 if (!playersStatus[i].vehiclePositions.empty())

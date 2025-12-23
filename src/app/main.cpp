@@ -23,7 +23,6 @@
 #include "../gfx/lights/LightDirectional.h"
 #include "../gfx/lights/LightSpot.h"
 #include "../gfx/Cube.h"
-#include "../gfx/Constants.h"
 #include "../gfx/camera/CameraManager.h"
 
 #include "audio/AudioEngine.h"

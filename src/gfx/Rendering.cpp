@@ -18,8 +18,8 @@ unsigned char* Rendering::textureData = nullptr;
 int Rendering::nbChannels = 0;
 unsigned int Rendering::textureID = 0;
 
-int Rendering::window_width = START_SCR_WIDTH;
-int Rendering::window_height = START_SCR_HEIGHT;
+int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
+int Rendering::window_height = Settings::Get().START_SCR_HEIGHT;
 
 bool Rendering::showBoxColliders = false;
 
