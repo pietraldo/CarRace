@@ -16,7 +16,6 @@
 
 #include "Shader.h"
 #include "./camera/Camera.h"
-#include "Constants.h"
 #include "Cube.h"
 #include "../game/Objects/GameObject.h"
 #include "lights/Light.h"

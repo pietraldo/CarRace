@@ -31,17 +31,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "PlayerStatus.h"
+#include "Settings.h"
 
 using namespace std;
 
 class GameEngine {
 private:
     vector<GameObject*> gameObjects;
-    std::array<std::unique_ptr<Car>, CAR_COUNT> cars;
+    std::vector<std::unique_ptr<Car>> cars{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
 
     vector<Light*> lights;
     vector<Camera*> cameras;
-    vector<Model*> modelsTex;
     vector<Model*> modelsCol;
 
     Terrain* terrain;
@@ -49,6 +49,7 @@ private:
     std::vector<PlayerStatus> playersStatus;
 
 public:
+    vector<Model*> modelsTex;
     bool dayNight = false;
     bool fog = false;
     float fogMinDist = 25.0f;
@@ -57,8 +58,8 @@ public:
     bool headlightsOn = true;
 
     LightSpot* flashlight;
-    std::array<LightSpot*, CAR_COUNT> headlightLeft{};
-    std::array<LightSpot*, CAR_COUNT> headlightRight{};
+    std::vector<LightSpot*> headlightLeft{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
+    std::vector<LightSpot*> headlightRight{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 

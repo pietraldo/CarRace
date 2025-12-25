@@ -9,16 +9,13 @@ void CubeObject::Draw(Camera& activeCam)
     glm::vec3 pos;
     if (simulatePhysics == false) {
         pos = positionToDisplay;
+        pxQuat = getQuatFromRotationDegrees(rotationToDisplay);
     }
     else {
         pos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
     }
 
-    glm::quat quat = glm::quat(
-        pxQuat.w,
-        pxQuat.x,
-        pxQuat.y,
-        pxQuat.z
-    );
+    glm::quat  quat = PxQuatToGlmQuat(pxQuat);
+
     Cube::Draw(pos, quat, scale, color,activeCam);
 }

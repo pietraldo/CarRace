@@ -8,7 +8,7 @@ GameEngine::GameEngine() {
 
     gameObjects = vector<GameObject*>();
 
-    playersStatus = std::vector<PlayerStatus>(CAR_COUNT);
+    playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
     CubeObject* cube1 =
         new CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f, 1.0f, 1.0f),
@@ -32,7 +32,7 @@ GameEngine::GameEngine() {
 
     CubeObject* cube4 =
         new CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f), true);
+            glm::vec3(0.0f, 0.0f, 1.0f));
     gameObjects.push_back(cube4);
 
     CubeObject* cube5 =
@@ -48,10 +48,15 @@ GameEngine::GameEngine() {
         new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f),
             glm::vec3(0.0f, 1.0f, 1.0f));
     gameObjects.push_back(cube7);
+    
+    CubeObject* bridge =
+        new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 173.0f),
+            glm::vec3(0.29f, 0.27f, 0.255f));
+    gameObjects.push_back(bridge);
 
     CubeObject* cube3 =
         new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f), false);
+            glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0), false);
     gameObjects.push_back(cube3);
     cube = cube3;
 
@@ -66,7 +71,7 @@ GameEngine::GameEngine() {
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     auto vehicles = Physics::getInstance()->getVehicles();
 
-    for (int i = 0; i < CAR_COUNT; i++) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         RaceCar* v = vehicles[i];
         PxVec3 pos = v->getVehiclePosition();
         PxQuat rotation = v->getVehicleRotation();
@@ -87,7 +92,7 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
         CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
     RaceCar* vehicle;
-    if (playerNumber < CAR_COUNT) {
+    if (playerNumber < Settings::Get().CAR_COUNT) {
         vehicle = Physics::getInstance()->getVehicles()[playerNumber];
     }
     else {
@@ -185,7 +190,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol,
         modelMatrix = glm::translate(modelMatrix, position);
         modelMatrix *= glm::toMat4(rotation);
         modelMatrix =
-            glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+            glm::scale(modelMatrix, model->GetScale());
         shaderTex.setMat4("model", modelMatrix);
         shaderTex.setVec3("objectColor", model->GetColor());
 
@@ -325,16 +330,26 @@ void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
 
     modelMatrix = glm::translate(modelMatrix, position);
     modelMatrix *= glm::toMat4(rotation);
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model.GetScale());
+    modelMatrix = glm::scale(modelMatrix, model.GetScale());
     shader.setMat4("model", modelMatrix);
 
     model.Draw(shader);
 }
 
 void GameEngine::CreateModels() {
-    for (int i = 0; i < CAR_COUNT; i++) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
     }
+
+    const std::string bridgeModelPath= "../assets/models/bridge3/bridge.gltf";
+    glm::vec3 bridgePosition(-278.8f, 71.0f, -367.1f);
+    Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, glm::vec3(4.0f,13.4f,8.9f),
+        glm::vec3(1.f));
+    glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);
+    bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
+
+    
+    modelsTex.push_back(bridgeModel);
 }
 
 void GameEngine::CreateLights() {
@@ -376,7 +391,7 @@ void GameEngine::CreateLights() {
     float cutOff = glm::cos(glm::radians(14.0f));
     float outerCutOff = glm::cos(glm::radians(24.0f));
 
-    for (int i = 0; i < CAR_COUNT; ++i) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
         headlightLeft[i] =
             new LightSpot(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, 0.05f, 0.01f,
                 cutOff, outerCutOff, glm::vec3(0, 0, -1),
@@ -416,7 +431,7 @@ void GameEngine::UpdateHeadlights() {
     if (!headlightsOn)
         return;
 
-    for (int i = 0; i < CAR_COUNT; ++i) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
 
         const auto& body = cars[i]->GetBody();
         if (!body)
@@ -488,17 +503,17 @@ std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
     const std::string steringWheelModelPath =
         "../assets/models/stering_wheel/scene.gltf";
 
-    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, 0.01f,
+    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.01f),
         glm::vec3(1.f));
     bodyModel->SetRotationOffset(
         physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
     bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f),
-        0.29f, glm::vec3(1.f));
+        glm::vec3(0.29f), glm::vec3(1.f));
 
     auto steeringModel = std::make_shared<Model>(
-        steringWheelModelPath, glm::vec3(0.f), 0.3f, glm::vec3(1.f));
+        steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));
     steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
 
     auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
@@ -538,7 +553,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
     resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
     resetCarToCheckPoint[1] = input.carControl1.resetToCheckpoint;
 
-    for (int i = 0; i < CAR_COUNT; i++)
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++)
     {
 
         // reseting car to last checkpoint by user comand
@@ -566,7 +581,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input)
         {
             playersStatus[i].timeOutsideOfTrack += 1;
 
-            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && autoReturningToTrack)
+            if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && Settings::Get().autoReturningToTrack)
             {
                 //reset position to last known position on track
                 if (!playersStatus[i].vehiclePositions.empty())

@@ -51,11 +51,11 @@ int Physics::initialize(GameEngine* gameEngine) {
     InitVehicleSystem();
 
     PxQuat rotation = PxQuat(0.02f, 0.98f, 0.0f, 0.19f);
-    if (CAR_COUNT >= 1)
+    if (Settings::Get().CAR_COUNT >= 1)
     {
         createVehicle(PxVec3(305.90f, 25.0f, -17.96f), rotation, "vehicle2");
     }
-    if (CAR_COUNT >= 2)
+    if (Settings::Get().CAR_COUNT >= 2)
     {
         createVehicle(PxVec3(301.05f, 25.0f, -19.65f), rotation, "vehicle1");
     }
@@ -167,6 +167,13 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
         physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
     gScene->addActor(*boxCollider6);
     gameObjects[7]->actor = boxCollider6;
+    
+    physx::PxRigidStatic* boxColliderBridge = physx::PxCreateStatic(
+        *gPhysics, physx::PxTransform(physx::PxVec3(-228.58f, 82.31f, -269.25f),
+        getQuatFromRotationDegrees(glm::vec3(0.0f, 27.55f, 0.0f))),
+        physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 86.5f)), *material);
+    gScene->addActor(*boxColliderBridge);
+    gameObjects[8]->actor = boxColliderBridge;
 
     // Ensure all created static/dynamic objects have collision masks set to
     // colliding with everything (Group 0, Mask All) This allows them to pass the
@@ -233,7 +240,7 @@ void Physics::createTerrain() {
             PxHeightFieldSample& smp = hfSamples[(col * rows) + row];
             smp.height = height;
 
-            if (useDifferentMaterialsForTerrain)
+            if (Settings::Get().useDifferentMaterialsForTerrain)
             {
                 if (roadMark[row][col] == 1)
                 {
@@ -297,11 +304,11 @@ void Physics::createTerrain() {
 void Physics::update(float deltaTime, CarControlInput carControll0,
     CarControlInput carControll1) {
 
-    if (CAR_COUNT > 0) {
+    if (Settings::Get().CAR_COUNT > 0) {
         vehicles[0]->Update(deltaTime, carControll0);
     }
 
-    if (CAR_COUNT > 1) {
+    if (Settings::Get().CAR_COUNT > 1) {
         vehicles[1]->Update(deltaTime, carControll1);
     }
 

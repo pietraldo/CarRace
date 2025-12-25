@@ -19,7 +19,7 @@
 #include "physics_simulation_event_callback.h"
 
 #include "../audio/CollisionSound.h"
-#include "../gfx/Constants.h"
+#include "../game/Settings.h"
 
 using namespace physx;
 using namespace vehicle2;
