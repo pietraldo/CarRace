@@ -88,7 +88,8 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
   }
 }
 
-void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
+void GameEngine::UpdatePlayerCamera(float dt, int playerNumber,
+                                    const InputData &input) {
   Camera &activeCamera =
       CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
@@ -108,7 +109,14 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
   if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA) {
     FirstPersonCamera &firstPersonCamera =
         static_cast<FirstPersonCamera &>(activeCamera);
-    firstPersonCamera.Update(carPos, carRot);
+
+    const CameraControlInput &camInput =
+        (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
+    // Angle in degrees. camInput.yaw is -1, 0, or 1.
+    // 90 degrees rotation when looking left/right.
+    firstPersonCamera.SetTargetYawOffset(camInput.yaw * 90.0f);
+
+    firstPersonCamera.Update(dt, carPos, carRot);
   } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
     FollowingCarCamera &fol = static_cast<FollowingCarCamera &>(activeCamera);
     fol.Update(carPos, carRot);
@@ -125,20 +133,20 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
   }
 }
 
-void GameEngine::UpdatePlayersCamera(float dt) {
+void GameEngine::UpdatePlayersCamera(float dt, const InputData &input) {
   ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
   if (activeViewMode == ViewMode::SINGLE_SCREEN) {
-    UpdatePlayerCamera(dt, 0);
+    UpdatePlayerCamera(dt, 0, input);
   }
   if (activeViewMode == ViewMode::SPLIT_SCREEN) {
-    UpdatePlayerCamera(dt, 0);
-    UpdatePlayerCamera(dt, 1);
+    UpdatePlayerCamera(dt, 0, input);
+    UpdatePlayerCamera(dt, 1, input);
   }
 }
 
 void GameEngine::Update(InputData input, float deltaTime) {
 
-  UpdatePlayersCamera(deltaTime);
+  UpdatePlayersCamera(deltaTime, input);
   UpdateCars(input, deltaTime);
   UpdateHeadlights();
 

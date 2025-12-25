@@ -1,4 +1,4 @@
-#include "KeyboardController.h"
+ï»¿#include "KeyboardController.h"
 
 float KeyboardController::deltaMouseX = 0.0f;
 float KeyboardController::deltataMouseY = 0.0f;
@@ -41,7 +41,7 @@ CarControlInput KeyboardController::getCarControlInput() {
     }
     else // Player1
     {
-        // Gracz 1 – np. WASD + LSHIFT + Q/E
+        // Gracz 1  np. WASD + LSHIFT + Q/E
         if (isKeyPressed(GLFW_KEY_D))
             input.steer = -1;
         else if (isKeyPressed(GLFW_KEY_A))
@@ -68,6 +68,7 @@ CarControlInput KeyboardController::getCarControlInput() {
 CameraControlInput KeyboardController::getCameraControlInput() {
     CameraControlInput input;
 
+    // Default existing keys (maybe debug or free cam?)
     if(isKeyPressed(GLFW_KEY_I))
         input.moveForward = 1;
     if (isKeyPressed(GLFW_KEY_K))
@@ -77,6 +78,23 @@ CameraControlInput KeyboardController::getCameraControlInput() {
     if (isKeyPressed(GLFW_KEY_L))
         input.moveRight = 1;
 
+    // Head movement logic
+    if (playerIndex == PlayerIndex::Player1) // WASD Player
+    {
+        if (isKeyPressed(GLFW_KEY_1))
+            input.yaw = 1.0f; // Left
+        else if (isKeyPressed(GLFW_KEY_2))
+            input.yaw = -1.0f; // Right
+    }
+    else if (playerIndex == PlayerIndex::Player0) // Arrow Keys Player
+    {
+        if (isKeyPressed(GLFW_KEY_9))
+            input.yaw = 1.0f; // Left
+        else if (isKeyPressed(GLFW_KEY_0))
+            input.yaw = -1.0f; // Right
+    }
+
+    // Existing mouse logic:
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
     if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -86,13 +104,15 @@ CameraControlInput KeyboardController::getCameraControlInput() {
         float deltaX = static_cast<float>(mouseX - lastMouseX);
         float deltaY = static_cast<float>(mouseY - lastMouseY);
 
-        input.yaw = deltaX;
+        // If head keys are NOT pressed, allow mouse to control yaw (if needed elsewhere)
+        if (input.yaw == 0.0f) {
+             input.yaw = deltaX;
+        }
         input.pitch = -deltaY;
     }
     else
     {
         glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
     }
     lastMouseX = mouseX;
     lastMouseY = mouseY;
@@ -121,3 +141,4 @@ bool KeyboardController::isKeyJustPressed(int key) {
     lastKeyStates[key] = currentState;
     return justPressed;
 }
+
