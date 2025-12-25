@@ -23,10 +23,10 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
     wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontRight);
     wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), WheelPos::FrontLeft);
 
-    wheelPositionOffsets[0] = glm::vec3(1.32f, -0.24f, -0.82f); // RR
-    wheelPositionOffsets[1] = glm::vec3(1.32f, -0.24f, 0.82f); // RL
-    wheelPositionOffsets[2] = glm::vec3(-1.38f, -0.24f, -0.82f); // FR
-    wheelPositionOffsets[3] = glm::vec3(-1.38f, -0.24f, 0.82f); // FL
+    wheelPositionOffsets[0] = glm::vec3(1.45f, 0.1f, -0.9f); // RR
+    wheelPositionOffsets[1] = glm::vec3(1.45f, 0.1f, 0.9f); // RL
+    wheelPositionOffsets[2] = glm::vec3(-1.3f, 0.1f, -0.9f); // FR
+    wheelPositionOffsets[3] = glm::vec3(-1.3f, 0.1f, 0.9f); // FL
 
     wheelRotationOffsets[0] = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0)); // RR
     wheelRotationOffsets[1] = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0)); // RL

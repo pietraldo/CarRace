@@ -498,19 +498,19 @@ glm::quat GameEngine::GetCarRotation() const {
 }
 
 std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
-    const std::string carModelPath = "../assets/models/car/car.gltf";
+    const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath =
         "../assets/models/stering_wheel/scene.gltf";
 
-    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.01f),
+    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.85f),
         glm::vec3(1.f));
     bodyModel->SetRotationOffset(
-        physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
+        physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
     bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f),
-        glm::vec3(0.29f), glm::vec3(1.f));
+        glm::vec3(0.27f), glm::vec3(1.f));
 
     auto steeringModel = std::make_shared<Model>(
         steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));

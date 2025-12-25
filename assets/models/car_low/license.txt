@@ -1,0 +1,11 @@
+Model Information:
+* title:	Koenigsegg One1 low poly
+* source:	https://sketchfab.com/3d-models/koenigsegg-one1-low-poly-8d253a7f43404113838d72c7fc9cfa94
+* author:	jkazulyblanco (https://sketchfab.com/jkazulyblanco)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Koenigsegg One1 low poly" (https://sketchfab.com/3d-models/koenigsegg-one1-low-poly-8d253a7f43404113838d72c7fc9cfa94) by jkazulyblanco (https://sketchfab.com/jkazulyblanco) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
