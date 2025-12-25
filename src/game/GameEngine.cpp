@@ -508,7 +508,7 @@ std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3 &bodyPosition) {
 
   auto steeringModel = std::make_shared<Model>(
       steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));
-  steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
+  steeringModel->SetPositionOffset(glm::vec3(-0.4f, 0.55f, 0.40f));
 
   auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
