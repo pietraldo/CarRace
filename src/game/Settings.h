@@ -1,8 +1,6 @@
 #pragma once
 
-
-struct Settings
-{
+struct Settings {
     int START_SCR_WIDTH = 1600;
     int START_SCR_HEIGHT = 1000;
 

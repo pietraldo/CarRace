@@ -2,14 +2,13 @@
 
 #include "miniaudio.h"
 
-class TireSquealSound
-{
+class TireSquealSound {
 public:
     TireSquealSound() = default;
     ~TireSquealSound();
 
     bool load(const char* path);
-    void start();   
+    void start();
     void stop();
 
     void update(float tireForwardSlip, float tireSideSlip, float speed);

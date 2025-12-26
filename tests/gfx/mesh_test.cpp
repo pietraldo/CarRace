@@ -1,5 +1,7 @@
-#include <gtest/gtest.h>
 #include "gfx/Mesh.h"
+
+#include <gtest/gtest.h>
+
 #include "../test_utils/test_helpers.h"
 
 // ============================================================================
@@ -50,7 +52,7 @@ TEST_F(VertexTest, Vertex_BoneIDsArray) {
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
         vertex.m_BoneIDs[i] = i;
     }
-    
+
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
         EXPECT_EQ(i, vertex.m_BoneIDs[i]);
     }
@@ -61,15 +63,13 @@ TEST_F(VertexTest, Vertex_WeightsArray) {
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
         vertex.m_Weights[i] = 0.25f * i;
     }
-    
+
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
         EXPECT_NEAR(0.25f * i, vertex.m_Weights[i], TestHelpers::FLOAT_EPSILON);
     }
 }
 
-TEST_F(VertexTest, Vertex_MaxBoneInfluence) {
-    EXPECT_EQ(MAX_BONE_INFLUENCE, 4);
-}
+TEST_F(VertexTest, Vertex_MaxBoneInfluence) { EXPECT_EQ(MAX_BONE_INFLUENCE, 4); }
 
 TEST_F(VertexTest, Vertex_CompleteInitialization) {
     Vertex vertex;
@@ -78,7 +78,7 @@ TEST_F(VertexTest, Vertex_CompleteInitialization) {
     vertex.TexCoords = glm::vec2(0.5f, 0.5f);
     vertex.Tangent = glm::vec3(1.0f, 0.0f, 0.0f);
     vertex.Bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
-    
+
     EXPECT_VEC3_EQ(glm::vec3(1.0f, 2.0f, 3.0f), vertex.Position);
     EXPECT_VEC3_EQ(glm::vec3(0.0f, 1.0f, 0.0f), vertex.Normal);
 }
@@ -152,9 +152,7 @@ TEST_F(MirrorSideTest, MirrorSide_RightValue) {
     EXPECT_EQ(MirrorSide::Right, side);
 }
 
-TEST_F(MirrorSideTest, MirrorSide_NotEqual) {
-    EXPECT_NE(MirrorSide::Left, MirrorSide::Right);
-}
+TEST_F(MirrorSideTest, MirrorSide_NotEqual) { EXPECT_NE(MirrorSide::Left, MirrorSide::Right); }
 
 TEST_F(MirrorSideTest, MirrorSide_Assignment) {
     MirrorSide side1 = MirrorSide::Left;
@@ -179,9 +177,9 @@ TEST_F(NormalVectorTest, Normal_TriangleXY) {
     glm::vec3 v1(0.0f, 0.0f, 0.0f);
     glm::vec3 v2(1.0f, 0.0f, 0.0f);
     glm::vec3 v3(0.0f, 1.0f, 0.0f);
-    
+
     glm::vec3 normal = CalculateNormal(v1, v2, v3);
-    
+
     // Normal should point in +Z direction
     EXPECT_NEAR(normal.x, 0.0f, TestHelpers::FLOAT_EPSILON);
     EXPECT_NEAR(normal.y, 0.0f, TestHelpers::FLOAT_EPSILON);
@@ -192,9 +190,9 @@ TEST_F(NormalVectorTest, Normal_TriangleXZ) {
     glm::vec3 v1(0.0f, 0.0f, 0.0f);
     glm::vec3 v2(1.0f, 0.0f, 0.0f);
     glm::vec3 v3(0.0f, 0.0f, 1.0f);
-    
+
     glm::vec3 normal = CalculateNormal(v1, v2, v3);
-    
+
     // Normal should point in -Y direction
     EXPECT_NEAR(normal.x, 0.0f, TestHelpers::FLOAT_EPSILON);
     EXPECT_NEAR(normal.y, -1.0f, TestHelpers::FLOAT_EPSILON);
@@ -205,9 +203,9 @@ TEST_F(NormalVectorTest, Normal_TriangleYZ) {
     glm::vec3 v1(0.0f, 0.0f, 0.0f);
     glm::vec3 v2(0.0f, 1.0f, 0.0f);
     glm::vec3 v3(0.0f, 0.0f, 1.0f);
-    
+
     glm::vec3 normal = CalculateNormal(v1, v2, v3);
-    
+
     // Normal should point in +X direction
     EXPECT_NEAR(normal.x, 1.0f, TestHelpers::FLOAT_EPSILON);
     EXPECT_NEAR(normal.y, 0.0f, TestHelpers::FLOAT_EPSILON);
@@ -218,9 +216,9 @@ TEST_F(NormalVectorTest, Normal_Normalized) {
     glm::vec3 v1(0.0f, 0.0f, 0.0f);
     glm::vec3 v2(2.0f, 0.0f, 0.0f);
     glm::vec3 v3(0.0f, 3.0f, 0.0f);
-    
+
     glm::vec3 normal = CalculateNormal(v1, v2, v3);
-    
+
     float length = glm::length(normal);
     EXPECT_NEAR(length, 1.0f, TestHelpers::FLOAT_EPSILON);
 }
@@ -231,23 +229,21 @@ TEST_F(NormalVectorTest, Normal_Normalized) {
 
 class TangentBitangentTest : public ::testing::Test {
 protected:
-    void CalculateTangentBitangent(
-        const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec3& pos3,
-        const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3,
-        glm::vec3& tangent, glm::vec3& bitangent)
-    {
+    void CalculateTangentBitangent(const glm::vec3& pos1, const glm::vec3& pos2, const glm::vec3& pos3,
+                                   const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3, glm::vec3& tangent,
+                                   glm::vec3& bitangent) {
         glm::vec3 edge1 = pos2 - pos1;
         glm::vec3 edge2 = pos3 - pos1;
         glm::vec2 deltaUV1 = uv2 - uv1;
         glm::vec2 deltaUV2 = uv3 - uv1;
-        
+
         float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-        
+
         tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
         tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
         tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
         tangent = glm::normalize(tangent);
-        
+
         bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
         bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
         bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
@@ -259,14 +255,14 @@ TEST_F(TangentBitangentTest, TangentBitangent_SimpleTriangle) {
     glm::vec3 pos1(0.0f, 0.0f, 0.0f);
     glm::vec3 pos2(1.0f, 0.0f, 0.0f);
     glm::vec3 pos3(0.0f, 1.0f, 0.0f);
-    
+
     glm::vec2 uv1(0.0f, 0.0f);
     glm::vec2 uv2(1.0f, 0.0f);
     glm::vec2 uv3(0.0f, 1.0f);
-    
+
     glm::vec3 tangent, bitangent;
     CalculateTangentBitangent(pos1, pos2, pos3, uv1, uv2, uv3, tangent, bitangent);
-    
+
     // Tangent and bitangent should be normalized
     EXPECT_NEAR(glm::length(tangent), 1.0f, TestHelpers::FLOAT_EPSILON);
     EXPECT_NEAR(glm::length(bitangent), 1.0f, TestHelpers::FLOAT_EPSILON);
@@ -276,17 +272,17 @@ TEST_F(TangentBitangentTest, TangentBitangent_Orthogonal) {
     glm::vec3 pos1(0.0f, 0.0f, 0.0f);
     glm::vec3 pos2(1.0f, 0.0f, 0.0f);
     glm::vec3 pos3(0.0f, 1.0f, 0.0f);
-    
+
     glm::vec2 uv1(0.0f, 0.0f);
     glm::vec2 uv2(1.0f, 0.0f);
     glm::vec2 uv3(0.0f, 1.0f);
-    
+
     glm::vec3 tangent, bitangent;
     CalculateTangentBitangent(pos1, pos2, pos3, uv1, uv2, uv3, tangent, bitangent);
-    
+
     // Tangent and bitangent should be orthogonal
     float dot = glm::dot(tangent, bitangent);
-    EXPECT_NEAR(dot, 0.0f, 0.01f); // Slightly larger epsilon for numerical stability
+    EXPECT_NEAR(dot, 0.0f, 0.01f);  // Slightly larger epsilon for numerical stability
 }
 
 // ============================================================================
@@ -336,7 +332,7 @@ TEST_F(VertexArrayTest, VertexArray_SingleVertex) {
     Vertex v;
     v.Position = glm::vec3(1.0f, 2.0f, 3.0f);
     vertices.push_back(v);
-    
+
     EXPECT_EQ(1u, vertices.size());
     EXPECT_VEC3_EQ(glm::vec3(1.0f, 2.0f, 3.0f), vertices[0].Position);
 }
@@ -348,7 +344,7 @@ TEST_F(VertexArrayTest, VertexArray_MultipleVertices) {
         v.Position = glm::vec3(i, i, i);
         vertices.push_back(v);
     }
-    
+
     EXPECT_EQ(10u, vertices.size());
     EXPECT_VEC3_EQ(glm::vec3(5.0f, 5.0f, 5.0f), vertices[5].Position);
 }

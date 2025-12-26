@@ -3,67 +3,51 @@
 #define CAMERA_H
 
 #include <glad/glad.h>
+
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "../../ui/Input/InputStructures.h"
 
+enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
 
-enum Camera_Movement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
-
-enum CameraType {
-    FREE_CAMERA,
-    FOLLOWING_CAR_CAMERA,
-	FIRST_PERSON_CAMERA,
-    OBSERVING_CAMERA,
-    OBSERVING_CAMERA_UP
-};
+enum CameraType { FREE_CAMERA, FOLLOWING_CAR_CAMERA, FIRST_PERSON_CAMERA, OBSERVING_CAMERA, OBSERVING_CAMERA_UP };
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 20.5f;
 const float ZOOM = 45.0f;
 
-
-class Camera
-{
-
+class Camera {
 protected:
     // constructor with vectors
-    Camera(CameraType cameraType, glm::vec3 position, glm::vec3 up,
-        float yaw, float pitch)
+    Camera(CameraType cameraType, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
         : Position(position),
-        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        WorldUp(up),
-        Yaw(yaw),
-        Pitch(pitch),
-        MovementSpeed(SPEED),
-        Zoom(ZOOM),
-        cameraType(cameraType)
-    {
+          Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+          WorldUp(up),
+          Yaw(yaw),
+          Pitch(pitch),
+          MovementSpeed(SPEED),
+          Zoom(ZOOM),
+          cameraType(cameraType) {
         updateCameraVectors();
     }
 
     // constructor with scalar values
-    Camera(CameraType cameraType, float posX, float posY, float posZ,
-        float upX, float upY, float upZ, float yaw, float pitch)
+    Camera(CameraType cameraType, float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw,
+           float pitch)
         : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        MovementSpeed(SPEED),
-        Zoom(ZOOM),
-        cameraType(cameraType),
-        Position(glm::vec3(posX, posY, posZ)),
-        WorldUp(glm::vec3(upX, upY, upZ)),
-        Yaw(yaw),
-        Pitch(pitch)
-    {
+          MovementSpeed(SPEED),
+          Zoom(ZOOM),
+          cameraType(cameraType),
+          Position(glm::vec3(posX, posY, posZ)),
+          WorldUp(glm::vec3(upX, upY, upZ)),
+          Yaw(yaw),
+          Pitch(pitch) {
         updateCameraVectors();
     }
+
 public:
     // camera Attributes
     glm::vec3 Position;
@@ -82,53 +66,41 @@ public:
 
     const CameraType cameraType;
 
-    virtual glm::mat4 GetViewMatrix()
-    {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
+    virtual glm::mat4 GetViewMatrix() { return glm::lookAt(Position, Position + Front, Up); }
 
-    void processInput(CameraControlInput input, float deltaTime)
-    {
+    void processInput(CameraControlInput input, float deltaTime) {
         processPositionInput(input, deltaTime);
         processRotationInput(input, deltaTime);
         processZoomInput(input);
     }
 
-    void processPositionInput(CameraControlInput& input, float deltaTime)
-    {
+    void processPositionInput(CameraControlInput& input, float deltaTime) {
         float velocity = MovementSpeed * deltaTime;
 
         Position += Front * velocity * input.moveForward;
         Position += Right * velocity * input.moveRight;
     }
 
-    void processRotationInput(CameraControlInput& input, float deltaTime)
-    {
+    void processRotationInput(CameraControlInput& input, float deltaTime) {
         float velocity = deltaTime * 20;
         Yaw += velocity * input.yaw;
         Pitch += velocity * input.pitch;
 
-        if (Pitch > 89.0f)
-            Pitch = 89.0f;
-        if (Pitch < -89.0f)
-            Pitch = -89.0f;
+        if (Pitch > 89.0f) Pitch = 89.0f;
+        if (Pitch < -89.0f) Pitch = -89.0f;
 
         updateCameraVectors();
     }
 
-    void processZoomInput(CameraControlInput& input)
-    {
+    void processZoomInput(CameraControlInput& input) {
         Zoom -= (float)input.zoom;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 90.0f)
-            Zoom = 90.0f;
+        if (Zoom < 1.0f) Zoom = 1.0f;
+        if (Zoom > 90.0f) Zoom = 90.0f;
     }
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors()
-    {
+    void updateCameraVectors() {
         // calculate the new Front vector
         glm::vec3 front;
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
@@ -141,9 +113,7 @@ private:
     }
 
 public:
-    bool IsSphereVisible(const glm::vec3& center, float radius) const
-    {
-        
+    bool IsSphereVisible(const glm::vec3& center, float radius) const {
         glm::mat4 proj = glm::perspective(glm::radians(Zoom), (float)1920 / (float)1080, 0.1f, 300.0f);
         glm::mat4 view = glm::lookAt(Position, Position + Front, Up);
         glm::mat4 viewProj = proj * view;
@@ -156,13 +126,11 @@ public:
         planes[4] = glm::row(viewProj, 3) + glm::row(viewProj, 2);
         planes[5] = glm::row(viewProj, 3) - glm::row(viewProj, 2);
 
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             float length = glm::length(glm::vec3(planes[i]));
             planes[i] /= length;
 
-            if (glm::dot(glm::vec3(planes[i]), center) + planes[i].w <= -radius)
-            {
+            if (glm::dot(glm::vec3(planes[i]), center) + planes[i].w <= -radius) {
                 return false;
             }
         }

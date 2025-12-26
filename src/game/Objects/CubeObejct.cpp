@@ -1,8 +1,8 @@
 #include "CubeObejct.h"
+
 #include "../../gfx/Cube.h"
 
-void CubeObject::Draw(Camera& activeCam)
-{
+void CubeObject::Draw(Camera& activeCam) {
     physx::PxVec3 pxPos = GetPosition();
     physx::PxQuat pxQuat = GetRotation();
 
@@ -10,12 +10,11 @@ void CubeObject::Draw(Camera& activeCam)
     if (simulatePhysics == false) {
         pos = positionToDisplay;
         pxQuat = getQuatFromRotationDegrees(rotationToDisplay);
-    }
-    else {
+    } else {
         pos = glm::vec3(pxPos.x, pxPos.y, pxPos.z);
     }
 
-    glm::quat  quat = PxQuatToGlmQuat(pxQuat);
+    glm::quat quat = PxQuatToGlmQuat(pxQuat);
 
-    Cube::Draw(pos, quat, scale, color,activeCam);
+    Cube::Draw(pos, quat, scale, color, activeCam);
 }

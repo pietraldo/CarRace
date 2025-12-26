@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
+
 #include <glm/glm.hpp>
+
 #include "../test_utils/test_helpers.h"
 
 // Audio parameter tests - testing audio calculations and ranges
@@ -180,7 +182,7 @@ TEST_F(EngineSoundTest, EngineVolume_HalfThrottle) {
 
 TEST_F(EngineSoundTest, EngineVolume_HighRPMLowThrottle) {
     float volume = CalculateEngineVolume(0.2f, 5000.0f, 6000.0f);
-    EXPECT_GT(volume, 0.2f); // Should be higher due to RPM contribution
+    EXPECT_GT(volume, 0.2f);  // Should be higher due to RPM contribution
 }
 
 // ============================================================================
@@ -232,11 +234,11 @@ TEST_F(TireSquealTest, Squeal_MaxSlip) {
 
 class StereoPanningTest : public ::testing::Test {
 protected:
-    void CalculateStereo(const glm::vec3& soundPos, const glm::vec3& listenerPos, 
-                        const glm::vec3& listenerRight, float& leftVol, float& rightVol) {
+    void CalculateStereo(const glm::vec3& soundPos, const glm::vec3& listenerPos, const glm::vec3& listenerRight,
+                         float& leftVol, float& rightVol) {
         glm::vec3 toSound = soundPos - listenerPos;
         float pan = glm::dot(glm::normalize(toSound), listenerRight);
-        
+
         leftVol = (1.0f - pan) * 0.5f;
         rightVol = (1.0f + pan) * 0.5f;
     }
@@ -246,10 +248,10 @@ TEST_F(StereoPanningTest, Panning_Center) {
     glm::vec3 soundPos(0.0f, 0.0f, -10.0f);
     glm::vec3 listenerPos(0.0f, 0.0f, 0.0f);
     glm::vec3 listenerRight(1.0f, 0.0f, 0.0f);
-    
+
     float leftVol, rightVol;
     CalculateStereo(soundPos, listenerPos, listenerRight, leftVol, rightVol);
-    
+
     EXPECT_NEAR(leftVol, 0.5f, 0.01f);
     EXPECT_NEAR(rightVol, 0.5f, 0.01f);
 }
@@ -258,10 +260,10 @@ TEST_F(StereoPanningTest, Panning_Right) {
     glm::vec3 soundPos(10.0f, 0.0f, 0.0f);
     glm::vec3 listenerPos(0.0f, 0.0f, 0.0f);
     glm::vec3 listenerRight(1.0f, 0.0f, 0.0f);
-    
+
     float leftVol, rightVol;
     CalculateStereo(soundPos, listenerPos, listenerRight, leftVol, rightVol);
-    
+
     EXPECT_LT(leftVol, rightVol);
 }
 
@@ -269,10 +271,10 @@ TEST_F(StereoPanningTest, Panning_Left) {
     glm::vec3 soundPos(-10.0f, 0.0f, 0.0f);
     glm::vec3 listenerPos(0.0f, 0.0f, 0.0f);
     glm::vec3 listenerRight(1.0f, 0.0f, 0.0f);
-    
+
     float leftVol, rightVol;
     CalculateStereo(soundPos, listenerPos, listenerRight, leftVol, rightVol);
-    
+
     EXPECT_GT(leftVol, rightVol);
 }
 

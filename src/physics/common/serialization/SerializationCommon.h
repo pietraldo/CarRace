@@ -24,7 +24,7 @@
 //
 // Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #pragma once
 
@@ -44,24 +44,22 @@
 #endif
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
-#if (PX_LINUX && PX_CLANG) || PX_SWITCH ||  PX_OSX
+#if (PX_LINUX && PX_CLANG) || PX_SWITCH || PX_OSX
 #pragma clang diagnostic pop
 #endif
 
-namespace snippetvehicle
-{
+namespace snippetvehicle {
 
 using namespace physx;
 using namespace physx::vehicle2;
 
 bool openDocument(const char* directory, const char* filename, rapidjson::Document&);
 
-bool readCommandResponseParams
-(const rapidjson::Value& value, const PxVehicleAxleDescription& axleDesc,
- PxVehicleCommandResponseParams& responseParams);
-bool writeCommandResponseParams
-(const PxVehicleCommandResponseParams& responseParams, const PxVehicleAxleDescription& axleDesc,
- rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool readCommandResponseParams(const rapidjson::Value& value, const PxVehicleAxleDescription& axleDesc,
+                               PxVehicleCommandResponseParams& responseParams);
+bool writeCommandResponseParams(const PxVehicleCommandResponseParams& responseParams,
+                                const PxVehicleAxleDescription& axleDesc,
+                                rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool readVec3(const rapidjson::Value& values, PxVec3& r);
 bool writeVec3(const PxVec3& r, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
@@ -73,9 +71,15 @@ bool readTransform(const rapidjson::Value& values, PxTransform& r);
 bool writeTransform(const PxTransform& r, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool readFloatLookupTable(const rapidjson::Value& values, PxVehicleFixedSizeLookupTable<PxReal, 3>& lookupTable);
-bool readFloatLookupTable(const rapidjson::Value& values, PxVehicleFixedSizeLookupTable<PxReal, PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES>& lookupTable);
+bool readFloatLookupTable(
+    const rapidjson::Value& values,
+    PxVehicleFixedSizeLookupTable<PxReal, PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES>& lookupTable);
 bool readVec3LookupTable(const rapidjson::Value& values, PxVehicleFixedSizeLookupTable<PxVec3, 3>& lookupTable);
-bool writeVec3LookupTable(const PxVehicleFixedSizeLookupTable<PxVec3, 3>& lookupTable, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
-bool writeFloatLookupTable(const PxVehicleFixedSizeLookupTable<PxReal, 3>& lookupTable, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
-bool writeFloatLookupTable(const PxVehicleFixedSizeLookupTable<PxReal, PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES>& lookupTable, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
-}//namespace snippetvehicle
+bool writeVec3LookupTable(const PxVehicleFixedSizeLookupTable<PxVec3, 3>& lookupTable,
+                          rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeFloatLookupTable(const PxVehicleFixedSizeLookupTable<PxReal, 3>& lookupTable,
+                           rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeFloatLookupTable(const PxVehicleFixedSizeLookupTable<
+                               PxReal, PxVehicleEngineParams::eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES>& lookupTable,
+                           rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+}  // namespace snippetvehicle

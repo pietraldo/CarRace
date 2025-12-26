@@ -13,23 +13,21 @@
 #include "../gfx/lights/LightSpot.h"
 #include "./Objects/CubeObejct.h"
 #include "./Objects/GameObject.h"
-#include "./physics/physics.h"
-#include "terrain.h"
-
-
 #include "./gfx/camera/CameraManager.h"
+#include "./physics/physics.h"
 #include "./physics/vehicle.h"
 #include "./ui/Input/InputManager.h"
 #include "./ui/Input/InputStructures.h"
+#include "terrain.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include "./ui/Input/InputStructures.h"
 #include "Objects/car/Car.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "PlayerStatus.h"
 #include "Settings.h"
 
@@ -38,7 +36,7 @@ using namespace std;
 class GameEngine {
 private:
     vector<GameObject*> gameObjects;
-    std::vector<std::unique_ptr<Car>> cars{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
+    std::vector<std::unique_ptr<Car>> cars{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
 
     vector<Light*> lights;
     vector<Camera*> cameras;
@@ -58,12 +56,12 @@ public:
     bool headlightsOn = true;
 
     LightSpot* flashlight;
-    std::vector<LightSpot*> headlightLeft{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
-    std::vector<LightSpot*> headlightRight{ static_cast<std::size_t>(Settings::Get().CAR_COUNT) };
+    std::vector<LightSpot*> headlightLeft{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
+    std::vector<LightSpot*> headlightRight{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    CubeObject* cube; // cube that is used for measuring distances TODO: delete in future
+    CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
 
     // Skybox
     unsigned int skyboxVAO, skyboxVBO;
@@ -93,8 +91,7 @@ public:
     void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
     void SetCarSteer(float deg, int carNumber = 0) {
-        if (cars[carNumber])
-            cars[carNumber]->SetSteer(deg);
+        if (cars[carNumber]) cars[carNumber]->SetSteer(deg);
     }
     Car* GetCar(int carNumber = 0) { return cars[carNumber].get(); }
 

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include "physics/CarControlInput.h"
+
 #include "../test_utils/test_helpers.h"
+#include "physics/CarControlInput.h"
 
 // Note: CarControlInput structure tests - testing the data structure and validation logic
 
@@ -183,7 +184,7 @@ class InputCombinationTest : public ::testing::Test {};
 TEST_F(InputCombinationTest, ThrottleAndBrake_Conflict) {
     float throttle = 1.0f;
     float brake = 1.0f;
-    
+
     // Both inputs are valid independently
     EXPECT_FLOAT_EQ(1.0f, throttle);
     EXPECT_FLOAT_EQ(1.0f, brake);
@@ -192,7 +193,7 @@ TEST_F(InputCombinationTest, ThrottleAndBrake_Conflict) {
 TEST_F(InputCombinationTest, ThrottleAndSteering) {
     float throttle = 1.0f;
     float steering = 45.0f;
-    
+
     EXPECT_FLOAT_EQ(1.0f, throttle);
     EXPECT_FLOAT_EQ(45.0f, steering);
 }
@@ -200,7 +201,7 @@ TEST_F(InputCombinationTest, ThrottleAndSteering) {
 TEST_F(InputCombinationTest, BrakeAndSteering) {
     float brake = 1.0f;
     float steering = -45.0f;
-    
+
     EXPECT_FLOAT_EQ(1.0f, brake);
     EXPECT_FLOAT_EQ(-45.0f, steering);
 }
@@ -214,11 +215,11 @@ protected:
     float SmoothInput(float current, float target, float rate, float deltaTime) {
         float diff = target - current;
         float maxChange = rate * deltaTime;
-        
+
         if (std::abs(diff) <= maxChange) {
             return target;
         }
-        
+
         return current + (diff > 0 ? maxChange : -maxChange);
     }
 };
@@ -288,9 +289,7 @@ TEST_F(GearTest, Gear_ShiftDown) {
 
 class VelocityTest : public ::testing::Test {
 protected:
-    float CalculateSpeed(const glm::vec3& velocity) {
-        return glm::length(velocity);
-    }
+    float CalculateSpeed(const glm::vec3& velocity) { return glm::length(velocity); }
 };
 
 TEST_F(VelocityTest, Speed_Zero) {

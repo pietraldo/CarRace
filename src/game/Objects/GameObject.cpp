@@ -1,6 +1,3 @@
 #include "GameObject.h"
 
-void GameObject::Draw(Camera& activeCam)
-{
-
-}
+void GameObject::Draw(Camera& activeCam) {}

@@ -1,19 +1,18 @@
 #include "EngineSound.h"
-#include "AudioEngine.h"
 
-#include <iostream>
 #include <cmath>
 #include <glm/glm.hpp>
+#include <iostream>
 
-EngineSound::~EngineSound()
-{
+#include "AudioEngine.h"
+
+EngineSound::~EngineSound() {
     if (loaded) {
         ma_sound_uninit(&sound);
     }
 }
 
-bool EngineSound::load(const char* path)
-{
+bool EngineSound::load(const char* path) {
     if (!AudioEngine::instance().init()) {
         std::cerr << "EngineSound: AudioEngine not initialized\n";
         return false;
@@ -21,18 +20,11 @@ bool EngineSound::load(const char* path)
 
     ma_engine* eng = AudioEngine::instance().getEngine();
 
-    ma_result result = ma_sound_init_from_file(
-        eng,
-        path,
-        MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,
-        nullptr,
-        nullptr,
-        &sound
-    );
+    ma_result result =
+        ma_sound_init_from_file(eng, path, MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC, nullptr, nullptr, &sound);
 
     if (result != MA_SUCCESS) {
-        std::cerr << "EngineSound: failed to load " << path
-            << ", code = " << result << std::endl;
+        std::cerr << "EngineSound: failed to load " << path << ", code = " << result << std::endl;
         return false;
     }
 
@@ -49,33 +41,29 @@ bool EngineSound::load(const char* path)
     return true;
 }
 
-void EngineSound::start()
-{
+void EngineSound::start() {
     if (!loaded) return;
     ma_sound_start(&sound);
 }
 
-void EngineSound::stop()
-{
+void EngineSound::stop() {
     if (!loaded) return;
     ma_sound_stop(&sound);
 }
 
-void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int gear)
-{
+void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int gear) {
     if (!loaded) return;
 
     throttle = glm::clamp(throttle, 0.0f, 1.0f);
 
     float targetAudioThrottle = throttle;
 
-    const float throttleAttack = 0.35f; 
+    const float throttleAttack = 0.35f;
     const float throttleRelease = 0.08f;
 
     if (targetAudioThrottle > audioThrottle) {
         audioThrottle += (targetAudioThrottle - audioThrottle) * throttleAttack;
-    }
-    else {
+    } else {
         audioThrottle += (targetAudioThrottle - audioThrottle) * throttleRelease;
     }
 
@@ -98,8 +86,7 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
 
     if (targetRPM > rpmSmoothed) {
         rpmSmoothed += (targetRPM - rpmSmoothed) * upFactor;
-    }
-    else {
+    } else {
         rpmSmoothed += (targetRPM - rpmSmoothed) * downFactor;
     }
 
@@ -108,7 +95,7 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     float t = (clampedRPM - idleRPM) / (maxRPM - idleRPM);
     t = glm::clamp(t, 0.0f, 1.0f);
 
-    float tPitch = std::pow(t, 0.5f);  
+    float tPitch = std::pow(t, 0.5f);
     float tVol = std::pow(t, 0.75f);
 
     float basePitch = 0.9f;
@@ -142,12 +129,10 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
         if (clampedRPM <= idleRPM + 250.0f) {
             targetVolume *= 0.55f;
             targetPitch *= 0.97f;
-        }
-        else if (clampedRPM > idleRPM + 600.0f) {
+        } else if (clampedRPM > idleRPM + 600.0f) {
             targetVolume *= 0.9f;
         }
-    }
-    else if (isCoasting) {
+    } else if (isCoasting) {
         float coastFactor = glm::clamp(speed / 40.0f, 0.0f, 1.0f);
 
         targetPitch *= (1.03f + 0.12f * coastFactor);
@@ -172,8 +157,7 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     if (rpmDeltaRaw < -600.0f && audioThrottle > 0.25f) {
         targetPitch *= 0.88f;
         targetVolume *= 0.82f;
-    }
-    else if (rpmDeltaRaw > 600.0f && audioThrottle > 0.25f && speed > 5.0f) {
+    } else if (rpmDeltaRaw > 600.0f && audioThrottle > 0.25f && speed > 5.0f) {
         targetPitch *= 1.18f;
         targetVolume *= 1.25f;
     }
@@ -190,11 +174,11 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     float volFactor = volumeSmoothFactor;
     float pitchFactor = pitchSmoothFactor;
 
-    if (dv > 0.25f)  volFactor *= 2.0f;
-    if (dp > 0.30f)  pitchFactor *= 2.0f;
+    if (dv > 0.25f) volFactor *= 2.0f;
+    if (dp > 0.30f) pitchFactor *= 2.0f;
 
-    if (dv < 0.0f && throttle < 0.25f)  volFactor *= 0.4f;
-    if (dp < 0.0f && throttle < 0.25f)  pitchFactor *= 0.6f;
+    if (dv < 0.0f && throttle < 0.25f) volFactor *= 0.4f;
+    if (dp < 0.0f && throttle < 0.25f) pitchFactor *= 0.6f;
 
     volumeSmoothed += dv * volFactor;
     pitchSmoothed += dp * pitchFactor;
@@ -204,5 +188,3 @@ void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int ge
     ma_sound_set_pitch(&sound, pitchSmoothed);
     ma_sound_set_volume(&sound, volumeSmoothed);
 }
-
-
