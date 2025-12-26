@@ -112,9 +112,7 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber,
 
     const CameraControlInput &camInput =
         (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
-    // Angle in degrees. camInput.yaw is -1, 0, or 1.
-    // 90 degrees rotation when looking left/right.
-    firstPersonCamera.SetTargetYawOffset(camInput.yaw * 90.0f);
+    firstPersonCamera.SetTargetYawOffset(camInput.yaw * 50.0f);
 
     firstPersonCamera.Update(dt, carPos, carRot);
   } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
@@ -173,10 +171,14 @@ void GameEngine::DrawModels(Shader &shaderTex, Shader &shaderCol,
   const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
                                       : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
+  glm::mat4 view = Rendering::GetViewMatrix(activeCam);
+  glm::mat4 proj = Rendering::GetProjectionMatrix(activeCam);
+  glm::mat4 viewProj = proj * view;
+
   shaderTex.use();
   shaderTex.setBool("uIsMirror", false);
-  shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-  shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shaderTex.setMat4("projection", proj);
+  shaderTex.setMat4("view", view);
   shaderTex.setVec3("viewPos", activeCam.Position);
   shaderTex.setBool("fogEnabled", fog);
   shaderTex.setFloat("fogMinDist", fogMinDist);
@@ -184,7 +186,8 @@ void GameEngine::DrawModels(Shader &shaderTex, Shader &shaderCol,
   shaderTex.setVec4("fogColor", fogColor);
 
   for (Model *model : modelsTex) {
-    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(),
+                                   viewProj))
       continue;
 
     glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -204,8 +207,8 @@ void GameEngine::DrawModels(Shader &shaderTex, Shader &shaderCol,
 
   shaderCol.use();
   shaderCol.setBool("uIsMirror", false);
-  shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-  shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shaderCol.setMat4("projection", proj);
+  shaderCol.setMat4("view", view);
   shaderCol.setVec3("viewPos", activeCam.Position);
   shaderCol.setBool("fogEnabled", fog);
   shaderCol.setFloat("fogMinDist", fogMinDist);
@@ -213,7 +216,8 @@ void GameEngine::DrawModels(Shader &shaderTex, Shader &shaderCol,
   shaderCol.setVec4("fogColor", fogColor);
 
   for (Model *model : modelsCol) {
-    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius()))
+    if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(),
+                                   viewProj))
       continue;
 
     glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -237,10 +241,14 @@ void GameEngine::DrawCars(Shader &shader, Camera &activeCam) {
   const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f)
                                       : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
+  glm::mat4 view = Rendering::GetViewMatrix(activeCam);
+  glm::mat4 proj = Rendering::GetProjectionMatrix(activeCam);
+  glm::mat4 viewProj = proj * view;
+
   shader.use();
   shader.setBool("uIsMirror", false);
-  shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-  shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+  shader.setMat4("projection", proj);
+  shader.setMat4("view", view);
   shader.setVec3("viewPos", activeCam.Position);
   shader.setBool("fogEnabled", fog);
   shader.setFloat("fogMinDist", fogMinDist);
@@ -253,7 +261,7 @@ void GameEngine::DrawCars(Shader &shader, Camera &activeCam) {
       continue;
 
     if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(),
-                                  car->GetBody()->GetRadius())) {
+                                  car->GetBody()->GetRadius(), viewProj)) {
       car->Draw(shader);
     }
   }
@@ -716,7 +724,7 @@ void GameEngine::DrawSkybox(Camera &activeCam) {
 
   glDepthFunc(GL_LEQUAL);
   skyboxShader->use();
-  glm::mat4 view = glm::mat4(glm::mat3(activeCam.GetViewMatrix()));
+  glm::mat4 view = glm::mat4(glm::mat3(Rendering::GetViewMatrix(activeCam)));
   glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
 
   skyboxShader->setMat4("view", view);

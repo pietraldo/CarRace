@@ -56,6 +56,7 @@ public:
   float fogMaxDist = 150.0f;
   bool userFlashlight = false;
   bool headlightsOn = true;
+  bool renderMirrors = true;
 
   LightSpot *flashlight;
   std::vector<LightSpot *> headlightLeft{

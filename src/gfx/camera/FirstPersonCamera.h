@@ -66,6 +66,7 @@ public:
   }
 
   void SetTargetYawOffset(float offset) { targetYawOffset = offset; }
+  float GetCurrentYawOffset() const { return currentYawOffset; }
 
   void SetLocalOffset(const glm::vec3 &off) { localOffset = off; }
   glm::vec3 GetLocalOffset() const { return localOffset; }
