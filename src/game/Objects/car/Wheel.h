@@ -1,12 +1,14 @@
 #pragma once
-#include <memory>
-#include <glm/glm.hpp>
 #include <gfx/Model.h>
+
+#include <glm/glm.hpp>
+#include <memory>
 
 enum class WheelPos { FrontLeft, FrontRight, RearLeft, RearRight };
 
 class Wheel {
     friend class Car;
+
 public:
     Wheel(std::shared_ptr<Model> wheelModel, WheelPos p);
 
@@ -23,5 +25,4 @@ private:
     void SetSteer(float steerDeg);
     void SetSpin(float spinAngleRadians);
     std::shared_ptr<Model> model;
-
 };

@@ -1,11 +1,10 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <string>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "Shader.h"
 
@@ -28,28 +27,21 @@ struct Texture {
     string path;
 };
 
-enum class MirrorSide
-{
-    Left,
-    Right
-};
+enum class MirrorSide { Left, Right };
 
 class Mesh {
 public:
-    vector<Vertex>       vertices;
+    vector<Vertex> vertices;
     vector<unsigned int> indices;
-    vector<Texture>      textures;
+    vector<Texture> textures;
     std::string name;
     bool isMirror = false;
     MirrorSide mirrorSide;
 
-    Mesh(vector<Vertex> vertices,
-        vector<unsigned int> indices,
-        vector<Texture> textures,
-        const std::string& name = "");
-    
+    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, const std::string& name = "");
+
     void Draw(Shader& shader);
-    
+
     static void ResetTextureCache();
 
 private:

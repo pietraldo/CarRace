@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
+
+#include "../test_utils/test_helpers.h"
 #include "gfx/lights/Light.h"
 #include "gfx/lights/LightDirectional.h"
 #include "gfx/lights/LightPoint.h"
 #include "gfx/lights/LightSpot.h"
-#include "../test_utils/test_helpers.h"
 
 // ============================================================================
 // Light Structures Tests
@@ -22,7 +23,7 @@ TEST_F(LightStructuresTest, DirLight_StructureSize) {
     light.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
     light.specular = glm::vec3(1.0f, 1.0f, 1.0f);
     light.color = glm::vec3(1.0f, 1.0f, 1.0f);
-    
+
     EXPECT_VEC3_EQ(glm::vec3(0.0f, -1.0f, 0.0f), light.direction);
     EXPECT_VEC3_EQ(glm::vec3(0.1f, 0.1f, 0.1f), light.ambient);
 }
@@ -37,7 +38,7 @@ TEST_F(LightStructuresTest, PointLight_StructureInitialization) {
     light.constant = 1.0f;
     light.linear = 0.09f;
     light.quadratic = 0.032f;
-    
+
     EXPECT_VEC3_EQ(glm::vec3(1.0f, 2.0f, 3.0f), light.position);
     EXPECT_FLOAT_EQ(1.0f, light.constant);
     EXPECT_FLOAT_EQ(0.09f, light.linear);
@@ -57,7 +58,7 @@ TEST_F(LightStructuresTest, SpotLight_StructureInitialization) {
     light.constant = 1.0f;
     light.linear = 0.09f;
     light.quadratic = 0.032f;
-    
+
     EXPECT_VEC3_EQ(glm::vec3(0.0f, 5.0f, 0.0f), light.position);
     EXPECT_VEC3_EQ(glm::vec3(0.0f, -1.0f, 0.0f), light.direction);
     EXPECT_FLOAT_EQ(12.5f, light.cutOff);
@@ -69,7 +70,7 @@ TEST_F(LightStructuresTest, LightBuffer_Initialization) {
     buffer.NR_DIR_LIGHTS = 1;
     buffer.NR_POINT_LIGHTS = 4;
     buffer.NR_SPOT_LIGHTS = 2;
-    
+
     EXPECT_EQ(1, buffer.NR_DIR_LIGHTS);
     EXPECT_EQ(4, buffer.NR_POINT_LIGHTS);
     EXPECT_EQ(2, buffer.NR_SPOT_LIGHTS);
@@ -77,20 +78,20 @@ TEST_F(LightStructuresTest, LightBuffer_Initialization) {
 
 TEST_F(LightStructuresTest, LightBuffer_MaxLimits) {
     LightBuffer buffer;
-    
+
     // Test that we can access all array elements
     for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
         buffer.dirLights[i].color = glm::vec3(1.0f, 1.0f, 1.0f);
     }
-    
+
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         buffer.pointLights[i].color = glm::vec3(1.0f, 1.0f, 1.0f);
     }
-    
+
     for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
         buffer.spotLights[i].color = glm::vec3(1.0f, 1.0f, 1.0f);
     }
-    
+
     // If we got here without crashing, the arrays are properly sized
     SUCCEED();
 }
@@ -162,7 +163,7 @@ TEST_F(PointLightAttenuationTest, Attenuation_DecreaseWithDistance) {
     float att1 = CalculateAttenuation(10.0f, 1.0f, 0.09f, 0.032f);
     float att2 = CalculateAttenuation(20.0f, 1.0f, 0.09f, 0.032f);
     float att3 = CalculateAttenuation(30.0f, 1.0f, 0.09f, 0.032f);
-    
+
     // Attenuation should decrease as distance increases
     EXPECT_GT(att1, att2);
     EXPECT_GT(att2, att3);
@@ -190,7 +191,7 @@ TEST_F(SpotLightCutoffTest, Intensity_InsideCutoff) {
     float theta = 10.0f;
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity = CalculateSpotIntensity(theta, cutOff, outerCutOff);
     EXPECT_FLOAT_EQ(1.0f, intensity);
 }
@@ -199,7 +200,7 @@ TEST_F(SpotLightCutoffTest, Intensity_OutsideCutoff) {
     float theta = 20.0f;
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity = CalculateSpotIntensity(theta, cutOff, outerCutOff);
     EXPECT_FLOAT_EQ(0.0f, intensity);
 }
@@ -208,7 +209,7 @@ TEST_F(SpotLightCutoffTest, Intensity_AtCutoff) {
     float theta = 12.5f;
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity = CalculateSpotIntensity(theta, cutOff, outerCutOff);
     EXPECT_FLOAT_EQ(1.0f, intensity);
 }
@@ -217,7 +218,7 @@ TEST_F(SpotLightCutoffTest, Intensity_AtOuterCutoff) {
     float theta = 17.5f;
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity = CalculateSpotIntensity(theta, cutOff, outerCutOff);
     EXPECT_FLOAT_EQ(0.0f, intensity);
 }
@@ -226,7 +227,7 @@ TEST_F(SpotLightCutoffTest, Intensity_MidRange) {
     float theta = 15.0f;
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity = CalculateSpotIntensity(theta, cutOff, outerCutOff);
     EXPECT_GT(intensity, 0.0f);
     EXPECT_LT(intensity, 1.0f);
@@ -235,11 +236,11 @@ TEST_F(SpotLightCutoffTest, Intensity_MidRange) {
 TEST_F(SpotLightCutoffTest, Intensity_SmoothTransition) {
     float cutOff = 12.5f;
     float outerCutOff = 17.5f;
-    
+
     float intensity1 = CalculateSpotIntensity(13.0f, cutOff, outerCutOff);
     float intensity2 = CalculateSpotIntensity(14.0f, cutOff, outerCutOff);
     float intensity3 = CalculateSpotIntensity(15.0f, cutOff, outerCutOff);
-    
+
     // Intensity should decrease smoothly
     EXPECT_GT(intensity1, intensity2);
     EXPECT_GT(intensity2, intensity3);
@@ -290,7 +291,7 @@ class DirectionalLightTest : public ::testing::Test {};
 TEST_F(DirectionalLightTest, Direction_Normalized) {
     glm::vec3 direction(1.0f, -1.0f, 0.0f);
     glm::vec3 normalized = glm::normalize(direction);
-    
+
     float length = glm::length(normalized);
     EXPECT_NEAR(length, 1.0f, TestHelpers::FLOAT_EPSILON);
 }
@@ -303,7 +304,7 @@ TEST_F(DirectionalLightTest, Direction_Downward) {
 TEST_F(DirectionalLightTest, Direction_Diagonal) {
     glm::vec3 direction(1.0f, -1.0f, 1.0f);
     glm::vec3 normalized = glm::normalize(direction);
-    
+
     // All components should have equal magnitude
     EXPECT_NEAR(std::abs(normalized.x), std::abs(normalized.y), TestHelpers::FLOAT_EPSILON);
     EXPECT_NEAR(std::abs(normalized.y), std::abs(normalized.z), TestHelpers::FLOAT_EPSILON);
@@ -317,21 +318,21 @@ class LightIntensityTest : public ::testing::Test {};
 
 TEST_F(LightIntensityTest, Ambient_LowIntensity) {
     glm::vec3 ambient(0.1f, 0.1f, 0.1f);
-    
+
     EXPECT_GT(ambient.x, 0.0f);
     EXPECT_LT(ambient.x, 0.5f);
 }
 
 TEST_F(LightIntensityTest, Diffuse_MediumIntensity) {
     glm::vec3 diffuse(0.5f, 0.5f, 0.5f);
-    
+
     EXPECT_GT(diffuse.x, 0.0f);
     EXPECT_LT(diffuse.x, 1.0f);
 }
 
 TEST_F(LightIntensityTest, Specular_HighIntensity) {
     glm::vec3 specular(1.0f, 1.0f, 1.0f);
-    
+
     EXPECT_FLOAT_EQ(specular.x, 1.0f);
     EXPECT_FLOAT_EQ(specular.y, 1.0f);
     EXPECT_FLOAT_EQ(specular.z, 1.0f);

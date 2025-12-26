@@ -24,13 +24,12 @@
 //
 // Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #pragma once
 
-#include "vehicle2/PxVehicleAPI.h"
-
 #include "../enginedrivetrain/EngineDrivetrain.h"
+#include "vehicle2/PxVehicleAPI.h"
 
 #if PX_SWITCH
 #pragma clang diagnostic push
@@ -50,39 +49,48 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace snippetvehicle
-{
+namespace snippetvehicle {
 
 using namespace physx;
 using namespace physx::vehicle2;
 
 bool readAutoboxParams(const rapidjson::Document& config, PxVehicleAutoboxParams& autoboxParams);
-bool writeAutoboxParams(const PxVehicleAutoboxParams& autoboxParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeAutoboxParams(const PxVehicleAutoboxParams& autoboxParams,
+                        rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
-bool readClutchCommandResponseParams(const rapidjson::Document& config, PxVehicleClutchCommandResponseParams& clutchCommandResponseParams);
-bool writeClutchCommandResponseParams(const PxVehicleClutchCommandResponseParams& clutchCommandResponseParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool readClutchCommandResponseParams(const rapidjson::Document& config,
+                                     PxVehicleClutchCommandResponseParams& clutchCommandResponseParams);
+bool writeClutchCommandResponseParams(const PxVehicleClutchCommandResponseParams& clutchCommandResponseParams,
+                                      rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool readEngineParams(const rapidjson::Document& config, PxVehicleEngineParams& engineParams);
-bool writeEngineParams(const PxVehicleEngineParams& engineParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeEngineParams(const PxVehicleEngineParams& engineParams,
+                       rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool readGearboxParams(const rapidjson::Document& config, PxVehicleGearboxParams& gearboxParams);
-bool writeGearboxParams(const PxVehicleGearboxParams& gearboxParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeGearboxParams(const PxVehicleGearboxParams& gearboxParams,
+                        rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
-bool readFourWheelDifferentialParams(const rapidjson::Document& config, PxVehicleFourWheelDriveDifferentialParams& fourWheelDifferentialParams);
-bool writeFourWheelDifferentialParams(const PxVehicleFourWheelDriveDifferentialParams& fourWheelDifferentialParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool readFourWheelDifferentialParams(const rapidjson::Document& config,
+                                     PxVehicleFourWheelDriveDifferentialParams& fourWheelDifferentialParams);
+bool writeFourWheelDifferentialParams(const PxVehicleFourWheelDriveDifferentialParams& fourWheelDifferentialParams,
+                                      rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
-bool readMultiWheelDifferentialParams(const rapidjson::Document& config, PxVehicleMultiWheelDriveDifferentialParams& multiWheelDifferentialParams);
-bool writeMultiWheelDifferentialParams(const PxVehicleMultiWheelDriveDifferentialParams& multiWheelDifferentialParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool readMultiWheelDifferentialParams(const rapidjson::Document& config,
+                                      PxVehicleMultiWheelDriveDifferentialParams& multiWheelDifferentialParams);
+bool writeMultiWheelDifferentialParams(const PxVehicleMultiWheelDriveDifferentialParams& multiWheelDifferentialParams,
+                                       rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
-bool readTankDifferentialParams(const rapidjson::Document& config, PxVehicleTankDriveDifferentialParams& tankDifferentialParams);
-bool writeTankDifferentialParams(const PxVehicleTankDriveDifferentialParams& tankDifferentialParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool readTankDifferentialParams(const rapidjson::Document& config,
+                                PxVehicleTankDriveDifferentialParams& tankDifferentialParams);
+bool writeTankDifferentialParams(const PxVehicleTankDriveDifferentialParams& tankDifferentialParams,
+                                 rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool reaClutchParams(const rapidjson::Document& config, PxVehicleClutchParams& clutchParams);
-bool writeClutchParams(const PxVehicleClutchParams& clutchParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
+bool writeClutchParams(const PxVehicleClutchParams& clutchParams,
+                       rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
-bool readEngineDrivetrainParamsFromJsonFile(const char* directory, const char* filename,
-	EngineDrivetrainParams&);
-bool writeEngineDrivetrainParamsToJsonFile(const char* directory, const char* filename,
-	const EngineDrivetrainParams&);
+bool readEngineDrivetrainParamsFromJsonFile(const char* directory, const char* filename, EngineDrivetrainParams&);
+bool writeEngineDrivetrainParamsToJsonFile(const char* directory, const char* filename, const EngineDrivetrainParams&);
 
-}//namespace snippetvehicle
+}  // namespace snippetvehicle

@@ -1,34 +1,31 @@
 #pragma once
 
-#include "stb_image.h"
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
-#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "imgui.h"
+#include "../game/GameEngine.h"
+#include "../game/Objects/GameObject.h"
+#include "../game/terrain.h"
+#include "../ui/Input/KeyboardController.h"
+#include "./camera/Camera.h"
+#include "./camera/CameraManager.h"
+#include "Cube.h"
+#include "Shader.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-
-
-#include "Shader.h"
-#include "./camera/Camera.h"
-#include "Cube.h"
-#include "../game/Objects/GameObject.h"
+#include "imgui.h"
 #include "lights/Light.h"
-#include "../game/GameEngine.h"
-#include "./camera/CameraManager.h"
-#include "../ui/Input/KeyboardController.h"
-#include "../game/terrain.h"
+#include "stb_image.h"
 
 class GameEngine;
 class Mirrors;
 
-class Rendering
-{
+class Rendering {
 public:
     static int window_width;
     static int window_height;
@@ -46,7 +43,8 @@ public:
 
     static bool showBoxColliders;
 
-    static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;;
+    static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;
+    ;
 
     // camera moving
     static bool firstMouse;
@@ -61,7 +59,7 @@ public:
     static glm::mat4 GetProjectionMatrix(Camera& camera);
     static glm::mat4 GetViewMatrix(Camera& camera);
     static void RenderFrame(std::vector<GameObject*> gameObjects);
-    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects,Camera& activeCam);
+    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam);
 
     static void SetExternalView(const glm::mat4& view);
     static void SetExternalProj(const glm::mat4& proj);
@@ -70,7 +68,6 @@ public:
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
-
 
     // texture
     static int texWidth;
@@ -86,6 +83,4 @@ private:
     static glm::mat4 externalView;
     static bool useExternalProj;
     static glm::mat4 externalProj;
-
 };
-

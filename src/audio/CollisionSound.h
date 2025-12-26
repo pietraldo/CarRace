@@ -1,10 +1,10 @@
 #pragma once
 
-#include "miniaudio.h"
 #include <string>
 
-class CollisionSound
-{
+#include "miniaudio.h"
+
+class CollisionSound {
 public:
     CollisionSound();
     ~CollisionSound();

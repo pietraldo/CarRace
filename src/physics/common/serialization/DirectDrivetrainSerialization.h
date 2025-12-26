@@ -24,13 +24,12 @@
 //
 // Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #pragma once
 
-#include "vehicle2/PxVehicleAPI.h"
-
 #include "../directdrivetrain/DirectDrivetrain.h"
+#include "vehicle2/PxVehicleAPI.h"
 
 #if PX_SWITCH
 #pragma clang diagnostic push
@@ -50,25 +49,23 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace snippetvehicle
-{
+namespace snippetvehicle {
 
 using namespace physx;
 using namespace physx::vehicle2;
 
-bool readThrottleResponseParams
-(const rapidjson::Document& config, const PxVehicleAxleDescription& axleDesc,
-	PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams);
+bool readThrottleResponseParams(const rapidjson::Document& config, const PxVehicleAxleDescription& axleDesc,
+                                PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams);
 
-bool writeThrottleResponseParams
-(const PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams, const PxVehicleAxleDescription& axleDesc,
-	rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
-
+bool writeThrottleResponseParams(const PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams,
+                                 const PxVehicleAxleDescription& axleDesc,
+                                 rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);
 
 bool readDirectDrivetrainParamsFromJsonFile(const char* directory, const char* filename,
-	const PxVehicleAxleDescription& axleDescription, DirectDrivetrainParams&);
+                                            const PxVehicleAxleDescription& axleDescription, DirectDrivetrainParams&);
 
 bool writeDirectDrivetrainParamsToJsonFile(const char* directory, const char* filename,
-	const PxVehicleAxleDescription& axleDescription, const DirectDrivetrainParams&);
+                                           const PxVehicleAxleDescription& axleDescription,
+                                           const DirectDrivetrainParams&);
 
-}//namespace snippetvehicle
+}  // namespace snippetvehicle

@@ -7,36 +7,32 @@ void InputManager::setUp() {
     auto* keyboard0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
     auto* keyboard1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
 
-    if (controller->connect())
-    {
-        InputManager::getInstance().setInputController1(controller);  
-        InputManager::getInstance().setInputController2(keyboard0);  
+    if (controller->connect()) {
+        InputManager::getInstance().setInputController1(controller);
+        InputManager::getInstance().setInputController2(keyboard0);
 
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Controller connected. Player0: pad, Player1: keyboard" << std::endl;
-    }
-    else
-    {
-        InputManager::getInstance().setInputController1(keyboard0);   
-        InputManager::getInstance().setInputController2(keyboard1);   // Player1
+    } else {
+        InputManager::getInstance().setInputController1(keyboard0);
+        InputManager::getInstance().setInputController2(keyboard1);  // Player1
 
-        currentInputType = KEYBOARD_AND_KEYBOARD; 
+        currentInputType = KEYBOARD_AND_KEYBOARD;
         std::cout << "Controller not connected. Player0: keyboard0, Player1: keyboard1" << std::endl;
     }
-	//TODO: add if we want to use only controller or only keyboard
+    // TODO: add if we want to use only controller or only keyboard
 }
 
 InputData InputManager::getInputData() {
     InputData inputData;
 
-	// only keyboard: 1 plaeyer
+    // only keyboard: 1 plaeyer
     if (currentInputType == KEYBOARD) {
         inputController0->updateInput();
 
         inputData.carControl0 = inputController0->getCarControlInput();
         inputData.cameraControl0 = inputController0->getCameraControlInput();
         inputData.additionalInfo = inputController0->getAdditionalInputInfo();
-
     }
 
     // controler + keyboard : 2 palyer:
@@ -56,13 +52,13 @@ InputData InputManager::getInputData() {
         inputData.additionalInfo = inputController1->getAdditionalInputInfo();
     }
 
-	// only keyboard: 2 players
+    // only keyboard: 2 players
     if (currentInputType == KEYBOARD_AND_KEYBOARD) {
         inputController0->updateInput();
         inputController1->updateInput();
 
         inputData.carControl0 = inputController0->getCarControlInput();
-        //inputData.cameraControl0 = inputController0->getCameraControlInput();
+        // inputData.cameraControl0 = inputController0->getCameraControlInput();
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();

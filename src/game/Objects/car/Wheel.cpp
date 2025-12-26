@@ -1,27 +1,23 @@
 #include "Wheel.h"
+
 #include <cmath>
 
-
 Wheel::Wheel(std::shared_ptr<Model> wheelModel, WheelPos p)
-    : model(std::move(wheelModel)), pos(p), currentSteerDeg(0.0f), currentSpinRad(0.0f)
-{
+    : model(std::move(wheelModel)), pos(p), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
     model->SetRotation(physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-void Wheel::SetSteer(float steerDeg)
-{
+void Wheel::SetSteer(float steerDeg) {
     currentSteerDeg = steerDeg;
     UpdateWheelRotation();
 }
 
-void Wheel::SetSpin(float spinAngleRaians)
-{
+void Wheel::SetSpin(float spinAngleRaians) {
     currentSpinRad = spinAngleRaians;
     UpdateWheelRotation();
 }
 
-void Wheel::UpdateWheelRotation()
-{
+void Wheel::UpdateWheelRotation() {
     float steerRad = glm::radians(currentSteerDeg);
     float spinRad = currentSpinRad;
 
@@ -36,7 +32,7 @@ void Wheel::UpdateWheelRotation()
     glm::quat qFix(1.0f, 0.0f, 0.0f, 0.0f);
 
     qFix = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0));
-    glm::quat finalRot = qFlip * qSteer * qSpin *qFix;
+    glm::quat finalRot = qFlip * qSteer * qSpin * qFix;
     finalRot = glm::normalize(finalRot);
 
     physx::PxQuat pxQuat(finalRot.x, finalRot.y, finalRot.z, finalRot.w);
