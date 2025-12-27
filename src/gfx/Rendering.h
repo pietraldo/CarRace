@@ -1,6 +1,7 @@
 #pragma once
+
 #include <glad/glad.h>
-#include "stb_image.h"
+#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,37 +21,56 @@
 #include "./camera/CameraManager.h"
 #include "Cube.h"
 #include "Shader.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "stb_image.h"
+#include "imgui.h"
 #include "lights/Light.h"
+#include "Texture.h"
+
 
 class GameEngine;
 class Mirrors;
 
 class Rendering {
 public:
+
+    static GameEngine* gameEngine;
+    static bool showBoxColliders;
+
+    // window
+    static GLFWwindow* window;
     static int window_width;
     static int window_height;
 
-    static GameEngine* gameEngine;
-    static GLFWwindow* window;
-
-    static unsigned CubeVAO;
-    static unsigned int uboLights;
-    static unsigned int lightVAO;
+    // shaders
     static Shader* colorShader;
     static Shader* lightShader;
     static Shader* texturedShader;
     static Shader* terrainShader;
+    static Shader* overlayShader;
 
-    static bool showBoxColliders;
-
-    static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;
-    ;
+    // buffers
+    static unsigned VAO_cube, VBO_cube;
+    static unsigned int VBO_terrain, VAO_terrain, EBO_terrain;
+    static unsigned int VAO_light, UBO_lights;
+    static unsigned int VAO_loading, VBO_loading;
+    
+    // textures
+    static TextureFields terrainTexture;
+    static TextureFields introTexture;
 
     // camera moving
     static bool firstMouse;
 
-    static int Initialize();
-    static GLFWwindow* CreateGLFWWindow(int width, int height, const char* title);
+    // methods
+    static int InitializeLoading();
+    static int InitializeRest();
+
+    static void LoadTextures();
+    static void LoadShaders();
+    static void LoadBuffers();
+    static bool CreateGLFWWindow(int width, int height, const char* title);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -59,6 +79,7 @@ public:
     static glm::mat4 GetProjectionMatrix(Camera& camera);
     static glm::mat4 GetViewMatrix(Camera& camera);
     static void RenderFrame(std::vector<GameObject*> gameObjects);
+    static void RenderLoadingScreen(float progress);
     static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam);
 
     static void SetExternalView(const glm::mat4& view);
@@ -69,12 +90,7 @@ public:
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, Camera& cam);
 
-    // texture
-    static int texWidth;
-    static int texHeight;
-    static unsigned char* textureData;
-    static int nbChannels;
-    static unsigned int textureID;
+
 
 private:
     static Mirrors player1Mirrors;

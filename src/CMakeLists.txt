@@ -87,6 +87,7 @@ copy_assets(models)
 copy_assets(vehicledata)
 copy_assets(audio)
 copy_assets(backgroundTextures)
+copy_assets(animation)
 
 # Force copy backgroundTextures using POST_BUILD to ensure it ends up in the output directory
 add_custom_command(TARGET carrace POST_BUILD

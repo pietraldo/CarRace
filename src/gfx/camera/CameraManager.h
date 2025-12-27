@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../../ui/Input/InputStructures.h"
+#include "./AnimationCamera.h"
 #include "./Camera.h"
 #include "./FirstPersonCamera.h"
 #include "./FollowingCarCamera.h"
@@ -11,13 +12,15 @@
 #include "./ObservingCamera.h"
 #include "PlayerCameraSet.h"
 
-enum class ViewMode { SINGLE_SCREEN, SPLIT_SCREEN, EDIT_SCREEN };
+enum class ViewMode { SINGLE_SCREEN, SPLIT_SCREEN, EDIT_SCREEN, INTRO_SCREEN };
 
 class CameraManager {
 private:
     static CameraManager* instance;
 
     std::unique_ptr<Camera> freeCamera = std::make_unique<FreeCamera>(glm::vec3(305.0f, 30.0f, 0.0f));
+    std::unique_ptr<Camera> animationCamera = std::make_unique<AnimationCamera>(glm::vec3(305.0f, 60.0f, 0.0f));
+
     PlayerCameraSet playersCamera[2];
     ViewMode viewMode = ViewMode::EDIT_SCREEN;
 
@@ -41,8 +44,16 @@ public:
 
     void MoveFreeCameraToPosition(glm::vec3 position);
 
-    void SetViewMode(ViewMode mode) { viewMode = mode; }
+    void SetViewMode(ViewMode mode) {
+        viewMode = mode;
+        if (viewMode == ViewMode::INTRO_SCREEN) {
+            GetAnimationCamera().Reset();
+        } else {
+            GetAnimationCamera().Stop();
+        }
+    }
 
     ViewMode GetViewMode() const { return viewMode; }
     FreeCamera& GetFreeCamera() { return dynamic_cast<FreeCamera&>(*freeCamera); }
+    AnimationCamera& GetAnimationCamera() { return dynamic_cast<AnimationCamera&>(*animationCamera); }
 };

@@ -3,7 +3,7 @@
 CameraManager* CameraManager::instance = nullptr;
 
 void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber) {
-    if (viewMode == ViewMode::EDIT_SCREEN) {
+    if (viewMode == ViewMode::EDIT_SCREEN || viewMode == ViewMode::INTRO_SCREEN) {
         return;
     }
 
@@ -13,6 +13,9 @@ void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber) {
 Camera& CameraManager::GetPlayerActiveCamera(int playerNumber) {
     if (viewMode == ViewMode::EDIT_SCREEN) {
         return GetFreeCamera();
+    }
+    if (viewMode == ViewMode::INTRO_SCREEN) {
+        return GetAnimationCamera();
     }
 
     return playersCamera[playerNumber].GetActiveCamera();

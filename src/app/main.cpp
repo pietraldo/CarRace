@@ -28,6 +28,7 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
+#include "game/Settings.h"
 
 // include physx
 #include <PxPhysicsAPI.h>
@@ -41,9 +42,12 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 GameEngine* gameEngine = nullptr;
-bool startSimulation = false;
 
 int main() {
+
+    Rendering::InitializeLoading();
+    Rendering::RenderLoadingScreen(0);
+
     gameEngine = new GameEngine();
 
     Physics::getInstance()->initialize(gameEngine);
@@ -56,7 +60,7 @@ int main() {
     LightBuffer lightBuffer = gameEngine->LoadLights();
     AudioEngine::instance().init();
 
-    if (Rendering::Initialize() == -1) return -1;
+    if (Rendering::InitializeRest() == -1) return -1;
 
     InputManager::getInstance().setUp();
 
@@ -65,6 +69,10 @@ int main() {
     gameEngine->CreateModels();
 
     Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
+
+    if (Settings::Get().playIntroAnimation) {
+        CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
+    }
 
     bool continueGame = true;
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
@@ -78,13 +86,13 @@ int main() {
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
-        startSimulation = startSimulation || input.additionalInfo.startSimulation;
+       
 
         if (input.additionalInfo.resetCars) {
             Physics::getInstance()->getVehicles()[0]->resetCar();
         }
 
-        if (startSimulation) {
+        if (gameEngine->IsSimulationStarted()) {
             Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
         }
         gameEngine->Update(input, deltaTime);

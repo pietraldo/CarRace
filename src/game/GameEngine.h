@@ -52,6 +52,8 @@ private:
     Terrain* terrain;
 
     std::vector<PlayerStatus> playersStatus;
+    bool startSimulation = false;
+
 
 public:
     vector<Model*> modelsTex;
@@ -70,6 +72,9 @@ public:
     glm::vec3 originlDirection;
 
     CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
+
+    void StartSimulation() { startSimulation = true; }
+    bool IsSimulationStarted() const { return startSimulation; }
 
     // Skybox
     unsigned int skyboxVAO, skyboxVBO;

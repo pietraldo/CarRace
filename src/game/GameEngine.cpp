@@ -121,10 +121,22 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
         UpdatePlayerCamera(dt, 0, input);
         UpdatePlayerCamera(dt, 1, input);
     }
+    if (activeViewMode == ViewMode::INTRO_SCREEN) {
+        AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
+        animationCamera.Update(dt);
+        if (animationCamera.GetAnimation().HasEnded()) {
+            CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+            StartSimulation();
+        }
+    }
 }
 
 void GameEngine::Update(InputData input, float deltaTime) {
+    if (input.additionalInfo.startSimulation) {
+        StartSimulation();
+    }
     UpdatePlayersCamera(deltaTime, input);
+
     UpdateCars(input, deltaTime);
     UpdateHeadlights();
 
@@ -242,7 +254,7 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
     shader.setVec3("objectColor", terrain->color);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
+    glBindTexture(GL_TEXTURE_2D, Rendering::terrainTexture.textureID);
     glBindVertexArray(sphereVAO);
     glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
 }
