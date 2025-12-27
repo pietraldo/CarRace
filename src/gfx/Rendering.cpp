@@ -302,7 +302,10 @@ void Rendering::RenderImGui() {
         }else if (currentMode == ViewMode::INTRO_SCREEN) {
             ImGui::Text("Intro screen");
 
-            
+            if (ImGui::Button("Reset")) {
+                AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
+                animCam.Reset();
+            }
         }
         if (ImGui::Button("Move car here")) {
             glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;

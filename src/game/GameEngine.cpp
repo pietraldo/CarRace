@@ -115,6 +115,10 @@ void GameEngine::UpdatePlayersCamera(float dt) {
         UpdatePlayerCamera(dt, 0);
         UpdatePlayerCamera(dt, 1);
     }
+    if (activeViewMode == ViewMode::INTRO_SCREEN) {
+        AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
+        animationCamera.Update(dt);
+    }
 }
 
 void GameEngine::Update(InputData input, float deltaTime) {
