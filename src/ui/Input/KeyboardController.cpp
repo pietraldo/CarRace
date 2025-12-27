@@ -3,6 +3,8 @@
 float KeyboardController::deltaMouseX = 0.0f;
 float KeyboardController::deltataMouseY = 0.0f;
 float KeyboardController::zoomOffset = 0.0f;
+double KeyboardController::lastMouseX = 0.0;
+double KeyboardController::lastMouseY = 0.0;
 
 void KeyboardController::mouseCallback(float addToDeltaMouseX, float addToDeltaMouseY) {
     deltaMouseX = addToDeltaMouseX;
@@ -57,14 +59,12 @@ CameraControlInput KeyboardController::getCameraControlInput() {
     if (isKeyPressed(GLFW_KEY_J)) input.moveRight = -1;
     if (isKeyPressed(GLFW_KEY_L)) input.moveRight = 1;
 
-    if (playerIndex == PlayerIndex::Player1)  
-    {
+    if (playerIndex == PlayerIndex::Player1) {
         if (isKeyPressed(GLFW_KEY_1))
-            input.yaw = 1.0f;  
+            input.yaw = 1.0f;
         else if (isKeyPressed(GLFW_KEY_2))
             input.yaw = -1.0f;
-    } else if (playerIndex == PlayerIndex::Player0)
-    {
+    } else if (playerIndex == PlayerIndex::Player0) {
         if (isKeyPressed(GLFW_KEY_9))
             input.yaw = 1.0f;
         else if (isKeyPressed(GLFW_KEY_0))
@@ -73,16 +73,20 @@ CameraControlInput KeyboardController::getCameraControlInput() {
 
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
-    if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
+        if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        float deltaX = static_cast<float>(mouseX - lastMouseX);
-        float deltaY = static_cast<float>(mouseY - lastMouseY);
+            float deltaX = static_cast<float>(mouseX - lastMouseX);
+            float deltaY = static_cast<float>(mouseY - lastMouseY);
 
-        if (input.yaw == 0.0f) {
-            input.yaw = deltaX;
+            if (input.yaw == 0.0f) {
+                input.yaw = deltaX;
+            }
+            input.pitch = -deltaY;
+        } else {
+            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
-        input.pitch = -deltaY;
     } else {
         glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }

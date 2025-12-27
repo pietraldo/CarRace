@@ -83,7 +83,7 @@ int main() {
 
         InputData input = InputManager::getInstance().getInputData();
 
-        CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
+        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
         startSimulation = startSimulation || input.additionalInfo.startSimulation;
 

@@ -30,6 +30,6 @@ private:
     static float deltataMouseY;
     static float zoomOffset;
 
-    double lastMouseX = 0.0;
-    double lastMouseY = 0.0;
+    static double lastMouseX;
+    static double lastMouseY;
 };
