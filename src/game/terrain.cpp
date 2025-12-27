@@ -152,7 +152,7 @@ vector<float> Terrain::CreateVerticesAndIndices() {
             float u4 = (float)(j + 1) / (cols - 1);
             float v4 = (float)(i + 1) / (rows - 1);
 
-            if (roadMark[i][j] != 1) {
+            if (roadMark[i][j] == 5) {
                 u1 = 0.631;
                 v1 = 1;
                 u2 = 0.752;

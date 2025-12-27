@@ -8,6 +8,8 @@ struct Settings {
 
     bool useDifferentMaterialsForTerrain = true;
     bool autoReturningToTrack = false;
+    
+    bool playIntroAnimation = true;
 
     static Settings& Get() {
         static Settings instance;

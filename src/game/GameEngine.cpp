@@ -118,10 +118,17 @@ void GameEngine::UpdatePlayersCamera(float dt) {
     if (activeViewMode == ViewMode::INTRO_SCREEN) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
         animationCamera.Update(dt);
+        if (animationCamera.GetAnimation().HasEnded()) {
+            CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+            StartSimulation();
+        }
     }
 }
 
 void GameEngine::Update(InputData input, float deltaTime) {
+    if (input.additionalInfo.startSimulation) {
+        StartSimulation();
+    }
     UpdatePlayersCamera(deltaTime);
     UpdateCars(input, deltaTime);
     UpdateHeadlights();
