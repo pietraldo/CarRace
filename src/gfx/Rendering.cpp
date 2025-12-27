@@ -210,6 +210,10 @@ void Rendering::RenderImGui() {
         if (ImGui::RadioButton("Edit (free camera)", currentMode == ViewMode::EDIT_SCREEN)) {
             cameraManager->SetViewMode(ViewMode::EDIT_SCREEN);
         }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Intro view", currentMode == ViewMode::INTRO_SCREEN)) {
+            cameraManager->SetViewMode(ViewMode::INTRO_SCREEN);
+        }
 
         ImGui::Separator();
 
@@ -295,6 +299,10 @@ void Rendering::RenderImGui() {
                 glm::vec3 position = PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
                 CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
             }
+        }else if (currentMode == ViewMode::INTRO_SCREEN) {
+            ImGui::Text("Intro screen");
+
+            
         }
         if (ImGui::Button("Move car here")) {
             glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
@@ -497,6 +505,10 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(gameObjects, activePlayer1Cam);
+    } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
+        Camera& introCam = cameraManager->GetAnimationCamera();
+        glViewport(0, 0, window_width, window_height);
+        RenderSceneCommon(gameObjects, introCam);
     }
 
     RenderImGui();
