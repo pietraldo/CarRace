@@ -44,6 +44,10 @@ GameEngine* gameEngine = nullptr;
 bool startSimulation = false;
 
 int main() {
+
+    Rendering::InitializeLoading();
+    Rendering::RenderLoadingScreen(0);
+
     gameEngine = new GameEngine();
 
     Physics::getInstance()->initialize(gameEngine);
@@ -56,7 +60,7 @@ int main() {
     LightBuffer lightBuffer = gameEngine->LoadLights();
     AudioEngine::instance().init();
 
-    if (Rendering::Initialize() == -1) return -1;
+    if (Rendering::InitializeRest() == -1) return -1;
 
     InputManager::getInstance().setUp();
 

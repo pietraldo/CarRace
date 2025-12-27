@@ -54,11 +54,44 @@ bool Rendering::firstMouse = true;
 
 Mirrors Rendering::player1Mirrors;
 
-int Rendering::Initialize() {
+int Rendering::InitializeLoading() {
     bool success;
-    
     success = CreateGLFWWindow(window_width, window_height, "CarRace");
     if (!success) return false;
+
+    overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
+    
+    float quadVertices[] = {
+        // positions   // texCoords
+        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
+        -1.0f, -1.0f, 0.0f, 0.0f,  // bottom-left
+        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
+
+        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
+        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
+        1.0f,  1.0f,  1.0f, 1.0f   // top-right
+    };
+
+    glGenVertexArrays(1, &VAO_loading);
+    glGenBuffers(1, &VBO_loading);
+
+    glBindVertexArray(VAO_loading);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_loading);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    return 0;
+}
+
+int Rendering::InitializeRest() {
 
     LoadShaders();
 
@@ -88,26 +121,6 @@ void Rendering::LoadTextures() {
                      terrainTexture.data);
     }
     stbi_image_free(terrainTexture.data);
-
-    // ----------- Intro textures -----------
-    glGenTextures(1, &introTexture.textureID);
-    glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
-
-    // Load image with 4 channels (RGBA)
-    unsigned char* data =
-        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
-                                    4);  // force 4 channels
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, introTexture.width, introTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load loading texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
 }
 
 void Rendering::LoadShaders() {
@@ -123,34 +136,6 @@ void Rendering::LoadBuffers() {
     vector<float> vert = gameEngine->GetTerrain()->GetVertices();
     vector<int> ind = gameEngine->GetTerrain()->GetIndices();
 
-    float quadVertices[] = {
-        // positions   // texCoords
-        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
-        -1.0f, -1.0f, 0.0f, 0.0f,  // bottom-left
-        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
-
-        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
-        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
-        1.0f,  1.0f,  1.0f, 1.0f   // top-right
-    };
-
-    glGenVertexArrays(1, &VAO_loading);
-    glGenBuffers(1, &VBO_loading);
-
-    glBindVertexArray(VAO_loading);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_loading);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-    // position
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // texCoords
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
 
     glGenVertexArrays(1, &VAO_terrain);
     glGenBuffers(1, &VBO_terrain);
@@ -610,6 +595,48 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
     glBindVertexArray(0);*/
 
     RenderImGui();
+
+    glfwSwapBuffers(Rendering::window);
+    glfwPollEvents();
+}
+
+void Rendering::RenderLoadingScreen(float progress) 
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glViewport(0, 0, window_width, window_height);
+
+    // ----------- Load texture -----------
+    glGenTextures(1, &introTexture.textureID);
+    glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
+
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data =
+        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
+                  4);  // force 4 channels
+    stbi_set_flip_vertically_on_load(false);
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, introTexture.width, introTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load loading texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+
+    Rendering::overlayShader->use();
+    overlayShader->setMat4("projection", glm::mat4(1.0f));
+
+    glBindVertexArray(Rendering::VAO_loading);
+    glBindTexture(GL_TEXTURE_2D, Rendering::introTexture.textureID);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();

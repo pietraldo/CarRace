@@ -58,7 +58,9 @@ public:
     static bool firstMouse;
 
     // methods
-    static int Initialize();
+    static int InitializeLoading();
+    static int InitializeRest();
+
     static void LoadTextures();
     static void LoadShaders();
     static void LoadBuffers();
@@ -71,6 +73,7 @@ public:
     static glm::mat4 GetProjectionMatrix(Camera& camera);
     static glm::mat4 GetViewMatrix(Camera& camera);
     static void RenderFrame(std::vector<GameObject*> gameObjects);
+    static void RenderLoadingScreen(float progress);
     static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam);
 
     static void SetExternalView(const glm::mat4& view);
