@@ -43,14 +43,13 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 bool startSimulation = false;
 
-int main()
-{
-	gameEngine = new GameEngine();
+int main() {
+    gameEngine = new GameEngine();
 
-	Physics::getInstance()->initialize(gameEngine);
+    Physics::getInstance()->initialize(gameEngine);
 
-	Rendering::gameEngine = gameEngine;
-	srand(19);
+    Rendering::gameEngine = gameEngine;
+    srand(19);
 
     Physics::getInstance()->initialize(gameEngine);
 
@@ -62,53 +61,47 @@ int main()
     LightBuffer lightBuffer = gameEngine->LoadLights();
     AudioEngine::instance().init();
 
-	if (Rendering::Initialize() == -1) return -1;
+    if (Rendering::Initialize() == -1) return -1;
 
-	InputManager::getInstance().setUp();
+    InputManager::getInstance().setUp();
 
     gameEngine->InitializeSkybox();
 
-	gameEngine->CreateModels();
-
-	Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
+    gameEngine->CreateModels();
 
     Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
-	bool continueGame = true;
-	while (continueGame && !glfwWindowShouldClose(Rendering::window))
-	{
-		float currentFrame = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrame - lastFrame;
-		if (deltaTime > 0.2f)
-			deltaTime = 0.2f;// avoid big jumps
-		//deltaTime = 0.016f; // fixed timestep
-		lastFrame = currentFrame;
+    Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
-		InputData input = InputManager::getInstance().getInputData();
+    bool continueGame = true;
+    while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
+        // deltaTime = 0.016f; // fixed timestep
+        lastFrame = currentFrame;
 
+        InputData input = InputManager::getInstance().getInputData();
 
-		CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
-		continueGame = !input.additionalInfo.exit;
-		startSimulation = startSimulation || input.additionalInfo.startSimulation;
+        CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
+        continueGame = !input.additionalInfo.exit;
+        startSimulation = startSimulation || input.additionalInfo.startSimulation;
 
-		if (input.additionalInfo.resetCars)
-		{
-			Physics::getInstance()->getVehicles()[0]->resetCar();
-		}
+        if (input.additionalInfo.resetCars) {
+            Physics::getInstance()->getVehicles()[0]->resetCar();
+        }
 
-		if (startSimulation)
-		{
-			Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
-		}
-		gameEngine->Update(input, deltaTime);
+        if (startSimulation) {
+            Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
+        }
+        gameEngine->Update(input, deltaTime);
 
+        gameEngine->setOutput();
+        Rendering::RenderFrame(gameEngine->GetGameObjects());
+    }
 
-		gameEngine->setOutput();
-		Rendering::RenderFrame(gameEngine->GetGameObjects());
-	}
-
-	glfwTerminate();
-	AudioEngine::instance().shutdown();
-	Physics::getInstance()->cleanup();
-	return 0;
+    glfwTerminate();
+    AudioEngine::instance().shutdown();
+    Physics::getInstance()->cleanup();
+    return 0;
 }

@@ -50,8 +50,8 @@ private:
     float steerSpeed = 180.f;  // deg/s
     float maxSteer = 60.0f;    // deg
 
-	bool isBraking = false; // state for brake lights
-    bool isHeadlightsOn = false; // state for headlights
+    bool isBraking = false;       // state for brake lights
+    bool isHeadlightsOn = false;  // state for headlights
 
     std::vector<float> wheelRotationsFromPhysx;  // < -2pi, 2pi >
 
