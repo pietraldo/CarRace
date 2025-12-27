@@ -1,5 +1,4 @@
 #include "Mesh.h"
-
 #include "Rendering.h"
 
 Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, const std::string& name) {
@@ -8,7 +7,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
     this->textures = textures;
     this->name = name;
 
-    if (name.rfind("MirrorGlass", 0) == 0) {
+    if (name.find("MirrorGlass") != std::string::npos) {
         isMirror = true;
 
         if (name.find("Right") != std::string::npos) {

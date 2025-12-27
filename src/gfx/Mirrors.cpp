@@ -1,18 +1,15 @@
 #include "Mirrors.h"
-
-#include <glad/glad.h>
-
-#include <iostream>
-
 #include "../game/GameEngine.h"
 #include "Rendering.h"
+#include <glad/glad.h>
+#include <iostream>
 
-float Mirrors::mirrorHeightOffset = 0.328f;
-float Mirrors::mirrorSideOffset = 1.041f;
-float Mirrors::mirrorForwardOffset = 0.135f;
-float Mirrors::mirrorLookSide = 0.378f;
-float Mirrors::mirrorLookUp = -0.683f;
-float Mirrors::mirrorFov = 140.0f;
+float Mirrors::mirrorHeightOffset = 1.5f;
+float Mirrors::mirrorSideOffset = 0.0f;
+float Mirrors::mirrorForwardOffset = -0.72f;
+float Mirrors::mirrorLookSide = -0.42f;
+float Mirrors::mirrorLookUp = -0.03f;
+float Mirrors::mirrorFov = 90.0f;
 
 void Mirrors::Initialize() { InitMirrorRenderTarget(); }
 
@@ -50,14 +47,15 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex) {
 }
 
 void Mirrors::RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                           const glm::vec3& right, const std::vector<GameObject*>& objects) {
-    {
+                           const glm::vec3& right, const std::vector<GameObject*>& objects, bool renderLeft,
+                           bool renderRight) {
+    if (renderRight) {
         MirrorData data = ComputeMirrorData(-1.0f, carPos, forward, up, right);
         glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
         RenderSingleMirror(view, rightMirrorFBO, objects);
     }
 
-    {
+    if (renderLeft) {
         MirrorData data = ComputeMirrorData(+1.0f, carPos, forward, up, right);
         glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
         RenderSingleMirror(view, leftMirrorFBO, objects);

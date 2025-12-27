@@ -2,6 +2,7 @@
 
 #include "../gfx/Model.h"
 #include "helper_functions.h"
+#include "RenderPassUniforms.h"
 
 GameEngine::GameEngine() {
     lights = vector<Light*>();
@@ -71,11 +72,12 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
 
         const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
         cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+        cars[i]->SetHeadlights(headlightsOn);
         cars[i]->Update(deltaTime, position, rotation, vehicles[i]->getCurrentSteeringAngle());
     }
 }
 
-void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
+void GameEngine::UpdatePlayerCamera(float dt, int playerNumber, const InputData& input) {
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
     RaceCar* vehicle;
@@ -93,7 +95,11 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
 
     if (activeCamera.cameraType == CameraType::FIRST_PERSON_CAMERA) {
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
-        firstPersonCamera.Update(carPos, carRot);
+
+        const CameraControlInput& camInput = (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
+        firstPersonCamera.SetTargetYawOffset(camInput.yaw * 50.0f);
+
+        firstPersonCamera.Update(dt, carPos, carRot);
     } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
         FollowingCarCamera& fol = static_cast<FollowingCarCamera&>(activeCamera);
         fol.Update(carPos, carRot);
@@ -106,14 +112,14 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber) {
     }
 }
 
-void GameEngine::UpdatePlayersCamera(float dt) {
+void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
     ViewMode activeViewMode = CameraManager::GetInstance()->GetViewMode();
     if (activeViewMode == ViewMode::SINGLE_SCREEN) {
-        UpdatePlayerCamera(dt, 0);
+        UpdatePlayerCamera(dt, 0, input);
     }
     if (activeViewMode == ViewMode::SPLIT_SCREEN) {
-        UpdatePlayerCamera(dt, 0);
-        UpdatePlayerCamera(dt, 1);
+        UpdatePlayerCamera(dt, 0, input);
+        UpdatePlayerCamera(dt, 1, input);
     }
     if (activeViewMode == ViewMode::INTRO_SCREEN) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
@@ -129,7 +135,8 @@ void GameEngine::Update(InputData input, float deltaTime) {
     if (input.additionalInfo.startSimulation) {
         StartSimulation();
     }
-    UpdatePlayersCamera(deltaTime);
+    UpdatePlayersCamera(deltaTime, input);
+
     UpdateCars(input, deltaTime);
     UpdateHeadlights();
 
@@ -151,20 +158,12 @@ void GameEngine::Update(InputData input, float deltaTime) {
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
-    shaderTex.use();
-    shaderTex.setBool("uIsMirror", false);
-    shaderTex.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shaderTex.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shaderTex.setVec3("viewPos", activeCam.Position);
-    shaderTex.setBool("fogEnabled", fog);
-    shaderTex.setFloat("fogMinDist", fogMinDist);
-    shaderTex.setFloat("fogMaxDist", fogMaxDist);
-    shaderTex.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
     for (Model* model : modelsTex) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius())) continue;
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         glm::vec3 position = model->GetPosition();
@@ -181,18 +180,10 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         model->Draw(shaderTex);
     }
 
-    shaderCol.use();
-    shaderCol.setBool("uIsMirror", false);
-    shaderCol.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shaderCol.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shaderCol.setVec3("viewPos", activeCam.Position);
-    shaderCol.setBool("fogEnabled", fog);
-    shaderCol.setFloat("fogMinDist", fogMinDist);
-    shaderCol.setFloat("fogMaxDist", fogMaxDist);
-    shaderCol.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
 
     for (Model* model : modelsCol) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius())) continue;
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         glm::vec3 position = model->GetPosition();
@@ -211,33 +202,31 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    shader.use();
-    shader.setBool("uIsMirror", false);
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
         if (!car->GetBody()) continue;
 
-        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius())) {
+        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius(), pass.viewProj)) {
             car->Draw(shader);
         }
     }
 }
 void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam) {
-    shader.use();
-    shader.setBool("uIsMirror", false);
+    FogParams noFog{};
+    noFog.enabled = false;
+    PassCommon pass = RenderPassUniforms::Build(activeCam, noFog);
 
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     for (Light* light : lights) {
         if (light->GetType() != LightType::POINT) continue;
@@ -254,17 +243,9 @@ void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& acti
 }
 
 void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
-    shader.use();
-
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
@@ -279,18 +260,10 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 }
 
 void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
-    shader.use();
-    shader.setBool("uIsMirror", false);
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", model.GetColor());
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, model.textureID);
@@ -452,19 +425,19 @@ glm::quat GameEngine::GetCarRotation() const {
 }
 
 std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
-    const std::string carModelPath = "../assets/models/car/car.gltf";
+    const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
-    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.01f), glm::vec3(1.f));
-    bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.f), physx::PxVec3(0.f, 1.f, 0.f)));
+    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.85f), glm::vec3(1.f));
+    bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
     bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
 
-    auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), glm::vec3(0.29f), glm::vec3(1.f));
+    auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), glm::vec3(0.27f), glm::vec3(1.f));
 
     auto steeringModel =
         std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));
-    steeringModel->SetPositionOffset(glm::vec3(-0.25f, 0.2f, 0.45f));
+    steeringModel->SetPositionOffset(glm::vec3(-0.4f, 0.55f, 0.40f));
 
     auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
 
@@ -581,13 +554,9 @@ void GameEngine::InitializeSkybox() {
     glBindVertexArray(0);
 
     std::vector<std::string> facesDay{
-        "../assets/backgroundTextures/day/clouds1_east.bmp",   // +X
-        "../assets/backgroundTextures/day/clouds1_west.bmp",   // -X
-        "../assets/backgroundTextures/day/clouds1_up.bmp",     // +Y
-        "../assets/backgroundTextures/day/clouds1_down.bmp",   // -Y
-        "../assets/backgroundTextures/day/clouds1_north.bmp",  // +Z (swap)
-        "../assets/backgroundTextures/day/clouds1_south.bmp"   // -Z (swap)
-    };
+        "../assets/backgroundTextures/day/clouds1_east.bmp",  "../assets/backgroundTextures/day/clouds1_west.bmp",
+        "../assets/backgroundTextures/day/clouds1_up.bmp",    "../assets/backgroundTextures/day/clouds1_down.bmp",
+        "../assets/backgroundTextures/day/clouds1_north.bmp", "../assets/backgroundTextures/day/clouds1_south.bmp"};
 
     skyboxCubemapDay = LoadCubemap(facesDay);
 
@@ -602,6 +571,16 @@ void GameEngine::InitializeSkybox() {
     skyboxShader = new Shader("../assets/shaders/skybox.vert", "../assets/shaders/skybox.frag");
     skyboxShader->use();
     skyboxShader->setInt("skybox", 0);
+}
+
+FogParams GameEngine::GetFogParams() {
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
+    return fogParams;
 }
 
 unsigned int GameEngine::LoadCubemap(vector<std::string> faces) {
@@ -647,7 +626,7 @@ void GameEngine::DrawSkybox(Camera& activeCam) {
 
     glDepthFunc(GL_LEQUAL);
     skyboxShader->use();
-    glm::mat4 view = glm::mat4(glm::mat3(activeCam.GetViewMatrix()));
+    glm::mat4 view = glm::mat4(glm::mat3(Rendering::GetViewMatrix(activeCam)));
     glm::mat4 projection = Rendering::GetProjectionMatrix(activeCam);
 
     skyboxShader->setMat4("view", view);

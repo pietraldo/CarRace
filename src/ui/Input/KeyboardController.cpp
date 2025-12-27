@@ -1,9 +1,8 @@
-#include "KeyboardController.h"
+ï»¿#include "KeyboardController.h"
 
 float KeyboardController::deltaMouseX = 0.0f;
 float KeyboardController::deltataMouseY = 0.0f;
 float KeyboardController::zoomOffset = 0.0f;
-
 double KeyboardController::lastMouseX = 0.0;
 double KeyboardController::lastMouseY = 0.0;
 
@@ -30,10 +29,9 @@ CarControlInput KeyboardController::getCarControlInput() {
 
         if (isKeyJustPressed(GLFW_KEY_N)) input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_M)) input.gear = +1;
-        if (isKeyJustPressed(GLFW_KEY_COMMA)) input.resetToCheckpoint = true;
+        if (isKeyJustPressed(GLFW_KEY_B)) input.resetToCheckpoint = true;
     } else  // Player1
     {
-        // Gracz 1 – np. WASD + LSHIFT + Q/E
         if (isKeyPressed(GLFW_KEY_L))
             input.steer = -1;
         else if (isKeyPressed(GLFW_KEY_J))
@@ -48,7 +46,7 @@ CarControlInput KeyboardController::getCarControlInput() {
 
         if (isKeyJustPressed(GLFW_KEY_Z)) input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_X)) input.gear = +1;
-        if (isKeyJustPressed(GLFW_KEY_C)) input.resetToCheckpoint = true;
+        if (isKeyJustPressed(GLFW_KEY_F)) input.resetToCheckpoint = true;
     }
 
     return input;
@@ -61,16 +59,34 @@ CameraControlInput KeyboardController::getCameraControlInput() {
     if (isKeyPressed(GLFW_KEY_A)) input.moveRight = -1;
     if (isKeyPressed(GLFW_KEY_D)) input.moveRight = 1;
 
+    if (playerIndex == PlayerIndex::Player1) {
+        if (isKeyPressed(GLFW_KEY_C))
+            input.yaw = 1.0f;
+        else if (isKeyPressed(GLFW_KEY_V))
+            input.yaw = -1.0f;
+    } else if (playerIndex == PlayerIndex::Player0) {
+        if (isKeyPressed(GLFW_KEY_COMMA))
+            input.yaw = 1.0f;
+        else if (isKeyPressed(GLFW_KEY_PERIOD))
+            input.yaw = -1.0f;
+    }
+
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
-    if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
+        if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        float deltaX = static_cast<float>(mouseX - lastMouseX);
-        float deltaY = static_cast<float>(mouseY - lastMouseY);
+            float deltaX = static_cast<float>(mouseX - lastMouseX);
+            float deltaY = static_cast<float>(mouseY - lastMouseY);
 
-        input.yaw = deltaX;
-        input.pitch = -deltaY;
+            if (input.yaw == 0.0f) {
+                input.yaw = deltaX;
+            }
+            input.pitch = -deltaY;
+        } else {
+            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
     } else {
         glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }

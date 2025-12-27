@@ -120,11 +120,7 @@ private:
     }
 
 public:
-    bool IsSphereVisible(const glm::vec3& center, float radius) const {
-        glm::mat4 proj = glm::perspective(glm::radians(Zoom), (float)1920 / (float)1080, 0.1f, 300.0f);
-        glm::mat4 view = glm::lookAt(Position, Position + Front, Up);
-        glm::mat4 viewProj = proj * view;
-
+    bool IsSphereVisible(const glm::vec3& center, float radius, const glm::mat4& viewProj) const {
         glm::vec4 planes[6];
         planes[0] = glm::row(viewProj, 3) + glm::row(viewProj, 0);
         planes[1] = glm::row(viewProj, 3) - glm::row(viewProj, 0);

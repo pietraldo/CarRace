@@ -20,13 +20,13 @@ public:
     static float mirrorLookUp;
     static float mirrorFov;
 
-    static constexpr int MIRROR_WIDTH = 1024;
-    static constexpr int MIRROR_HEIGHT = 512;
+    static constexpr int MIRROR_WIDTH = 2048;
+    static constexpr int MIRROR_HEIGHT = 1024;
 
     void Initialize();
 
     void RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up, const glm::vec3& right,
-                      const std::vector<GameObject*>& gameObjects);
+                      const std::vector<GameObject*>& gameObjects, bool renderLeft = true, bool renderRight = true);
 
     unsigned int GetLeftMirrorTexture() const { return leftMirrorColorTex; }
     unsigned int GetRightMirrorTexture() const { return rightMirrorColorTex; }

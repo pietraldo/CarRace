@@ -3,7 +3,7 @@ Language:        Cpp
 BasedOnStyle:  Google
 IndentWidth:     4
 ColumnLimit:     120
-SortIncludes:    true
+SortIncludes:    false
 ReflowComments:  true
 BreakBeforeBraces: Attach
 AccessModifierOffset: -4

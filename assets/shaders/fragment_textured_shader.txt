@@ -52,6 +52,8 @@ uniform vec4 fogColor;
 uniform bool uIsMirror;
 uniform bool uIsBrakeLight;
 uniform bool uIsBraking;
+uniform bool uIsHeadlight;
+uniform bool uHeadlightsOn;
 
 uniform sampler2D uBaseColorMap;
 
@@ -110,6 +112,14 @@ void main()
             result += vec3(1.0, 0.0, 0.0) * 1.5; 
         } else {
             result += vec3(0.3, 0.0, 0.0);
+        }
+    }
+
+    if (uIsHeadlight) {
+        if (uHeadlightsOn) {
+            result += vec3(1.0, 1.0, 1.0) * 2.0;
+        } else {
+            result += vec3(0.1, 0.1, 0.1);
         }
     }
 
