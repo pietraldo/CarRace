@@ -614,7 +614,7 @@ void Rendering::RenderLoadingScreen(float progress)
 
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data =
-        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
+        stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height, &introTexture.channels,
                   4);  // force 4 channels
     stbi_set_flip_vertically_on_load(false);
 
