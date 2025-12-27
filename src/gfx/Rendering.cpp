@@ -11,12 +11,21 @@ Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
 Shader* Rendering::texturedShader = nullptr;
 Shader* Rendering::terrainShader = nullptr;
+Shader* Rendering::overlayShader = nullptr;
 
 int Rendering::texWidth = 0;
 int Rendering::texHeight = 0;
 unsigned char* Rendering::textureData = nullptr;
 int Rendering::nbChannels = 0;
 unsigned int Rendering::textureID = 0;
+
+unsigned int Rendering::loadingTextureID = 0;
+int Rendering::loadTexWidth = 0;
+int Rendering::loadTexHeight = 0;
+unsigned char* Rendering::loadTextureData = nullptr;
+int Rendering::loadNbChannels = 0;
+unsigned int Rendering::VAO_loading = 0;
+unsigned int Rendering::VBO_loading = 0;
 
 int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
 int Rendering::window_height = Settings::Get().START_SCR_HEIGHT;
@@ -53,6 +62,8 @@ int Rendering::Initialize() {
     texturedShader =
         new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
     terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
+    overlayShader =
+        new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
 
     // scene->InitializeSkybox(); is called in main.cpp after
     // Rendering::Initialize
@@ -74,6 +85,54 @@ int Rendering::Initialize() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
     }
     stbi_image_free(textureData);
+
+    // intro load texture
+    glGenTextures(1, &loadingTextureID);
+    glBindTexture(GL_TEXTURE_2D, loadingTextureID);
+
+    // Load image with 4 channels (RGBA)
+    unsigned char* data = stbi_load("../assets/animation/kuba.png", &loadTexWidth, &loadTexHeight, &loadNbChannels, 4);  // force 4 channels
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, loadTexWidth, loadTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load loading texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glEnable(GL_BLEND);  // WARNING : enable transparency for textures
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+
+    float quadVertices[] = {
+        // positions   // texCoords
+        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
+        -1.0f, -1.0f, 0.0f, 0.0f,  // bottom-left
+        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
+
+        -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
+        1.0f,  -1.0f, 1.0f, 0.0f,  // bottom-right
+        1.0f,  1.0f,  1.0f, 1.0f   // top-right
+    };
+
+    glGenVertexArrays(1, &VAO_loading);
+    glGenBuffers(1, &VBO_loading);
+
+    glBindVertexArray(VAO_loading);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_loading);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    // position
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // texCoords
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
 
     glGenVertexArrays(1, &VAO_sphere);
     glGenBuffers(1, &VBO_sphere);
@@ -300,9 +359,7 @@ void Rendering::RenderImGui() {
                 CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
             }
 
-            
             if (ImGui::Button("Add frame")) {
-                
                 glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
                 glm::vec3 front = CameraManager::GetInstance()->GetFreeCamera().Front;
                 AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
@@ -321,7 +378,6 @@ void Rendering::RenderImGui() {
                 AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
                 animCam.GetAnimation().SaveToFile();
             }
-
         }
         if (ImGui::Button("Move car here")) {
             glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
@@ -529,6 +585,15 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, introCam);
     }
+
+
+    Rendering::overlayShader->use();
+    overlayShader->setMat4("projection", glm::mat4(1.0f));
+
+    glBindVertexArray(Rendering::VAO_loading);
+    glBindTexture(GL_TEXTURE_2D, Rendering::loadingTextureID);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 
     RenderImGui();
 

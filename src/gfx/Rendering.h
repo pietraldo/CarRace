@@ -40,6 +40,7 @@ public:
     static Shader* lightShader;
     static Shader* texturedShader;
     static Shader* terrainShader;
+    static Shader* overlayShader;
 
     static bool showBoxColliders;
 
@@ -75,6 +76,15 @@ public:
     static unsigned char* textureData;
     static int nbChannels;
     static unsigned int textureID;
+
+    // animation texture for loading screen
+    static unsigned int loadingTextureID;
+    static int loadTexWidth;
+    static int loadTexHeight;
+    static unsigned char* loadTextureData;
+    static int loadNbChannels;
+    static unsigned int VAO_loading;
+    static unsigned int VBO_loading;
 
 private:
     static Mirrors player1Mirrors;
