@@ -60,7 +60,7 @@ public:
     float fogMaxDist = 150.0f;
     bool userFlashlight = false;
     bool headlightsOn = true;
-    bool renderMirrors = true;
+    bool renderMirrors = false;
 
     LightSpot* flashlight;
     std::vector<LightSpot*> headlightLeft{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};

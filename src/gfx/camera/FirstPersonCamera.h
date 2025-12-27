@@ -17,7 +17,7 @@ private:
     glm::vec3 localOffset = glm::vec3(0.4f, 1.36f, 1.6f);
     float currentYawOffset = 0.0f;
     float targetYawOffset = 0.0f;
-    const float YAW_SPEED = 30.0f;  // Degrees per second
+    const float YAW_SPEED = 40.0f;
 
 public:
     // constructor with vectors
@@ -32,7 +32,6 @@ public:
     void Update(float dt, const glm::vec3& carPosition, const glm::quat& carRotation) {
         targetPos = carPosition;
 
-        // Smoothly interpolate currentYawOffset towards targetYawOffset
         if (currentYawOffset < targetYawOffset) {
             currentYawOffset += YAW_SPEED * dt;
             if (currentYawOffset > targetYawOffset) currentYawOffset = targetYawOffset;
@@ -45,12 +44,8 @@ public:
 
         Position = targetPos + worldOffset;
 
-        // Apply yaw offset: create a rotation around the car's UP axis
-        // yawOffset is in degrees
         glm::quat yawRotation = glm::angleAxis(glm::radians(currentYawOffset), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        // Combine car rotation with the head turn (yawOffset)
-        // We want the head turn to be relative to the car's orientation
         glm::quat finalRotation = carRotation * yawRotation;
 
         Front = glm::normalize(finalRotation * glm::vec3(0.0f, 0.0f, 1.0f));
