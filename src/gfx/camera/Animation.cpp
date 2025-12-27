@@ -1,6 +1,17 @@
 #include "Animation.h"
 
-glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const AnimationFrame& frameB, float timeStamp) {
+// More information about interpolation https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline
+glm::vec3 Animation::CatmullRom(const glm::vec3& P0, const glm::vec3& P1, const glm::vec3& P2, const glm::vec3& P3,
+                     float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    return 0.5f * ((2.0f * P1) + (-P0 + P2) * t + (2.0f * P0 - 5.0f * P1 + 4.0f * P2 - P3) * t2 +
+                   (-P0 + 3.0f * P1 - 3.0f * P2 + P3) * t3);
+}
+
+glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const AnimationFrame& frameB, float timeStamp, int startSegmentPointIndex) {
     glm::vec3 positionA = frameA.position;
     glm::vec3 positionB = frameB.position;
 
@@ -8,8 +19,21 @@ glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const Ani
     float currentTime = timeStamp - frameA.timeStamp;
     float factor = currentTime / timeDiff;
 
-    glm::vec3 distance = positionB - positionA;
-    glm::vec3 interpolatedPosition = positionA + distance * factor;
+    glm::vec3 previousPosition;
+    glm::vec3 nextPosition;
+    if (startSegmentPointIndex == 0) {
+        previousPosition = positionA + (positionA - positionB);  
+    } else {
+        previousPosition = frames[startSegmentPointIndex - 1].position;
+    }
+    if (startSegmentPointIndex + 2 >= frames.size()) {
+        nextPosition = positionB + (positionB - positionA); 
+    }
+    else {
+        nextPosition = frames[startSegmentPointIndex + 2].position;
+    }
+
+    glm::vec3 interpolatedPosition = CatmullRom(previousPosition, positionA, positionB, nextPosition, factor);
 
     return interpolatedPosition;
 }
@@ -68,7 +92,7 @@ AnimationFrame Animation::GetFrame(float timeStamp) {
     lastFrameIndex = frameIndexLow;
     assert(frames[frameIndexLow].timeStamp <= timeStamp && frames[frameIndexHigh].timeStamp > timeStamp);
 
-    glm::vec3 position = InterpolatePosition(frames[frameIndexLow], frames[frameIndexHigh], timeStamp);
+    glm::vec3 position = InterpolatePosition(frames[frameIndexLow], frames[frameIndexHigh], timeStamp, frameIndexLow);
     glm::vec3 front = InterpolateFront(frames[frameIndexLow], frames[frameIndexHigh], timeStamp);
 
     AnimationFrame result;
