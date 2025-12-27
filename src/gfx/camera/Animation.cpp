@@ -37,7 +37,7 @@ Animation::Animation() {
     frames = std::vector<AnimationFrame>();
     frames.push_back({glm::vec3(291, 35.0f, 4.0f), glm::normalize(glm::vec3(0.28f, -0.22f, -0.94f)), 0.0f, FrameMode::INTERPOLATE});
     frames.push_back({glm::vec3(364, 33.0f, -182.0f), glm::normalize(glm::vec3(0.0f, -0.11f, -1.0f)), 3.0f, FrameMode::INTERPOLATE});
-    frames.push_back({glm::vec3(368, 36.0f, -226), glm::normalize(glm::vec3(-0.5f, -0.06f, 0.86f)), 3.5f, FrameMode::INTERPOLATE});
+    frames.push_back({glm::vec3(368, 36.0f, -226), glm::normalize(glm::vec3(-0.5f, -0.06f, 0.86f)), 4.0f, FrameMode::INTERPOLATE});
     frames.push_back({glm::vec3(330.0f, 64.0f, -80.0f), glm::normalize(glm::vec3(-0.11f, -0.45f, 0.89f)), 6.0f, FrameMode::INTERPOLATE});
 }
 
