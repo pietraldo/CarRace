@@ -6,29 +6,37 @@
 #include "Mesh.h"
 #include "Mirrors.h"
 
-unsigned Rendering::CubeVAO = 0;
+// window
+GLFWwindow* Rendering::window = nullptr;
+int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
+int Rendering::window_height = Settings::Get().START_SCR_HEIGHT;
+
+// shaders
 Shader* Rendering::colorShader = nullptr;
 Shader* Rendering::lightShader = nullptr;
 Shader* Rendering::texturedShader = nullptr;
 Shader* Rendering::terrainShader = nullptr;
 Shader* Rendering::overlayShader = nullptr;
 
-int Rendering::texWidth = 0;
-int Rendering::texHeight = 0;
-unsigned char* Rendering::textureData = nullptr;
-int Rendering::nbChannels = 0;
-unsigned int Rendering::textureID = 0;
+// buffers
+unsigned int Rendering::VAO_cube = 0;
+unsigned int Rendering::VBO_cube = 0;
 
-unsigned int Rendering::loadingTextureID = 0;
-int Rendering::loadTexWidth = 0;
-int Rendering::loadTexHeight = 0;
-unsigned char* Rendering::loadTextureData = nullptr;
-int Rendering::loadNbChannels = 0;
+unsigned int Rendering::VAO_terrain = 0;
+unsigned int Rendering::VBO_terrain = 0;
+unsigned int Rendering::EBO_terrain = 0;
+
+unsigned int Rendering::VAO_light= 0;
+unsigned int Rendering::UBO_lights = 0;
+
 unsigned int Rendering::VAO_loading = 0;
 unsigned int Rendering::VBO_loading = 0;
 
-int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
-int Rendering::window_height = Settings::Get().START_SCR_HEIGHT;
+// textures
+TextureFields Rendering::terrainTexture = TextureFields();
+TextureFields Rendering::introTexture = TextureFields();
+
+
 
 bool Rendering::showBoxColliders = false;
 
@@ -39,70 +47,27 @@ glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
 GameEngine* Rendering::gameEngine = nullptr;
 
-unsigned int Rendering::VBO_sphere = 0;
-unsigned int Rendering::VAO_sphere = 0;
-unsigned int Rendering::EBO_sphere = 0;
-unsigned int Rendering::VBO = 0;
 
-GLFWwindow* Rendering::window = nullptr;
 
 bool Rendering::firstMouse = true;
 
-unsigned int Rendering::uboLights = *(new unsigned);
-unsigned int Rendering::lightVAO = *(new unsigned);
 
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::Initialize() {
-    window = CreateGLFWWindow(window_width, window_height, "CarRace");
-    if (window == nullptr) return -1;
+    bool success;
+    
+    success = CreateGLFWWindow(window_width, window_height, "CarRace");
+    if (!success) return false;
 
-    colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
-    lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
-    texturedShader =
-        new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
-    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
-    overlayShader =
-        new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
-
+    LoadShaders();
     // scene->InitializeSkybox(); is called in main.cpp after
     // Rendering::Initialize
 
     vector<float> vert = gameEngine->GetTerrain()->GetVertices();
     vector<int> ind = gameEngine->GetTerrain()->GetIndices();
 
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    textureData = stbi_load("../assets/vehicledata/baseColor6.png", &texWidth, &texHeight, &nbChannels, 0);
-    if (!textureData) {
-        std::cout << "Failed to load texture" << std::endl;
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-    }
-    stbi_image_free(textureData);
-
-    // intro load texture
-    glGenTextures(1, &loadingTextureID);
-    glBindTexture(GL_TEXTURE_2D, loadingTextureID);
-
-    // Load image with 4 channels (RGBA)
-    unsigned char* data = stbi_load("../assets/animation/kuba.png", &loadTexWidth, &loadTexHeight, &loadNbChannels, 4);  // force 4 channels
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, loadTexWidth, loadTexHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load loading texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    glEnable(GL_BLEND);  // WARNING : enable transparency for textures
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+    LoadTextures();
 
     float quadVertices[] = {
         // positions   // texCoords
@@ -133,16 +98,15 @@ int Rendering::Initialize() {
 
     glBindVertexArray(0);
 
+    glGenVertexArrays(1, &VAO_terrain);
+    glGenBuffers(1, &VBO_terrain);
+    glGenBuffers(1, &EBO_terrain);
 
-    glGenVertexArrays(1, &VAO_sphere);
-    glGenBuffers(1, &VBO_sphere);
-    glGenBuffers(1, &EBO_sphere);
-
-    glBindVertexArray(VAO_sphere);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_sphere);
+    glBindVertexArray(VAO_terrain);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_terrain);
     glBufferData(GL_ARRAY_BUFFER, vert.size() * sizeof(float), vert.data(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_sphere);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_terrain);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * ind.size(), ind.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
@@ -155,11 +119,11 @@ int Rendering::Initialize() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    glGenVertexArrays(1, &CubeVAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO_cube);
+    glGenBuffers(1, &VBO_cube);
 
-    glBindVertexArray(CubeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO_cube);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_cube);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 216, Cube::GetVertices(), GL_STATIC_DRAW);
 
@@ -168,8 +132,8 @@ int Rendering::Initialize() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    glGenVertexArrays(1, &VAO_light);
+    glBindVertexArray(VAO_light);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -181,15 +145,15 @@ int Rendering::Initialize() {
     glUniformBlockBinding(texturedShader->ID, uniformBlockIndexLightsTex, 0);
 
     LightBuffer lightBuffer = (*gameEngine).LoadLights();
-    glGenBuffers(1, &uboLights);
+    glGenBuffers(1, &UBO_lights);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO_lights);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBuffer), NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboLights, 0, sizeof(LightBuffer));
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO_lights, 0, sizeof(LightBuffer));
 
-    glBindBuffer(GL_UNIFORM_BUFFER, uboLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO_lights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -197,23 +161,72 @@ int Rendering::Initialize() {
     return 0;
 }
 
-GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title) {
+void Rendering::LoadTextures() {
+    // ----------- Terrain texture -----------
+    glGenTextures(1, &terrainTexture.textureID);
+    glBindTexture(GL_TEXTURE_2D, terrainTexture.textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    terrainTexture.data = stbi_load("../assets/vehicledata/baseColor6.png", &terrainTexture.width,
+                                    &terrainTexture.height, &terrainTexture.channels, 0);
+    if (!terrainTexture.data) {
+        std::cout << "Failed to load texture" << std::endl;
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, terrainTexture.width, terrainTexture.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                     terrainTexture.data);
+    }
+    stbi_image_free(terrainTexture.data);
+
+    // ----------- Intro textures -----------
+    glGenTextures(1, &introTexture.textureID);
+    glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
+
+    // Load image with 4 channels (RGBA)
+    unsigned char* data =
+        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
+                                    4);  // force 4 channels
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, introTexture.width, introTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load loading texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+}
+
+void Rendering::LoadShaders() {
+    colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
+    lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
+    texturedShader =
+        new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
+    overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
+}
+
+bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
+    window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return nullptr;
+        return false;
     }
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
-        return nullptr;
+        return false;
     }
 
     glViewport(0, 0, width, height);
@@ -231,7 +244,7 @@ GLFWwindow* Rendering::CreateGLFWWindow(int width, int height, const char* title
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    return window;
+    return true;
 }
 
 void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -500,7 +513,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     lightBuffer.spotLights[0].position = glm::vec3(activeCam.Position);
     lightBuffer.spotLights[0].direction = glm::vec3(activeCam.Front);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, Rendering::uboLights);
+    glBindBuffer(GL_UNIFORM_BUFFER, Rendering::UBO_lights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -518,10 +531,10 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     }
 
     (*Rendering::gameEngine).DrawSkybox(activeCam);
-    (*Rendering::gameEngine).DrawLights(*Rendering::lightShader, Rendering::lightVAO, activeCam);
+    (*Rendering::gameEngine).DrawLights(*Rendering::lightShader, Rendering::VAO_light, activeCam);
     (*Rendering::gameEngine).DrawModels(shaderTextured, shaderColor, activeCam);
     (*Rendering::gameEngine).DrawCars(shaderTextured, activeCam);
-    (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
+    (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_terrain, activeCam);
 }
 
 bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam) {
@@ -585,7 +598,6 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, introCam);
     }
-
 
     /*Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));

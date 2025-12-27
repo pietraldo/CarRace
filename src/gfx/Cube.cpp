@@ -44,7 +44,7 @@ void Cube::Draw(glm::vec3 position, glm::quat quat, glm::vec3 scale, glm::vec3 c
 
 void Cube::Draw(glm::mat4 model, glm::vec3 color, Camera& activeCam) {
     Shader& shader = *Rendering::colorShader;
-    unsigned int cubeVAO = Rendering::CubeVAO;
+    unsigned int cubeVAO = Rendering::VAO_cube;
     Camera& camera = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
 
     shader.setMat4("model", model);

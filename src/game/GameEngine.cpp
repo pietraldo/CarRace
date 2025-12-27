@@ -266,7 +266,7 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
     shader.setVec3("objectColor", terrain->color);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Rendering::textureID);
+    glBindTexture(GL_TEXTURE_2D, Rendering::terrainTexture.textureID);
     glBindVertexArray(sphereVAO);
     glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
 }

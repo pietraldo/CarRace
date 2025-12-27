@@ -18,40 +18,50 @@
 #include "Shader.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "stb_image.h"
 #include "imgui.h"
 #include "lights/Light.h"
-#include "stb_image.h"
+#include "Texture.h"
 
 class GameEngine;
 class Mirrors;
 
 class Rendering {
 public:
+
+    static GameEngine* gameEngine;
+    static bool showBoxColliders;
+
+    // window
+    static GLFWwindow* window;
     static int window_width;
     static int window_height;
 
-    static GameEngine* gameEngine;
-    static GLFWwindow* window;
-
-    static unsigned CubeVAO;
-    static unsigned int uboLights;
-    static unsigned int lightVAO;
+    // shaders
     static Shader* colorShader;
     static Shader* lightShader;
     static Shader* texturedShader;
     static Shader* terrainShader;
     static Shader* overlayShader;
 
-    static bool showBoxColliders;
-
-    static unsigned int VBO_sphere, VAO_sphere, EBO_sphere, VBO;
-    ;
+    // buffers
+    static unsigned VAO_cube, VBO_cube;
+    static unsigned int VBO_terrain, VAO_terrain, EBO_terrain;
+    static unsigned int VAO_light, UBO_lights;
+    static unsigned int VAO_loading, VBO_loading;
+    
+    // textures
+    static TextureFields terrainTexture;
+    static TextureFields introTexture;
 
     // camera moving
     static bool firstMouse;
 
+    // methods
     static int Initialize();
-    static GLFWwindow* CreateGLFWWindow(int width, int height, const char* title);
+    static void LoadTextures();
+    static void LoadShaders();
+    static bool CreateGLFWWindow(int width, int height, const char* title);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -70,21 +80,7 @@ public:
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
 
-    // texture
-    static int texWidth;
-    static int texHeight;
-    static unsigned char* textureData;
-    static int nbChannels;
-    static unsigned int textureID;
 
-    // animation texture for loading screen
-    static unsigned int loadingTextureID;
-    static int loadTexWidth;
-    static int loadTexHeight;
-    static unsigned char* loadTextureData;
-    static int loadNbChannels;
-    static unsigned int VAO_loading;
-    static unsigned int VBO_loading;
 
 private:
     static Mirrors player1Mirrors;
