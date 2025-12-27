@@ -2,6 +2,7 @@
 
 #include "../gfx/Model.h"
 #include "helper_functions.h"
+#include "RenderPassUniforms.h"
 
 GameEngine::GameEngine() {
     lights = vector<Light*>();
@@ -145,24 +146,18 @@ void GameEngine::Update(InputData input, float deltaTime) {
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    glm::mat4 view = Rendering::GetViewMatrix(activeCam);
-    glm::mat4 proj = Rendering::GetProjectionMatrix(activeCam);
-    glm::mat4 viewProj = proj * view;
+    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
 
-    shaderTex.use();
-    shaderTex.setBool("uIsMirror", false);
-    shaderTex.setMat4("projection", proj);
-    shaderTex.setMat4("view", view);
-    shaderTex.setVec3("viewPos", activeCam.Position);
-    shaderTex.setBool("fogEnabled", fog);
-    shaderTex.setFloat("fogMinDist", fogMinDist);
-    shaderTex.setFloat("fogMaxDist", fogMaxDist);
-    shaderTex.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
     for (Model* model : modelsTex) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), viewProj)) continue;
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         glm::vec3 position = model->GetPosition();
@@ -179,18 +174,10 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         model->Draw(shaderTex);
     }
 
-    shaderCol.use();
-    shaderCol.setBool("uIsMirror", false);
-    shaderCol.setMat4("projection", proj);
-    shaderCol.setMat4("view", view);
-    shaderCol.setVec3("viewPos", activeCam.Position);
-    shaderCol.setBool("fogEnabled", fog);
-    shaderCol.setFloat("fogMinDist", fogMinDist);
-    shaderCol.setFloat("fogMaxDist", fogMaxDist);
-    shaderCol.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
 
     for (Model* model : modelsCol) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), viewProj)) continue;
+        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         glm::vec3 position = model->GetPosition();
@@ -209,37 +196,31 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    glm::mat4 view = Rendering::GetViewMatrix(activeCam);
-    glm::mat4 proj = Rendering::GetProjectionMatrix(activeCam);
-    glm::mat4 viewProj = proj * view;
+    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
 
-    shader.use();
-    shader.setBool("uIsMirror", false);
-    shader.setMat4("projection", proj);
-    shader.setMat4("view", view);
-    shader.setVec3("viewPos", activeCam.Position);
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
         if (!car->GetBody()) continue;
 
-        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius(), viewProj)) {
+        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius(), pass.viewProj)) {
             car->Draw(shader);
         }
     }
 }
 void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam) {
-    shader.use();
-    shader.setBool("uIsMirror", false);
+    FogParams noFog{};
+    noFog.enabled = false;
+    PassCommon pass = RenderPassUniforms::Build(activeCam, noFog);
 
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     for (Light* light : lights) {
         if (light->GetType() != LightType::POINT) continue;
@@ -256,17 +237,15 @@ void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& acti
 }
 
 void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    shader.use();
+    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
 
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::vec3 centerPosition = glm::vec3(terrain->GetTerrainWidth() / 2.0f, 0.0f, terrain->GetTerrainDepth() / 2.0f);
@@ -281,18 +260,16 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 }
 
 void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
-    const glm::vec4 fogColor = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
 
-    shader.use();
-    shader.setBool("uIsMirror", false);
-    shader.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
-    shader.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shader.setVec3("viewPos", activeCam.Position);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+
+    RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", model.GetColor());
-    shader.setBool("fogEnabled", fog);
-    shader.setFloat("fogMinDist", fogMinDist);
-    shader.setFloat("fogMaxDist", fogMaxDist);
-    shader.setVec4("fogColor", fogColor);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, model.textureID);
@@ -583,13 +560,9 @@ void GameEngine::InitializeSkybox() {
     glBindVertexArray(0);
 
     std::vector<std::string> facesDay{
-        "../assets/backgroundTextures/day/clouds1_east.bmp",   // +X
-        "../assets/backgroundTextures/day/clouds1_west.bmp",   // -X
-        "../assets/backgroundTextures/day/clouds1_up.bmp",     // +Y
-        "../assets/backgroundTextures/day/clouds1_down.bmp",   // -Y
-        "../assets/backgroundTextures/day/clouds1_north.bmp",  // +Z (swap)
-        "../assets/backgroundTextures/day/clouds1_south.bmp"   // -Z (swap)
-    };
+        "../assets/backgroundTextures/day/clouds1_east.bmp",  "../assets/backgroundTextures/day/clouds1_west.bmp",
+        "../assets/backgroundTextures/day/clouds1_up.bmp",    "../assets/backgroundTextures/day/clouds1_down.bmp",
+        "../assets/backgroundTextures/day/clouds1_north.bmp", "../assets/backgroundTextures/day/clouds1_south.bmp"};
 
     skyboxCubemapDay = LoadCubemap(facesDay);
 
