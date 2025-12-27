@@ -51,11 +51,6 @@ int main() {
     Rendering::gameEngine = gameEngine;
     srand(19);
 
-    Physics::getInstance()->initialize(gameEngine);
-
-    Rendering::gameEngine = gameEngine;
-    srand(19);
-
     gameEngine->CreateLights();
     CameraManager::GetInstance()->CreateCameras();
     LightBuffer lightBuffer = gameEngine->LoadLights();
@@ -68,8 +63,6 @@ int main() {
     gameEngine->InitializeSkybox();
 
     gameEngine->CreateModels();
-
-    Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
     Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 

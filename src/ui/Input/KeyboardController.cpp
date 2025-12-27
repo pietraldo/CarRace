@@ -29,7 +29,7 @@ CarControlInput KeyboardController::getCarControlInput() {
 
         if (isKeyJustPressed(GLFW_KEY_N)) input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_M)) input.gear = +1;
-        if (isKeyJustPressed(GLFW_KEY_COMMA)) input.resetToCheckpoint = true;
+        if (isKeyJustPressed(GLFW_KEY_B)) input.resetToCheckpoint = true;
     } else  // Player1
     {
         if (isKeyPressed(GLFW_KEY_D))
@@ -46,7 +46,7 @@ CarControlInput KeyboardController::getCarControlInput() {
 
         if (isKeyJustPressed(GLFW_KEY_Z)) input.gear = -1;
         if (isKeyJustPressed(GLFW_KEY_X)) input.gear = +1;
-        if (isKeyJustPressed(GLFW_KEY_C)) input.resetToCheckpoint = true;
+        if (isKeyJustPressed(GLFW_KEY_F)) input.resetToCheckpoint = true;
     }
 
     return input;
@@ -60,14 +60,14 @@ CameraControlInput KeyboardController::getCameraControlInput() {
     if (isKeyPressed(GLFW_KEY_L)) input.moveRight = 1;
 
     if (playerIndex == PlayerIndex::Player1) {
-        if (isKeyPressed(GLFW_KEY_1))
+        if (isKeyPressed(GLFW_KEY_C))
             input.yaw = 1.0f;
-        else if (isKeyPressed(GLFW_KEY_2))
+        else if (isKeyPressed(GLFW_KEY_V))
             input.yaw = -1.0f;
     } else if (playerIndex == PlayerIndex::Player0) {
-        if (isKeyPressed(GLFW_KEY_9))
+        if (isKeyPressed(GLFW_KEY_COMMA))
             input.yaw = 1.0f;
-        else if (isKeyPressed(GLFW_KEY_0))
+        else if (isKeyPressed(GLFW_KEY_PERIOD))
             input.yaw = -1.0f;
     }
 

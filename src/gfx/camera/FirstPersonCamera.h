@@ -17,7 +17,7 @@ private:
     glm::vec3 localOffset = glm::vec3(0.4f, 1.36f, 1.6f);
     float currentYawOffset = 0.0f;
     float targetYawOffset = 0.0f;
-    const float YAW_SPEED = 40.0f;
+    const float YAW_SPEED = 80.0f;
 
 public:
     // constructor with vectors
