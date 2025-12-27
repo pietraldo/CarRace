@@ -36,6 +36,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "RenderPassUniforms.h"
 
 using namespace std;
 
@@ -123,5 +124,6 @@ public:
 
     void DrawSkybox(Camera& activeCam);
     void InitializeSkybox();
+    FogParams GetFogParams();
     unsigned int LoadCubemap(vector<std::string> faces);
 };

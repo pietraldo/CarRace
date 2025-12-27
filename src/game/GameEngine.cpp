@@ -146,13 +146,7 @@ void GameEngine::Update(InputData input, float deltaTime) {
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
-    FogParams fogParams;
-    fogParams.enabled = fog;
-    fogParams.minDist = fogMinDist;
-    fogParams.maxDist = fogMaxDist;
-    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
-
-    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
@@ -237,13 +231,7 @@ void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& acti
 }
 
 void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& activeCam) {
-    FogParams fogParams;
-    fogParams.enabled = fog;
-    fogParams.minDist = fogMinDist;
-    fogParams.maxDist = fogMaxDist;
-    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
-
-    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shader, pass, false);
 
@@ -260,13 +248,7 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 }
 
 void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
-    FogParams fogParams;
-    fogParams.enabled = fog;
-    fogParams.minDist = fogMinDist;
-    fogParams.maxDist = fogMaxDist;
-    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
-
-    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", model.GetColor());
@@ -577,6 +559,16 @@ void GameEngine::InitializeSkybox() {
     skyboxShader = new Shader("../assets/shaders/skybox.vert", "../assets/shaders/skybox.frag");
     skyboxShader->use();
     skyboxShader->setInt("skybox", 0);
+}
+
+FogParams GameEngine::GetFogParams() {
+    FogParams fogParams;
+    fogParams.enabled = fog;
+    fogParams.minDist = fogMinDist;
+    fogParams.maxDist = fogMaxDist;
+    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+
+    return fogParams;
 }
 
 unsigned int GameEngine::LoadCubemap(vector<std::string> faces) {
