@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "miniaudio.h"
 
@@ -12,6 +12,7 @@ public:
 
     bool init();
     void playMusic(float intensity);
+    void stopMusic() { ma_sound_stop(&music); }
 
 private:
     ma_sound music;

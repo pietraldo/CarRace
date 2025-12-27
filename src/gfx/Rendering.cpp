@@ -587,13 +587,13 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
     }
 
 
-    Rendering::overlayShader->use();
+    /*Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));
 
     glBindVertexArray(Rendering::VAO_loading);
     glBindTexture(GL_TEXTURE_2D, Rendering::loadingTextureID);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    glBindVertexArray(0);*/
 
     RenderImGui();
 

@@ -44,7 +44,14 @@ public:
 
     void MoveFreeCameraToPosition(glm::vec3 position);
 
-    void SetViewMode(ViewMode mode) { viewMode = mode; }
+    void SetViewMode(ViewMode mode) {
+        viewMode = mode;
+        if (viewMode == ViewMode::INTRO_SCREEN) {
+            GetAnimationCamera().Reset();
+        } else {
+            GetAnimationCamera().Stop();
+        }
+    }
 
     ViewMode GetViewMode() const { return viewMode; }
     FreeCamera& GetFreeCamera() { return dynamic_cast<FreeCamera&>(*freeCamera); }

@@ -37,6 +37,7 @@ public:
         animation.Reset();
         PlayIntroMusic(0.9f);
     }
+    void Stop() { introSound.stopMusic(); }
     void Update(float dt) {
         timeStamp += dt;
 
