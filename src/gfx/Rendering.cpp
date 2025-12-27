@@ -299,6 +299,16 @@ void Rendering::RenderImGui() {
                 glm::vec3 position = PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
                 CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
             }
+
+            
+            if (ImGui::Button("Add frame")) {
+                
+                glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;
+                glm::vec3 front = CameraManager::GetInstance()->GetFreeCamera().Front;
+                AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
+                animCam.GetAnimation().AddFrame(position, front);
+            }
+
         } else if (currentMode == ViewMode::INTRO_SCREEN) {
             ImGui::Text("Intro screen");
 
@@ -306,6 +316,12 @@ void Rendering::RenderImGui() {
                 AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
                 animCam.Reset();
             }
+
+            if (ImGui::Button("Save frames to file")) {
+                AnimationCamera& animCam = CameraManager::GetInstance()->GetAnimationCamera();
+                animCam.GetAnimation().SaveToFile();
+            }
+
         }
         if (ImGui::Button("Move car here")) {
             glm::vec3 position = CameraManager::GetInstance()->GetFreeCamera().Position;

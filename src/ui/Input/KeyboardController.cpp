@@ -34,14 +34,14 @@ CarControlInput KeyboardController::getCarControlInput() {
     } else  // Player1
     {
         // Gracz 1 – np. WASD + LSHIFT + Q/E
-        if (isKeyPressed(GLFW_KEY_D))
+        if (isKeyPressed(GLFW_KEY_L))
             input.steer = -1;
-        else if (isKeyPressed(GLFW_KEY_A))
+        else if (isKeyPressed(GLFW_KEY_J))
             input.steer = 1;
 
-        if (isKeyPressed(GLFW_KEY_W))
+        if (isKeyPressed(GLFW_KEY_I))
             input.throttle = 1;
-        else if (isKeyPressed(GLFW_KEY_S))
+        else if (isKeyPressed(GLFW_KEY_K))
             input.brake = 1;
 
         if (isKeyPressed(GLFW_KEY_LEFT_SHIFT)) input.handbrake = 1;
@@ -56,10 +56,10 @@ CarControlInput KeyboardController::getCarControlInput() {
 CameraControlInput KeyboardController::getCameraControlInput() {
     CameraControlInput input;
 
-    if (isKeyPressed(GLFW_KEY_I)) input.moveForward = 1;
-    if (isKeyPressed(GLFW_KEY_K)) input.moveForward = -1;
-    if (isKeyPressed(GLFW_KEY_J)) input.moveRight = -1;
-    if (isKeyPressed(GLFW_KEY_L)) input.moveRight = 1;
+    if (isKeyPressed(GLFW_KEY_W)) input.moveForward = 1;
+    if (isKeyPressed(GLFW_KEY_S)) input.moveForward = -1;
+    if (isKeyPressed(GLFW_KEY_A)) input.moveRight = -1;
+    if (isKeyPressed(GLFW_KEY_D)) input.moveRight = 1;
 
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);

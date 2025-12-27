@@ -1,9 +1,13 @@
 #include "Animation.h"
 
+Animation::Animation() {
+    frames = std::vector<AnimationFrame>();
+    LoadFramesFromFile(fileName);
+}
+
 // More information about interpolation https://en.wikipedia.org/wiki/Catmull%E2%80%93Rom_spline
 glm::vec3 Animation::CatmullRom(const glm::vec3& P0, const glm::vec3& P1, const glm::vec3& P2, const glm::vec3& P3,
-                     float t)
-{
+                                float t) {
     float t2 = t * t;
     float t3 = t2 * t;
 
@@ -11,7 +15,81 @@ glm::vec3 Animation::CatmullRom(const glm::vec3& P0, const glm::vec3& P1, const 
                    (-P0 + 3.0f * P1 - 3.0f * P2 + P3) * t3);
 }
 
-glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const AnimationFrame& frameB, float timeStamp, int startSegmentPointIndex) {
+void Animation::SaveFramesToFile(const std::string& filename) {
+    std::ofstream outFile(filename);
+    if (!outFile) {
+        throw std::runtime_error("Failed to open file for writing: " + filename);
+    }
+
+    const int width = 12;  // width of each column
+
+    // Write header
+    outFile << std::left << std::setw(width) << "timeStamp" << "\t" << std::setw(width) << "posX" << "\t"
+            << std::setw(width) << "posY" << "\t" << std::setw(width) << "posZ" << "\t" << std::setw(width) << "frontX"
+            << "\t" << std::setw(width) << "frontY" << "\t" << std::setw(width) << "frontZ" << "\t" << std::setw(width)
+            << "frameMode" << "\n";
+
+    float lastTimeStamp = 0;
+    for (const auto& frame : frames) {
+        outFile << std::left << std::setw(width) << frame.timeStamp + lastTimeStamp << "\t" << std::setw(width) << frame.position.x
+                << "\t" << std::setw(width) << frame.position.y << "\t" << std::setw(width) << frame.position.z << "\t"
+                << std::setw(width) << frame.front.x << "\t" << std::setw(width) << frame.front.y << "\t"
+                << std::setw(width) << frame.front.z << "\t" << std::setw(width) << static_cast<int>(frame.frameMode)
+                << "\n";
+    }
+}
+
+void Animation::LoadFramesFromFile(const std::string& filename) {
+    std::ifstream inFile(filename);
+    if (!inFile) {
+        throw std::runtime_error("Failed to open file for reading: " + filename);
+    }
+
+    frames.clear();
+
+    std::string line;
+    // Skip header
+    std::getline(inFile, line);
+
+    float lastTimeStamp = 0;
+    while (std::getline(inFile, line)) {
+        std::stringstream ss(line);
+        std::string token;
+
+        AnimationFrame frame;
+
+        // timeStamp
+        std::getline(ss, token, '\t');
+        float duration = std::stof(token);
+        frame.timeStamp = lastTimeStamp;
+        lastTimeStamp += duration;
+
+        // position x,y,z
+        std::getline(ss, token, '\t');
+        frame.position.x = std::stof(token);
+        std::getline(ss, token, '\t');
+        frame.position.y = std::stof(token);
+        std::getline(ss, token, '\t');
+        frame.position.z = std::stof(token);
+
+        // front x,y,z
+        std::getline(ss, token, '\t');
+        frame.front.x = std::stof(token);
+        std::getline(ss, token, '\t');
+        frame.front.y = std::stof(token);
+        std::getline(ss, token, '\t');
+        frame.front.z = std::stof(token);
+
+        // frameMode
+        std::getline(ss, token, '\t');
+        frame.frameMode = static_cast<FrameMode>(std::stoi(token));
+
+        frames.push_back(frame);
+    }
+}
+
+glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const AnimationFrame& frameB, float timeStamp,
+                                         int startSegmentPointIndex) {
     glm::vec3 positionA = frameA.position;
     glm::vec3 positionB = frameB.position;
 
@@ -22,14 +100,13 @@ glm::vec3 Animation::InterpolatePosition(const AnimationFrame& frameA, const Ani
     glm::vec3 previousPosition;
     glm::vec3 nextPosition;
     if (startSegmentPointIndex == 0) {
-        previousPosition = positionA + (positionA - positionB);  
+        previousPosition = positionA + (positionA - positionB);
     } else {
         previousPosition = frames[startSegmentPointIndex - 1].position;
     }
     if (startSegmentPointIndex + 2 >= frames.size()) {
-        nextPosition = positionB + (positionB - positionA); 
-    }
-    else {
+        nextPosition = positionB + (positionB - positionA);
+    } else {
         nextPosition = frames[startSegmentPointIndex + 2].position;
     }
 
@@ -53,18 +130,6 @@ glm::vec3 Animation::InterpolateFront(const AnimationFrame& frameA, const Animat
 
     assert(t <= 1.0f && t >= 0.0f);
     return Slerp(glm::normalize(frameA.front), glm::normalize(frameB.front), t);
-}
-
-Animation::Animation() {
-    frames = std::vector<AnimationFrame>();
-    frames.push_back(
-        {glm::vec3(291, 35.0f, 4.0f), glm::normalize(glm::vec3(0.28f, -0.22f, -0.94f)), 0.0f, FrameMode::INTERPOLATE});
-    frames.push_back(
-        {glm::vec3(364, 33.0f, -182.0f), glm::normalize(glm::vec3(0.0f, -0.11f, -1.0f)), 3.0f, FrameMode::INTERPOLATE});
-    frames.push_back(
-        {glm::vec3(368, 36.0f, -226), glm::normalize(glm::vec3(-0.5f, -0.06f, 0.86f)), 4.0f, FrameMode::INTERPOLATE});
-    frames.push_back({glm::vec3(330.0f, 64.0f, -80.0f), glm::normalize(glm::vec3(-0.11f, -0.45f, 0.89f)), 6.0f,
-                      FrameMode::INTERPOLATE});
 }
 
 AnimationFrame Animation::GetFrame(float timeStamp) {
