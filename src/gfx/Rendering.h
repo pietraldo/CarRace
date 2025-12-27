@@ -21,7 +21,7 @@
 #include "lights/Light.h"
 #include "stb_image.h"
 
-    class GameEngine;
+class GameEngine;
 class Mirrors;
 
 class Rendering {
