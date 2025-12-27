@@ -1,5 +1,7 @@
-#include <gtest/gtest.h>
 #include "game/helper_functions.h"
+
+#include <gtest/gtest.h>
+
 #include "../test_utils/test_helpers.h"
 
 // Test fixture for helper functions
@@ -19,7 +21,7 @@ protected:
 // ============================================================================
 
 TEST_F(HelperFunctionsTest, GetXRotationDegrees_Identity) {
-    physx::PxQuat identity(0, 0, 0, 1); // Identity quaternion
+    physx::PxQuat identity(0, 0, 0, 1);  // Identity quaternion
     float rotation = getXRotationDegrees(identity);
     EXPECT_NEAR(rotation, 0.0f, TestHelpers::FLOAT_EPSILON);
 }
@@ -27,7 +29,7 @@ TEST_F(HelperFunctionsTest, GetXRotationDegrees_Identity) {
 TEST_F(HelperFunctionsTest, GetXRotationDegrees_90DegreesPositive) {
     // Rotation of 90 degrees around X-axis
     float angle = 90.0f * 3.14159f / 180.0f;
-    physx::PxQuat quat(std::sin(angle/2), 0, 0, std::cos(angle/2));
+    physx::PxQuat quat(std::sin(angle / 2), 0, 0, std::cos(angle / 2));
     float rotation = getXRotationDegrees(quat);
     EXPECT_NEAR(rotation, 90.0f, 0.1f);
 }
@@ -35,21 +37,21 @@ TEST_F(HelperFunctionsTest, GetXRotationDegrees_90DegreesPositive) {
 TEST_F(HelperFunctionsTest, GetXRotationDegrees_90DegreesNegative) {
     // Rotation of -90 degrees around X-axis
     float angle = -90.0f * 3.14159f / 180.0f;
-    physx::PxQuat quat(std::sin(angle/2), 0, 0, std::cos(angle/2));
+    physx::PxQuat quat(std::sin(angle / 2), 0, 0, std::cos(angle / 2));
     float rotation = getXRotationDegrees(quat);
     EXPECT_NEAR(rotation, -90.0f, 0.1f);
 }
 
 TEST_F(HelperFunctionsTest, GetXRotationDegrees_45Degrees) {
     float angle = 45.0f * 3.14159f / 180.0f;
-    physx::PxQuat quat(std::sin(angle/2), 0, 0, std::cos(angle/2));
+    physx::PxQuat quat(std::sin(angle / 2), 0, 0, std::cos(angle / 2));
     float rotation = getXRotationDegrees(quat);
     EXPECT_NEAR(rotation, 45.0f, 0.1f);
 }
 
 TEST_F(HelperFunctionsTest, GetXRotationDegrees_180Degrees) {
     float angle = 180.0f * 3.14159f / 180.0f;
-    physx::PxQuat quat(std::sin(angle/2), 0, 0, std::cos(angle/2));
+    physx::PxQuat quat(std::sin(angle / 2), 0, 0, std::cos(angle / 2));
     float rotation = getXRotationDegrees(quat);
     EXPECT_NEAR(std::abs(rotation), 180.0f, 0.1f);
 }
@@ -156,12 +158,12 @@ TEST_F(HelperFunctionsTest, PxQuatToGlmQuat_ArbitraryRotation) {
 TEST_F(HelperFunctionsTest, PxQuatToGlmQuat_NormalizedRotation) {
     // Create a normalized quaternion
     float angle = 45.0f * 3.14159f / 180.0f;
-    physx::PxQuat pxQuat(std::sin(angle/2), 0, 0, std::cos(angle/2));
+    physx::PxQuat pxQuat(std::sin(angle / 2), 0, 0, std::cos(angle / 2));
     glm::quat glmQuat = PxQuatToGlmQuat(pxQuat);
-    
+
     // Check that the quaternion is normalized
-    float length = std::sqrt(glmQuat.w * glmQuat.w + glmQuat.x * glmQuat.x + 
-                            glmQuat.y * glmQuat.y + glmQuat.z * glmQuat.z);
+    float length =
+        std::sqrt(glmQuat.w * glmQuat.w + glmQuat.x * glmQuat.x + glmQuat.y * glmQuat.y + glmQuat.z * glmQuat.z);
     EXPECT_NEAR(length, 1.0f, TestHelpers::FLOAT_EPSILON);
 }
 

@@ -2,14 +2,14 @@
 
 #include <iostream>
 #include <vector>
+
+#include "../../ui/Input/InputStructures.h"
 #include "./Camera.h"
-#include "./FreeCamera.h"
 #include "./FirstPersonCamera.h"
 #include "./FollowingCarCamera.h"
+#include "./FreeCamera.h"
 #include "./ObservingCamera.h"
 #include "./ObservingCameraUp.h"
-#include "../../ui/Input/InputStructures.h"
-
 
 class PlayerCameraSet {
 public:
@@ -26,22 +26,20 @@ public:
     }
     CameraType activeType = CameraType::OBSERVING_CAMERA;
 
-    void SetActiveCamera(CameraType type) {
-		activeType = type;
-    }
+    void SetActiveCamera(CameraType type) { activeType = type; }
 
     Camera& GetActiveCamera() {
         switch (activeType) {
-        case CameraType::FOLLOWING_CAR_CAMERA:
-            return *thirdPersonCamera;
-        case CameraType::FIRST_PERSON_CAMERA:
-            return *firstPersonCamera;
-        case CameraType::OBSERVING_CAMERA:
-            return *observingCamera;
-        case CameraType::OBSERVING_CAMERA_UP:
-            return *observingCameraUp;
-        default:
-            return *thirdPersonCamera;  
+            case CameraType::FOLLOWING_CAR_CAMERA:
+                return *thirdPersonCamera;
+            case CameraType::FIRST_PERSON_CAMERA:
+                return *firstPersonCamera;
+            case CameraType::OBSERVING_CAMERA:
+                return *observingCamera;
+            case CameraType::OBSERVING_CAMERA_UP:
+                return *observingCameraUp;
+            default:
+                return *thirdPersonCamera;
         }
     }
 };

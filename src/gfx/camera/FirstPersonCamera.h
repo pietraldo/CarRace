@@ -3,6 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <glad/glad.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -10,7 +11,6 @@
 #include "Camera.h"
 
 class FirstPersonCamera : public Camera {
-
 private:
   glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
   glm::vec3 directionFromTarget = glm::vec3(0.0f, 0.0f, 1.0f);

@@ -17,11 +17,16 @@
 #include "terrain.h"
 
 #include "./gfx/camera/CameraManager.h"
+#include "./physics/physics.h"
 #include "./physics/vehicle.h"
 #include "./ui/Input/InputManager.h"
 #include "./ui/Input/InputStructures.h"
+#include "terrain.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include "./ui/Input/InputStructures.h"

@@ -1,46 +1,34 @@
 #include "terrain.h"
 
-
-void Terrain::LoadTerrain(const char* heightmapPath)
-{
+void Terrain::LoadTerrain(const char* heightmapPath) {
     loadRoadmap("../assets/vehicledata/road_mark.txt");
     loadHeightmap(heightmapPath, rows, cols);
     CreateVerticesAndIndices();
 }
 
-float Terrain::GetMinHeightFromHeightData()
-{
+float Terrain::GetMinHeightFromHeightData() {
     float min = heightData[0][0];
-    for (const auto& row : heightData)
-    {
-        for (const auto& val : row)
-        {
-            if (val < min)
-                min = val;
+    for (const auto& row : heightData) {
+        for (const auto& val : row) {
+            if (val < min) min = val;
         }
     }
     return min;
 }
 
-float Terrain::GetMaxHeightFromHeightData()
-{
+float Terrain::GetMaxHeightFromHeightData() {
     float max = heightData[0][0];
-    for (const auto& row : heightData)
-    {
-        for (const auto& val : row)
-        {
-            if (val > max)
-                max = val;
+    for (const auto& row : heightData) {
+        for (const auto& val : row) {
+            if (val > max) max = val;
         }
     }
     return max;
 }
 
-void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols)
-{
+void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols) {
     std::ifstream file(filename);
-    if (!file.is_open())
-        throw std::runtime_error("Cannot open file: " + filename);
+    if (!file.is_open()) throw std::runtime_error("Cannot open file: " + filename);
 
     std::string line;
     outRows = 0;
@@ -62,10 +50,10 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
             colCount++;
         }
 
-        if (colCount == 0) continue; // skip whitespace-only lines
+        if (colCount == 0) continue;  // skip whitespace-only lines
 
         if (outCols == -1)
-            outCols = colCount;          // first line defines column count
+            outCols = colCount;  // first line defines column count
         else if (colCount != outCols)
             throw std::runtime_error("Inconsistent column count in file.");
 
@@ -73,17 +61,14 @@ void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outC
         outRows++;
     }
 
-    if (outRows == 0 || outCols == -1)
-        throw std::runtime_error("File is empty or contains no valid numbers.");
+    if (outRows == 0 || outCols == -1) throw std::runtime_error("File is empty or contains no valid numbers.");
 
     std::cout << "Loaded heightmap: " << outRows << " rows, " << outCols << " cols." << std::endl;
 }
 
-void Terrain::loadRoadmap(const std::string& filename)
-{
+void Terrain::loadRoadmap(const std::string& filename) {
     std::ifstream file(filename);
-    if (!file.is_open())
-        throw std::runtime_error("Cannot open file: " + filename);
+    if (!file.is_open()) throw std::runtime_error("Cannot open file: " + filename);
 
     std::string line;
     int rows = 0;
@@ -112,7 +97,7 @@ void Terrain::loadRoadmap(const std::string& filename)
         if (colCount == 0) continue;
 
         if (cols == -1)
-            cols = colCount;                   // first line defines expected column count
+            cols = colCount;  // first line defines expected column count
         else if (colCount != cols)
             throw std::runtime_error("Inconsistent column count in roadmap file.");
 
@@ -120,41 +105,34 @@ void Terrain::loadRoadmap(const std::string& filename)
         rows++;
     }
 
-    if (rows == 0 || cols == -1)
-        throw std::runtime_error("Roadmap file is empty or invalid.");
+    if (rows == 0 || cols == -1) throw std::runtime_error("Roadmap file is empty or invalid.");
 
     std::cout << "Loaded roadmap: " << rows << " rows, " << cols << " cols." << std::endl;
 }
 
-
-
-vector<float> Terrain::CreateVerticesAndIndices()
-{
-    for (int i = 0; i < rows - 1; ++i)
-    {
-        for (int j = 0; j < cols - 1; ++j)
-        {
-            // point 1 
+vector<float> Terrain::CreateVerticesAndIndices() {
+    for (int i = 0; i < rows - 1; ++i) {
+        for (int j = 0; j < cols - 1; ++j) {
+            // point 1
             float x1 = j * scalex;
             float y1 = heightData[i][j] * scaley;
             float z1 = i * scalez;
-            
-            // point 2 
+
+            // point 2
             float x2 = (j + 1) * scalex;
             float y2 = heightData[i][j + 1] * scaley;
             float z2 = i * scalez;
-           
 
-            // point 3 
+            // point 3
             float x3 = j * scalex;
             float y3 = heightData[i + 1][j] * scaley;
             float z3 = (i + 1) * scalez;
-          
-            // point 4 
+
+            // point 4
             float x4 = (j + 1) * scalex;
-            float y4 = heightData[i + 1][ j + 1] * scaley;
+            float y4 = heightData[i + 1][j + 1] * scaley;
             float z4 = (i + 1) * scalez;
-           
+
             // first triangle normals
             glm::vec3 u11 = glm::vec3(x2 - x1, y2 - y1, z2 - z1);
             glm::vec3 v11 = glm::vec3(x3 - x1, y3 - y1, z3 - z1);
@@ -174,18 +152,16 @@ vector<float> Terrain::CreateVerticesAndIndices()
             float u4 = (float)(j + 1) / (cols - 1);
             float v4 = (float)(i + 1) / (rows - 1);
 
-            if (roadMark[i][j] != 1)
-            {
-                 u1 = 0.631;
-                 v1 = 1;
-                 u2 = 0.752;
-                 v2 = 1;
-                 u3 = 0.631;
-                 v3 = 0.889;
-                 u4 = 0.752;
-                 v4 = 0.889;
+            if (roadMark[i][j] != 1) {
+                u1 = 0.631;
+                v1 = 1;
+                u2 = 0.752;
+                v2 = 1;
+                u3 = 0.631;
+                v3 = 0.889;
+                u4 = 0.752;
+                v4 = 0.889;
             }
-      
 
             // first triangle
 
@@ -196,7 +172,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
-            vertices.push_back(u1); vertices.push_back(v1);
+            vertices.push_back(u1);
+            vertices.push_back(v1);
 
             // vertex 2
             vertices.push_back(x2);
@@ -205,7 +182,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
-            vertices.push_back(u2); vertices.push_back(v2);
+            vertices.push_back(u2);
+            vertices.push_back(v2);
 
             // vertex 3
             vertices.push_back(x3);
@@ -214,7 +192,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal1.x);
             vertices.push_back(normal1.y);
             vertices.push_back(normal1.z);
-            vertices.push_back(u3); vertices.push_back(v3);
+            vertices.push_back(u3);
+            vertices.push_back(v3);
 
             // second triangle
 
@@ -225,7 +204,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
-            vertices.push_back(u4); vertices.push_back(v4);
+            vertices.push_back(u4);
+            vertices.push_back(v4);
 
             // vertex 3
             vertices.push_back(x3);
@@ -234,7 +214,8 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
-            vertices.push_back(u3); vertices.push_back(v3);
+            vertices.push_back(u3);
+            vertices.push_back(v3);
 
             // vertex 2
             vertices.push_back(x2);
@@ -243,10 +224,11 @@ vector<float> Terrain::CreateVerticesAndIndices()
             vertices.push_back(normal2.x);
             vertices.push_back(normal2.y);
             vertices.push_back(normal2.z);
-            vertices.push_back(u2); vertices.push_back(v2);
+            vertices.push_back(u2);
+            vertices.push_back(v2);
 
             // insert indices
-            int count = (vertices.size() / 8)-6;
+            int count = (vertices.size() / 8) - 6;
             indices.push_back(count);
             indices.push_back(count + 1);
             indices.push_back(count + 2);

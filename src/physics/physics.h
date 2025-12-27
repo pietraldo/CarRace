@@ -1,25 +1,22 @@
 #pragma once
 
 #include <PxPhysicsAPI.h>
+
 #include <iostream>
 #include <vector>
 
+#include "../audio/CollisionSound.h"
+#include "../game/GameEngine.h"
 #include "../game/Objects/GameObject.h"
+#include "../game/Settings.h"
+#include "../game/terrain.h"
+#include "../ui/Input/InputStructures.h"
 #include "./common/SnippetVehicleHelpers.h"
 #include "./common/enginedrivetrain/EngineDrivetrain.h"
 #include "./common/serialization/BaseSerialization.h"
 #include "./common/serialization/EngineDrivetrainSerialization.h"
-
-#include "../game/GameEngine.h"
-#include "../game/terrain.h"
-#include "../ui/Input/InputStructures.h"
 #include "./game/Objects/car/Car.h"
-
-#include "../audio/CollisionSound.h"
 #include "physics_simulation_event_callback.h"
-
-#include "../audio/CollisionSound.h"
-#include "../game/Settings.h"
 
 using namespace physx;
 using namespace vehicle2;
@@ -57,8 +54,7 @@ public:
     void createObjects(const std::vector<GameObject*>& gameObjects);
 
     void createTerrain();
-    void update(float deltaTime, CarControlInput carControll0,
-        CarControlInput carControll1);
+    void update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1);
 
     void cleanup();
 
@@ -66,12 +62,11 @@ public:
 
     void InitVehicleSystem();
 
-    RaceCar* createVehicle(const PxVec3& position, PxQuat rotation,
-        const std::string& vehicleName);
+    RaceCar* createVehicle(const PxVec3& position, PxQuat rotation, const std::string& vehicleName);
 
     PxMaterial* gMaterial = nullptr;
 
-    PxMaterial* terrainMaterials[2]; 
+    PxMaterial* terrainMaterials[2];
     PxMaterial* roadMaterial = nullptr;
     PxMaterial* grassMaterial = nullptr;
 
@@ -84,8 +79,6 @@ public:
     PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions[16];
     PxU32 gNbPhysXMaterialFrictions = 0;
     PxReal gPhysXDefaultMaterialFriction = 1.0f;
-
-
 
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
 

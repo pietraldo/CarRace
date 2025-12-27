@@ -4,24 +4,18 @@
 
 using namespace physx;
 
-void PhysicsSimulationEventCallback::onContact(const PxContactPairHeader& pairHeader,
-    const PxContactPair* pairs,
-    PxU32 nbPairs)
-{
-    if (!mCollisionSound)
-        return;
+void PhysicsSimulationEventCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs,
+                                               PxU32 nbPairs) {
+    if (!mCollisionSound) return;
 
-    for (PxU32 i = 0; i < nbPairs; i++)
-    {
+    for (PxU32 i = 0; i < nbPairs; i++) {
         const PxContactPair& cp = pairs[i];
 
-        if (cp.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
-        {
+        if (cp.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD)) {
             PxRigidActor* actor0 = pairHeader.actors[0]->is<PxRigidActor>();
             PxRigidActor* actor1 = pairHeader.actors[1]->is<PxRigidActor>();
 
-            if (actor0 && actor1)
-            {
+            if (actor0 && actor1) {
                 PxRigidBody* body0 = actor0->is<PxRigidBody>();
                 PxRigidBody* body1 = actor1->is<PxRigidBody>();
 
@@ -30,15 +24,12 @@ void PhysicsSimulationEventCallback::onContact(const PxContactPairHeader& pairHe
 
                 float relativeSpeed = (vel0 - vel1).magnitude();
 
-                if (relativeSpeed > 3.0f)
-                {
+                if (relativeSpeed > 3.0f) {
                     float intensity = (relativeSpeed - 3.0f) / 10.0f;
                     if (intensity > 1.0f) intensity = 1.0f;
                     if (intensity < 0.2f) intensity = 0.2f;
                     mCollisionSound->playImpact(intensity);
-                }
-                else if (relativeSpeed > 0.5f)
-                {
+                } else if (relativeSpeed > 0.5f) {
                     float intensity = (relativeSpeed - 0.5f) / 2.5f;
                     if (intensity > 1.0f) intensity = 1.0f;
                     if (intensity < 0.2f) intensity = 0.2f;

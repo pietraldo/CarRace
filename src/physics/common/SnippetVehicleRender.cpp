@@ -24,63 +24,57 @@
 //
 // Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #ifdef RENDER_SNIPPET
 
-#include "PxPhysicsAPI.h"
-
-#include "../snippetrender/SnippetRender.h"
 #include "../snippetrender/SnippetCamera.h"
+#include "../snippetrender/SnippetRender.h"
+#include "PxPhysicsAPI.h"
 
 using namespace physx;
 
 extern bool initPhysics();
-extern void stepPhysics();	
+extern void stepPhysics();
 extern void cleanupPhysics();
 
 extern PxScene* gScene;
 
-namespace
-{
+namespace {
 Snippets::Camera* sCamera;
 
-void renderCallback()
-{
-	stepPhysics();
+void renderCallback() {
+    stepPhysics();
 
-	Snippets::startRender(sCamera);
+    Snippets::startRender(sCamera);
 
-	PxU32 nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
-	if(nbActors)
-	{
-		const PxVec3 dynColor(1.0f, 0.5f, 0.25f);
+    PxU32 nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
+    if (nbActors) {
+        const PxVec3 dynColor(1.0f, 0.5f, 0.25f);
 
-		PxArray<PxRigidActor*> actors(nbActors);
-		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC, reinterpret_cast<PxActor**>(&actors[0]), nbActors);
-		Snippets::renderActors(&actors[0], static_cast<PxU32>(actors.size()), true, dynColor);
-	}
+        PxArray<PxRigidActor*> actors(nbActors);
+        gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC,
+                          reinterpret_cast<PxActor**>(&actors[0]), nbActors);
+        Snippets::renderActors(&actors[0], static_cast<PxU32>(actors.size()), true, dynColor);
+    }
 
-	Snippets::finishRender();
+    Snippets::finishRender();
 }
 
-void exitCallback()
-{
-	delete sCamera;
-	cleanupPhysics();
+void exitCallback() {
+    delete sCamera;
+    cleanupPhysics();
 }
-}
+}  // namespace
 
-void renderLoop(const char* name)
-{
-	sCamera = new Snippets::Camera(PxVec3(10.0f, 10.0f, 10.0f), PxVec3(-0.6f,-0.2f,-0.7f));
+void renderLoop(const char* name) {
+    sCamera = new Snippets::Camera(PxVec3(10.0f, 10.0f, 10.0f), PxVec3(-0.6f, -0.2f, -0.7f));
 
-	Snippets::setupDefault(name, sCamera, NULL, renderCallback, exitCallback);
+    Snippets::setupDefault(name, sCamera, NULL, renderCallback, exitCallback);
 
-	if (initPhysics())
-	{
-		glutMainLoop();
-	}
+    if (initPhysics()) {
+        glutMainLoop();
+    }
 }
 
 #endif

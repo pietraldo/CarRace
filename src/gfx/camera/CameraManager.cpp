@@ -2,8 +2,7 @@
 
 CameraManager* CameraManager::instance = nullptr;
 
-void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber)
-{
+void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber) {
     if (viewMode == ViewMode::EDIT_SCREEN) {
         return;
     }
@@ -11,19 +10,17 @@ void CameraManager::SetPlayerActiveCamera(CameraType type, int playerNumber)
     playersCamera[playerNumber].SetActiveCamera(type);
 }
 
-Camera& CameraManager::GetPlayerActiveCamera(int playerNumber)
-{
+Camera& CameraManager::GetPlayerActiveCamera(int playerNumber) {
     if (viewMode == ViewMode::EDIT_SCREEN) {
-		return GetFreeCamera();
+        return GetFreeCamera();
     }
 
     return playersCamera[playerNumber].GetActiveCamera();
 }
 
-
 void CameraManager::CreateCameras() {
-	playersCamera[0] = PlayerCameraSet();
-	playersCamera[1] = PlayerCameraSet();
+    playersCamera[0] = PlayerCameraSet();
+    playersCamera[1] = PlayerCameraSet();
 }
 
 void CameraManager::ProccessInput(CameraControlInput input, float deltaTime) {
@@ -35,8 +32,7 @@ void CameraManager::ProccessInput(CameraControlInput input, float deltaTime) {
     }
 }
 
-void CameraManager::MoveFreeCameraToPosition(glm::vec3 position)
-{
+void CameraManager::MoveFreeCameraToPosition(glm::vec3 position) {
     ViewMode activeViewMode = GetViewMode();
     if (activeViewMode == ViewMode::EDIT_SCREEN) {
         FreeCamera& freeCam = GetFreeCamera();

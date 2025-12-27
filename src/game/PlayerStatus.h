@@ -2,16 +2,15 @@
 
 #include <iostream>
 #include <vector>
+
 #include "PxPhysicsAPI.h"
 
-struct VehicleStatus
-{
+struct VehicleStatus {
     physx::PxVec3 postion;
     physx::PxQuat rotation;
 };
 
-struct PlayerStatus
-{
+struct PlayerStatus {
     std::vector<VehicleStatus> vehiclePositions;
     int timeOutsideOfTrack;
     int checkPointTime;

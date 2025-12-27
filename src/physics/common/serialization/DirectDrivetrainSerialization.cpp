@@ -24,70 +24,65 @@
 //
 // Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #include "DirectDrivetrainSerialization.h"
-#include "SerializationCommon.h"
 
 #include <fstream>
 #include <sstream>
 
-namespace snippetvehicle
-{
+#include "SerializationCommon.h"
 
-bool readThrottleResponseParams
-(const rapidjson::Document& config, const PxVehicleAxleDescription& axleDesc,
-	PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams)
-{
-	if (!config.HasMember("ThrottleCommandResponseParams"))
-		return false;
+namespace snippetvehicle {
 
-	if (!readCommandResponseParams(config["ThrottleCommandResponseParams"], axleDesc, throttleResponseParams))
-		return false;
+bool readThrottleResponseParams(const rapidjson::Document& config, const PxVehicleAxleDescription& axleDesc,
+                                PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams) {
+    if (!config.HasMember("ThrottleCommandResponseParams")) return false;
 
-	return true;
+    if (!readCommandResponseParams(config["ThrottleCommandResponseParams"], axleDesc, throttleResponseParams))
+        return false;
+
+    return true;
 }
 
-bool writeThrottleResponseParams
-(const PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams, const PxVehicleAxleDescription& axleDesc,
- rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
-{
-	writer.Key("ThrottleCommandResponseParams");
-	writer.StartObject();
-	writeCommandResponseParams(throttleResponseParams, axleDesc, writer);
-	writer.EndObject();
-	return true;
+bool writeThrottleResponseParams(const PxVehicleDirectDriveThrottleCommandResponseParams& throttleResponseParams,
+                                 const PxVehicleAxleDescription& axleDesc,
+                                 rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) {
+    writer.Key("ThrottleCommandResponseParams");
+    writer.StartObject();
+    writeCommandResponseParams(throttleResponseParams, axleDesc, writer);
+    writer.EndObject();
+    return true;
 }
 
 bool readDirectDrivetrainParamsFromJsonFile(const char* directory, const char* filename,
-	const PxVehicleAxleDescription& axleDescription, DirectDrivetrainParams& directDrivetrainParams)
-{
-	rapidjson::Document config;
-	if (!openDocument(directory, filename, config))
-		return false;
+                                            const PxVehicleAxleDescription& axleDescription,
+                                            DirectDrivetrainParams& directDrivetrainParams) {
+    rapidjson::Document config;
+    if (!openDocument(directory, filename, config)) return false;
 
-	if(!readThrottleResponseParams(config, axleDescription, directDrivetrainParams.directDriveThrottleResponseParams))
-		return false;
+    if (!readThrottleResponseParams(config, axleDescription, directDrivetrainParams.directDriveThrottleResponseParams))
+        return false;
 
-	return true;
+    return true;
 }
 
 bool writeDirectDrivetrainParamsToJsonFile(const char* directory, const char* filename,
-	const PxVehicleAxleDescription& axleDescription, const DirectDrivetrainParams& directDrivetrainParams)
-{
-	rapidjson::StringBuffer strbuf;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(strbuf);
+                                           const PxVehicleAxleDescription& axleDescription,
+                                           const DirectDrivetrainParams& directDrivetrainParams) {
+    rapidjson::StringBuffer strbuf;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(strbuf);
 
-	writer.StartObject();
-	writeThrottleResponseParams(directDrivetrainParams.directDriveThrottleResponseParams, axleDescription, writer);
-	writer.EndObject();
+    writer.StartObject();
+    writeThrottleResponseParams(directDrivetrainParams.directDriveThrottleResponseParams, axleDescription, writer);
+    writer.EndObject();
 
-	std::ofstream myfile;
-	myfile.open(std::string(directory) + "/" + filename);
-	myfile << strbuf.GetString() << std::endl;
-	myfile.close();
+    std::ofstream myfile;
+    myfile.open(std::string(directory) + "/" + filename);
+    myfile << strbuf.GetString() << std::endl;
+    myfile.close();
 
-	return true;
+    return true;
 }
 
-}//namespace snippetvehicle
+}  // namespace snippetvehicle

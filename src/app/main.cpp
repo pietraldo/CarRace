@@ -1,37 +1,33 @@
 ﻿
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstdlib>
-
-
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
 #include <hidapi.h>
 
+#include <cstdlib>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
+#include "../game/GameEngine.h"
+#include "../gfx/Cube.h"
+#include "../gfx/Model.h"
 #include "../gfx/Shader.h"
 #include "../gfx/camera/Camera.h"
-#include "../gfx/Model.h"
-#include "../game/GameEngine.h"
-#include "../gfx/lights/Light.h"
-#include "../gfx/lights/LightPoint.h"
-#include "../gfx/lights/LightDirectional.h"
-#include "../gfx/lights/LightSpot.h"
-#include "../gfx/Cube.h"
 #include "../gfx/camera/CameraManager.h"
-
-#include "audio/AudioEngine.h"
-
+#include "../gfx/lights/Light.h"
+#include "../gfx/lights/LightDirectional.h"
+#include "../gfx/lights/LightPoint.h"
+#include "../gfx/lights/LightSpot.h"
+#include "./game/Objects/car/Car.h"
 #include "./gfx/Rendering.h"
 #include "./physics/physics.h"
-#include "./game/Objects/car/Car.h"
-#include "./ui/Input/InputStructures.h"
 #include "./ui/Input/InputManager.h"
+#include "./ui/Input/InputStructures.h"
+#include "audio/AudioEngine.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "imgui.h"
 
 // include physx
 #include <PxPhysicsAPI.h>
@@ -39,7 +35,6 @@
 #include "../externals/stb_image/stb_image.h"
 
 using namespace std;
-
 
 // timing
 float deltaTime = 0.0f;
@@ -57,21 +52,27 @@ int main()
 	Rendering::gameEngine = gameEngine;
 	srand(19);
 
-	gameEngine->CreateLights();
-	CameraManager::GetInstance()->CreateCameras();
-	LightBuffer lightBuffer = gameEngine->LoadLights();
-	AudioEngine::instance().init();
+    Physics::getInstance()->initialize(gameEngine);
+
+    Rendering::gameEngine = gameEngine;
+    srand(19);
+
+    gameEngine->CreateLights();
+    CameraManager::GetInstance()->CreateCameras();
+    LightBuffer lightBuffer = gameEngine->LoadLights();
+    AudioEngine::instance().init();
 
 	if (Rendering::Initialize() == -1) return -1;
 
 	InputManager::getInstance().setUp();
 
-	gameEngine->InitializeSkybox();
+    gameEngine->InitializeSkybox();
 
 	gameEngine->CreateModels();
 
 	Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
+    Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
 
 	bool continueGame = true;
 	while (continueGame && !glfwWindowShouldClose(Rendering::window))

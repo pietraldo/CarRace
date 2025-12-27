@@ -1,0 +1,13 @@
+---
+Language:        Cpp
+BasedOnStyle:  Google
+IndentWidth:     4
+ColumnLimit:     120
+SortIncludes:    true
+ReflowComments:  true
+BreakBeforeBraces: Attach
+AccessModifierOffset: -4
+IndentCaseLabels: true
+AlignAfterOpenBracket: Align
+PointerAlignment: Left
+...

@@ -2,13 +2,12 @@
 
 #include "miniaudio.h"
 
-class AudioEngine
-{
+class AudioEngine {
 public:
     static AudioEngine& instance();
 
-    bool init();        
-    void shutdown();    
+    bool init();
+    void shutdown();
 
     ma_engine* getEngine() { return &engine; }
 
