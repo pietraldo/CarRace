@@ -3,7 +3,6 @@
 
 PassCommon RenderPassUniforms::Build(const Camera& cam, const FogParams& fog) {
     PassCommon p{};
-    // jeśli Rendering::GetViewMatrix bierze non-const, to zmień albo zrób overload na const
     p.view = Rendering::GetViewMatrix(const_cast<Camera&>(cam));
     p.proj = Rendering::GetProjectionMatrix(const_cast<Camera&>(cam));
     p.viewProj = p.proj * p.view;
