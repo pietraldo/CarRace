@@ -9,16 +9,14 @@
 #include "Animation.h"
 
 class AnimationCamera : public Camera {
-
 private:
-
     Animation animation;
     float timeStamp = 0.0f;
 
 public:
     // constructor with vectors
     AnimationCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-               float yaw = YAW, float pitch = PITCH)
+                    float yaw = YAW, float pitch = PITCH)
         : Camera(CameraType::ANIMATION_CAMERA, position, up, yaw, pitch) {}
 
     // constructor with scalar values
@@ -30,7 +28,6 @@ public:
         animation.Reset();
     }
     void Update(float dt) {
-
         timeStamp += dt;
 
         AnimationFrame frame = animation.GetFrame(timeStamp);

@@ -1,18 +1,14 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtc/quaternion.hpp>
 #include <iostream>
 #include <vector>
 
 enum class FrameMode { CUT, INTERPOLATE, RESULT };
 
 struct AnimationFrame {
-    
-
-    
     glm::vec3 position;
     glm::vec3 front;
     float timeStamp;
@@ -20,7 +16,6 @@ struct AnimationFrame {
 };
 
 class Animation {
-    
     std::vector<AnimationFrame> frames;
     int lastFrameIndex = 0;
     bool ended = false;
@@ -30,8 +25,6 @@ class Animation {
     glm::vec3 Slerp(const glm::vec3& a, const glm::vec3& b, float t);
 
 public:
-    
-
     Animation();
 
     void Reset() {
@@ -40,5 +33,4 @@ public:
     }
     bool HasEnded() const { return ended; }
     AnimationFrame GetFrame(float timeStamp);
-    
 };

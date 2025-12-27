@@ -299,7 +299,7 @@ void Rendering::RenderImGui() {
                 glm::vec3 position = PxVec3ToGlmVec3(Physics::getInstance()->getVehicles()[0]->getVehiclePosition());
                 CameraManager::GetInstance()->MoveFreeCameraToPosition(position);
             }
-        }else if (currentMode == ViewMode::INTRO_SCREEN) {
+        } else if (currentMode == ViewMode::INTRO_SCREEN) {
             ImGui::Text("Intro screen");
 
             if (ImGui::Button("Reset")) {

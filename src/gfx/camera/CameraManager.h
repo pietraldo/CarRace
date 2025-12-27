@@ -4,12 +4,12 @@
 #include <vector>
 
 #include "../../ui/Input/InputStructures.h"
+#include "./AnimationCamera.h"
 #include "./Camera.h"
 #include "./FirstPersonCamera.h"
 #include "./FollowingCarCamera.h"
 #include "./FreeCamera.h"
 #include "./ObservingCamera.h"
-#include "./AnimationCamera.h"
 #include "PlayerCameraSet.h"
 
 enum class ViewMode { SINGLE_SCREEN, SPLIT_SCREEN, EDIT_SCREEN, INTRO_SCREEN };

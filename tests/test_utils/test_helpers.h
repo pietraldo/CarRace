@@ -62,7 +62,7 @@ inline bool AngleEqual(float a, float b, float epsilon = FLOAT_EPSILON) {
         << "Expected: (" << expected.w << ", " << expected.x << ", " << expected.y << ", " << expected.z << ")\n" \
         << "Actual:   (" << actual.w << ", " << actual.x << ", " << actual.y << ", " << actual.z << ")"
 
-#define EXPECT_ANGLE_EQ(expected, actual)                                                             \
+#define EXPECT_ANGLE_EQ(expected, actual)                                                              \
     EXPECT_TRUE(TestHelpers::AngleEqual(expected, actual)) << "Expected angle: " << expected << "°\n" \
                                                            << "Actual angle:   " << actual << "°"
 
