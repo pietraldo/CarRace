@@ -31,7 +31,7 @@ void Animation::SaveFramesToFile(const std::string& filename) {
 
     float lastTimeStamp = 0;
     for (const auto& frame : frames) {
-        outFile << std::left << std::setw(width) << frame.timeStamp + lastTimeStamp << "\t" << std::setw(width) << frame.position.x
+        outFile << std::left << std::setw(width) << frame.timeStamp - lastTimeStamp << "\t" << std::setw(width) << frame.position.x
                 << "\t" << std::setw(width) << frame.position.y << "\t" << std::setw(width) << frame.position.z << "\t"
                 << std::setw(width) << frame.front.x << "\t" << std::setw(width) << frame.front.y << "\t"
                 << std::setw(width) << frame.front.z << "\t" << std::setw(width) << static_cast<int>(frame.frameMode)
