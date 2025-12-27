@@ -1,10 +1,10 @@
 #include "Rendering.h"
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <utility>
-
 #include "Mesh.h"
 #include "Mirrors.h"
+#include "camera/FirstPersonCamera.h"
+#include <utility>
 
 unsigned Rendering::CubeVAO = 0;
 Shader* Rendering::colorShader = nullptr;
@@ -233,6 +233,16 @@ void Rendering::RenderImGui() {
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", activeCam.Position.x, activeCam.Position.y,
                         activeCam.Position.z);
             ImGui::Text("Front: x: %.2f y: %.2f z: %.2f", activeCam.Front.x, activeCam.Front.y, activeCam.Front.z);
+
+            if (activeCamera == CameraType::FIRST_PERSON_CAMERA) {
+                FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
+                if (fpCam) {
+                    glm::vec3 offset = fpCam->GetLocalOffset();
+                    if (ImGui::DragFloat3("FP Offset", &offset[0], 0.05f)) {
+                        fpCam->SetLocalOffset(offset);
+                    }
+                }
+            }
         } else if (currentMode == ViewMode::SPLIT_SCREEN) {
             CameraType activeCamera0 = cameraManager->GetPlayerActiveCamera(0).cameraType;
             if (ImGui::RadioButton("First Person Camera (Player 1)",
@@ -377,21 +387,43 @@ void Rendering::RenderImGui() {
 
     {
         ImGui::Begin("Mirror settings");
+        ImGui::Checkbox("Render Mirrors", &(*gameEngine).renderMirrors);
 
         ImGui::Separator();
         ImGui::Text("Offsets (position)");
-        ImGui::SliderFloat("Height", &Mirrors::mirrorHeightOffset, 0.0f, 1.0f);
-        ImGui::SliderFloat("Side", &Mirrors::mirrorSideOffset, 0.5f, 2.0f);
-        ImGui::SliderFloat("Forward", &Mirrors::mirrorForwardOffset, -0.5f, 0.5f);
+        ImGui::SliderFloat("Height", &Mirrors::mirrorHeightOffset, -2.0f, 4.0f);
+        ImGui::SliderFloat("Side", &Mirrors::mirrorSideOffset, -10.0f, 5.0f);
+        ImGui::SliderFloat("Forward", &Mirrors::mirrorForwardOffset, -5.0f, 5.0f);
 
         ImGui::Separator();
         ImGui::Text("Direction (look)");
-        ImGui::SliderFloat("Look side", &Mirrors::mirrorLookSide, -1.0f, 1.0f);
-        ImGui::SliderFloat("Look up", &Mirrors::mirrorLookUp, -1.0f, 1.0f);
+        ImGui::SliderFloat("Look side", &Mirrors::mirrorLookSide, -2.0f, 2.0f);
+        ImGui::SliderFloat("Look up", &Mirrors::mirrorLookUp, -2.0f, 2.0f);
 
         ImGui::Separator();
         ImGui::Text("Projection");
-        ImGui::SliderFloat("Mirror FOV", &Mirrors::mirrorFov, 40.0f, 140.0f);
+        ImGui::SliderFloat("Mirror FOV", &Mirrors::mirrorFov, 10.0f, 170.0f);
+
+        ImGui::Separator();
+        auto* car = gameEngine->GetCar(0);
+        if (car) {
+            glm::vec3 carPos = gameEngine->GetCarPosition();
+            glm::quat carRot = gameEngine->GetCarRotation();
+            glm::vec3 forward = carRot * glm::vec3(0, 0, 1);
+            glm::vec3 up = carRot * glm::vec3(0, 1, 0);
+            glm::vec3 right = carRot * glm::vec3(-1, 0, 0);
+
+            // Left mirror approx calculation for display
+            float sideSign = 1.0f;
+            glm::vec3 mirrorPos = carPos + up * Mirrors::mirrorHeightOffset +
+                                  right * (sideSign * Mirrors::mirrorSideOffset) +
+                                  forward * Mirrors::mirrorForwardOffset;
+            float sideCoeff = (sideSign < 0.0f) ? Mirrors::mirrorLookSide : -Mirrors::mirrorLookSide;
+            glm::vec3 mirrorDir = glm::normalize(-forward + right * sideCoeff + up * Mirrors::mirrorLookUp);
+
+            ImGui::Text("Left Mirror Pos: %.2f %.2f %.2f", mirrorPos.x, mirrorPos.y, mirrorPos.z);
+            ImGui::Text("Left Mirror Dir: %.2f %.2f %.2f", mirrorDir.x, mirrorDir.y, mirrorDir.z);
+        }
 
         ImGui::End();
     }
@@ -441,7 +473,7 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_sphere, activeCam);
 }
 
-bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam) {
+bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, Camera& cam) {
     if (!gameObj || !gameObj->actor) return true;
 
     physx::PxBounds3 bounds = gameObj->actor->getWorldBounds();
@@ -451,7 +483,12 @@ bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, const Camera& 
     float radius = extents.magnitude();
     glm::vec3 c(center.x, center.y, center.z);
 
-    return cam.IsSphereVisible(c, radius);
+    glm::mat4 proj = Rendering::GetProjectionMatrix(cam);
+    glm::mat4 view = Rendering::GetViewMatrix(cam);
+    glm::mat4 viewProj = proj * view;
+
+    // Return true to disable culling for debug
+    return cam.IsSphereVisible(c, radius, viewProj);
 }
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera) {
@@ -487,6 +524,30 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         RenderSceneCommon(gameObjects, freeCam);
     } else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
+
+        // Mirror rendering logic
+        if (gameEngine->renderMirrors && activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA) {
+            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
+            if (fpCam) {
+                float yaw = fpCam->GetCurrentYawOffset();
+                bool renderLeft = (yaw > 20.0f);
+                bool renderRight = (yaw < -20.0f);
+
+                if (renderLeft || renderRight) {
+                    auto& car = *gameEngine->GetCar(0);
+                    glm::vec3 carPos = gameEngine->GetCarPosition();
+                    glm::quat carRot = gameEngine->GetCarRotation();
+
+                    glm::vec3 forward = carRot * glm::vec3(0, 0, 1);
+                    glm::vec3 up = carRot * glm::vec3(0, 1, 0);
+                    glm::vec3 right = carRot * glm::vec3(-1, 0, 0);
+
+                    player1Mirrors.RenderForCar(carPos, forward, up, right, gameObjects, renderLeft, renderRight);
+                }
+            }
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, activeCam);
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {

@@ -70,14 +70,13 @@ int main() {
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
-        if (deltaTime > 0.2f)
-            deltaTime = 0.2f;  // avoid big jumps
-                               // deltaTime = 0.016f; // fixed timestep
+        if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
+        // deltaTime = 0.016f; // fixed timestep
         lastFrame = currentFrame;
 
         InputData input = InputManager::getInstance().getInputData();
 
-        CameraManager::GetInstance()->ProccessInput(input.cameraControl1, deltaTime);
+        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
         startSimulation = startSimulation || input.additionalInfo.startSimulation;
 

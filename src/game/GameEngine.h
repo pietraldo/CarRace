@@ -13,6 +13,9 @@
 #include "../gfx/lights/LightSpot.h"
 #include "./Objects/CubeObejct.h"
 #include "./Objects/GameObject.h"
+#include "./physics/physics.h"
+#include "terrain.h"
+
 #include "./gfx/camera/CameraManager.h"
 #include "./physics/physics.h"
 #include "./physics/vehicle.h"
@@ -30,6 +33,10 @@
 #include "Objects/car/Car.h"
 #include "PlayerStatus.h"
 #include "Settings.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "RenderPassUniforms.h"
 
 using namespace std;
 
@@ -54,6 +61,7 @@ public:
     float fogMaxDist = 150.0f;
     bool userFlashlight = false;
     bool headlightsOn = true;
+    bool renderMirrors = false;
 
     LightSpot* flashlight;
     std::vector<LightSpot*> headlightLeft{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
@@ -71,8 +79,9 @@ public:
     GameEngine();
     void Update(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
-    void UpdatePlayerCamera(float deltaTime, int playerNumber);
-    void UpdatePlayersCamera(float deltaTime);
+
+    void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
+    void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
 
     void AddLight(Light* light) { lights.push_back(light); }
@@ -115,5 +124,6 @@ public:
 
     void DrawSkybox(Camera& activeCam);
     void InitializeSkybox();
+    FogParams GetFogParams();
     unsigned int LoadCubemap(vector<std::string> faces);
 };

@@ -1,12 +1,16 @@
 #pragma once
-
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "stb_image.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include <GLFW/glfw3.h>
 
 #include "../game/GameEngine.h"
 #include "../game/Objects/GameObject.h"
@@ -16,11 +20,7 @@
 #include "./camera/CameraManager.h"
 #include "Cube.h"
 #include "Shader.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "imgui.h"
 #include "lights/Light.h"
-#include "stb_image.h"
 
 class GameEngine;
 class Mirrors;
@@ -67,7 +67,7 @@ public:
     static void ClearExternalView();
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
-    static bool ShouldRenderGameObject(const GameObject* gameObj, const Camera& cam);
+    static bool ShouldRenderGameObject(const GameObject* gameObj, Camera& cam);
 
     // texture
     static int texWidth;
