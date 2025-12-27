@@ -627,8 +627,8 @@ void Rendering::RenderLoadingScreen(float progress)
     }
     stbi_image_free(data);
 
-    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+    glEnable(GL_BLEND);  // WARNING : maybe it is heavy to enable/disable blending each frame (I did not check it)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
 
     Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));
