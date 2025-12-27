@@ -61,13 +61,67 @@ int Rendering::Initialize() {
     if (!success) return false;
 
     LoadShaders();
-    // scene->InitializeSkybox(); is called in main.cpp after
-    // Rendering::Initialize
-
-    vector<float> vert = gameEngine->GetTerrain()->GetVertices();
-    vector<int> ind = gameEngine->GetTerrain()->GetIndices();
 
     LoadTextures();
+    LoadBuffers();
+    
+
+    player1Mirrors.Initialize();
+    return 0;
+}
+
+void Rendering::LoadTextures() {
+    // ----------- Terrain texture -----------
+    glGenTextures(1, &terrainTexture.textureID);
+    glBindTexture(GL_TEXTURE_2D, terrainTexture.textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    terrainTexture.data = stbi_load("../assets/vehicledata/baseColor6.png", &terrainTexture.width,
+                                    &terrainTexture.height, &terrainTexture.channels, 0);
+    if (!terrainTexture.data) {
+        std::cout << "Failed to load texture" << std::endl;
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, terrainTexture.width, terrainTexture.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                     terrainTexture.data);
+    }
+    stbi_image_free(terrainTexture.data);
+
+    // ----------- Intro textures -----------
+    glGenTextures(1, &introTexture.textureID);
+    glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
+
+    // Load image with 4 channels (RGBA)
+    unsigned char* data =
+        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
+                                    4);  // force 4 channels
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, introTexture.width, introTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load loading texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
+}
+
+void Rendering::LoadShaders() {
+    colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
+    lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
+    texturedShader =
+        new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
+    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
+    overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
+}
+
+void Rendering::LoadBuffers() {
+    vector<float> vert = gameEngine->GetTerrain()->GetVertices();
+    vector<int> ind = gameEngine->GetTerrain()->GetIndices();
 
     float quadVertices[] = {
         // positions   // texCoords
@@ -156,58 +210,6 @@ int Rendering::Initialize() {
     glBindBuffer(GL_UNIFORM_BUFFER, UBO_lights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    player1Mirrors.Initialize();
-    return 0;
-}
-
-void Rendering::LoadTextures() {
-    // ----------- Terrain texture -----------
-    glGenTextures(1, &terrainTexture.textureID);
-    glBindTexture(GL_TEXTURE_2D, terrainTexture.textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    terrainTexture.data = stbi_load("../assets/vehicledata/baseColor6.png", &terrainTexture.width,
-                                    &terrainTexture.height, &terrainTexture.channels, 0);
-    if (!terrainTexture.data) {
-        std::cout << "Failed to load texture" << std::endl;
-    } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, terrainTexture.width, terrainTexture.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     terrainTexture.data);
-    }
-    stbi_image_free(terrainTexture.data);
-
-    // ----------- Intro textures -----------
-    glGenTextures(1, &introTexture.textureID);
-    glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
-
-    // Load image with 4 channels (RGBA)
-    unsigned char* data =
-        stbi_load("../assets/animation/kuba.png", &introTexture.width, &introTexture.height, &introTexture.channels,
-                                    4);  // force 4 channels
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, introTexture.width, introTexture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load loading texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    glEnable(GL_BLEND);                                 // WARNING : enable transparency for textures
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : enable transparency for textures
-}
-
-void Rendering::LoadShaders() {
-    colorShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader.txt");
-    lightShader = new Shader("../assets/shaders/vertex_shader2.txt", "../assets/shaders/fragment_shader2.txt");
-    texturedShader =
-        new Shader("../assets/shaders/vertex_textured_shader.txt", "../assets/shaders/fragment_textured_shader.txt");
-    terrainShader = new Shader("../assets/shaders/vertex_shader.txt", "../assets/shaders/fragment_shader_terrain.txt");
-    overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
 }
 
 bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {

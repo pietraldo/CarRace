@@ -61,6 +61,7 @@ public:
     static int Initialize();
     static void LoadTextures();
     static void LoadShaders();
+    static void LoadBuffers();
     static bool CreateGLFWWindow(int width, int height, const char* title);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
