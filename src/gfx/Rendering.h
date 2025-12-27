@@ -1,7 +1,6 @@
 #pragma once
-
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,7 +21,7 @@
 #include "lights/Light.h"
 #include "stb_image.h"
 
-class GameEngine;
+    class GameEngine;
 class Mirrors;
 
 class Rendering {
