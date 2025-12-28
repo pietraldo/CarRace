@@ -6,11 +6,13 @@
 
 static inline bool isFinite(float x) { return std::isfinite(x); }
 
-Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel,
+Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel,
+         std::shared_ptr<GameObject2> steeringWheel,
          int carIndex)
     : carIndex(carIndex) {
     model = std::move(bodyModel);
-
+    
+    this->steeringWheel = std::move(steeringWheel);
     //if (steeringModel) {
     //    steeringWheel = std::move(steeringModel);
     //}
@@ -39,7 +41,7 @@ void Car::UpdatePhysics(float deltaTime) {
     rotation = Physics::getInstance()->getVehicles()[carIndex]->getVehicleRotation();
 }
 
-void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc) {
+void Car::Update(float dt, float steerAngleProc) {
     steerCurrent = steerAngleProc * maxSteer;
 
     /*this->position = position;
@@ -61,46 +63,46 @@ void Car::Update(float dt, glm::vec3 position, physx::PxQuat rotation, float ste
     //    wheel-> rotation = body->GetRotation(rotation);
     //}
 
-    //// steering wheel
-    //steeringPosition = body->GetPosition(position, rotation);
-    //steeringRotation = body->GetRotation(rotation);
+    // steering wheel
+    steeringWheel->SetPosition( GetPosition());
+    steeringWheel->SetRotation(GetRotation());
 
-    //glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
+    glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 
-    //const float steeringWheelMultiplier = 6.0f;
-    //float targetSteeringWheelAngle = steerCurrent * steeringWheelMultiplier;
+    const float steeringWheelMultiplier = 6.0f;
+    float targetSteeringWheelAngle = steerCurrent * steeringWheelMultiplier;
 
-    //if (steeringWheelVisualMaxAngle > 0.0f) {
-    //    targetSteeringWheelAngle =
-    //        glm::clamp(targetSteeringWheelAngle, -steeringWheelVisualMaxAngle, steeringWheelVisualMaxAngle);
-    //}
+    if (steeringWheelVisualMaxAngle > 0.0f) {
+        targetSteeringWheelAngle =
+            glm::clamp(targetSteeringWheelAngle, -steeringWheelVisualMaxAngle, steeringWheelVisualMaxAngle);
+    }
 
-    //float alpha = glm::clamp(steeringWheelVisualSmooth * dt, 0.0f, 1.0f);
-    //steeringWheelVisualAngle = glm::mix(steeringWheelVisualAngle, targetSteeringWheelAngle, alpha);
+    float alpha = glm::clamp(steeringWheelVisualSmooth * dt, 0.0f, 1.0f);
+    steeringWheelVisualAngle = glm::mix(steeringWheelVisualAngle, targetSteeringWheelAngle, alpha);
 
-    //float steeringWheelAngleDeg = steeringWheelVisualAngle;
+    float steeringWheelAngleDeg = steeringWheelVisualAngle;
 
-    //glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
+    glm::quat steeringTurn = glm::angleAxis(glm::radians(steeringWheelAngleDeg), glm::vec3(1, 0, 0));
 
-    //glm::quat finalRotGLM = steeringTurn * localModelFix;
+    glm::quat finalRotGLM = steeringTurn * localModelFix;
 
-    //steeringWheel->SetRotationOffset(GlmQuatToPxQuat(finalRotGLM));
+    steeringWheel->rotationOffset = GlmQuatToPxQuat(finalRotGLM);
 }
 
 void Car::Draw(Shader& shader) {
-    auto setModelMatrix = [&]() {
+    auto setModelMatrix = [shader](GameObject2& gameObject) {
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 pos = GetPosition();
-        glm::quat rot = PxQuatToGlmQuat(GetRotation());
+        glm::vec3 pos = gameObject.GetPosition();
+        glm::quat rot = PxQuatToGlmQuat(gameObject.GetRotation());
 
         modelMatrix = glm::translate(modelMatrix, pos);
         modelMatrix *= glm::toMat4(rot);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
+        modelMatrix = glm::scale(modelMatrix, gameObject.model->GetScale());
         shader.setMat4("model", modelMatrix);
     };
 
     if (model) {
-        setModelMatrix();
+        setModelMatrix(*this);
         model->Draw(shader, [this](const Mesh& mesh, Shader& shader) {
             if (mesh.name == "brake_lights") {
                 shader.setBool("uIsBrakeLight", true);
@@ -118,11 +120,11 @@ void Car::Draw(Shader& shader) {
         });
     }
 
-    //if (steeringWheel) {
-    //    setModelMatrix(steeringWheel);
-    //    shader.setBool("uIsBrakeLight", false);
-    //    steeringWheel->Draw(shader);
-    //}
+    if (steeringWheel) {
+        setModelMatrix(*steeringWheel);
+        shader.setBool("uIsBrakeLight", false);
+        steeringWheel->model->Draw(shader);
+    }
 
     //for (auto& w : wheels) {
     //    auto& model = w->GetModel();

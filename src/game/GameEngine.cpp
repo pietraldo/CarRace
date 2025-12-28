@@ -77,7 +77,7 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
         const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
         cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
         cars[i]->SetHeadlights(headlightsOn);
-        cars[i]->Update(deltaTime, position, rotation, vehicles[i]->getCurrentSteeringAngle());
+        cars[i]->Update(deltaTime, vehicles[i]->getCurrentSteeringAngle());
     }
 }
 
@@ -424,17 +424,17 @@ void GameEngine::CreateCars() {
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
     auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.85f), glm::vec3(1.f));
-    //bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
-    //bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.265f, 1.59f));
-
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.27f), glm::vec3(1.f));
-
     auto steeringModel =
         std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
-    steeringModel->SetPositionOffset(glm::vec3(-0.4f, 0.55f, 0.40f));
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-        cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);
+        
+        auto steeringWheel = std::make_shared<GameObject2>();
+        steeringWheel->model = steeringModel;
+        steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
+        
+        cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringWheel, i);
         cars[i]->positionOffset = glm::vec3(0.0f, 0.265f, 1.59f);
         cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));
     }

@@ -11,10 +11,11 @@
 
 class Car: public GameObjectDynamic {
 public:
-    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel, int carIndex);
+    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<GameObject2> steeringWheel,
+        int carIndex);
 
     void SetSteer(float deg);
-    void Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc);
+    void Update(float dt, float steerAngleProc);
     void Draw(Shader& shader);
 
     float GetSteer() const { return steerCurrent; }
@@ -32,9 +33,6 @@ public:
     void SetBraking(bool braking) { isBraking = braking; }
     void SetHeadlights(bool on) { isHeadlightsOn = on; }
 
-    void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
-    float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth; }
-
     void UpdatePhysics(float deltaTime) override;
 
     //const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels; }
@@ -44,10 +42,13 @@ private:
 
    /* std::array<std::unique_ptr<Wheel>, 4> wheels{};
 
+   
     std::shared_ptr<Model> steeringWheel;
     glm::vec3 steeringPosition;
     physx::PxQuat steeringRotation;
     glm::vec3 steeringOffset;*/
+
+    std::shared_ptr<GameObject2> steeringWheel;
 
     float steerTarget = 0.f;
     float steerCurrent = 0.f;  // deg
