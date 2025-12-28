@@ -52,6 +52,11 @@ public:
 
         // Spring-damped smoothing
         glm::vec3 displacement = idealPos - Position;
+        if (glm::length(displacement) > 40.0f) {
+            velocity = glm::vec3(0);
+            smoothedForward = forward;
+            Position = idealPos;
+        }
         velocity += displacement * stiffness * dt;
         velocity *= glm::exp(-damping * dt);
         Position += velocity * dt;
