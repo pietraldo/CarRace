@@ -4,7 +4,7 @@ struct Settings {
     int START_SCR_WIDTH = 1600;
     int START_SCR_HEIGHT = 1000;
 
-    int CAR_COUNT = 2;
+    int CAR_COUNT = 1;
 
     bool useDifferentMaterialsForTerrain = true;
     
@@ -26,7 +26,7 @@ struct Settings {
     int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
 
     // car steering settings
-    float steeringSpeed = 0.9f;  // higher value means faster steering
+    float steeringSpeed = 2.45f;  // higher value means faster steering
     float steeringReturnSpeed = 5.0f;  // higher value means faster return to center
 
     static Settings& Get() {

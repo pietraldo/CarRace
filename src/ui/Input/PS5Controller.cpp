@@ -105,13 +105,14 @@ CarControlInput PS5Controller::getCarControlInput() {
 
     std::vector<float> leftStick = getLeftStick();
 
-    if (isButtonJustPressed(PS5Controller::ControllerButton::ARROW_LEFT)) input.gear = -1;
-    if (isButtonJustPressed(PS5Controller::ControllerButton::ARROW_RIGHT)) input.gear = +1;
+    if (isButtonJustPressed(PS5Controller::ControllerButton::SQUARE)) input.gear = -1;
+    if (isButtonJustPressed(PS5Controller::ControllerButton::CIRCLE)) input.gear = +1;
 
     input.steer = -leftStick[0];
     input.throttle = getRightTrigger();
     input.brake = getLeftTrigger();
     input.handbrake = isButtonPressed(PS5Controller::ControllerButton::CROSS) ? 1.0f : 0.0f;
+    input.resetToCheckpoint = isButtonJustPressed(PS5Controller::ControllerButton::ARROW_LEFT);
 
     return input;
 }
