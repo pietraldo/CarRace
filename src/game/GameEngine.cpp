@@ -282,7 +282,7 @@ void GameEngine::CreateModels() {
 
     // barier model size
     // scale 46.97 15.66 9.46
-    // position -50 18 -50
+    // position -50 8 -50
     const std::string barierModelPath = "../assets/models/barier/scene.gltf";
     auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
     glm::vec3 barierPosition(-50.0f, 0.0f, -50.0f);
@@ -292,7 +292,7 @@ void GameEngine::CreateModels() {
     gameObjects2.push_back(barier);
     RigidBody barierRigidBody;
     barierRigidBody.positionOffset = glm::vec3(0.0f, 9.0f, 0.0f);
-    barierRigidBody.size = glm::vec3(46.97f, 15.66f, 9.46f);
+    barierRigidBody.size = glm::vec3(46.97f, 8.0f, 9.46f);
     barier->AddRigidBody(barierRigidBody);
     gameObjectsStatic.push_back(barier);
 }
