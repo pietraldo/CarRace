@@ -429,12 +429,7 @@ void GameEngine::CreateCars() {
         std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-        
-        auto steeringWheel = std::make_shared<GameObject2>();
-        steeringWheel->model = steeringModel;
-        steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
-        
-        cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringWheel, i);
+        cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);
         cars[i]->positionOffset = glm::vec3(0.0f, 0.265f, 1.59f);
         cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));
     }

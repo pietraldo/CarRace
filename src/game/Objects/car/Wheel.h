@@ -1,12 +1,13 @@
 #pragma once
 #include <gfx/Model.h>
+#include "../GameObject2.h"
 
 #include <glm/glm.hpp>
 #include <memory>
 
 enum class AxleWheel { FrontLeft, FrontRight, RearLeft, RearRight };
 
-class Wheel {
+class Wheel: public GameObject2 {
     friend class Car;
 
 public:
@@ -24,10 +25,4 @@ public:
 private:
     void SetSteer(float steerDeg);
     void SetSpin(float spinAngleRadians);
-    std::shared_ptr<Model> model;
-
-    glm::vec3 position;
-    physx::PxQuat rotation;
-    glm::vec3 positionOffset;
-    physx::PxQuat rotationOffset;
 };

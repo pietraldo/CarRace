@@ -11,7 +11,7 @@
 
 class Car: public GameObjectDynamic {
 public:
-    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<GameObject2> steeringWheel,
+    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringWheelModel,
         int carIndex);
 
     void SetSteer(float deg);
@@ -40,14 +40,7 @@ public:
 private:
     int carIndex = -1;
 
-   /* std::array<std::unique_ptr<Wheel>, 4> wheels{};
-
-   
-    std::shared_ptr<Model> steeringWheel;
-    glm::vec3 steeringPosition;
-    physx::PxQuat steeringRotation;
-    glm::vec3 steeringOffset;*/
-
+    std::array<std::shared_ptr<Wheel>, 4> wheels{};
     std::shared_ptr<GameObject2> steeringWheel;
 
     float steerTarget = 0.f;

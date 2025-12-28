@@ -3,8 +3,9 @@
 #include <cmath>
 
 Wheel::Wheel(std::shared_ptr<Model> wheelModel, AxleWheel axleWheel)
-    : model(std::move(wheelModel)), axleWheel(axleWheel), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
+    : axleWheel(axleWheel), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
     rotation = physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f);
+    model = wheelModel;
 }
 
 void Wheel::SetSteer(float steerDeg) {

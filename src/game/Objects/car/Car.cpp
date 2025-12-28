@@ -7,30 +7,29 @@
 static inline bool isFinite(float x) { return std::isfinite(x); }
 
 Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel,
-         std::shared_ptr<GameObject2> steeringWheel,
+         std::shared_ptr<Model> steeringWheelModel,
          int carIndex)
     : carIndex(carIndex) {
     model = std::move(bodyModel);
     
-    this->steeringWheel = std::move(steeringWheel);
-    //if (steeringModel) {
-    //    steeringWheel = std::move(steeringModel);
-    //}
+    steeringWheel = std::make_shared<GameObject2>();
+    steeringWheel->model = steeringWheelModel;
+    steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
 
-    //wheels[0] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearRight);
-    //wheels[1] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearLeft);
-    //wheels[2] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontRight);
-    //wheels[3] = std::make_unique<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontLeft);
+    wheels[0] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearRight);
+    wheels[1] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearLeft);
+    wheels[2] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontRight);
+    wheels[3] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontLeft);
+  
+    wheels[0]->positionOffset = glm::vec3(1.45f, 0.1f, -0.9f);  // RR
+    wheels[1]->positionOffset = glm::vec3(1.45f, 0.1f, 0.9f);   // RL
+    wheels[2]->positionOffset = glm::vec3(-1.3f, 0.1f, -0.9f);  // FR
+    wheels[3]->positionOffset = glm::vec3(-1.3f, 0.1f, 0.9f);   // FL
 
-    //wheels[0]->positionOffset = glm::vec3(1.45f, 0.1f, -0.9f);  // RR
-    //wheels[1]->positionOffset = glm::vec3(1.45f, 0.1f, 0.9f);   // RL
-    //wheels[2]->positionOffset = glm::vec3(-1.3f, 0.1f, -0.9f);  // FR
-    //wheels[3]->positionOffset = glm::vec3(-1.3f, 0.1f, 0.9f);   // FL
-
-    //wheels[0]->rotationOffset = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0));  // RR
-    //wheels[1]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0));   // RL
-    //wheels[2]->rotationOffset = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0));  // FR
-    //wheels[3]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0));   // FL
+    wheels[0]->rotationOffset = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0));  // RR
+    wheels[1]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0));   // RL
+    wheels[2]->rotationOffset = physx::PxQuat(glm::radians(-90.0f), physx::PxVec3(0, 1, 0));  // FR
+    wheels[3]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0, 1, 0));   // FL
 }
 
 void Car::SetSteer(float deg) { steerTarget = clampValue(deg, -maxSteer, maxSteer); }
@@ -44,24 +43,21 @@ void Car::UpdatePhysics(float deltaTime) {
 void Car::Update(float dt, float steerAngleProc) {
     steerCurrent = steerAngleProc * maxSteer;
 
-    /*this->position = position;
-    this->rotation = rotation;*/
+    for (int i = 0; i < 4; ++i) {
+        auto& wheel = wheels[i];
 
-    //for (int i = 0; i < 4; ++i) {
-    //    auto& wheel = wheels[i];
+        wheel->position = GetPosition();
 
-    //    wheel->position = body->GetPosition(position, rotation);
+        auto axelWheel = wheel->GetAxleWheel();
+        if (axelWheel == AxleWheel::FrontLeft || axelWheel == AxleWheel::FrontRight) {
+            wheel->SetSteer(steerCurrent);
+        } else {
+            wheel->SetSteer(0.0f);
+        }
+        wheel->SetSpin(wheelRotationsFromPhysx[i]);
 
-    //    auto axelWheel = wheel->GetAxleWheel();
-    //    if (axelWheel == AxleWheel::FrontLeft || axelWheel == AxleWheel::FrontRight) {
-    //        wheel->SetSteer(steerCurrent);
-    //    } else {
-    //        wheel->SetSteer(0.0f);
-    //    }
-    //    wheel->SetSpin(wheelRotationsFromPhysx[i]);
-
-    //    wheel-> rotation = body->GetRotation(rotation);
-    //}
+        wheel-> rotation = GetRotation();
+    }
 
     // steering wheel
     steeringWheel->SetPosition( GetPosition());
@@ -126,14 +122,11 @@ void Car::Draw(Shader& shader) {
         steeringWheel->model->Draw(shader);
     }
 
-    //for (auto& w : wheels) {
-    //    auto& model = w->GetModel();
-    //    if (model) {
-    //        setModelMatrix(model);
-    //        shader.setBool("uIsBrakeLight", false);
-    //        model->Draw(shader);
-    //    }
-    //}
+    for (auto& wheel : wheels) {
+        setModelMatrix(*wheel);
+        shader.setBool("uIsBrakeLight", false);
+        wheel->model->Draw(shader);
+    }
 }
 
 void Car::SetMaxSteer(float deg) {
