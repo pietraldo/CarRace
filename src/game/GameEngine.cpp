@@ -431,7 +431,7 @@ std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
 
     auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.85f), glm::vec3(1.f));
     bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
-    bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.6f, 1.59f));
+    bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.265f, 1.59f));
 
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), glm::vec3(0.27f), glm::vec3(1.f));
 

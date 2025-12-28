@@ -43,7 +43,7 @@ public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath,
             PxVehiclePhysXSimulationContext* simulationContext);
 
-    float steeringSpeed = 5.0f;
+    float steeringSpeed = 0.9f;
     float steeringReturnSpeed = 10.0f;
 
     void UpdateSteer(float deltaTime, float steerInput);

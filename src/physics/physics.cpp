@@ -342,9 +342,9 @@ RaceCar* Physics::createVehicle(const PxVec3& position, const PxQuat rotation, c
     fd.word2 |= (PxU32)(PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD | PxPairFlag::eCONTACT_DEFAULT);
     s->setSimulationFilterData(fd);
 
-    PxBoxGeometry newGeom(PxVec3(0.9f, 0.35f, 2.20f));
+    PxBoxGeometry newGeom(PxVec3(1.1f, 0.35f, 2.20f));
     s->setGeometry(newGeom);
-    physx::PxTransform localOffset = PxTransform(0, 0.75f, 1.59f);
+    physx::PxTransform localOffset = PxTransform(0, 0.85f, 1.59f);
     s->setLocalPose(localOffset);
 
     delete[] shapes;
