@@ -462,7 +462,7 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
         {
-            if (!gameEngine->modelsTex.empty()) {
+           /* if (!gameEngine->modelsTex.empty()) {
                 Model* model = gameEngine->modelsTex[0];
                 ImGui::Begin("Model 0 settings");
                 static float modelSensitivity = 0.1f;
@@ -474,7 +474,7 @@ void Rendering::RenderImGui() {
                 ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
                 ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
                 ImGui::End();
-            }
+            }*/
         }
         {
             ImGui::Begin("Speed");

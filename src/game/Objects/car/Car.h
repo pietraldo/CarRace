@@ -6,10 +6,12 @@
 
 #include "../../helper_functions.h"
 #include "Wheel.h"
+#include "../GameObjectDynamic.h"
+#include "../../../physics/physics.h"
 
-class Car {
+class Car: public GameObjectDynamic {
 public:
-    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel);
+    Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel, int carIndex);
 
     void SetSteer(float deg);
     void Update(float dt, glm::vec3 position, physx::PxQuat rotation, float steerAngleProc);
@@ -20,13 +22,12 @@ public:
     float GetMaxSteer() const { return maxSteer; }
     float GetSteerSpeed() const { return steerSpeed; }
 
-    const std::shared_ptr<Model>& GetBody() const noexcept { return body; }
-    const std::array<glm::vec3, 4>& GetWheelPositionOffsets() const noexcept { return wheelPositionOffsets; }
-    const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel; }
+    //const std::shared_ptr<Model>& GetBody() const noexcept { return body; }
+    //const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel; }
 
     void SetMaxSteer(float deg);
     void SetSteerSpeed(float degPerSec);
-    void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
+    //void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
     void SetWheelRotationFromPhysx(vector<float> rotations) { wheelRotationsFromPhysx = rotations; }
     void SetBraking(bool braking) { isBraking = braking; }
     void SetHeadlights(bool on) { isHeadlightsOn = on; }
@@ -34,16 +35,19 @@ public:
     void SetSteeringWheelVisualSmooth(float s) { steeringWheelVisualSmooth = s; }
     float GetSteeringWheelVisualSmooth() const { return steeringWheelVisualSmooth; }
 
-    const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels; }
+    void UpdatePhysics(float deltaTime) override;
+
+    //const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels; }
 
 private:
-    std::shared_ptr<Model> body;
-    std::array<std::unique_ptr<Wheel>, 4> wheels{};
-    std::array<glm::vec3, 4> wheelPositionOffsets{};
-    std::array<physx::PxQuat, 4> wheelRotationOffsets{};
+    int carIndex = -1;
+
+   /* std::array<std::unique_ptr<Wheel>, 4> wheels{};
 
     std::shared_ptr<Model> steeringWheel;
-    glm::vec3 steeringOffset;
+    glm::vec3 steeringPosition;
+    physx::PxQuat steeringRotation;
+    glm::vec3 steeringOffset;*/
 
     float steerTarget = 0.f;
     float steerCurrent = 0.f;  // deg

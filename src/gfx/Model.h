@@ -28,17 +28,14 @@ public:
     bool gammaCorrection;
     GLuint textureID;
 
-    Model(string const& path, glm::vec3 position, glm::vec3 scale, glm::vec3 color, bool gamma = false)
-        : gammaCorrection(gamma), position(position), scale(scale), color(color) {
+    Model(string const& path, glm::vec3 scale, glm::vec3 color, bool gamma = false)
+        : gammaCorrection(gamma), scale(scale), color(color) {
         loadModel(path);
     }
     void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr);
-    void Update(float deltaTime);
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
     const std::vector<Mesh>& GetMeshes() const;
 
-    glm::vec3 GetPosition() const;
-    physx::PxQuat GetRotation() const { return rotation * rotationOffset; }
     glm::vec3 GetScale() const { return scale; }
     glm::vec3 GetColor() const { return color; }
     float GetRadius() const {
@@ -50,12 +47,10 @@ public:
 
     void SetPositionOffset(const glm::vec3& offset) { positionOffset = offset; }
     void SetRotationOffset(const physx::PxQuat& offset) { rotationOffset = offset; }
-    void SetPosition(const glm::vec3& pos) { position = pos; }
-    void SetRotation(const physx::PxQuat& rot) { rotation = rot; }
+    glm::vec3 GetPositionOffset() const { return positionOffset; }
+    physx::PxQuat GetRotationOffset() const { return rotationOffset; }
 
-    glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
-    physx::PxQuat rotation = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
 
 private:
     void loadModel(string path);

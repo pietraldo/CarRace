@@ -52,6 +52,7 @@ private:
     vector<Camera*> cameras;
     vector<Model*> modelsCol;
 
+
     Terrain* terrain;
 
     std::vector<PlayerStatus> playersStatus;
@@ -117,7 +118,7 @@ public:
     glm::vec3 GetCarPosition() const;
     glm::quat GetCarRotation() const;
 
-    std::unique_ptr<Car> CreateCar(const glm::vec3& bodyPosition);
+    void CreateCars();
 
     bool isVehicleOnTrack(int carNumber = 0);
 

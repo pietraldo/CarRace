@@ -3,14 +3,6 @@
 
 #include <stb_image.h>
 
-glm::vec3 Model::GetPosition() const {
-    physx::PxVec3 positionOffsetPx = GlmVec3ToPxVec3(positionOffset);
-    positionOffsetPx = rotation.rotate(positionOffsetPx);
-    glm::vec3 positionOffset = PxVec3ToGlmVec3(positionOffsetPx);
-
-    return position + positionOffset;
-}
-
 void Model::Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback) {
     for (unsigned int i = 0; i < meshes.size(); i++) {
         if (perMeshCallback) {

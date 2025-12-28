@@ -60,6 +60,10 @@ GameEngine::GameEngine() {
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
+        cars[i]->UpdatePhysics(deltaTime);
+    }
+
     auto vehicles = Physics::getInstance()->getVehicles();
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
@@ -137,11 +141,9 @@ void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     if (input.additionalInfo.switchImGui) {
         Settings::Get().showImGuiWindows = !Settings::Get().showImGuiWindows;
     }
-    if (input.additionalInfo.switchHelp)
-    {
+    if (input.additionalInfo.switchHelp) {
         Settings::Get().showHelpImGuiWindow = !Settings::Get().showHelpImGuiWindow;
     }
-        
 }
 
 void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
@@ -168,7 +170,7 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
-    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
+    /*PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
@@ -208,25 +210,21 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, model->textureID);
         model->Draw(shaderCol);
-    }
+    }*/
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
-    FogParams fogParams;
-    fogParams.enabled = fog;
-    fogParams.minDist = fogMinDist;
-    fogParams.maxDist = fogMaxDist;
-    fogParams.color = dayNight ? glm::vec4(0.02f, 0.02f, 0.03f, 1.0f) : glm::vec4(0.55f, 0.65f, 0.75f, 1.0f);
+    
 
-    PassCommon pass = RenderPassUniforms::Build(activeCam, fogParams);
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shader, pass, false);
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
-        if (!car->GetBody()) continue;
+        if (!car->model) return;
 
-        if (activeCam.IsSphereVisible(car->GetBody()->GetPosition(), car->GetBody()->GetRadius(), pass.viewProj)) {
+        if (activeCam.IsSphereVisible(car->GetPosition(), car->model->GetRadius(), pass.viewProj)) {
             car->Draw(shader);
         }
     }
@@ -269,35 +267,12 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
     glDrawElements(GL_TRIANGLES, terrain->GetIndices().size(), GL_UNSIGNED_INT, 0);
 }
 
-void GameEngine::DrawModel(Shader& shader, Model& model, Camera& activeCam) {
-    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
-
-    RenderPassUniforms::ApplyCommon(shader, pass, false);
-    shader.setVec3("objectColor", model.GetColor());
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, model.textureID);
-
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
-    glm::vec3 position = model.GetPosition();
-    glm::quat rotation = PxQuatToGlmQuat(model.GetRotation());
-
-    modelMatrix = glm::translate(modelMatrix, position);
-    modelMatrix *= glm::toMat4(rotation);
-    modelMatrix = glm::scale(modelMatrix, model.GetScale());
-    shader.setMat4("model", modelMatrix);
-
-    model.Draw(shader);
-}
-
 void GameEngine::CreateModels() {
-    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-        cars[i] = CreateCar(glm::vec3(10.0f * i, 0.0f, 0.0f));
-    }
+    CreateCars();
 
     const std::string bridgeModelPath = "../assets/models/bridge3/bridge.gltf";
     glm::vec3 bridgePosition(-278.8f, 71.0f, -367.1f);
-    Model* bridgeModel = new Model(bridgeModelPath, bridgePosition, glm::vec3(4.0f, 13.4f, 8.9f), glm::vec3(1.f));
+    Model* bridgeModel = new Model(bridgeModelPath, glm::vec3(4.0f, 13.4f, 8.9f), glm::vec3(1.f));
     glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);
     bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
 
@@ -308,7 +283,7 @@ void GameEngine::CreateModels() {
     // position -50 18 -50
     const std::string barierModelPath = "../assets/models/barier/scene.gltf";
     glm::vec3 barierPosition(-50.0f, 0.0f, -50.0f);
-    Model* barierModel = new Model(barierModelPath, barierPosition, glm::vec3(1.0f), glm::vec3(1.f));
+    Model* barierModel = new Model(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
     rotation = glm::vec3(0.0f, 45.0f, 0.0f);
     barierModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
     modelsTex.push_back(barierModel);
@@ -383,11 +358,10 @@ void GameEngine::UpdateHeadlights() {
     if (!headlightsOn) return;
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
-        const auto& body = cars[i]->GetBody();
-        if (!body) continue;
+        auto car = cars[i].get();
 
-        glm::vec3 pos = body->GetPosition();
-        glm::quat rot = PxQuatToGlmQuat(body->GetRotation());
+        glm::vec3 pos = car->GetPosition();
+        glm::quat rot = PxQuatToGlmQuat(car->GetRotation());
 
         // In this model forward points along -X in local space.
         glm::vec3 forward = rot * glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -444,24 +418,26 @@ glm::quat GameEngine::GetCarRotation() const {
     return PxQuatToGlmQuat(rot);
 }
 
-std::unique_ptr<Car> GameEngine::CreateCar(const glm::vec3& bodyPosition) {
+void GameEngine::CreateCars() {
     const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
-    auto bodyModel = std::make_shared<Model>(carModelPath, bodyPosition, glm::vec3(0.85f), glm::vec3(1.f));
-    bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
-    bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.265f, 1.59f));
+    auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.85f), glm::vec3(1.f));
+    //bodyModel->SetRotationOffset(physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f)));
+    //bodyModel->SetPositionOffset(glm::vec3(0.0f, 0.265f, 1.59f));
 
-    auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.f), glm::vec3(0.27f), glm::vec3(1.f));
+    auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.27f), glm::vec3(1.f));
 
     auto steeringModel =
-        std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.f), glm::vec3(0.3f), glm::vec3(1.f));
+        std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
     steeringModel->SetPositionOffset(glm::vec3(-0.4f, 0.55f, 0.40f));
 
-    auto car = std::make_unique<Car>(bodyModel, wheelModel, steeringModel);
-
-    return car;
+    for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
+        cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);
+        cars[i]->positionOffset = glm::vec3(0.0f, 0.265f, 1.59f);
+        cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));
+    }
 }
 
 bool GameEngine::isVehicleOnTrack(int carNumber) {
@@ -514,7 +490,6 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
     };
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-
         // user want to reset car to last checkpoint
         if (resetCarToCheckPoint[i]) {
             playersStatus[i].timeOutsideOfTrack = 0;
@@ -525,30 +500,29 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
 
             continue;
         }
-        
+
         bool isCarOnTrack = isVehicleOnTrack(i);
         if (!isCarOnTrack) {
             // car is outside of track
 
-            playersStatus[i].timeOutsideOfTrack += dt*1000;
+            playersStatus[i].timeOutsideOfTrack += dt * 1000;
 
             if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && Settings::Get().autoReturningToTrack) {
-                
                 int index = playersStatus[i].vehiclePositions.size() - SAVE_POSITION_RETRIVAL - 1;
                 resetCarToCheckPointFn(index, i);
-                
+
                 playersStatus[i].timeSinceLastCheckPoint = CHECKPOINT_THRESHOLD / 2;
                 playersStatus[i].timeOutsideOfTrack = 0;
             }
         } else {
             // car is on track
 
-            playersStatus[i].timeSinceLastCheckPoint += dt*1000;
+            playersStatus[i].timeSinceLastCheckPoint += dt * 1000;
             playersStatus[i].timeOutsideOfTrack = 0;
 
             if (playersStatus[i].timeSinceLastCheckPoint > CHECKPOINT_THRESHOLD) {
                 playersStatus[i].timeSinceLastCheckPoint = 0;
-                
+
                 // save vehicle position
                 auto vehicle = Physics::getInstance()->getVehicles()[i];
                 PxVec3 pos = vehicle->getVehiclePosition();

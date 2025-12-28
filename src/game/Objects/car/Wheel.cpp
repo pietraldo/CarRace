@@ -2,9 +2,9 @@
 
 #include <cmath>
 
-Wheel::Wheel(std::shared_ptr<Model> wheelModel, WheelPos p)
-    : model(std::move(wheelModel)), pos(p), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
-    model->SetRotation(physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f));
+Wheel::Wheel(std::shared_ptr<Model> wheelModel, AxleWheel axleWheel)
+    : model(std::move(wheelModel)), axleWheel(axleWheel), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
+    rotation = physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void Wheel::SetSteer(float steerDeg) {
@@ -22,7 +22,7 @@ void Wheel::UpdateWheelRotation() {
     float spinRad = currentSpinRad;
 
     glm::quat qFlip(1.0f, 0.0f, 0.0f, 0.0f);
-    if (pos == WheelPos::FrontLeft || pos == WheelPos::RearLeft) {
+    if (axleWheel == AxleWheel::FrontLeft || axleWheel == AxleWheel::RearLeft) {
         qFlip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
         spinRad = -spinRad;
     }
@@ -36,5 +36,5 @@ void Wheel::UpdateWheelRotation() {
     finalRot = glm::normalize(finalRot);
 
     physx::PxQuat pxQuat(finalRot.x, finalRot.y, finalRot.z, finalRot.w);
-    model->SetRotationOffset(pxQuat);
+    rotationOffset = pxQuat; 
 }
