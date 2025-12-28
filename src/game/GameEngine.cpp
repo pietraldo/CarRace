@@ -302,6 +302,16 @@ void GameEngine::CreateModels() {
     bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
 
     modelsTex.push_back(bridgeModel);
+
+    // barier model size
+    // scale 46.97 15.66 9.46
+    // position -50 18 -50
+    const std::string barierModelPath = "../assets/models/barier/scene.gltf";
+    glm::vec3 barierPosition(-50.0f, 0.0f, -50.0f);
+    Model* barierModel = new Model(barierModelPath, barierPosition, glm::vec3(1.0f), glm::vec3(1.f));
+    rotation = glm::vec3(0.0f, 45.0f, 0.0f);
+    barierModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
+    modelsTex.push_back(barierModel);
 }
 
 void GameEngine::CreateLights() {
