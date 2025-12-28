@@ -6,7 +6,7 @@ struct Settings {
 
     int CAR_COUNT = 2;
 
-    bool useDifferentMaterialsForTerrain = false;
+    bool useDifferentMaterialsForTerrain = true;
     
     bool playIntroAnimation = true;
 
@@ -19,11 +19,15 @@ struct Settings {
     float fogMaxDist = 150.0f;
 
     // returning to track settings
-    bool autoReturningToTrack = true;
+    bool autoReturningToTrack = false;
     int timeOutsideTrackToReset = 2000;  // in miliseconds
     int checkpointInterval = 4000;       // in miliseconds
     int maxSavedPositions = 100;
     int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
+
+    // car steering settings
+    float steeringSpeed = 0.9f;  // higher value means faster steering
+    float steeringReturnSpeed = 5.0f;  // higher value means faster return to center
 
     static Settings& Get() {
         static Settings instance;

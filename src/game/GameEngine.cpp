@@ -515,7 +515,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
 
             continue;
         }
-
+        
         bool isCarOnTrack = isVehicleOnTrack(i);
         if (!isCarOnTrack) {
             // car is outside of track
