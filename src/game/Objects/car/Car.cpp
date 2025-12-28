@@ -16,10 +16,10 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel,
     steeringWheel->model = steeringWheelModel;
     steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
 
-    wheels[0] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearRight);
-    wheels[1] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::RearLeft);
-    wheels[2] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontRight);
-    wheels[3] = std::make_shared<Wheel>(std::make_shared<Model>(*wheelModel), AxleWheel::FrontLeft);
+    wheels[0] = std::make_shared<Wheel>(wheelModel, AxleWheel::RearRight);
+    wheels[1] = std::make_shared<Wheel>(wheelModel, AxleWheel::RearLeft);
+    wheels[2] = std::make_shared<Wheel>(wheelModel, AxleWheel::FrontRight);
+    wheels[3] = std::make_shared<Wheel>(wheelModel, AxleWheel::FrontLeft);
   
     wheels[0]->positionOffset = glm::vec3(1.45f, 0.1f, -0.9f);  // RR
     wheels[1]->positionOffset = glm::vec3(1.45f, 0.1f, 0.9f);   // RL
