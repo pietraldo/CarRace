@@ -12,6 +12,6 @@ struct VehicleStatus {
 
 struct PlayerStatus {
     std::vector<VehicleStatus> vehiclePositions;
-    int timeOutsideOfTrack;
-    int checkPointTime;
+    int timeOutsideOfTrack;  // in miliseconds
+    int timeSinceLastCheckPoint;  // in miliseconds
 };

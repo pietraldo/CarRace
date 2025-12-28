@@ -164,7 +164,7 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
-    UpdatePlayerStatus(input);
+    UpdatePlayerStatus(input, deltaTime);
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
@@ -474,62 +474,72 @@ bool GameEngine::isVehicleOnTrack(int carNumber) {
     return roadMarks[int(z)][int(x)] == 1;
 }
 
-void GameEngine::UpdatePlayerStatus(InputData& input) {
-    const int TIMEOUTSIDE_THRESHOLD = 100;
-    const int CHECKPOINT_THRESHOLD = 300;
-    const int MAX_SAVED_POSITIONS = 100;
-    const int SAVE_POSITION_RETRIVAL = 1;
+void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
+    const int TIMEOUTSIDE_THRESHOLD = Settings::Get().timeOutsideTrackToReset;
+    const int CHECKPOINT_THRESHOLD = Settings::Get().checkpointInterval;
+    const int MAX_SAVED_POSITIONS = Settings::Get().maxSavedPositions;
+    const int SAVE_POSITION_RETRIVAL = Settings::Get().savePositionRetrival;
 
     bool resetCarToCheckPoint[2];
     resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
     resetCarToCheckPoint[1] = input.carControl1.resetToCheckpoint;
 
+    auto resetCarToCheckPointFn = [&](int checkpointIndex, int carIndex) {
+        int size = playersStatus[carIndex].vehiclePositions.size();
+        if (size == 0) return;
+
+        checkpointIndex = clampValue(checkpointIndex, 0, size - 1);
+
+        VehicleStatus status = playersStatus[carIndex].vehiclePositions[checkpointIndex];
+        auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
+        vehicle->resetCar();
+
+        vehicle->setVehiclePosition(status.postion);
+        vehicle->setVehicleRotation(status.rotation);
+
+        // erase all positions after checkpointIndex
+        playersStatus[carIndex].vehiclePositions.erase(
+            playersStatus[carIndex].vehiclePositions.begin() + checkpointIndex,
+            playersStatus[carIndex].vehiclePositions.end());
+    };
+
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-        // reseting car to last checkpoint by user comand
+
+        // user want to reset car to last checkpoint
         if (resetCarToCheckPoint[i]) {
             playersStatus[i].timeOutsideOfTrack = 0;
-            playersStatus[i].checkPointTime = CHECKPOINT_THRESHOLD / 2;
+            playersStatus[i].timeSinceLastCheckPoint = CHECKPOINT_THRESHOLD / 2;
 
             int index = playersStatus[i].vehiclePositions.size() - 1;
-            if (index < 0) index = 0;
-            VehicleStatus lastStatus = playersStatus[i].vehiclePositions[index];
-            auto vehicle = Physics::getInstance()->getVehicles()[i];
-            vehicle->resetCar();
-
-            vehicle->setVehiclePosition(lastStatus.postion);
-            vehicle->setVehicleRotation(lastStatus.rotation);
-
-            playersStatus[i].vehiclePositions.pop_back();
+            resetCarToCheckPointFn(index, i);
 
             continue;
         }
 
         bool isCarOnTrack = isVehicleOnTrack(i);
         if (!isCarOnTrack) {
-            playersStatus[i].timeOutsideOfTrack += 1;
+            // car is outside of track
+
+            playersStatus[i].timeOutsideOfTrack += dt*1000;
 
             if (playersStatus[i].timeOutsideOfTrack > TIMEOUTSIDE_THRESHOLD && Settings::Get().autoReturningToTrack) {
-                // reset position to last known position on track
-                if (!playersStatus[i].vehiclePositions.empty()) {
-                    int index = playersStatus[i].vehiclePositions.size() - SAVE_POSITION_RETRIVAL - 1;
-                    if (index < 0) index = 0;
-
-                    VehicleStatus lastStatus = playersStatus[i].vehiclePositions[index];
-                    auto vehicle = Physics::getInstance()->getVehicles()[i];
-                    vehicle->resetCar();
-
-                    vehicle->setVehiclePosition(lastStatus.postion);
-                    vehicle->setVehicleRotation(lastStatus.rotation);
-                }
+                
+                int index = playersStatus[i].vehiclePositions.size() - SAVE_POSITION_RETRIVAL - 1;
+                resetCarToCheckPointFn(index, i);
+                
+                playersStatus[i].timeSinceLastCheckPoint = CHECKPOINT_THRESHOLD / 2;
                 playersStatus[i].timeOutsideOfTrack = 0;
             }
         } else {
-            playersStatus[i].checkPointTime += 1;
+            // car is on track
+
+            playersStatus[i].timeSinceLastCheckPoint += dt*1000;
             playersStatus[i].timeOutsideOfTrack = 0;
 
-            if (playersStatus[i].checkPointTime > CHECKPOINT_THRESHOLD) {
-                playersStatus[i].checkPointTime = 0;
-
+            if (playersStatus[i].timeSinceLastCheckPoint > CHECKPOINT_THRESHOLD) {
+                playersStatus[i].timeSinceLastCheckPoint = 0;
+                
+                // save vehicle position
                 auto vehicle = Physics::getInstance()->getVehicles()[i];
                 PxVec3 pos = vehicle->getVehiclePosition();
                 PxQuat rotation = vehicle->getVehicleRotation();

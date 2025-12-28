@@ -7,7 +7,6 @@ struct Settings {
     int CAR_COUNT = 2;
 
     bool useDifferentMaterialsForTerrain = false;
-    bool autoReturningToTrack = false;
     
     bool playIntroAnimation = true;
 
@@ -18,6 +17,13 @@ struct Settings {
     bool fog = false;
     float fogMinDist = 25.0f;
     float fogMaxDist = 150.0f;
+
+    // returning to track settings
+    bool autoReturningToTrack = true;
+    int timeOutsideTrackToReset = 3000;  // in miliseconds
+    int checkpointInterval = 4000;       // in miliseconds
+    int maxSavedPositions = 100;
+    int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
 
     static Settings& Get() {
         static Settings instance;

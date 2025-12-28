@@ -6,11 +6,6 @@
 
 static inline bool isFinite(float x) { return std::isfinite(x); }
 
-template <typename T>
-T clampValue(const T& v, const T& lo, const T& hi) {
-    return (v < lo) ? lo : (v > hi) ? hi : v;
-}
-
 Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringModel) {
     body = std::move(bodyModel);
 

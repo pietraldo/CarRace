@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <cstdint>
+#include <iomanip>
 
 #include "../gfx/Cube.h"
 #include "../gfx/Model.h"
@@ -106,9 +109,6 @@ public:
     void AddTextureModel(Model* model) { modelsTex.push_back(model); }
     void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
-    void SetCarSteer(float deg, int carNumber = 0) {
-        if (cars[carNumber]) cars[carNumber]->SetSteer(deg);
-    }
     Car* GetCar(int carNumber = 0) { return cars[carNumber].get(); }
 
     vector<Light*> GetLights() { return lights; }
@@ -121,7 +121,7 @@ public:
 
     bool isVehicleOnTrack(int carNumber = 0);
 
-    void UpdatePlayerStatus(InputData& input);
+    void UpdatePlayerStatus(InputData& input, float dt);
 
     Terrain* GetTerrain() { return terrain; }
 
