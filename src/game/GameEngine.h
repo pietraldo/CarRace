@@ -16,6 +16,7 @@
 #include "../gfx/lights/LightSpot.h"
 #include "./Objects/CubeObejct.h"
 #include "./Objects/GameObject.h"
+#include "./Objects/GameObjectStatic.h"
 #include "./physics/physics.h"
 #include "terrain.h"
 
@@ -60,7 +61,9 @@ private:
 
 
 public:
-    vector<Model*> modelsTex;
+    vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
+    vector<shared_ptr<GameObjectStatic>> gameObjectsStatic = vector<shared_ptr<GameObjectStatic>>();
+
     bool dayNight = Settings::Get().night;
     bool fog = Settings::Get().fog;
     float fogMinDist = Settings::Get().fogMinDist;
@@ -107,7 +110,6 @@ public:
     void DrawModel(Shader& shader, Model& model, Camera& activeCam);
     void DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam);
 
-    void AddTextureModel(Model* model) { modelsTex.push_back(model); }
     void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
     Car* GetCar(int carNumber = 0) { return cars[carNumber].get(); }

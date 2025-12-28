@@ -8,6 +8,7 @@
 #include "../audio/CollisionSound.h"
 #include "../game/GameEngine.h"
 #include "../game/Objects/GameObject.h"
+#include "../game/Objects/GameObjectStatic.h"
 #include "../game/Settings.h"
 #include "../game/terrain.h"
 #include "../ui/Input/InputStructures.h"
@@ -51,7 +52,8 @@ public:
 
     physx::PxScene* createScene();
 
-    void createObjects(const std::vector<GameObject*>& gameObjects);
+    void createObjects(const std::vector<GameObject*>& gameObjects,
+        const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic);
 
     void createTerrain();
     void update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1);

@@ -88,7 +88,8 @@ physx::PxScene* Physics::createScene() {
     return gScene;
 }
 
-void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
+void Physics::createObjects(const std::vector<GameObject*>& gameObjects,
+                            const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic) {
     // --- 3. Material and ground plane ---
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
@@ -155,6 +156,19 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects) {
                               physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 86.5f)), *material);
     gScene->addActor(*boxColliderBridge);
     gameObjects[8]->actor = boxColliderBridge;
+
+    for (auto gameObjectStatic : gameObjectsStatic) {
+        PxVec3 pos = GlmVec3ToPxVec3(gameObjectStatic->GetPosition());
+        pos += GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].positionOffset);
+        PxQuat rotation = gameObjectStatic->GetRotationWithoutOffset();
+        rotation *= gameObjectsStatic[0]->rigidBodies[0].rotationOffset;
+        PxVec3 size = GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].size * 0.5f);
+        physx::PxRigidStatic* collider =
+            physx::PxCreateStatic(*gPhysics, physx::PxTransform(pos, rotation), physx::PxBoxGeometry(size), *material);
+
+        gScene->addActor(*collider);
+        gameObjectStatic->rigidBodies[0].actor = collider;
+    }
 
     // Ensure all created static/dynamic objects have collision masks set to
     // colliding with everything (Group 0, Mask All) This allows them to pass the

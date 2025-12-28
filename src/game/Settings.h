@@ -8,7 +8,7 @@ struct Settings {
 
     bool useDifferentMaterialsForTerrain = true;
     
-    bool playIntroAnimation = true;
+    bool playIntroAnimation = false;
 
     bool showImGuiWindows = true;
     bool showHelpImGuiWindow = false;

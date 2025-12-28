@@ -13,6 +13,9 @@
 
 class GameObjectStatic: public GameObject2 {
 public:
-
+    GameObjectStatic(glm::vec3 position, std::shared_ptr<Model> model) : GameObject2(position, std::move(model)) {}
+    GameObjectStatic() {}
+    void AddRigidBody(const RigidBody& rigidBody) {
+        rigidBodies.push_back(rigidBody); }
     std::vector<RigidBody> rigidBodies;
 };

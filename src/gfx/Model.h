@@ -45,10 +45,6 @@ public:
         return radius * max;
     }
 
-    void SetPositionOffset(const glm::vec3& offset) { positionOffset = offset; }
-    void SetRotationOffset(const physx::PxQuat& offset) { rotationOffset = offset; }
-    glm::vec3 GetPositionOffset() const { return positionOffset; }
-    physx::PxQuat GetRotationOffset() const { return rotationOffset; }
 
     glm::vec3 scale = glm::vec3(1.0f);
 
@@ -60,8 +56,6 @@ private:
     float radius = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);
 
-    glm::vec3 positionOffset = glm::vec3(0.0f);
-    physx::PxQuat rotationOffset = physx::PxQuat(0, physx::PxVec3(0, 1, 0));
 };
 
 #endif

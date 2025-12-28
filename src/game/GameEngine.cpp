@@ -170,16 +170,17 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
-    /*PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
+    PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
-    for (Model* model : modelsTex) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
+    for (auto gameObject : gameObjects2) {
+        auto model = gameObject->model;
+        if (!activeCam.IsSphereVisible(gameObject->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 position = model->GetPosition();
-        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
+        glm::vec3 position = gameObject->GetPosition();
+        glm::quat rotation = PxQuatToGlmQuat(gameObject->GetRotation());
 
         modelMatrix = glm::translate(modelMatrix, position);
         modelMatrix *= glm::toMat4(rotation);
@@ -192,7 +193,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         model->Draw(shaderTex);
     }
 
-    RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
+    /*RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
 
     for (Model* model : modelsCol) {
         if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
@@ -271,22 +272,29 @@ void GameEngine::CreateModels() {
     CreateCars();
 
     const std::string bridgeModelPath = "../assets/models/bridge3/bridge.gltf";
+    auto bridgeModel = std::make_shared<Model>(bridgeModelPath, glm::vec3(4.0f, 13.4f, 8.9f), glm::vec3(1.f));
     glm::vec3 bridgePosition(-278.8f, 71.0f, -367.1f);
-    Model* bridgeModel = new Model(bridgeModelPath, glm::vec3(4.0f, 13.4f, 8.9f), glm::vec3(1.f));
     glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);
-    bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
-
-    modelsTex.push_back(bridgeModel);
+    //bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
+    auto bridge = make_shared<GameObject2>(bridgePosition, bridgeModel);
+    bridge->rotationOffset = getQuatFromRotationDegrees(rotation);
+    gameObjects2.push_back(bridge);
 
     // barier model size
     // scale 46.97 15.66 9.46
     // position -50 18 -50
     const std::string barierModelPath = "../assets/models/barier/scene.gltf";
+    auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
     glm::vec3 barierPosition(-50.0f, 0.0f, -50.0f);
-    Model* barierModel = new Model(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-    rotation = glm::vec3(0.0f, 45.0f, 0.0f);
-    barierModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
-    modelsTex.push_back(barierModel);
+    rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+    auto barier = make_shared<GameObjectStatic>(barierPosition, barierModel);
+    barier->rotationOffset = getQuatFromRotationDegrees(rotation);
+    gameObjects2.push_back(barier);
+    RigidBody barierRigidBody;
+    barierRigidBody.positionOffset = glm::vec3(0.0f, 9.0f, 0.0f);
+    barierRigidBody.size = glm::vec3(46.97f, 15.66f, 9.46f);
+    barier->AddRigidBody(barierRigidBody);
+    gameObjectsStatic.push_back(barier);
 }
 
 void GameEngine::CreateLights() {

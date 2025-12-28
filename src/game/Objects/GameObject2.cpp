@@ -9,11 +9,3 @@ glm::vec3 GameObject2::GetPosition() const {
     return position + positionOffset;
 }
 
-glm::vec3 GameObject2::GetPositionForShader() const {
-
-    physx::PxVec3 positionOffsetPx = GlmVec3ToPxVec3(model->GetPositionOffset());
-    positionOffsetPx = GetRotation().rotate(positionOffsetPx);
-    glm::vec3 positionOffset = PxVec3ToGlmVec3(positionOffsetPx);
-
-    return GetPosition() + positionOffset;
-}
