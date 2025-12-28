@@ -57,10 +57,11 @@ private:
 
 public:
     vector<Model*> modelsTex;
-    bool dayNight = false;
-    bool fog = false;
-    float fogMinDist = 25.0f;
-    float fogMaxDist = 150.0f;
+    bool dayNight = Settings::Get().night;
+    bool fog = Settings::Get().fog;
+    float fogMinDist = Settings::Get().fogMinDist;
+    float fogMaxDist = Settings::Get().fogMaxDist;
+
     bool userFlashlight = false;
     bool headlightsOn = true;
     bool renderMirrors = false;
@@ -82,7 +83,8 @@ public:
     Shader* skyboxShader;
 
     GameEngine();
-    void Update(InputData input, float deltaTime);
+    void UpdateBeforePhysics(InputData input, float deltaTime);
+    void UpdateAfterPhysics(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
 
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);

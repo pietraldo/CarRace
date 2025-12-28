@@ -6,10 +6,18 @@ struct Settings {
 
     int CAR_COUNT = 2;
 
-    bool useDifferentMaterialsForTerrain = true;
+    bool useDifferentMaterialsForTerrain = false;
     bool autoReturningToTrack = false;
     
     bool playIntroAnimation = true;
+
+    bool showImGuiWindows = true;
+    bool showHelpImGuiWindow = false;
+    
+    bool night = false;
+    bool fog = false;
+    float fogMinDist = 25.0f;
+    float fogMaxDist = 150.0f;
 
     static Settings& Get() {
         static Settings instance;

@@ -130,11 +130,21 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
         }
     }
 }
-
-void GameEngine::Update(InputData input, float deltaTime) {
+void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     if (input.additionalInfo.startSimulation) {
         StartSimulation();
     }
+    if (input.additionalInfo.switchImGui) {
+        Settings::Get().showImGuiWindows = !Settings::Get().showImGuiWindows;
+    }
+    if (input.additionalInfo.switchHelp)
+    {
+        Settings::Get().showHelpImGuiWindow = !Settings::Get().showHelpImGuiWindow;
+    }
+        
+}
+
+void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     UpdatePlayersCamera(deltaTime, input);
 
     UpdateCars(input, deltaTime);

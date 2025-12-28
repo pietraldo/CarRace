@@ -92,10 +92,11 @@ int main() {
             Physics::getInstance()->getVehicles()[0]->resetCar();
         }
 
+        gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
             Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
         }
-        gameEngine->Update(input, deltaTime);
+        gameEngine->UpdateAfterPhysics(input, deltaTime);
 
         gameEngine->setOutput();
         Rendering::RenderFrame(gameEngine->GetGameObjects());
