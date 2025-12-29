@@ -184,7 +184,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 
         modelMatrix = glm::translate(modelMatrix, position);
         modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, model->GetScale());
+        modelMatrix = glm::scale(modelMatrix, model->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
         shaderTex.setVec3("objectColor", model->GetColor());
 
@@ -285,16 +285,34 @@ void GameEngine::CreateModels() {
     // position -50 8 -50
     const std::string barierModelPath = "../assets/models/barier/scene.gltf";
     auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-    glm::vec3 barierPosition(-50.0f, 0.0f, -50.0f);
-    rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+    
+    glm::vec3 barierPosition(363.5f, 28.0f, -144.8f);
+    glm::vec3 rotationOffset = glm::vec3(-90.0f, 0.0f, 0.0f);
     auto barier = make_shared<GameObjectStatic>(barierPosition, barierModel);
-    barier->rotationOffset = getQuatFromRotationDegrees(rotation);
+    barier->rotationOffset = getQuatFromRotationDegrees(rotationOffset);
+    barier->scale=glm::vec3(1, 0.94, 0.39);
+    barier->SetRotation(getQuatFromRotationDegrees(glm::vec3(0.49, 62.16, -0.49)));
     gameObjects2.push_back(barier);
     RigidBody barierRigidBody;
-    barierRigidBody.positionOffset = glm::vec3(0.0f, 9.0f, 0.0f);
-    barierRigidBody.size = glm::vec3(46.97f, 8.0f, 9.46f);
+    barierRigidBody.positionOffset = glm::vec3(0.0f, 8.0f, 0.0f);
+    barierRigidBody.size = glm::vec3(46.97f, 15.66f, 9.00f);
     barier->AddRigidBody(barierRigidBody);
     gameObjectsStatic.push_back(barier);
+    
+    glm::vec3 barierPosition2(356.86f, 28.0f, -218.8f);
+    glm::vec3 barierRotation2(0, 24, 0);
+    glm::vec3 barierScale2(0.49, 0.94, 0.39);
+
+    auto barier2 = make_shared<GameObjectStatic>(barierPosition2, barierModel);
+    barier2->rotationOffset = getQuatFromRotationDegrees(rotationOffset);
+    barier2->scale = barierScale2;
+    barier2->SetRotation(getQuatFromRotationDegrees(barierRotation2));
+    gameObjects2.push_back(barier2);
+    RigidBody barierRigidBody2;
+    barierRigidBody2.positionOffset = glm::vec3(0.0f, 8.0f, 0.0f);
+    barierRigidBody2.size = glm::vec3(46.97f, 15.66f, 9.00f);
+    barier2->AddRigidBody(barierRigidBody2);
+    gameObjectsStatic.push_back(barier2);
 }
 
 void GameEngine::CreateLights() {

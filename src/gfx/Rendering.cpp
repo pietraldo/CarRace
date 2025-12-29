@@ -461,6 +461,32 @@ void Rendering::RenderImGui() {
 
             ImGui::End();
         }
+        /*{
+            ImGui::Begin("Barier tester");
+
+            static float sensitivity = 1.0f;
+            ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
+
+            ImGui::DragFloat("ScaleX", &(*gameEngine).gameObjectsStatic[0]->scale.x, sensitivity);
+            ImGui::DragFloat("ScaleY", &(*gameEngine).gameObjectsStatic[0]->scale.y, sensitivity);
+            ImGui::DragFloat("ScaleZ", &(*gameEngine).gameObjectsStatic[0]->scale.z, sensitivity);
+            ImGui::DragFloat("PositionX", &(*gameEngine).gameObjectsStatic[0]->position.x, sensitivity);
+            ImGui::DragFloat("PositionY", &(*gameEngine).gameObjectsStatic[0]->position.y, sensitivity);
+            ImGui::DragFloat("PositionZ", &(*gameEngine).gameObjectsStatic[0]->position.z, sensitivity);
+            ImGui::DragFloat("RotationX", &(*gameEngine).gameObjectsStatic[0]->rotation2.x, sensitivity);
+            ImGui::DragFloat("RotationY", &(*gameEngine).gameObjectsStatic[0]->rotation2.y, sensitivity);
+            ImGui::DragFloat("RotationZ", &(*gameEngine).gameObjectsStatic[0]->rotation2.z, sensitivity);
+
+            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->scale.x,
+                        (*gameEngine).gameObjectsStatic[0]->scale.y, (*gameEngine).gameObjectsStatic[0]->scale.z);
+            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->position.x,
+                        (*gameEngine).gameObjectsStatic[0]->position.y, (*gameEngine).gameObjectsStatic[0]->position.z);
+            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->rotation2.x,
+                        (*gameEngine).gameObjectsStatic[0]->rotation2.y,
+                        (*gameEngine).gameObjectsStatic[0]->rotation2.z);
+
+            ImGui::End();
+        }*/
         {
            /* if (!gameEngine->modelsTex.empty()) {
                 Model* model = gameEngine->modelsTex[0];

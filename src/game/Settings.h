@@ -6,7 +6,7 @@ struct Settings {
 
     int CAR_COUNT = 2;
 
-    bool useDifferentMaterialsForTerrain = true;
+    bool useDifferentMaterialsForTerrain = false;
     
     bool playIntroAnimation = false;
 

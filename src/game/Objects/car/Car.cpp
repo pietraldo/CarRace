@@ -61,7 +61,7 @@ void Car::Update(float dt, float steerAngleProc) {
 
     // steering wheel
     steeringWheel->SetPosition( GetPosition());
-    steeringWheel->SetRotation(GetRotation());
+    //steeringWheel->SetRotation(GetRotation());
 
     glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 

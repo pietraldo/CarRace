@@ -17,5 +17,5 @@ public:
     GameObjectStatic() {}
     void AddRigidBody(const RigidBody& rigidBody) {
         rigidBodies.push_back(rigidBody); }
-    std::vector<RigidBody> rigidBodies;
+    std::vector<RigidBody> rigidBodies; // be careful for now just one works
 };
