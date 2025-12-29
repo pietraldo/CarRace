@@ -599,6 +599,17 @@ void Rendering::RenderImGui() {
                     std::string path = editableBuildings[i]->modelPath;
                     std::string filename = path.substr(path.find_last_of("/\\") + 1);
 
+                    // If filename is generic "scene.gltf", include parent folder name
+                    if (filename == "scene.gltf" || filename == "scene_low.gltf") {
+                        size_t lastSlash = path.find_last_of("/\\");
+                        if (lastSlash != std::string::npos) {
+                            size_t secondLastSlash = path.find_last_of("/\\", lastSlash - 1);
+                            if (secondLastSlash != std::string::npos) {
+                                filename = path.substr(secondLastSlash + 1);  // e.g., "house1/scene.gltf"
+                            }
+                        }
+                    }
+
                     std::string label = "Building " + std::to_string(i) + ": " + filename;
                     if (ImGui::Selectable(label.c_str(), isSelected)) {
                         selectedBuildingIndex = i;
@@ -666,6 +677,31 @@ void Rendering::RenderImGui() {
         if (ImGui::Button("Make House 3")) {
             obj->SetModel("../assets/models/buildings/house3/scene.gltf");
         }
+
+        ImGui::Text("High Houses:");
+        if (ImGui::Button("High 1")) obj->SetModel("../assets/models/buildings/highHouse1/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("High 2")) obj->SetModel("../assets/models/buildings/highHouse2/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("High 3")) obj->SetModel("../assets/models/buildings/highHouse3/scene.gltf");
+
+        ImGui::Text("Medium Houses:");
+        if (ImGui::Button("Med 1")) obj->SetModel("../assets/models/buildings/mediumHouse1/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Med 2")) obj->SetModel("../assets/models/buildings/mediumHouse2/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Med 3")) obj->SetModel("../assets/models/buildings/mediumHouse3/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Med 4")) obj->SetModel("../assets/models/buildings/mediumHouse4/scene.gltf");
+
+        ImGui::Text("Small Houses:");
+        if (ImGui::Button("Small 1")) obj->SetModel("../assets/models/buildings/smallHouse1/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Small 2")) obj->SetModel("../assets/models/buildings/smallHouse2/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Small 3")) obj->SetModel("../assets/models/buildings/smallHouse3/scene.gltf");
+        ImGui::SameLine();
+        if (ImGui::Button("Small 4")) obj->SetModel("../assets/models/buildings/smallHouse4/scene.gltf");
 
         ImGui::End();
     }
