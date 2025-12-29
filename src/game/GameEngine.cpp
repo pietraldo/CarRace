@@ -215,8 +215,6 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
-    
-
     PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shader, pass, false);
@@ -270,12 +268,13 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 
 void GameEngine::CreateModels() {
     CreateCars();
+    CreateBuildings();
 
     const std::string bridgeModelPath = "../assets/models/bridge3/bridge.gltf";
     auto bridgeModel = std::make_shared<Model>(bridgeModelPath, glm::vec3(4.0f, 13.4f, 8.9f), glm::vec3(1.f));
     glm::vec3 bridgePosition(-278.8f, 71.0f, -367.1f);
     glm::vec3 rotation = glm::vec3(-90.0f, 117.55f, 0.0f);
-    //bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
+    // bridgeModel->SetRotationOffset(getQuatFromRotationDegrees(rotation));
     auto bridge = make_shared<GameObject2>(bridgePosition, bridgeModel);
     bridge->rotationOffset = getQuatFromRotationDegrees(rotation);
     gameObjects2.push_back(bridge);
@@ -285,12 +284,12 @@ void GameEngine::CreateModels() {
     // position -50 8 -50
     const std::string barierModelPath = "../assets/models/barier/scene.gltf";
     auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-    
+
     glm::vec3 barierPosition(363.5f, 28.0f, -144.8f);
     glm::vec3 rotationOffset = glm::vec3(-90.0f, 0.0f, 0.0f);
     auto barier = make_shared<GameObjectStatic>(barierPosition, barierModel);
     barier->rotationOffset = getQuatFromRotationDegrees(rotationOffset);
-    barier->scale=glm::vec3(1, 0.94, 0.39);
+    barier->scale = glm::vec3(1, 0.94, 0.39);
     barier->SetRotation(getQuatFromRotationDegrees(glm::vec3(0.49, 62.16, -0.49)));
     gameObjects2.push_back(barier);
     RigidBody barierRigidBody;
@@ -298,7 +297,7 @@ void GameEngine::CreateModels() {
     barierRigidBody.size = glm::vec3(46.97f, 15.66f, 9.00f);
     barier->AddRigidBody(barierRigidBody);
     gameObjectsStatic.push_back(barier);
-    
+
     glm::vec3 barierPosition2(356.86f, 28.0f, -218.8f);
     glm::vec3 barierRotation2(0, 24, 0);
     glm::vec3 barierScale2(0.49, 0.94, 0.39);
@@ -313,6 +312,79 @@ void GameEngine::CreateModels() {
     barierRigidBody2.size = glm::vec3(46.97f, 15.66f, 9.00f);
     barier2->AddRigidBody(barierRigidBody2);
     gameObjectsStatic.push_back(barier2);
+}
+
+void GameEngine::CreateBuildings() {
+    auto house1 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house1/scene.gltf",
+                                                 glm::vec3(180.0f, 16.4f, 141.0f), glm::vec3(-90.0f, 60.0f, 0.0f),
+                                                 glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house1);
+
+    auto house2 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house2/scene.gltf",
+                                                 glm::vec3(190.0f, 17.1f, 128.0f), glm::vec3(-90.0f, 60.0f, 0.0f),
+                                                 glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house2);
+
+    auto house3 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house3/scene.gltf",
+                                                 glm::vec3(200.0f, 17.8f, 115.0f), glm::vec3(-90.0f, 60.0f, 0.0f),
+                                                 glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house3);
+
+    auto house4 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house4/scene.gltf", glm::vec3(210, 20.2f, 85),
+                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house4);
+
+    auto house5 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house5/scene.gltf", glm::vec3(200, 20, 155),
+                                           glm::vec3(-90, -90, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house5);
+
+    auto house6 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105),
+                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house6);
+
+    auto house7 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house7/scene.gltf",
+                                                     glm::vec3(248, 21.2f, 56),
+                                                     glm::vec3(-89.9998f, 88, 0.000195711f), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house7);
+
+    auto house8 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house8/scene.gltf", glm::vec3(250.0f, 21.3f, 85.0f),
+                                           glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house8);
+
+    auto house9 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house9/scene.gltf",
+                                                     glm::vec3(257.5f, 22.5f, 35), glm::vec3(-90, 60, 0),
+                                                     glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house9);
+
+    auto house10 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24),
+                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house10);
+
+    auto house11 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house11/scene.gltf", glm::vec3(260, 22.2f, 35),
+                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house11);
+
+    auto house12 =
+        std::make_shared<GameObjectStatic>("../assets/models/buildings/house12/scene.gltf", glm::vec3(145, 19.5f, 120),
+                                           glm::vec3(-90, 84.9999f, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house12);
+
+    auto house13 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house13/scene.gltf",
+                                                      glm::vec3(287, 24.8f, -15), glm::vec3(-90, -30, 0),
+                                                      glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house13);
+
+    auto house14 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house14/scene.gltf",
+                                                      glm::vec3(163, 19.5, 136), glm::vec3(-90, -75, 0),
+                                                      glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house14);
+
+    auto house15 =
+        std::make_shared<GameObjectStatic>("../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90),
+                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
+    gameObjects2.push_back(house15);
+
+    currentEditableObject = house2.get();
 }
 
 void GameEngine::CreateLights() {
@@ -451,8 +523,7 @@ void GameEngine::CreateCars() {
 
     auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.85f), glm::vec3(1.f));
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.27f), glm::vec3(1.f));
-    auto steeringModel =
-        std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
+    auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
 
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);

@@ -53,12 +53,10 @@ private:
     vector<Camera*> cameras;
     vector<Model*> modelsCol;
 
-
     Terrain* terrain;
 
     std::vector<PlayerStatus> playersStatus;
     bool startSimulation = false;
-
 
 public:
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
@@ -79,6 +77,8 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
+    GameObjectStatic* currentEditableObject = nullptr;
+
     CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }
@@ -97,6 +97,7 @@ public:
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
+    void CreateBuildings();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();

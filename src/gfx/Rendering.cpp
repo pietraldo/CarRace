@@ -6,6 +6,8 @@
 #include "camera/FirstPersonCamera.h"
 #include <utility>
 
+#include "../game/helper_functions.h"
+
 // window
 GLFWwindow* Rendering::window = nullptr;
 int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
@@ -26,7 +28,7 @@ unsigned int Rendering::VAO_terrain = 0;
 unsigned int Rendering::VBO_terrain = 0;
 unsigned int Rendering::EBO_terrain = 0;
 
-unsigned int Rendering::VAO_light= 0;
+unsigned int Rendering::VAO_light = 0;
 unsigned int Rendering::UBO_lights = 0;
 
 unsigned int Rendering::VAO_loading = 0;
@@ -35,8 +37,6 @@ unsigned int Rendering::VBO_loading = 0;
 // textures
 TextureFields Rendering::terrainTexture = TextureFields();
 TextureFields Rendering::introTexture = TextureFields();
-
-
 
 bool Rendering::showBoxColliders = false;
 
@@ -47,10 +47,7 @@ glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
 GameEngine* Rendering::gameEngine = nullptr;
 
-
-
 bool Rendering::firstMouse = true;
-
 
 Mirrors Rendering::player1Mirrors;
 
@@ -60,7 +57,7 @@ int Rendering::InitializeLoading() {
     if (!success) return false;
 
     overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
-    
+
     float quadVertices[] = {
         // positions   // texCoords
         -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
@@ -92,12 +89,10 @@ int Rendering::InitializeLoading() {
 }
 
 int Rendering::InitializeRest() {
-
     LoadShaders();
 
     LoadTextures();
     LoadBuffers();
-    
 
     player1Mirrors.Initialize();
     return 0;
@@ -135,7 +130,6 @@ void Rendering::LoadShaders() {
 void Rendering::LoadBuffers() {
     vector<float> vert = gameEngine->GetTerrain()->GetVertices();
     vector<int> ind = gameEngine->GetTerrain()->GetIndices();
-
 
     glGenVertexArrays(1, &VAO_terrain);
     glGenBuffers(1, &VBO_terrain);
@@ -488,19 +482,19 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }*/
         {
-           /* if (!gameEngine->modelsTex.empty()) {
-                Model* model = gameEngine->modelsTex[0];
-                ImGui::Begin("Model 0 settings");
-                static float modelSensitivity = 0.1f;
-                ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
-                ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
-                ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
-                ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
-                ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
-                ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
-                ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
-                ImGui::End();
-            }*/
+            /* if (!gameEngine->modelsTex.empty()) {
+                 Model* model = gameEngine->modelsTex[0];
+                 ImGui::Begin("Model 0 settings");
+                 static float modelSensitivity = 0.1f;
+                 ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
+                 ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
+                 ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
+                 ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
+                 ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
+                 ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
+                 ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
+                 ImGui::End();
+             }*/
         }
         {
             ImGui::Begin("Speed");
@@ -565,6 +559,115 @@ void Rendering::RenderImGui() {
                                30.0f);
             ImGui::End();
         }
+    }
+
+    if (Settings::Get().showImGuiWindows && gameEngine->currentEditableObject) {
+        ImGui::Begin("Building Placer");
+
+        // Building Selector
+        static int selectedBuildingIndex = -1;
+        std::vector<GameObjectStatic*> editableBuildings;
+        for (auto& go : gameEngine->gameObjects2) {
+            // Assuming all objects in gameObjects2 are technically candidates,
+            // but we can try to cast to GameObjectStatic just in case.
+            // Since gameObjects2 stores shared_ptr<GameObject2> and we constructed them as GameObjectStatic...
+            // We can use static_pointer_cast if we are sure, or just dynamic pointer cast.
+            // Actually, GameObject2 is the base.
+            std::shared_ptr<GameObjectStatic> staticObj = std::dynamic_pointer_cast<GameObjectStatic>(go);
+            if (staticObj) {
+                editableBuildings.push_back(staticObj.get());
+            }
+        }
+
+        // Find current object index
+        if (gameEngine->currentEditableObject) {
+            for (int i = 0; i < editableBuildings.size(); i++) {
+                if (editableBuildings[i] == gameEngine->currentEditableObject) {
+                    selectedBuildingIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (!editableBuildings.empty()) {
+            std::string comboLabel = "Building " + std::to_string(selectedBuildingIndex);
+            if (ImGui::BeginCombo("Select Building", comboLabel.c_str())) {
+                for (int i = 0; i < editableBuildings.size(); i++) {
+                    bool isSelected = (selectedBuildingIndex == i);
+
+                    // Extract filename from path for cleaner display
+                    std::string path = editableBuildings[i]->modelPath;
+                    std::string filename = path.substr(path.find_last_of("/\\") + 1);
+
+                    std::string label = "Building " + std::to_string(i) + ": " + filename;
+                    if (ImGui::Selectable(label.c_str(), isSelected)) {
+                        selectedBuildingIndex = i;
+                        gameEngine->currentEditableObject = editableBuildings[i];
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+
+        GameObjectStatic* obj = gameEngine->currentEditableObject;
+
+        // Position
+        static float sensitivity = 0.1f;
+        ImGui::SliderFloat("Sensitivity", &sensitivity, 0.001f, 10.0f);
+
+        glm::vec3 pos = obj->position;
+        if (ImGui::DragFloat3("Position", &pos.x, sensitivity)) {
+            obj->SetPosition(pos);
+        }
+
+        // Scale
+        glm::vec3 scale = obj->scale;
+        if (ImGui::DragFloat3("Scale", &scale.x, sensitivity)) {
+            obj->scale = scale;
+        }
+
+        // Rotation
+        // Convert Quaternion to Euler angles (degrees) for display
+        physx::PxQuat rotPx = obj->GetRotationWithoutOffset();
+        glm::quat rotGlm = PxQuatToGlmQuat(rotPx);
+        glm::vec3 eulerRad = glm::eulerAngles(rotGlm);
+        glm::vec3 eulerDeg = glm::degrees(eulerRad);
+
+        if (ImGui::DragFloat3("Rotation", &eulerDeg.x, sensitivity)) {
+            glm::quat newRot = glm::quat(glm::radians(eulerDeg));
+            obj->SetRotation(GlmQuatToPxQuat(newRot));
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Print Configuration")) {
+            std::string path = obj->modelPath.empty() ? "UNKNOWN_PATH" : obj->modelPath;
+
+            std::cout << "------------------------------------------" << std::endl;
+            std::cout << "// Copied from Building Placer" << std::endl;
+            std::cout << "auto building = std::make_shared<GameObjectStatic>(\"" << path << "\", "
+                      << "glm::vec3(" << pos.x << "f, " << pos.y << "f, " << pos.z << "f), "
+                      << "glm::vec3(" << eulerDeg.x << "f, " << eulerDeg.y << "f, " << eulerDeg.z << "f), "
+                      << "glm::vec3(" << scale.x << "f, " << scale.y << "f, " << scale.z << "f));" << std::endl;
+            std::cout << "gameObjects2.push_back(building);" << std::endl;
+            // Also print to rigid body static list if needed, but Building is usually static visual?
+            // If it needs collision, that logic is separate or inside Building.
+            std::cout << "------------------------------------------" << std::endl;
+        }
+
+        if (ImGui::Button("Make House 1")) {
+            obj->SetModel("../assets/models/buildings/house1/scene.gltf");
+        }
+        if (ImGui::Button("Make House 2")) {
+            obj->SetModel("../assets/models/buildings/house2/scene.gltf");
+        }
+        if (ImGui::Button("Make House 3")) {
+            obj->SetModel("../assets/models/buildings/house3/scene.gltf");
+        }
+
+        ImGui::End();
     }
 
     ImGui::Render();
@@ -710,8 +813,7 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
     glfwPollEvents();
 }
 
-void Rendering::RenderLoadingScreen(float progress) 
-{
+void Rendering::RenderLoadingScreen(float progress) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -723,9 +825,9 @@ void Rendering::RenderLoadingScreen(float progress)
     glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
 
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data =
-        stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height, &introTexture.channels,
-                  4);  // force 4 channels
+    unsigned char* data = stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height,
+                                    &introTexture.channels,
+                                    4);  // force 4 channels
     stbi_set_flip_vertically_on_load(false);
 
     if (data) {
@@ -738,7 +840,8 @@ void Rendering::RenderLoadingScreen(float progress)
     stbi_image_free(data);
 
     glEnable(GL_BLEND);  // WARNING : maybe it is heavy to enable/disable blending each frame (I did not check it)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
+    glBlendFunc(GL_SRC_ALPHA,
+                GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
 
     Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));

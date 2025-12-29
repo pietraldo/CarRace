@@ -12,20 +12,19 @@
 
 #include "../../gfx/Model.h"
 
-
 class GameObject2 {
 protected:
     physx::PxQuat rotation = physx::PxIdentity;
+
 public:
-    glm::vec3 position =  glm::vec3(0);
-    //glm::vec3 rotation2 = glm::vec3(0);  // just for easier handling in degrees later in quaternions
+    glm::vec3 position = glm::vec3(0);
+    // glm::vec3 rotation2 = glm::vec3(0);  // just for easier handling in degrees later in quaternions
 
     GameObject2() {};
-    GameObject2(glm::vec3 position, std::shared_ptr<Model> model)
-        : position(position), model(std::move(model)) {}
+    virtual ~GameObject2() = default;
+    GameObject2(glm::vec3 position, std::shared_ptr<Model> model) : position(position), model(std::move(model)) {}
     glm::vec3 GetPosition();
-    physx::PxQuat GetRotation() const { return rotation * rotationOffset;
-    }
+    physx::PxQuat GetRotation() const { return rotation * rotationOffset; }
     physx::PxQuat GetRotationWithoutOffset() const { return rotation; }
     void SetPosition(const glm::vec3& pos) { position = pos; }
     void SetRotation(const physx::PxQuat& rot) { rotation = rot; }
