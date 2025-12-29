@@ -158,14 +158,13 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects,
     gameObjects[8]->actor = boxColliderBridge;
 
     for (auto gameObjectStatic : gameObjectsStatic) {
-        glm::vec3 scaleSwitched = glm::vec3(gameObjectStatic->scale.x, 
-                                            gameObjectStatic->scale.z, 
-                                            gameObjectStatic->scale.y );
+        glm::vec3 scaleSwitched =
+            glm::vec3(gameObjectStatic->scale.x, gameObjectStatic->scale.z, gameObjectStatic->scale.y);
         PxVec3 pos = GlmVec3ToPxVec3(gameObjectStatic->GetPosition());
         pos += GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].positionOffset * scaleSwitched);
         PxQuat rotation = gameObjectStatic->GetRotationWithoutOffset();
         rotation *= gameObjectsStatic[0]->rigidBodies[0].rotationOffset;
-        PxVec3 size = GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].size * 0.5f*scaleSwitched);
+        PxVec3 size = GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].size * 0.5f * scaleSwitched);
         physx::PxRigidStatic* collider =
             physx::PxCreateStatic(*gPhysics, physx::PxTransform(pos, rotation), physx::PxBoxGeometry(size), *material);
 

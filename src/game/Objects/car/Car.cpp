@@ -6,12 +6,11 @@
 
 static inline bool isFinite(float x) { return std::isfinite(x); }
 
-Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel,
-         std::shared_ptr<Model> steeringWheelModel,
+Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringWheelModel,
          int carIndex)
     : carIndex(carIndex) {
     model = std::move(bodyModel);
-    
+
     steeringWheel = std::make_shared<GameObject2>();
     steeringWheel->model = steeringWheelModel;
     steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
@@ -20,7 +19,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel,
     wheels[1] = std::make_shared<Wheel>(wheelModel, AxleWheel::RearLeft);
     wheels[2] = std::make_shared<Wheel>(wheelModel, AxleWheel::FrontRight);
     wheels[3] = std::make_shared<Wheel>(wheelModel, AxleWheel::FrontLeft);
-  
+
     wheels[0]->positionOffset = glm::vec3(1.45f, 0.1f, -0.9f);  // RR
     wheels[1]->positionOffset = glm::vec3(1.45f, 0.1f, 0.9f);   // RL
     wheels[2]->positionOffset = glm::vec3(-1.3f, 0.1f, -0.9f);  // FR
@@ -56,12 +55,12 @@ void Car::Update(float dt, float steerAngleProc) {
         }
         wheel->SetSpin(wheelRotationsFromPhysx[i]);
 
-        wheel-> rotation = GetRotation();
+        wheel->rotation = GetRotation();
     }
 
     // steering wheel
-    steeringWheel->SetPosition( GetPosition());
-    //steeringWheel->SetRotation(GetRotation());
+    steeringWheel->SetPosition(GetPosition());
+    // steeringWheel->SetRotation(GetRotation());
 
     glm::quat localModelFix = glm::angleAxis(glm::radians(90.0f), glm::vec3(0, 1, 0));
 

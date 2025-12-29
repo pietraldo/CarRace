@@ -45,7 +45,6 @@ public:
         return radius * max;
     }
 
-
     glm::vec3 scale = glm::vec3(1.0f);
 
 private:
@@ -55,7 +54,6 @@ private:
 
     float radius = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);
-
 };
 
 #endif

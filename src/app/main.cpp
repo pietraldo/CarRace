@@ -44,7 +44,6 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
-
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
 
@@ -86,7 +85,6 @@ int main() {
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
-       
 
         if (input.additionalInfo.resetCars) {
             Physics::getInstance()->getVehicles()[0]->resetCar();

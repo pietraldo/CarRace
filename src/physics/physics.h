@@ -53,7 +53,7 @@ public:
     physx::PxScene* createScene();
 
     void createObjects(const std::vector<GameObject*>& gameObjects,
-        const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic);
+                       const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic);
 
     void createTerrain();
     void update(float deltaTime, CarControlInput carControll0, CarControlInput carControll1);

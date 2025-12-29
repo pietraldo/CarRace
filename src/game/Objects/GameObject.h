@@ -24,18 +24,18 @@ public:
     virtual void Draw(Camera& activeCam) = 0;
 };
 
-//struct RigidBodyInfo {
-//    glm::vec3 position;
-//    glm::vec3 rotation;
-//    glm::vec3 scale;
-//};
+// struct RigidBodyInfo {
+//     glm::vec3 position;
+//     glm::vec3 rotation;
+//     glm::vec3 scale;
+// };
 //
-//class GameObjectStatic {
-//public:
-//    glm::vec3 position;
-//    glm::vec3 rotation;
-//    glm::vec3 scale;
+// class GameObjectStatic {
+// public:
+//     glm::vec3 position;
+//     glm::vec3 rotation;
+//     glm::vec3 scale;
 //
-//    std::vector<RigidBodyInfo> rigidBody;
-//    Model* model = nullptr;
-//};
+//     std::vector<RigidBodyInfo> rigidBody;
+//     Model* model = nullptr;
+// };
