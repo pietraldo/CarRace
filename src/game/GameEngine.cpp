@@ -315,166 +315,93 @@ void GameEngine::CreateModels() {
 }
 
 void GameEngine::CreateBuildings() {
-    auto house2 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house2/scene.gltf",
-                                                     glm::vec3(190.0f, 17.1f, 128.0f), glm::vec3(-90.0f, 60.0f, 0.0f),
-                                                     glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house2);
+    struct BuildingData {
+        std::string path;
+        glm::vec3 position;
+        glm::vec3 rotation;
+        glm::vec3 scale;
+    };
 
-    auto house3 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house3/scene.gltf", glm::vec3(272, 24.0f, 12),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house3);
+    std::vector<BuildingData> buildings = {
+        {"../assets/models/buildings/house2/scene.gltf", glm::vec3(190.0f, 17.1f, 128.0f),
+         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house3/scene.gltf", glm::vec3(272, 24.0f, 12), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house4/scene.gltf", glm::vec3(210, 20.2f, 85), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house5/scene.gltf", glm::vec3(200, 20, 155), glm::vec3(-90, -90, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house7/scene.gltf", glm::vec3(248, 21.2f, 56),glm::vec3(-90, 88, 0), 
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house8/scene.gltf", glm::vec3(250.0f, 21.3f, 85.0f),glm::vec3(-90.0f, 60.0f, 0.0f),
+        glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house9/scene.gltf", glm::vec3(257.5f, 22.5f, 35), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house11/scene.gltf", glm::vec3(65, 19.4f, 165), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house12/scene.gltf", glm::vec3(145, 19.5f, 120), glm::vec3(-90, 84.9999f, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house13/scene.gltf", glm::vec3(287, 24.8f, -15), glm::vec3(-90, -30, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house14/scene.gltf", glm::vec3(163, 19.5, 136), glm::vec3(-90, -75, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
 
-    auto house4 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house4/scene.gltf", glm::vec3(210, 20.2f, 85),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house4);
+        // high houses
+        {"../assets/models/buildings/highHouse1/scene.gltf", glm::vec3(280, 24.3f, -3), glm::vec3(-90, -30, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/highHouse2/scene.gltf", glm::vec3(292, 24.8f, -26), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/highHouse3/scene.gltf", glm::vec3(296.5f, 25.1f, -35), glm::vec3(-90, -30, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/highHouse2/scene.gltf", glm::vec3(300, 25.1f, -47), glm::vec3(90, -60, 180),
+         glm::vec3(1, 1, 1)},
 
-    auto house5 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house5/scene.gltf", glm::vec3(200, 20, 155),
-                                           glm::vec3(-90, -90, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house5);
+        // medium houses
+        {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88), glm::vec3(89.9999, -25, 180),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse2/scene.gltf", glm::vec3(185, 20, 105), glm::vec3(89.9999f, -25, -180),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse3/scene.gltf", glm::vec3(168, 19.8f, 102), glm::vec3(90, 60, 180),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse4/scene.gltf", glm::vec3(160, 19.8f, 118), glm::vec3(-90, -90, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 127), glm::vec3(-90, 70, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse2/scene.gltf", glm::vec3(230, 20.9f, 102), glm::vec3(-90, 0, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse3/scene.gltf", glm::vec3(180, 19.6f, 142), glm::vec3(-90, -90, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/mediumHouse4/scene.gltf", glm::vec3(143, 19.5, 143), glm::vec3(-90, -60, 0),
+         glm::vec3(1, 1, 1)},
 
-    auto house6 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house6);
+        // small houses
+        {"../assets/models/buildings/smallHouse1/scene.gltf", glm::vec3(127, 19.5f, 131), glm::vec3(-90, 89.9802f, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/smallHouse2/scene.gltf", glm::vec3(124, 19.5f, 153), glm::vec3(-90, 45, 0),
+         glm::vec3(1, 1, 1)},
+        {"../assets/models/buildings/smallHouse3/scene.gltf", glm::vec3(112.f, 19.5f, 143.f),
+         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+        {"../assets/models/buildings/smallHouse4/scene.gltf", glm::vec3(115.f, 19.3f, 170.f),
+         glm::vec3(-90.f, -40.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+        {"../assets/models/buildings/smallHouse1/scene.gltf", glm::vec3(117.f, 19.4f, 191.f),
+         glm::vec3(-90.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+        {"../assets/models/buildings/smallHouse2/scene.gltf", glm::vec3(100.f, 19.3f, 159.f),
+         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+        {"../assets/models/buildings/smallHouse3/scene.gltf", glm::vec3(84.f, 19.3f, 168.f),
+         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+        {"../assets/models/buildings/smallHouse4/scene.gltf", glm::vec3(95.f, 19.2f, 185.f),
+         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f)}};
 
-    auto house7 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house7/scene.gltf", glm::vec3(248, 21.2f, 56),
-                                           glm::vec3(-89.9998f, 88, 0.000195711f), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house7);
-
-    auto house8 = std::make_shared<GameObjectStatic>("../assets/models/buildings/house8/scene.gltf",
-                                                     glm::vec3(250.0f, 21.3f, 85.0f), glm::vec3(-90.0f, 60.0f, 0.0f),
-                                                     glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house8);
-
-    auto house9 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house9/scene.gltf", glm::vec3(257.5f, 22.5f, 35),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house9);
-
-    auto house10 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house10);
-
-    auto house11 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house11/scene.gltf", glm::vec3(65, 19.4f, 165),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house11);
-
-    auto house12 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house12/scene.gltf", glm::vec3(145, 19.5f, 120),
-                                           glm::vec3(-90, 84.9999f, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house12);
-
-    auto house13 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house13/scene.gltf", glm::vec3(287, 24.8f, -15),
-                                           glm::vec3(-90, -30, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house13);
-
-    auto house14 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house14/scene.gltf", glm::vec3(163, 19.5, 136),
-                                           glm::vec3(-90, -75, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house14);
-
-    auto house15 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90),
-                                           glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(house15);
-
-    // high houses
-    auto highHouse1 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/highHouse1/scene.gltf",
-                                           glm::vec3(280, 24.3f, -3), glm::vec3(-90, -30, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(highHouse1);
-    auto highHouse2 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/highHouse2/scene.gltf",
-                                           glm::vec3(292, 24.8f, -26), glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(highHouse2);
-    auto highHouse3 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/highHouse3/scene.gltf",
-                                           glm::vec3(296.5f, 25.1f, -35), glm::vec3(-90, -30, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(highHouse3);
-    auto highHouse4 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/highHouse2/scene.gltf",
-                                           glm::vec3(300, 25.1f, -47), glm::vec3(90, -60, 180), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(highHouse4);
-
-    // medium houses
-    auto mediumHouse1 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88),
-                                           glm::vec3(89.9999, -25, 180), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse1);
-    auto mediumHouse2 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse2/scene.gltf",
-                                           glm::vec3(185, 20, 105), glm::vec3(89.9999f, -25, -180), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse2);
-    auto mediumHouse3 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse3/scene.gltf",
-                                           glm::vec3(168, 19.8f, 102), glm::vec3(90, 60, 180), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse3);
-    auto mediumHouse4 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse4/scene.gltf",
-                                           glm::vec3(160, 19.8f, 118), glm::vec3(-90, -90, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse4);
-    auto mediumHouse5 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse1/scene.gltf",
-                                           glm::vec3(195, 20, 127), glm::vec3(-90, 70, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse5);
-    auto mediumHouse6 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse2/scene.gltf",
-                                           glm::vec3(230, 20.9f, 102), glm::vec3(-90, 0, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse6);
-    auto mediumHouse7 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse3/scene.gltf",
-                                           glm::vec3(180, 19.6f, 142), glm::vec3(-90, -90, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse7);
-    auto mediumHouse8 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/mediumHouse4/scene.gltf",
-                                           glm::vec3(143, 19.5, 143), glm::vec3(-90, -60, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(mediumHouse8);
-
-    // small houses
-    auto smallHouse1 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse1/scene.gltf",
-                                           glm::vec3(127, 19.5f, 131), glm::vec3(-90, 89.9802f, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(smallHouse1);
-    auto smallHouse2 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse2/scene.gltf",
-                                           glm::vec3(124, 19.5f, 153), glm::vec3(-90, 45, 0), glm::vec3(1, 1, 1));
-    gameObjects2.push_back(smallHouse2);
-    auto smallHouse3 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse3/scene.gltf",
-                                                          glm::vec3(112.f, 19.5f, 143.f),
-                                                          glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse3);
-
-    auto smallHouse4 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse4/scene.gltf",
-                                                          glm::vec3(115.f, 19.3f, 170.f), glm::vec3(-90.f, -40.f, 0.f),
-                                                          glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse4);
-
-    auto smallHouse5 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse1/scene.gltf",
-                                                          glm::vec3(117.f, 19.4f, 191.f), glm::vec3(-90.f, 0.f, 0.f),
-                                                          glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse5);
-
-    auto smallHouse6 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse2/scene.gltf",
-                                                          glm::vec3(100.f, 19.3f, 159.f), glm::vec3(-90.f, -90.f, 0.f),
-                                                          glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse6);
-
-    auto smallHouse7 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse3/scene.gltf",
-                                                          glm::vec3(84.f, 19.3f, 168.f), glm::vec3(-90.f, 89.972f, 0.f),
-                                                          glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse7);
-
-    auto smallHouse8 = std::make_shared<GameObjectStatic>("../assets/models/buildings/smallHouse4/scene.gltf",
-                                                          glm::vec3(95.f, 19.2f, 185.f), glm::vec3(-90.f, -90.f, 0.f),
-                                                          glm::vec3(1.f, 1.f, 1.f));
-    gameObjects2.push_back(smallHouse8);
+    for (const auto& data : buildings) {
+        auto building = std::make_shared<GameObjectStatic>(data.path, data.position, data.rotation, data.scale);
+        gameObjects2.push_back(building);
+    }
 }
 
 void GameEngine::CreateLights() {
