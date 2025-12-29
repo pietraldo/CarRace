@@ -77,8 +77,6 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    GameObjectStatic* currentEditableObject = nullptr;
-
     CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }

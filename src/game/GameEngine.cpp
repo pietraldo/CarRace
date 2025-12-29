@@ -321,7 +321,7 @@ void GameEngine::CreateBuildings() {
     gameObjects2.push_back(house2);
 
     auto house3 =
-        std::make_shared<GameObjectStatic>("../assets/models/buildings/house3/scene.gltf", glm::vec3(177, 19.9f, 122),
+        std::make_shared<GameObjectStatic>("../assets/models/buildings/house3/scene.gltf", glm::vec3(272, 24.0f, 12),
                                            glm::vec3(-90, 60, 0), glm::vec3(1, 1, 1));
     gameObjects2.push_back(house3);
 
@@ -476,10 +476,6 @@ void GameEngine::CreateBuildings() {
                                                           glm::vec3(1.f, 1.f, 1.f));
     gameObjects2.push_back(smallHouse8);
 
-
-
-
-    currentEditableObject = house2.get();
 }
 
 void GameEngine::CreateLights() {
