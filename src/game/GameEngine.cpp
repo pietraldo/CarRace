@@ -340,7 +340,6 @@ void GameEngine::CreateBuildings() {
         {"../assets/models/buildings/house13/scene.gltf", glm::vec3(287, 24.8f, -15), glm::vec3(-90, -30, 0),
          glm::vec3(1, 1, 1), glm::vec3(8.5f, 6.5f, 18.0f)},
 
-
         // high houses
         {"../assets/models/buildings/highHouse1/scene.gltf", glm::vec3(280, 24.3f, -3), glm::vec3(-90, -30, 0),
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
@@ -352,7 +351,6 @@ void GameEngine::CreateBuildings() {
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
         {"../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
-
 
         // medium houses
         {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88), glm::vec3(89.9999, -25, 180),
@@ -402,8 +400,8 @@ void GameEngine::CreateBuildings() {
         {"../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
     };
-    
-        for (const auto& data : buildings) {
+
+    for (const auto& data : buildings) {
         auto building =
             std::make_shared<GameObjectStatic>(data.path, data.position, data.rotation, data.scale, data.colliderSize);
         gameObjects2.push_back(building);
@@ -411,6 +409,11 @@ void GameEngine::CreateBuildings() {
             gameObjectsStatic.push_back(building);
         }
     }
+
+    auto finishLine = std::make_shared<GameObjectStatic>("../assets/models/buildings/finishLine/scene.gltf",
+                                                         glm::vec3(325.0f, 26.5f, -61.f), glm::vec3(0.0f, -21.f, 0.f),
+                                                         glm::vec3(2.2f, 2.2f, 2.2f), glm::vec3(0));
+    gameObjects2.push_back(finishLine);
 }
 
 void GameEngine::CreateLights() {
