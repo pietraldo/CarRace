@@ -320,87 +320,94 @@ void GameEngine::CreateBuildings() {
         glm::vec3 position;
         glm::vec3 rotation;
         glm::vec3 scale;
+        glm::vec3 colliderSize = glm::vec3(0);
     };
 
     std::vector<BuildingData> buildings = {
         {"../assets/models/buildings/house2/scene.gltf", glm::vec3(190.0f, 17.1f, 128.0f),
-         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1)},
+         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1),glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/house3/scene.gltf", glm::vec3(272, 24.0f, 12), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 19.8f, 27.0f)},
         {"../assets/models/buildings/house4/scene.gltf", glm::vec3(210, 20.2f, 85), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house5/scene.gltf", glm::vec3(200, 20, 155), glm::vec3(-90, -90, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house7/scene.gltf", glm::vec3(248, 21.2f, 56),glm::vec3(-90, 88, 0), 
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house8/scene.gltf", glm::vec3(250.0f, 21.3f, 85.0f),glm::vec3(-90.0f, 60.0f, 0.0f),
-        glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.0f, 5.0f, 13.0f)},
+        {"../assets/models/buildings/house7/scene.gltf", glm::vec3(248, 21.2f, 56), glm::vec3(-90, 88, 0),
+         glm::vec3(1, 1, 1), glm::vec3(22.0f, 13.5f, 14.0f)},
+        {"../assets/models/buildings/house8/scene.gltf", glm::vec3(250.0f, 21.3f, 85.0f),
+         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1), glm::vec3(25.0f, 13.0f, 23.5f)},
         {"../assets/models/buildings/house9/scene.gltf", glm::vec3(257.5f, 22.5f, 35), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(12.0f, 8.0f, 7.0f)},
         {"../assets/models/buildings/house11/scene.gltf", glm::vec3(65, 19.4f, 165), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house12/scene.gltf", glm::vec3(145, 19.5f, 120), glm::vec3(-90, 84.9999f, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.5f, 8.5f, 12.0f)},
         {"../assets/models/buildings/house13/scene.gltf", glm::vec3(287, 24.8f, -15), glm::vec3(-90, -30, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house14/scene.gltf", glm::vec3(163, 19.5, 136), glm::vec3(-90, -75, 0),
-         glm::vec3(1, 1, 1)},
-        {"../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 6.5f, 18.0f)},
+
 
         // high houses
         {"../assets/models/buildings/highHouse1/scene.gltf", glm::vec3(280, 24.3f, -3), glm::vec3(-90, -30, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
         {"../assets/models/buildings/highHouse2/scene.gltf", glm::vec3(292, 24.8f, -26), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
         {"../assets/models/buildings/highHouse3/scene.gltf", glm::vec3(296.5f, 25.1f, -35), glm::vec3(-90, -30, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
         {"../assets/models/buildings/highHouse2/scene.gltf", glm::vec3(300, 25.1f, -47), glm::vec3(90, -60, 180),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
+        {"../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
 
         // medium houses
         {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88), glm::vec3(89.9999, -25, 180),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse2/scene.gltf", glm::vec3(185, 20, 105), glm::vec3(89.9999f, -25, -180),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse3/scene.gltf", glm::vec3(168, 19.8f, 102), glm::vec3(90, 60, 180),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse4/scene.gltf", glm::vec3(160, 19.8f, 118), glm::vec3(-90, -90, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 127), glm::vec3(-90, 70, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse2/scene.gltf", glm::vec3(230, 20.9f, 102), glm::vec3(-90, 0, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse3/scene.gltf", glm::vec3(180, 19.6f, 142), glm::vec3(-90, -90, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/mediumHouse4/scene.gltf", glm::vec3(143, 19.5, 143), glm::vec3(-90, -60, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/house12/scene.gltf", glm::vec3(145, 19.5f, 120), glm::vec3(-90, 84.9999f, 0),
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/house5/scene.gltf", glm::vec3(200, 20, 155), glm::vec3(-90, -90, 0),
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
 
         // small houses
         {"../assets/models/buildings/smallHouse1/scene.gltf", glm::vec3(127, 19.5f, 131), glm::vec3(-90, 89.9802f, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse2/scene.gltf", glm::vec3(124, 19.5f, 153), glm::vec3(-90, 45, 0),
-         glm::vec3(1, 1, 1)},
+         glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse3/scene.gltf", glm::vec3(112.f, 19.5f, 143.f),
-         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse4/scene.gltf", glm::vec3(115.f, 19.3f, 170.f),
-         glm::vec3(-90.f, -40.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+         glm::vec3(-90.f, -40.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse1/scene.gltf", glm::vec3(117.f, 19.4f, 191.f),
-         glm::vec3(-90.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+         glm::vec3(-90.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse2/scene.gltf", glm::vec3(100.f, 19.3f, 159.f),
-         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse3/scene.gltf", glm::vec3(84.f, 19.3f, 168.f),
-         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f)},
+         glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/smallHouse4/scene.gltf", glm::vec3(95.f, 19.2f, 185.f),
-         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f)}};
-
-    for (const auto& data : buildings) {
-        auto building = std::make_shared<GameObjectStatic>(data.path, data.position, data.rotation, data.scale);
+         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
+        {"../assets/models/buildings/house14/scene.gltf", glm::vec3(163, 19.5, 136), glm::vec3(-90, -75, 0),
+         glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
+        {"../assets/models/buildings/house15/scene.gltf", glm::vec3(223, 20.9f, 90), glm::vec3(-90, 60, 0),
+         glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
+    };
+    
+        for (const auto& data : buildings) {
+        auto building =
+            std::make_shared<GameObjectStatic>(data.path, data.position, data.rotation, data.scale, data.colliderSize);
         gameObjects2.push_back(building);
+        if (!building->rigidBodies.empty()) {
+            gameObjectsStatic.push_back(building);
+        }
     }
 }
 

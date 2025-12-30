@@ -3,7 +3,8 @@
 
 std::unordered_map<std::string, std::shared_ptr<Model>> GameObjectStatic::modelCache;
 
-GameObjectStatic::GameObjectStatic(std::string modelPath, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
+GameObjectStatic::GameObjectStatic(std::string modelPath, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale,
+                                   glm::vec3 colliderSize) {
     this->modelPath = modelPath;
 
     if (modelCache.find(modelPath) == modelCache.end()) {
@@ -13,6 +14,12 @@ GameObjectStatic::GameObjectStatic(std::string modelPath, glm::vec3 position, gl
     this->position = position;
     this->scale = scale;
     this->SetRotation(getQuatFromRotationDegrees(rotation));
+
+    if (glm::length(colliderSize) > 0.01f) {
+        RigidBody rb;
+        rb.size = colliderSize;
+        this->AddRigidBody(rb);
+    }
 }
 
 void GameObjectStatic::SetModel(const std::string& modelPath) {
