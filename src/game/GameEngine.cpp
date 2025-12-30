@@ -324,8 +324,7 @@ void GameEngine::CreateBuildings() {
     };
 
     std::vector<BuildingData> buildings = {
-        {"../assets/models/buildings/house2/scene.gltf", glm::vec3(190.0f, 17.1f, 128.0f),
-         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1),glm::vec3(8.5f, 10.5f, 18.0f)},
+        // special
         {"../assets/models/buildings/house3/scene.gltf", glm::vec3(272, 24.0f, 12), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 19.8f, 27.0f)},
         {"../assets/models/buildings/house4/scene.gltf", glm::vec3(210, 20.2f, 85), glm::vec3(-90, 60, 0),
@@ -354,6 +353,7 @@ void GameEngine::CreateBuildings() {
         {"../assets/models/buildings/house10/scene.gltf", glm::vec3(265, 23.1f, 24), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
 
+
         // medium houses
         {"../assets/models/buildings/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88), glm::vec3(89.9999, -25, 180),
          glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
@@ -377,6 +377,8 @@ void GameEngine::CreateBuildings() {
          glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/house6/scene.gltf", glm::vec3(205, 19.9, 105), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/house2/scene.gltf", glm::vec3(177.0f, 19.8f, 124.0f),
+         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
 
         // small houses
         {"../assets/models/buildings/smallHouse1/scene.gltf", glm::vec3(127, 19.5f, 131), glm::vec3(-90, 89.9802f, 0),
