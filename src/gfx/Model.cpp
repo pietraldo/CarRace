@@ -4,6 +4,8 @@
 #include <stb_image.h>
 
 void Model::Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
     for (unsigned int i = 0; i < meshes.size(); i++) {
         if (perMeshCallback) {
             perMeshCallback(meshes[i], shader);

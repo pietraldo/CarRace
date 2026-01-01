@@ -9,10 +9,10 @@ static inline bool isFinite(float x) { return std::isfinite(x); }
 Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, std::shared_ptr<Model> steeringWheelModel,
          int carIndex)
     : carIndex(carIndex) {
-    model = std::move(bodyModel);
+    drawObject = std::move(bodyModel);
 
     steeringWheel = std::make_shared<GameObject2>();
-    steeringWheel->model = steeringWheelModel;
+    steeringWheel->drawObject = steeringWheelModel;
     steeringWheel->positionOffset = glm::vec3(-0.4f, 0.55f, 0.40f);
 
     wheels[0] = std::make_shared<Wheel>(wheelModel, AxleWheel::RearRight);
@@ -90,15 +90,17 @@ void Car::Draw(Shader& shader) {
         glm::vec3 pos = gameObject.GetPosition();
         glm::quat rot = PxQuatToGlmQuat(gameObject.GetRotation());
 
+        Model* model = dynamic_cast<Model*>(gameObject.drawObject.get());
+
         modelMatrix = glm::translate(modelMatrix, pos);
         modelMatrix *= glm::toMat4(rot);
-        modelMatrix = glm::scale(modelMatrix, gameObject.model->GetScale());
+        modelMatrix = glm::scale(modelMatrix, model->GetScale());
         shader.setMat4("model", modelMatrix);
     };
 
-    if (model) {
+    if (drawObject) {
         setModelMatrix(*this);
-        model->Draw(shader, [this](const Mesh& mesh, Shader& shader) {
+        drawObject->Draw(shader, [this](const Mesh& mesh, Shader& shader) {
             if (mesh.name == "brake_lights") {
                 shader.setBool("uIsBrakeLight", true);
                 shader.setBool("uIsBraking", isBraking);
@@ -118,13 +120,13 @@ void Car::Draw(Shader& shader) {
     if (steeringWheel) {
         setModelMatrix(*steeringWheel);
         shader.setBool("uIsBrakeLight", false);
-        steeringWheel->model->Draw(shader);
+        steeringWheel->drawObject->Draw(shader);
     }
 
     for (auto& wheel : wheels) {
         setModelMatrix(*wheel);
         shader.setBool("uIsBrakeLight", false);
-        wheel->model->Draw(shader);
+        wheel->drawObject->Draw(shader);
     }
 }
 

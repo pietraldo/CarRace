@@ -5,7 +5,7 @@
 Wheel::Wheel(std::shared_ptr<Model> wheelModel, AxleWheel axleWheel)
     : axleWheel(axleWheel), currentSteerDeg(0.0f), currentSpinRad(0.0f) {
     rotation = physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f);
-    model = wheelModel;
+    drawObject = wheelModel;
 }
 
 void Wheel::SetSteer(float steerDeg) {

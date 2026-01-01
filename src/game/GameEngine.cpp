@@ -175,8 +175,8 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
     for (auto gameObject : gameObjects2) {
-        auto model = gameObject->model;
-        if (!activeCam.IsSphereVisible(gameObject->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
+        auto drawObject = gameObject->drawObject;
+        if (!activeCam.IsSphereVisible(gameObject->GetPosition(), drawObject->GetRadius(), pass.viewProj)) continue;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         glm::vec3 position = gameObject->GetPosition();
@@ -184,13 +184,11 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 
         modelMatrix = glm::translate(modelMatrix, position);
         modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, model->GetScale() * gameObject->scale);
+        modelMatrix = glm::scale(modelMatrix, drawObject->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
-        shaderTex.setVec3("objectColor", model->GetColor());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textureID);
-        model->Draw(shaderTex);
+       
+        drawObject->Draw(shaderTex);
     }
 
     /*RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
@@ -221,9 +219,9 @@ void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
     shader.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto& car : cars) {
-        if (!car->model) return;
+        if (!car->drawObject) return;
 
-        if (activeCam.IsSphereVisible(car->GetPosition(), car->model->GetRadius(), pass.viewProj)) {
+        if (activeCam.IsSphereVisible(car->GetPosition(), car->drawObject->GetRadius(), pass.viewProj)) {
             car->Draw(shader);
         }
     }

@@ -13,7 +13,6 @@ class Wheel : public GameObject2 {
 public:
     Wheel(std::shared_ptr<Model> wheelModel, AxleWheel axleWheel);
 
-    const std::shared_ptr<Model>& GetModel() const noexcept { return model; }
     AxleWheel GetAxleWheel() const noexcept { return axleWheel; }
 
     AxleWheel axleWheel;

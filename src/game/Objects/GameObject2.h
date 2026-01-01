@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../../gfx/DrawObject.h"
 #include "../../gfx/Model.h"
 
 class GameObject2 {
@@ -22,7 +23,7 @@ public:
 
     GameObject2() {};
     virtual ~GameObject2() = default;
-    GameObject2(glm::vec3 position, std::shared_ptr<Model> model) : position(position), model(std::move(model)) {}
+    GameObject2(glm::vec3 position, std::shared_ptr<Model> model) : position(position), drawObject(std::move(model)) {}
     glm::vec3 GetPosition();
     physx::PxQuat GetRotation() const { return rotation * rotationOffset; }
     physx::PxQuat GetRotationWithoutOffset() const { return rotation; }
@@ -34,5 +35,5 @@ public:
     glm::vec3 positionOffset = glm::vec3(0);
     physx::PxQuat rotationOffset = physx::PxIdentity;
 
-    std::shared_ptr<Model> model = nullptr;
+    std::shared_ptr<DrawObject> drawObject = nullptr;
 };

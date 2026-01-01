@@ -10,7 +10,7 @@ GameObjectStatic::GameObjectStatic(std::string modelPath, glm::vec3 position, gl
     if (modelCache.find(modelPath) == modelCache.end()) {
         modelCache[modelPath] = std::make_shared<Model>(modelPath, glm::vec3(1.0f), glm::vec3(1.0f));
     }
-    this->model = modelCache[modelPath];
+    this->drawObject = modelCache[modelPath];
     this->position = position;
     this->scale = scale;
     this->SetRotation(getQuatFromRotationDegrees(rotation));
@@ -27,5 +27,5 @@ void GameObjectStatic::SetModel(const std::string& modelPath) {
     if (modelCache.find(modelPath) == modelCache.end()) {
         modelCache[modelPath] = std::make_shared<Model>(modelPath, glm::vec3(1.0f), glm::vec3(1.0f));
     }
-    this->model = modelCache[modelPath];
+    this->drawObject = modelCache[modelPath];
 }

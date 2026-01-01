@@ -18,9 +18,10 @@
 #include "../game/helper_functions.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "DrawObject.h"
 using namespace std;
 
-class Model {
+class Model: public DrawObject {
 public:
     vector<Texture> textures_loaded;
     vector<Mesh> meshes;
@@ -29,16 +30,15 @@ public:
     GLuint textureID;
 
     Model(string const& path, glm::vec3 scale, glm::vec3 color, bool gamma = false)
-        : gammaCorrection(gamma), scale(scale), color(color) {
+        : gammaCorrection(gamma), scale(scale) {
         loadModel(path);
     }
-    void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr);
+    void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr) override;
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
     const std::vector<Mesh>& GetMeshes() const;
 
-    glm::vec3 GetScale() const { return scale; }
-    glm::vec3 GetColor() const { return color; }
-    float GetRadius() const {
+    glm::vec3 GetScale() const override { return scale; }
+    float GetRadius() const override {
         float max = scale.x;
         if (scale.y > max) max = scale.y;
         if (scale.z > max) max = scale.z;
@@ -53,7 +53,6 @@ private:
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, const std::string& nodeName);
 
     float radius = 1.0f;
-    glm::vec3 color = glm::vec3(1.0f);
 };
 
 #endif
