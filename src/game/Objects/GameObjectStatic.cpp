@@ -5,12 +5,7 @@ std::unordered_map<std::string, std::shared_ptr<Model>> GameObjectStatic::modelC
 
 GameObjectStatic::GameObjectStatic(std::string modelPath, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale,
                                    glm::vec3 colliderSize) {
-    this->modelPath = modelPath;
-
-    if (modelCache.find(modelPath) == modelCache.end()) {
-        modelCache[modelPath] = std::make_shared<Model>(modelPath, glm::vec3(1.0f), glm::vec3(1.0f));
-    }
-    this->drawObject = modelCache[modelPath];
+    SetModel(modelPath);
     this->position = position;
     this->scale = scale;
     this->SetRotation(getQuatFromRotationDegrees(rotation));
