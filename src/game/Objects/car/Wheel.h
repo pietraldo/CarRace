@@ -7,7 +7,7 @@
 
 enum class AxleWheel { FrontLeft, FrontRight, RearLeft, RearRight };
 
-class Wheel: public GameObject2 {
+class Wheel : public GameObject2 {
     friend class Car;
 
 public:

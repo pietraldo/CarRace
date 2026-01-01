@@ -6,6 +6,8 @@
 #include "camera/FirstPersonCamera.h"
 #include <utility>
 
+#include "../game/helper_functions.h"
+
 // window
 GLFWwindow* Rendering::window = nullptr;
 int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
@@ -26,7 +28,7 @@ unsigned int Rendering::VAO_terrain = 0;
 unsigned int Rendering::VBO_terrain = 0;
 unsigned int Rendering::EBO_terrain = 0;
 
-unsigned int Rendering::VAO_light= 0;
+unsigned int Rendering::VAO_light = 0;
 unsigned int Rendering::UBO_lights = 0;
 
 unsigned int Rendering::VAO_loading = 0;
@@ -35,8 +37,6 @@ unsigned int Rendering::VBO_loading = 0;
 // textures
 TextureFields Rendering::terrainTexture = TextureFields();
 TextureFields Rendering::introTexture = TextureFields();
-
-
 
 bool Rendering::showBoxColliders = false;
 
@@ -47,10 +47,7 @@ glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
 GameEngine* Rendering::gameEngine = nullptr;
 
-
-
 bool Rendering::firstMouse = true;
-
 
 Mirrors Rendering::player1Mirrors;
 
@@ -60,7 +57,7 @@ int Rendering::InitializeLoading() {
     if (!success) return false;
 
     overlayShader = new Shader("../assets/shaders/vertex_overlay.txt", "../assets/shaders/fragment_overlay.txt");
-    
+
     float quadVertices[] = {
         // positions   // texCoords
         -1.0f, 1.0f,  0.0f, 1.0f,  // top-left
@@ -92,12 +89,10 @@ int Rendering::InitializeLoading() {
 }
 
 int Rendering::InitializeRest() {
-
     LoadShaders();
 
     LoadTextures();
     LoadBuffers();
-    
 
     player1Mirrors.Initialize();
     return 0;
@@ -135,7 +130,6 @@ void Rendering::LoadShaders() {
 void Rendering::LoadBuffers() {
     vector<float> vert = gameEngine->GetTerrain()->GetVertices();
     vector<int> ind = gameEngine->GetTerrain()->GetIndices();
-
 
     glGenVertexArrays(1, &VAO_terrain);
     glGenBuffers(1, &VBO_terrain);
@@ -488,19 +482,19 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }*/
         {
-           /* if (!gameEngine->modelsTex.empty()) {
-                Model* model = gameEngine->modelsTex[0];
-                ImGui::Begin("Model 0 settings");
-                static float modelSensitivity = 0.1f;
-                ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
-                ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
-                ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
-                ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
-                ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
-                ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
-                ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
-                ImGui::End();
-            }*/
+            /* if (!gameEngine->modelsTex.empty()) {
+                 Model* model = gameEngine->modelsTex[0];
+                 ImGui::Begin("Model 0 settings");
+                 static float modelSensitivity = 0.1f;
+                 ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
+                 ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
+                 ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
+                 ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
+                 ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
+                 ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
+                 ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
+                 ImGui::End();
+             }*/
         }
         {
             ImGui::Begin("Speed");
@@ -566,7 +560,6 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
     }
-
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -710,8 +703,7 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
     glfwPollEvents();
 }
 
-void Rendering::RenderLoadingScreen(float progress) 
-{
+void Rendering::RenderLoadingScreen(float progress) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -723,9 +715,9 @@ void Rendering::RenderLoadingScreen(float progress)
     glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
 
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data =
-        stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height, &introTexture.channels,
-                  4);  // force 4 channels
+    unsigned char* data = stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height,
+                                    &introTexture.channels,
+                                    4);  // force 4 channels
     stbi_set_flip_vertically_on_load(false);
 
     if (data) {
@@ -738,7 +730,8 @@ void Rendering::RenderLoadingScreen(float progress)
     stbi_image_free(data);
 
     glEnable(GL_BLEND);  // WARNING : maybe it is heavy to enable/disable blending each frame (I did not check it)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
+    glBlendFunc(GL_SRC_ALPHA,
+                GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
 
     Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));

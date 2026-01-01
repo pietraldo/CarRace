@@ -28,13 +28,11 @@
 #include "lights/Light.h"
 #include "Texture.h"
 
-
 class GameEngine;
 class Mirrors;
 
 class Rendering {
 public:
-
     static GameEngine* gameEngine;
     static bool showBoxColliders;
 
@@ -55,7 +53,7 @@ public:
     static unsigned int VBO_terrain, VAO_terrain, EBO_terrain;
     static unsigned int VAO_light, UBO_lights;
     static unsigned int VAO_loading, VBO_loading;
-    
+
     // textures
     static TextureFields terrainTexture;
     static TextureFields introTexture;
@@ -89,8 +87,6 @@ public:
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
     static bool ShouldRenderGameObject(const GameObject* gameObj, Camera& cam);
-
-
 
 private:
     static Mirrors player1Mirrors;

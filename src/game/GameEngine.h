@@ -53,12 +53,10 @@ private:
     vector<Camera*> cameras;
     vector<Model*> modelsCol;
 
-
     Terrain* terrain;
 
     std::vector<PlayerStatus> playersStatus;
     bool startSimulation = false;
-
 
 public:
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
@@ -97,6 +95,7 @@ public:
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
+    void CreateBuildings();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();

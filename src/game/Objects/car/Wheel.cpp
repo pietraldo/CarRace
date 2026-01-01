@@ -37,5 +37,5 @@ void Wheel::UpdateWheelRotation() {
     finalRot = glm::normalize(finalRot);
 
     physx::PxQuat pxQuat(finalRot.x, finalRot.y, finalRot.z, finalRot.w);
-    rotationOffset = pxQuat; 
+    rotationOffset = pxQuat;
 }
