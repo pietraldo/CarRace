@@ -17,6 +17,9 @@ private:
     ma_sound sound{};
     bool loaded = false;
 
+    ma_sound idleSound{};
+    bool idleLoaded = false;
+
     float rpmSmoothed = 0.0f;
     float volumeSmoothed = 0.0f;
     float pitchSmoothed = 1.0f;
