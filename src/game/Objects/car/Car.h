@@ -30,7 +30,7 @@ public:
     void SetHeadlights(bool on) { isHeadlightsOn = on; }
     void SetColor(glm::vec3 color) { carColor = color; }
 
-    void UpdatePhysics(float deltaTime) override;
+    void SyncWithPhysics() override;
 
 private:
     int carIndex = -1;

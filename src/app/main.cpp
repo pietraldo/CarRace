@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "../game/GameEngine.h"
-#include "../gfx/Cube.h"
+#include "../gfx/CubeDraw.h"
 #include "../gfx/Model.h"
 #include "../gfx/Shader.h"
 #include "../gfx/camera/Camera.h"
@@ -67,7 +67,7 @@ int main() {
 
     gameEngine->CreateModels();
 
-    Physics::getInstance()->createObjects(gameEngine->GetGameObjects(), gameEngine->gameObjectsStatic);
+    Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
     if (Settings::Get().playIntroAnimation) {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
@@ -97,7 +97,7 @@ int main() {
         gameEngine->UpdateAfterPhysics(input, deltaTime);
 
         gameEngine->setOutput();
-        Rendering::RenderFrame(gameEngine->GetGameObjects());
+        Rendering::RenderFrame();
     }
 
     glfwTerminate();

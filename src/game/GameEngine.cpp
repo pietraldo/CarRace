@@ -8,49 +8,8 @@ GameEngine::GameEngine() {
     lights = vector<Light*>();
     cameras = vector<Camera*>();
 
-    gameObjects = vector<GameObject*>();
 
     playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
-
-    CubeObject* cube1 =
-        new CubeObject(1, glm::vec3(0, 5, 0), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.50f, 0.50f));
-    gameObjects.push_back(cube1);
-
-    CubeObject* cube2 =
-        new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 1.0f, 1.0f), glm::vec3(0.50f, 0.50f, 1.0f));
-    gameObjects.push_back(cube2);
-
-    CubeObject* floorCube =
-        new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(1000, 1.0f, 1000), glm::vec3(0.7f, 0.4f, 1.0f));
-    gameObjects.push_back(floorCube);
-
-    CubeObject* floorCube2 =
-        new CubeObject(1, glm::vec3(0, -0.5, 0), glm::vec3(10, 1.0f, 10), glm::vec3(1.0f, 0.4f, 1.0f));
-    gameObjects.push_back(floorCube2);
-
-    CubeObject* cube4 =
-        new CubeObject(1, glm::vec3(12, 0.5, 12), glm::vec3(4.0f, 0.5f, 4.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    gameObjects.push_back(cube4);
-
-    CubeObject* cube5 =
-        new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-    gameObjects.push_back(cube5);
-
-    CubeObject* cube6 =
-        new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-    gameObjects.push_back(cube6);
-    CubeObject* cube7 =
-        new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(40.0f, 2.0f, 20.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-    gameObjects.push_back(cube7);
-
-    CubeObject* bridge =
-        new CubeObject(1, glm::vec3(0), glm::vec3(32.79f, 4.18f, 173.0f), glm::vec3(0.29f, 0.27f, 0.255f));
-    gameObjects.push_back(bridge);
-
-    CubeObject* cube3 = new CubeObject(1, glm::vec3(2, 5, 0), glm::vec3(1.4f, 2.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f),
-                                       glm::vec3(0), false);
-    gameObjects.push_back(cube3);
-    cube = cube3;
 
     terrain = new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
@@ -61,7 +20,7 @@ GameEngine::GameEngine() {
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
-        cars[i]->UpdatePhysics(deltaTime);
+        cars[i]->SyncWithPhysics();
     }
 
     auto vehicles = Physics::getInstance()->getVehicles();
@@ -147,6 +106,11 @@ void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
 }
 
 void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
+
+    for (auto gameObjectDynamic : gameObjectsDynamic) {
+        gameObjectDynamic->SyncWithPhysics();
+    }
+
     UpdatePlayersCamera(deltaTime, input);
 
     UpdateCars(input, deltaTime);
@@ -187,6 +151,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         modelMatrix *= glm::toMat4(rotation);
         modelMatrix = glm::scale(modelMatrix, drawObject->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
+        shaderTex.setVec3("objectColor", drawObject->GetColor());
 
         drawObject->Draw(shaderTex);
     }
@@ -265,6 +230,7 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 }
 
 void GameEngine::CreateModels() {
+    CreateCubes();
     CreateCars();
     CreateBuildings();
 
@@ -277,39 +243,7 @@ void GameEngine::CreateModels() {
     bridge->rotationOffset = getQuatFromRotationDegrees(rotation);
     gameObjects2.push_back(bridge);
 
-    // barier model size
-    // scale 46.97 15.66 9.46
-    // position 0 8 0
-    const std::string barierModelPath = "../assets/models/barier/scene.gltf";
-    auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-
-    glm::vec3 barierPosition(363.5f, 28.0f, -144.8f);
-    glm::vec3 rotationOffset = glm::vec3(-90.0f, 0.0f, 0.0f);
-    auto barier = make_shared<GameObjectStatic>(barierPosition, barierModel);
-    barier->rotationOffset = getQuatFromRotationDegrees(rotationOffset);
-    barier->scale = glm::vec3(1, 0.39, 0.94);
-    barier->SetRotation(getQuatFromRotationDegrees(glm::vec3(0)));
-    gameObjects2.push_back(barier);
-    RigidBody barierRigidBody;
-    barierRigidBody.positionOffset = glm::vec3(0.0f, 0.0f, 8.0f);
-    barierRigidBody.size = glm::vec3(46.97f, 9.00f, 15.66f);
-    barier->AddRigidBody(barierRigidBody);
-    gameObjectsStatic.push_back(barier);
-
-    glm::vec3 barierPosition2(356.86f, 28.0f, -218.8f);
-    glm::vec3 barierRotation2(0, 24, 0);
-    glm::vec3 barierScale2(0.49, 0.39, 0.94);
-
-    auto barier2 = make_shared<GameObjectStatic>(barierPosition2, barierModel);
-    barier2->rotationOffset = getQuatFromRotationDegrees(rotationOffset);
-    barier2->scale = barierScale2;
-    barier2->SetRotation(getQuatFromRotationDegrees(barierRotation2));
-    gameObjects2.push_back(barier2);
-    RigidBody barierRigidBody2;
-    barierRigidBody2.positionOffset = glm::vec3(0.0f, 0.0f, 8.0f);
-    barierRigidBody2.size = glm::vec3(46.97f, 9.00f, 15.66f);
-    barier2->AddRigidBody(barierRigidBody2);
-    gameObjectsStatic.push_back(barier2);
+    CreateBarriers();
 }
 
 void GameEngine::CreateBuildings() {
@@ -412,6 +346,113 @@ void GameEngine::CreateBuildings() {
                                                          glm::vec3(291.0f, 24.5f, 11.0f), glm::vec3(0.0f, -21.f, 0.f),
                                                          glm::vec3(2.2f, 2.2f, 2.2f), glm::vec3(0));
     gameObjects2.push_back(finishLine);
+}
+
+void GameEngine::CreateBarriers() {
+    // barier model size
+    // scale 46.97 9.46 15.66
+    // position 0 0 8
+    const std::string barierModelPath = "../assets/models/barier/scene.gltf";
+    auto barierModel = std::make_shared<Model>(barierModelPath, glm::vec3(1.0f), glm::vec3(1.f));
+
+    glm::vec3 barierRotationOffset = glm::vec3(-90.0f, 0.0f, 0.0f);
+    glm::vec3 barierPositionOffsetRigidBody = glm::vec3(0.0f, 0.0f, 8.0f);
+    glm::vec3 barierSizeRigidBody = glm::vec3(46.97f, 9.00f, 15.66f);
+
+    glm::vec3 barierPosition1(363.5f, 28.0f, -144.8f);
+    glm::vec3 barierScale1(1, 0.39, 0.94);
+    glm::vec3 barierRotation1(0.49, 62.16, -0.49);
+
+    auto barier = make_shared<GameObjectStatic>(barierPosition1, barierModel);
+    barier->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
+    barier->scale = barierScale1;
+    barier->SetRotation(getQuatFromRotationDegrees(barierRotation1));
+    gameObjects2.push_back(barier);
+    RigidBody barierRigidBody;
+    barierRigidBody.positionOffset = barierPositionOffsetRigidBody;
+    barierRigidBody.size = barierSizeRigidBody;
+    barier->AddRigidBody(barierRigidBody);
+    gameObjectsStatic.push_back(barier);
+
+    glm::vec3 barierPosition2(356.86f, 28.0f, -218.8f);
+    glm::vec3 barierRotation2(0, 24, 0);
+    glm::vec3 barierScale2(0.49, 0.39, 0.94);
+
+    auto barier2 = make_shared<GameObjectStatic>(barierPosition2, barierModel);
+    barier2->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
+    barier2->scale = barierScale2;
+    barier2->SetRotation(getQuatFromRotationDegrees(barierRotation2));
+    gameObjects2.push_back(barier2);
+    RigidBody barierRigidBody2;
+    barierRigidBody2.positionOffset = barierPositionOffsetRigidBody;
+    barierRigidBody2.size = barierSizeRigidBody;
+    barier2->AddRigidBody(barierRigidBody2);
+    gameObjectsStatic.push_back(barier2);
+}
+
+void GameEngine::CreateCubes() {
+
+    // floor cube1
+    glm::vec3 floorCube1Size = glm::vec3(1000, 1.0f, 1000);
+    glm::vec3 floorCube1Position = glm::vec3(0, -0.5f, 0);
+    glm::vec3 floorCube1Color = glm::vec3(0.7f, 0.4f, 1.0f);
+    auto floorCube1 = make_shared<GameObjectStatic>();
+    floorCube1->drawObject = make_shared<CubeDraw>();
+    floorCube1->drawObject->color = floorCube1Color;
+    floorCube1->scale = floorCube1Size;
+    floorCube1->SetPosition(floorCube1Position);
+    floorCube1->AddRigidBody(RigidBody());
+    gameObjects2.push_back(floorCube1);
+    gameObjectsStatic.push_back(floorCube1);
+
+    // floor cube2
+    glm::vec3 floorCube2Size = glm::vec3(10, 1.0f, 10);
+    glm::vec3 floorCube2Position = glm::vec3(0, 0.5f, 0);
+    glm::vec3 floorCube2Color = glm::vec3(1.0f, 0.4f, 1.0f);
+    auto floorCube2 = make_shared<GameObjectStatic>();
+    floorCube2->drawObject = make_shared<CubeDraw>();
+    floorCube2->drawObject->color = floorCube2Color;
+    floorCube2->scale = floorCube2Size;
+    floorCube2->SetPosition(floorCube2Position);
+    floorCube2->AddRigidBody(RigidBody());
+    gameObjects2.push_back(floorCube2);
+    gameObjectsStatic.push_back(floorCube2);
+
+    // bridge
+    glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
+    glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
+    glm::vec3 bridgeColor(0.29f, 0.27f, 0.255f);
+    glm::vec3 bridgeRotation(0.0f, 27.55f, 0.0f);
+    auto bridge = make_shared<GameObjectStatic>();
+    bridge->drawObject = make_shared<CubeDraw>();
+    bridge->drawObject->color = bridgeColor;
+    bridge->scale = bridgeSize;
+    bridge->SetPosition(bridgePosition);
+    bridge->SetRotation(getQuatFromRotationDegrees(bridgeRotation));
+    bridge->AddRigidBody(RigidBody());
+    gameObjects2.push_back(bridge);
+    gameObjectsStatic.push_back(bridge);
+
+    // dynamic cube1
+    glm::vec3 cube1Size = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 cube1Position = glm::vec3(0, 5, 0);
+    glm::vec3 cube1Color = glm::vec3(1.0f, 0.50f, 0.50f);
+    auto cube1 = make_shared<GameObjectDynamic>();
+    cube1->drawObject = make_shared<CubeDraw>();
+    cube1->drawObject->color = cube1Color;
+    cube1->scale = cube1Size;
+    cube1->SetPosition(cube1Position);
+    cube1->AddRigidBody(RigidBody());
+    gameObjects2.push_back(cube1);
+    gameObjectsDynamic.push_back(cube1);
+
+    // cube
+    glm::vec3 cubePosition(5.0f, 5.0f, 0.0f);
+    glm::vec3 cubeColor(0.5f, 0.5f, 1.0f);
+    cube = make_shared<GameObject2>();
+    cube->drawObject = make_shared<CubeDraw>();
+    cube->drawObject->color = cubeColor;
+    gameObjects2.push_back(cube);
 }
 
 void GameEngine::CreateLights() {
@@ -558,9 +599,9 @@ void GameEngine::CreateCars() {
         cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));
 
         if (i == 0) {
-            cars[i]->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+            cars[i]->SetColor(glm::vec3(1, 1, 1));
         } else {
-            cars[i]->SetColor(glm::vec3(0.5f, 0.5f, 1.0f));
+            cars[i]->SetColor(glm::vec3(0.5, 0.5, 1));
         }
     }
 }

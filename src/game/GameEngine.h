@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <iomanip>
 
-#include "../gfx/Cube.h"
+#include "../gfx/CubeDraw.h"
 #include "../gfx/Model.h"
 #include "../gfx/Rendering.h"
 #include "../gfx/camera/Camera.h"
@@ -14,8 +14,6 @@
 #include "../gfx/lights/LightDirectional.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightSpot.h"
-#include "./Objects/CubeObejct.h"
-#include "./Objects/GameObject.h"
 #include "./Objects/GameObjectStatic.h"
 #include "./physics/physics.h"
 #include "terrain.h"
@@ -46,7 +44,6 @@ using namespace std;
 
 class GameEngine {
 private:
-    vector<GameObject*> gameObjects;
     std::vector<std::unique_ptr<Car>> cars{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
 
     vector<Light*> lights;
@@ -61,6 +58,7 @@ private:
 public:
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
     vector<shared_ptr<GameObjectStatic>> gameObjectsStatic = vector<shared_ptr<GameObjectStatic>>();
+    vector<shared_ptr<GameObjectDynamic>> gameObjectsDynamic = vector<shared_ptr<GameObjectDynamic>>();
 
     bool dayNight = Settings::Get().night;
     bool fog = Settings::Get().fog;
@@ -77,7 +75,7 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
+    shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }
     bool IsSimulationStarted() const { return startSimulation; }
@@ -96,6 +94,8 @@ public:
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
     void CreateBuildings();
+    void CreateBarriers();
+    void CreateCubes();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();
@@ -115,7 +115,6 @@ public:
 
     vector<Light*> GetLights() { return lights; }
     vector<Camera*> GetCameras() { return cameras; }
-    vector<GameObject*> GetGameObjects() { return gameObjects; }
     glm::vec3 GetCarPosition() const;
     glm::quat GetCarRotation() const;
 

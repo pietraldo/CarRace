@@ -21,7 +21,7 @@ struct Settings {
     // returning to track settings
     bool autoReturningToTrack = false;
     int timeOutsideTrackToReset = 2000;  // in miliseconds
-    int checkpointInterval = 4000;       // in miliseconds
+    int checkpointInterval = 1000;       // in miliseconds
     int maxSavedPositions = 100;
     int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
 

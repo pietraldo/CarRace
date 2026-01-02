@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#include "../game/Objects/GameObject.h"
 #include "./common/SnippetVehicleHelpers.h"
 #include "./common/enginedrivetrain/EngineDrivetrain.h"
 #include "./common/serialization/BaseSerialization.h"
