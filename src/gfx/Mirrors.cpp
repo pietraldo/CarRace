@@ -47,18 +47,18 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex) {
 }
 
 void Mirrors::RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                           const glm::vec3& right, const std::vector<GameObject*>& objects, bool renderLeft,
+                           const glm::vec3& right, bool renderLeft,
                            bool renderRight) {
     if (renderRight) {
         MirrorData data = ComputeMirrorData(-1.0f, carPos, forward, up, right);
         glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
-        RenderSingleMirror(view, rightMirrorFBO, objects);
+        RenderSingleMirror(view, rightMirrorFBO);
     }
 
     if (renderLeft) {
         MirrorData data = ComputeMirrorData(+1.0f, carPos, forward, up, right);
         glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
-        RenderSingleMirror(view, leftMirrorFBO, objects);
+        RenderSingleMirror(view, leftMirrorFBO);
     }
 }
 
@@ -76,7 +76,7 @@ Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign, const glm::vec3& 
     return data;
 }
 
-void Mirrors::RenderSingleMirror(const glm::mat4& view, unsigned int fbo, const std::vector<GameObject*>& objects) {
+void Mirrors::RenderSingleMirror(const glm::mat4& view, unsigned int fbo) {
     Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
     Rendering::SetExternalView(view);
 
@@ -94,7 +94,7 @@ void Mirrors::RenderSingleMirror(const glm::mat4& view, unsigned int fbo, const 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Rendering::RenderSceneCommon(objects, activeCam);
+    Rendering::RenderSceneCommon(activeCam);
 
     Rendering::ClearExternalView();
     Rendering::ClearExternalProj();

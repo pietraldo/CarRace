@@ -1,4 +1,4 @@
-#include "Cube.h"
+#include "CubeDraw.h"
 
 #include "./camera/Camera.h"
 #include "Rendering.h"

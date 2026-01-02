@@ -7,7 +7,6 @@
 
 #include "../audio/EngineSound.h"
 #include "../audio/TireSquealSound.h"
-#include "../game/Objects/GameObject.h"
 #include "./CarControlInput.h"
 #include "./common/SnippetVehicleHelpers.h"
 #include "./common/enginedrivetrain/EngineDrivetrain.h"

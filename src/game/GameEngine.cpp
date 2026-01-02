@@ -8,7 +8,6 @@ GameEngine::GameEngine() {
     lights = vector<Light*>();
     cameras = vector<Camera*>();
 
-    gameObjects = vector<GameObject*>();
 
     playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
@@ -445,6 +444,14 @@ void GameEngine::CreateCubes() {
     cube1->AddRigidBody(RigidBody());
     gameObjects2.push_back(cube1);
     gameObjectsDynamic.push_back(cube1);
+
+    // cube
+    glm::vec3 cubePosition(5.0f, 5.0f, 0.0f);
+    glm::vec3 cubeColor(0.5f, 0.5f, 1.0f);
+    auto cube = make_shared<GameObject2>();
+    cube->drawObject = make_shared<CubeDraw>();
+    cube->drawObject->color = cubeColor;
+    gameObjects2.push_back(cube);
 }
 
 void GameEngine::CreateLights() {

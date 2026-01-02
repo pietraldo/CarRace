@@ -7,7 +7,6 @@
 
 #include "../audio/CollisionSound.h"
 #include "../game/GameEngine.h"
-#include "../game/Objects/GameObject.h"
 #include "../game/Objects/GameObjectStatic.h"
 #include "../game/Settings.h"
 #include "../game/terrain.h"

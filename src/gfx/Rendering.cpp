@@ -431,29 +431,29 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
         {
-            /*ImGui::Begin("Box Colliders");
+            //ImGui::Begin("Box Colliders");
 
-            static float sensitivity = 1.0f;
-            ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
+            //static float sensitivity = 1.0f;
+            //ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
 
-            ImGui::DragFloat("ScaleX", &(*gameEngine).cube->scale.x, sensitivity);
-            ImGui::DragFloat("ScaleY", &(*gameEngine).cube->scale.y, sensitivity);
-            ImGui::DragFloat("ScaleZ", &(*gameEngine).cube->scale.z, sensitivity);
-            ImGui::DragFloat("PositionX", &(*gameEngine).cube->positionToDisplay.x, sensitivity);
-            ImGui::DragFloat("PositionY", &(*gameEngine).cube->positionToDisplay.y, sensitivity);
-            ImGui::DragFloat("PositionZ", &(*gameEngine).cube->positionToDisplay.z, sensitivity);
-            ImGui::DragFloat("RotationX", &(*gameEngine).cube->rotationToDisplay.x, sensitivity);
-            ImGui::DragFloat("RotationY", &(*gameEngine).cube->rotationToDisplay.y, sensitivity);
-            ImGui::DragFloat("RotationZ", &(*gameEngine).cube->rotationToDisplay.z, sensitivity);
+            //ImGui::DragFloat("ScaleX", &(*gameEngine).cube->scale.x, sensitivity);
+            //ImGui::DragFloat("ScaleY", &(*gameEngine).cube->scale.y, sensitivity);
+            //ImGui::DragFloat("ScaleZ", &(*gameEngine).cube->scale.z, sensitivity);
+            //ImGui::DragFloat("PositionX", &(*gameEngine).cube->position.x, sensitivity);
+            //ImGui::DragFloat("PositionY", &(*gameEngine).cube->position.y, sensitivity);
+            //ImGui::DragFloat("PositionZ", &(*gameEngine).cube->position.z, sensitivity);/*
+            //ImGui::DragFloat("RotationX", &(*gameEngine).cube->rotation.x, sensitivity);
+            //ImGui::DragFloat("RotationY", &(*gameEngine).cube->rotation.y, sensitivity);
+            //ImGui::DragFloat("RotationZ", &(*gameEngine).cube->rotation.z, sensitivity);*/
 
-            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
-                        (*gameEngine).cube->scale.z);
-            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->positionToDisplay.x,
-                        (*gameEngine).cube->positionToDisplay.y, (*gameEngine).cube->positionToDisplay.z);
-            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotationToDisplay.x,
-                        (*gameEngine).cube->rotationToDisplay.y, (*gameEngine).cube->rotationToDisplay.z);
+            //ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
+            //            (*gameEngine).cube->scale.z);
+            //ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
+            //            (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
+            ///*ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotation.x,
+            //            (*gameEngine).cube->rotation.y, (*gameEngine).cube->rotation.z);*/
 
-            ImGui::End();*/
+            //ImGui::End();
         }
         /*{
             ImGui::Begin("Barier tester");
@@ -564,7 +564,7 @@ void Rendering::RenderImGui() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam) {
+void Rendering::RenderSceneCommon(Camera& activeCam) {
     Shader& shaderColor = *Rendering::colorShader;
     Shader& shaderTextured = *Rendering::texturedShader;
 
@@ -585,12 +585,6 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     shaderColor.setVec3("viewPos", activeCam.Position);
     shaderColor.setBool("fogEnabled", false);
 
-    for (GameObject* gameObj : gameObjects) {
-        if (!Rendering::ShouldRenderGameObject(gameObj, activeCam)) continue;
-
-        gameObj->Draw(activeCam);
-    }
-
     (*Rendering::gameEngine).DrawSkybox(activeCam);
     (*Rendering::gameEngine).DrawLights(*Rendering::lightShader, Rendering::VAO_light, activeCam);
     (*Rendering::gameEngine).DrawModels(shaderTextured, shaderColor, activeCam);
@@ -598,23 +592,6 @@ void Rendering::RenderSceneCommon(const std::vector<GameObject*>& gameObjects, C
     (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_terrain, activeCam);
 }
 
-bool Rendering::ShouldRenderGameObject(const GameObject* gameObj, Camera& cam) {
-    if (!gameObj || !gameObj->actor) return true;
-
-    physx::PxBounds3 bounds = gameObj->actor->getWorldBounds();
-    physx::PxVec3 center = bounds.getCenter();
-    physx::PxVec3 extents = bounds.getExtents();
-
-    float radius = extents.magnitude();
-    glm::vec3 c(center.x, center.y, center.z);
-
-    glm::mat4 proj = Rendering::GetProjectionMatrix(cam);
-    glm::mat4 view = Rendering::GetViewMatrix(cam);
-    glm::mat4 viewProj = proj * view;
-
-    // Return true to disable culling for debug
-    return cam.IsSphereVisible(c, radius, viewProj);
-}
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera) {
     if (useExternalProj) return externalProj;
@@ -634,7 +611,7 @@ glm::mat4 Rendering::GetViewMatrix(Camera& camera) {
     return camera.GetViewMatrix();
 }
 
-void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
+void Rendering::RenderFrame() {
     GameEngine* gameEngine = Rendering::gameEngine;
     CameraManager* cameraManager = CameraManager::GetInstance();
     ViewMode currentViewMode = cameraManager->GetViewMode();
@@ -646,7 +623,7 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
     if (currentViewMode == ViewMode::EDIT_SCREEN) {
         Camera& freeCam = cameraManager->GetFreeCamera();
         glViewport(0, 0, window_width, window_height);
-        RenderSceneCommon(gameObjects, freeCam);
+        RenderSceneCommon(freeCam);
     } else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
 
@@ -667,26 +644,26 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
                     glm::vec3 up = carRot * glm::vec3(0, 1, 0);
                     glm::vec3 right = carRot * glm::vec3(-1, 0, 0);
 
-                    player1Mirrors.RenderForCar(carPos, forward, up, right, gameObjects, renderLeft, renderRight);
+                    player1Mirrors.RenderForCar(carPos, forward, up, right, renderLeft, renderRight);
                 }
             }
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
-        RenderSceneCommon(gameObjects, activeCam);
+        RenderSceneCommon(activeCam);
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
-        RenderSceneCommon(gameObjects, activePlayer0Cam);
+        RenderSceneCommon(activePlayer0Cam);
 
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
-        RenderSceneCommon(gameObjects, activePlayer1Cam);
+        RenderSceneCommon(activePlayer1Cam);
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
         glViewport(0, 0, window_width, window_height);
-        RenderSceneCommon(gameObjects, introCam);
+        RenderSceneCommon(introCam);
     }
 
     /*Rendering::overlayShader->use();
