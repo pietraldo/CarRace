@@ -27,12 +27,14 @@
 #include "imgui.h"
 #include "lights/Light.h"
 #include "Texture.h"
+#include "../ui/HudRenderer.h"
 
 class GameEngine;
 class Mirrors;
 
 class Rendering {
 public:
+    static HudRenderer hudRenderer;
     static GameEngine* gameEngine;
     static bool showBoxColliders;
 

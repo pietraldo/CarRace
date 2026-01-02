@@ -49,6 +49,9 @@ GameEngine* Rendering::gameEngine = nullptr;
 
 bool Rendering::firstMouse = true;
 
+// bool Rendering::firstMouse = true;
+HudRenderer Rendering::hudRenderer;
+
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::InitializeLoading() {
@@ -95,6 +98,7 @@ int Rendering::InitializeRest() {
     LoadBuffers();
 
     player1Mirrors.Initialize();
+    hudRenderer.Init();
     return 0;
 }
 
@@ -221,6 +225,12 @@ bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    io.Fonts->AddFontDefault();
+    ImFont* hudFont = io.Fonts->AddFontFromFileTTF(
+        "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/fonts/Orbitron/Orbitron-VariableFont_wght.ttf",
+        64.0f);
+    hudRenderer.SetFont(hudFont);
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -560,6 +570,13 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
     }
+    if (showBoxColliders) {
+        // ... (ShowBoxColliders logic, if any, or just place the HUD debug call here)
+    }
+
+    // Always show HUD Debug for now to fix calibration
+    hudRenderer.DrawDebugUI();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -675,14 +692,47 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(gameObjects, activeCam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 6.0f;
+            data.rpm = (float)car0->getEngineRPM() * 6.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width, window_height);
+        }
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(gameObjects, activePlayer0Cam);
 
+        auto* car1 = Physics::getInstance()->getVehicles()[1];
+        if (car1) {
+            HudPlayerData data;
+            data.speedKmh = car1->getSpeed() * 6.0f;
+            data.rpm = (float)car1->getEngineRPM() * 6.0f;
+            data.gear = car1->getCurrentGear();
+            data.maxSpeed = car1->getMaxSpeed();
+            data.maxRpm = car1->getMaxEngineRPM();
+            hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
+        }
+
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(gameObjects, activePlayer1Cam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 6.0f;
+            data.rpm = (float)car0->getEngineRPM() * 6.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
+        }
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
         glViewport(0, 0, window_width, window_height);
