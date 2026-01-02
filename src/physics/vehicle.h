@@ -7,7 +7,6 @@
 
 #include "../audio/EngineSound.h"
 #include "../audio/TireSquealSound.h"
-#include "../game/Objects/GameObject.h"
 #include "./CarControlInput.h"
 #include "./common/SnippetVehicleHelpers.h"
 #include "./common/enginedrivetrain/EngineDrivetrain.h"
@@ -15,6 +14,7 @@
 #include "./common/serialization/EngineDrivetrainSerialization.h"
 #include "./game/Objects/car/Car.h"
 #include "./physics.h"
+#include "../game/Settings.h"
 
 using namespace physx;
 using namespace vehicle2;
@@ -43,8 +43,8 @@ public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath,
             PxVehiclePhysXSimulationContext* simulationContext);
 
-    float steeringSpeed = 5.0f;
-    float steeringReturnSpeed = 10.0f;
+    float steeringSpeed = Settings::Get().steeringSpeed;
+    float steeringReturnSpeed = Settings::Get().steeringReturnSpeed;
 
     void UpdateSteer(float deltaTime, float steerInput);
     PxVec3 getVehiclePosition() {

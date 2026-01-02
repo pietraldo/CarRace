@@ -27,6 +27,11 @@ physx::PxQuat getQuatFromRotationDegrees(glm::vec3 rotationAngles) {
     return q.getNormalized();
 }
 
+glm::vec3 getEulerAnglesFromQuat(const physx::PxQuat& q) { 
+    glm::quat glmQuat = PxQuatToGlmQuat(q);
+    return glm::degrees(glm::eulerAngles(glmQuat));
+}
+
 glm::vec3 PxVec3ToGlmVec3(const physx::PxVec3& v) { return glm::vec3(v.x, v.y, v.z); }
 physx::PxVec3 GlmVec3ToPxVec3(const glm::vec3& v) { return physx::PxVec3(v.x, v.y, v.z); }
 

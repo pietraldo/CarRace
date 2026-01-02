@@ -8,13 +8,13 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "./gfx/camera/CameraManager.h"
+#include "./DrawObject.h"
 
-class Cube {
+class CubeDraw: public DrawObject {
 private:
 public:
-    static glm::mat4 GetModelMatrix(glm::vec3 position, glm::quat quat, glm::vec3 scale);
-    static void Draw(glm::vec3 position, glm::quat quat, glm::vec3 scale, glm::vec3 color, Camera& activeCam);
-    static void Draw(glm::mat4 model, glm::vec3 color, Camera& activeCam);
+    void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr) override;
+    
     static float* GetVertices() { return vertices; }
     static float vertices[216];
 };

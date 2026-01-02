@@ -103,6 +103,8 @@ AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     info.startSimulation = isKeyJustPressed(GLFW_KEY_P);
     info.exit = isKeyJustPressed(GLFW_KEY_ESCAPE);
     info.resetCars = isKeyJustPressed(GLFW_KEY_R);
+    info.switchImGui = isKeyJustPressed(GLFW_KEY_F2);
+    info.switchHelp = isKeyJustPressed(GLFW_KEY_F1);
     return info;
 }
 bool KeyboardController::updateInput() { return true; }

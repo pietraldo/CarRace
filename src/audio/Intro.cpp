@@ -42,4 +42,3 @@ void IntroSound::playMusic(float intensity) {
     ma_sound_set_volume(&music, intensity);
     ma_sound_start(&music);
 }
-

@@ -2,8 +2,11 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <cstdint>
+#include <iomanip>
 
-#include "../gfx/Cube.h"
+#include "../gfx/CubeDraw.h"
 #include "../gfx/Model.h"
 #include "../gfx/Rendering.h"
 #include "../gfx/camera/Camera.h"
@@ -11,8 +14,7 @@
 #include "../gfx/lights/LightDirectional.h"
 #include "../gfx/lights/LightPoint.h"
 #include "../gfx/lights/LightSpot.h"
-#include "./Objects/CubeObejct.h"
-#include "./Objects/GameObject.h"
+#include "./Objects/GameObjectStatic.h"
 #include "./physics/physics.h"
 #include "terrain.h"
 
@@ -42,7 +44,6 @@ using namespace std;
 
 class GameEngine {
 private:
-    vector<GameObject*> gameObjects;
     std::vector<std::unique_ptr<Car>> cars{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};
 
     vector<Light*> lights;
@@ -54,13 +55,16 @@ private:
     std::vector<PlayerStatus> playersStatus;
     bool startSimulation = false;
 
-
 public:
-    vector<Model*> modelsTex;
-    bool dayNight = false;
-    bool fog = false;
-    float fogMinDist = 25.0f;
-    float fogMaxDist = 150.0f;
+    vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
+    vector<shared_ptr<GameObjectStatic>> gameObjectsStatic = vector<shared_ptr<GameObjectStatic>>();
+    vector<shared_ptr<GameObjectDynamic>> gameObjectsDynamic = vector<shared_ptr<GameObjectDynamic>>();
+
+    bool dayNight = Settings::Get().night;
+    bool fog = Settings::Get().fog;
+    float fogMinDist = Settings::Get().fogMinDist;
+    float fogMaxDist = Settings::Get().fogMaxDist;
+
     bool userFlashlight = false;
     bool headlightsOn = true;
     bool renderMirrors = false;
@@ -71,7 +75,7 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
+    shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }
     bool IsSimulationStarted() const { return startSimulation; }
@@ -82,12 +86,16 @@ public:
     Shader* skyboxShader;
 
     GameEngine();
-    void Update(InputData input, float deltaTime);
+    void UpdateBeforePhysics(InputData input, float deltaTime);
+    void UpdateAfterPhysics(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
 
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
+    void CreateBuildings();
+    void CreateBarriers();
+    void CreateCubes();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();
@@ -101,25 +109,20 @@ public:
     void DrawModel(Shader& shader, Model& model, Camera& activeCam);
     void DrawLights(Shader& shader, unsigned int& lightVAO, Camera& activeCam);
 
-    void AddTextureModel(Model* model) { modelsTex.push_back(model); }
     void AddColorModel(Model* model) { modelsCol.push_back(model); }
 
-    void SetCarSteer(float deg, int carNumber = 0) {
-        if (cars[carNumber]) cars[carNumber]->SetSteer(deg);
-    }
     Car* GetCar(int carNumber = 0) { return cars[carNumber].get(); }
 
     vector<Light*> GetLights() { return lights; }
     vector<Camera*> GetCameras() { return cameras; }
-    vector<GameObject*> GetGameObjects() { return gameObjects; }
     glm::vec3 GetCarPosition() const;
     glm::quat GetCarRotation() const;
 
-    std::unique_ptr<Car> CreateCar(const glm::vec3& bodyPosition);
+    void CreateCars();
 
     bool isVehicleOnTrack(int carNumber = 0);
 
-    void UpdatePlayerStatus(InputData& input);
+    void UpdatePlayerStatus(InputData& input, float dt);
 
     Terrain* GetTerrain() { return terrain; }
 

@@ -81,7 +81,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    vec3 texColor = texture(uBaseColorMap, TexCoords).rgb;
+    vec3 texColor = texture(uBaseColorMap, TexCoords).rgb * objectColor;
 
     if (uIsMirror) {
         FragColor = vec4(texColor, 1.0);

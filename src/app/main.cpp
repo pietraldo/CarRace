@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "../game/GameEngine.h"
-#include "../gfx/Cube.h"
+#include "../gfx/CubeDraw.h"
 #include "../gfx/Model.h"
 #include "../gfx/Shader.h"
 #include "../gfx/camera/Camera.h"
@@ -44,7 +44,6 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
-
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
 
@@ -68,7 +67,7 @@ int main() {
 
     gameEngine->CreateModels();
 
-    Physics::getInstance()->createObjects(gameEngine->GetGameObjects());
+    Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
     if (Settings::Get().playIntroAnimation) {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
@@ -86,19 +85,19 @@ int main() {
 
         CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
-       
 
         if (input.additionalInfo.resetCars) {
             Physics::getInstance()->getVehicles()[0]->resetCar();
         }
 
+        gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
             Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
         }
-        gameEngine->Update(input, deltaTime);
+        gameEngine->UpdateAfterPhysics(input, deltaTime);
 
         gameEngine->setOutput();
-        Rendering::RenderFrame(gameEngine->GetGameObjects());
+        Rendering::RenderFrame();
     }
 
     glfwTerminate();

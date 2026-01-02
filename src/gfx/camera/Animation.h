@@ -46,7 +46,8 @@ public:
     AnimationFrame GetFrame(float timeStamp);
 
     void SaveToFile() { SaveFramesToFile(fileName); }
-    void AddFrame(glm::vec3 position, glm::vec3 front, float duration = 2, FrameMode frameMode = FrameMode::INTERPOLATE) {
+    void AddFrame(glm::vec3 position, glm::vec3 front, float duration = 2,
+                  FrameMode frameMode = FrameMode::INTERPOLATE) {
         AnimationFrame frame;
         frame.position = position;
         frame.front = front;

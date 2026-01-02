@@ -14,12 +14,11 @@
 #include <GLFW/glfw3.h>
 
 #include "../game/GameEngine.h"
-#include "../game/Objects/GameObject.h"
 #include "../game/terrain.h"
 #include "../ui/Input/KeyboardController.h"
 #include "./camera/Camera.h"
 #include "./camera/CameraManager.h"
-#include "Cube.h"
+#include "CubeDraw.h"
 #include "Shader.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -28,13 +27,11 @@
 #include "lights/Light.h"
 #include "Texture.h"
 
-
 class GameEngine;
 class Mirrors;
 
 class Rendering {
 public:
-
     static GameEngine* gameEngine;
     static bool showBoxColliders;
 
@@ -55,7 +52,7 @@ public:
     static unsigned int VBO_terrain, VAO_terrain, EBO_terrain;
     static unsigned int VAO_light, UBO_lights;
     static unsigned int VAO_loading, VBO_loading;
-    
+
     // textures
     static TextureFields terrainTexture;
     static TextureFields introTexture;
@@ -78,9 +75,9 @@ public:
 
     static glm::mat4 GetProjectionMatrix(Camera& camera);
     static glm::mat4 GetViewMatrix(Camera& camera);
-    static void RenderFrame(std::vector<GameObject*> gameObjects);
+    static void RenderFrame();
     static void RenderLoadingScreen(float progress);
-    static void RenderSceneCommon(const std::vector<GameObject*>& gameObjects, Camera& activeCam);
+    static void RenderSceneCommon(Camera& activeCam);
 
     static void SetExternalView(const glm::mat4& view);
     static void SetExternalProj(const glm::mat4& proj);
@@ -88,9 +85,6 @@ public:
     static void ClearExternalView();
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
-    static bool ShouldRenderGameObject(const GameObject* gameObj, Camera& cam);
-
-
 
 private:
     static Mirrors player1Mirrors;
