@@ -49,6 +49,9 @@ GameEngine* Rendering::gameEngine = nullptr;
 
 bool Rendering::firstMouse = true;
 
+// bool Rendering::firstMouse = true;
+HudRenderer Rendering::hudRenderer;
+
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::InitializeLoading() {
@@ -442,7 +445,7 @@ void Rendering::RenderImGui() {
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
-            
+
             shared_ptr<GameObject2> cube = (*gameEngine).cube;
 
             ImGui::DragFloat("ScaleX", &cube->scale.x, sensitivity);
@@ -455,21 +458,20 @@ void Rendering::RenderImGui() {
             glm::vec3 rotation = getEulerAnglesFromQuat((*gameEngine).cube->GetRotationWithoutOffset());
 
             if (ImGui::DragFloat("Rotation X", &rotation.x, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Y", &rotation.y, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Z", &rotation.z, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
 
             ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
                         (*gameEngine).cube->scale.z);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
                         (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
-            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y,
-                        rotation.z);
+            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y, rotation.z);
 
             ImGui::End();
         }
@@ -578,6 +580,13 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
     }
+    if (showBoxColliders) {
+        // ... (ShowBoxColliders logic, if any, or just place the HUD debug call here)
+    }
+
+    // Always show HUD Debug for now to fix calibration
+    hudRenderer.DrawDebugUI();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -609,7 +618,6 @@ void Rendering::RenderSceneCommon(Camera& activeCam) {
     (*Rendering::gameEngine).DrawCars(shaderTextured, activeCam);
     (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_terrain, activeCam);
 }
-
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera) {
     if (useExternalProj) return externalProj;
@@ -670,6 +678,18 @@ void Rendering::RenderFrame() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(activeCam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 4.0f;
+            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width, window_height);
+        }
+
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
@@ -678,8 +698,8 @@ void Rendering::RenderFrame() {
         auto* car1 = Physics::getInstance()->getVehicles()[1];
         if (car1) {
             HudPlayerData data;
-            data.speedKmh = car1->getSpeed() * 6.0f;
-            data.rpm = (float)car1->getEngineRPM() * 6.0f;
+            data.speedKmh = car1->getSpeed() * 4.0f;
+            data.rpm = (float)car1->getEngineRPM() * 4.0f;
             data.gear = car1->getCurrentGear();
             data.maxSpeed = car1->getMaxSpeed();
             data.maxRpm = car1->getMaxEngineRPM();
@@ -689,19 +709,22 @@ void Rendering::RenderFrame() {
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(activePlayer1Cam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 4.0f;
+            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
+        }
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(introCam);
     }
-
-    /*Rendering::overlayShader->use();
-    overlayShader->setMat4("projection", glm::mat4(1.0f));
-
-    glBindVertexArray(Rendering::VAO_loading);
-    glBindTexture(GL_TEXTURE_2D, Rendering::loadingTextureID);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);*/
 
     RenderImGui();
 
