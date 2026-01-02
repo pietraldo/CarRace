@@ -677,11 +677,11 @@ void Rendering::RenderFrame(std::vector<GameObject*> gameObjects) {
         RenderSceneCommon(gameObjects, activeCam);
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         glViewport(0, 0, window_width / 2, window_height);
-        Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(0);
+        Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(gameObjects, activePlayer0Cam);
 
         glViewport(window_width / 2, 0, window_width / 2, window_height);
-        Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(1);
+        Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(gameObjects, activePlayer1Cam);
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
