@@ -20,7 +20,6 @@ protected:
 public:
     glm::vec3 position = glm::vec3(0);
 
-    // glm::vec3 rotation2 = glm::vec3(0);  // just for easier handling in degrees later in quaternions
 
     GameObject2() {};
     virtual ~GameObject2() = default;
