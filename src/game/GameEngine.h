@@ -61,6 +61,7 @@ private:
 public:
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
     vector<shared_ptr<GameObjectStatic>> gameObjectsStatic = vector<shared_ptr<GameObjectStatic>>();
+    vector<shared_ptr<GameObjectDynamic>> gameObjectsDynamic = vector<shared_ptr<GameObjectDynamic>>();
 
     bool dayNight = Settings::Get().night;
     bool fog = Settings::Get().fog;
@@ -77,7 +78,7 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
+    //CubeObject* cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }
     bool IsSimulationStarted() const { return startSimulation; }
@@ -96,6 +97,8 @@ public:
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
     void CreateModels();
     void CreateBuildings();
+    void CreateBarriers();
+    void CreateCubes();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();

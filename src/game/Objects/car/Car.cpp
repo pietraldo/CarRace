@@ -33,7 +33,7 @@ Car::Car(std::shared_ptr<Model> bodyModel, std::shared_ptr<Model> wheelModel, st
 
 void Car::SetSteer(float deg) { steerTarget = clampValue(deg, -maxSteer, maxSteer); }
 
-void Car::UpdatePhysics(float deltaTime) {
+void Car::SyncWithPhysics() {
     PxVec3 pos = Physics::getInstance()->getVehicles()[carIndex]->getVehiclePosition();
     position = PxVec3ToGlmVec3(pos);
     rotation = Physics::getInstance()->getVehicles()[carIndex]->getVehicleRotation();

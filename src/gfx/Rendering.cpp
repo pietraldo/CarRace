@@ -158,7 +158,7 @@ void Rendering::LoadBuffers() {
     glBindVertexArray(VAO_cube);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_cube);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 216, Cube::GetVertices(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 216, CubeDraw::GetVertices(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -431,7 +431,7 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
         {
-            ImGui::Begin("Box Colliders");
+            /*ImGui::Begin("Box Colliders");
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
@@ -453,7 +453,7 @@ void Rendering::RenderImGui() {
             ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotationToDisplay.x,
                         (*gameEngine).cube->rotationToDisplay.y, (*gameEngine).cube->rotationToDisplay.z);
 
-            ImGui::End();
+            ImGui::End();*/
         }
         /*{
             ImGui::Begin("Barier tester");

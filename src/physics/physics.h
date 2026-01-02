@@ -52,7 +52,7 @@ public:
 
     physx::PxScene* createScene();
 
-    void createObjects(const std::vector<GameObject*>& gameObjects,
+    void createObjects(const std::vector<std::shared_ptr<GameObjectDynamic>> gameObjectsDynamic,
                        const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic);
 
     void createTerrain();

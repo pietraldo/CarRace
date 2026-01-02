@@ -88,79 +88,34 @@ physx::PxScene* Physics::createScene() {
     return gScene;
 }
 
-void Physics::createObjects(const std::vector<GameObject*>& gameObjects,
+void Physics::createObjects(const std::vector<std::shared_ptr<GameObjectDynamic>> gameObjectsDynamic,
                             const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic) {
-    // --- 3. Material and ground plane ---
+    
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
-    // --- 4. A dynamic cube ---
 
-    physx::PxTransform transform(physx::PxVec3(1, 12, 10));  // start 10m up
+    for (auto gameObjectDynamic : gameObjectsDynamic) {
+        physx::PxVec3 positionOffsetPx =
+            GlmVec3ToPxVec3(gameObjectDynamic->rigidBody.positionOffset * gameObjectDynamic->scale);
+        positionOffsetPx =
+            (gameObjectDynamic->GetRotation() * gameObjectDynamic->rigidBody.rotationOffset).rotate(positionOffsetPx);
 
-    physx::PxBoxGeometry geometry(physx::PxVec3(0.5f, 0.5f, 0.5f));  // 1x1x1
-    physx::PxRigidDynamic* cube = physx::PxCreateDynamic(*gPhysics, transform, geometry, *material, 1.0f);
-    gScene->addActor(*cube);
-    gameObjects[0]->actor = cube;
+        PxVec3 pos = GlmVec3ToPxVec3(gameObjectDynamic->GetPosition()) + positionOffsetPx;
+        PxQuat rotation = gameObjectDynamic->GetRotation();
+        PxVec3 size = GlmVec3ToPxVec3(gameObjectDynamic->rigidBody.size * 0.5f * gameObjectDynamic->scale);
+        physx::PxRigidDynamic* actor =
+            physx::PxCreateDynamic(*gPhysics, physx::PxTransform(pos, rotation), physx::PxBoxGeometry(size), *material,
+                                   gameObjectDynamic->mass);
 
-    physx::PxTransform transform2(physx::PxVec3(0, 10, 10));  // start 10m up
-
-    physx::PxBoxGeometry geometry2(physx::PxVec3(0.7f, 0.5f, 0.5f));  // 1x1x1
-    physx::PxRigidDynamic* cube2 = physx::PxCreateDynamic(*gPhysics, transform2, geometry2, *material, 1.0f);
-    gScene->addActor(*cube2);
-    gameObjects[1]->actor = cube2;
-
-    physx::PxRigidStatic* boxCollider =
-        physx::PxCreateStatic(*gPhysics, physx::PxTransform(physx::PxVec3(0, -0.5f, 0)),
-                              physx::PxBoxGeometry(physx::PxVec3(500.0f, 0.5f, 500.0f)), *material);
-    gScene->addActor(*boxCollider);
-    gameObjects[2]->actor = boxCollider;
-
-    physx::PxRigidStatic* boxCollider2 =
-        physx::PxCreateStatic(*gPhysics, physx::PxTransform(physx::PxVec3(0, 0.5f, 0)),
-                              physx::PxBoxGeometry(physx::PxVec3(5.0f, 0.5f, 5.0f)), *material);
-    gScene->addActor(*boxCollider2);
-    gameObjects[3]->actor = boxCollider2;
-
-    physx::PxRigidStatic* boxCollider3 = physx::PxCreateStatic(
-        *gPhysics,
-        physx::PxTransform(physx::PxVec3(6, 0.5f, 0), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))),
-        physx::PxBoxGeometry(physx::PxVec3(2.0f, 0.25f, 2.0f)), *material);
-    gScene->addActor(*boxCollider3);
-    gameObjects[4]->actor = boxCollider3;
-
-    physx::PxRigidStatic* boxCollider4 = physx::PxCreateStatic(
-        *gPhysics,
-        physx::PxTransform(physx::PxVec3(-100, 0, -100), physx::PxQuat(physx::PxPi / 2, physx::PxVec3(0, 0, 1))),
-        physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
-    gScene->addActor(*boxCollider4);
-    gameObjects[5]->actor = boxCollider4;
-
-    physx::PxRigidStatic* boxCollider5 = physx::PxCreateStatic(
-        *gPhysics,
-        physx::PxTransform(physx::PxVec3(100, 0, 100), physx::PxQuat(physx::PxPi / 2, physx::PxVec3(0, 0, 1))),
-        physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
-    gScene->addActor(*boxCollider5);
-    gameObjects[6]->actor = boxCollider5;
-
-    physx::PxRigidStatic* boxCollider6 = physx::PxCreateStatic(
-        *gPhysics,
-        physx::PxTransform(physx::PxVec3(-32, 0.5f, -40), physx::PxQuat(-physx::PxPi / 10, physx::PxVec3(0, 0, 1))),
-        physx::PxBoxGeometry(physx::PxVec3(20.0f, 1.0f, 10.0f)), *material);
-    gScene->addActor(*boxCollider6);
-    gameObjects[7]->actor = boxCollider6;
-
-    physx::PxRigidStatic* boxColliderBridge =
-        physx::PxCreateStatic(*gPhysics,
-                              physx::PxTransform(physx::PxVec3(-228.58f, 82.31f, -269.25f),
-                                                 getQuatFromRotationDegrees(glm::vec3(0.0f, 27.55f, 0.0f))),
-                              physx::PxBoxGeometry(physx::PxVec3(16.3545f, 2.09f, 86.5f)), *material);
-    gScene->addActor(*boxColliderBridge);
-    gameObjects[8]->actor = boxColliderBridge;
+        gScene->addActor(*actor);
+        gameObjectDynamic->actor = actor;
+    }
 
     for (auto gameObjectStatic : gameObjectsStatic) {
-        physx::PxVec3 positionOffsetPx = GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].positionOffset*gameObjectStatic->scale);
-        positionOffsetPx =
-            (gameObjectStatic->GetRotation() * gameObjectStatic->rigidBodies[0].rotationOffset).rotate(positionOffsetPx);
+        physx::PxVec3 positionOffsetPx =
+            GlmVec3ToPxVec3(gameObjectStatic->rigidBodies[0].positionOffset * gameObjectStatic->scale);
+        positionOffsetPx = (gameObjectStatic->GetRotation() * gameObjectStatic->rigidBodies[0].rotationOffset)
+                               .rotate(positionOffsetPx);
 
         PxVec3 pos = GlmVec3ToPxVec3(gameObjectStatic->GetPosition()) + positionOffsetPx;
         PxQuat rotation = gameObjectStatic->GetRotation();
@@ -170,38 +125,6 @@ void Physics::createObjects(const std::vector<GameObject*>& gameObjects,
 
         gScene->addActor(*collider);
         gameObjectStatic->rigidBodies[0].actor = collider;
-    }
-
-    // Ensure all created static/dynamic objects have collision masks set to
-    // colliding with everything (Group 0, Mask All) This allows them to pass the
-    // DefaultSimulationFilterShader when colliding with the Car (Group 1, Mask
-    // All) Ensure all created static/dynamic objects have collision masks set
-    // appropriately Group 2 = Floor (Ignore sound), Group 0 = Walls/Objects (Play
-    // sound)
-    for (size_t i = 0; i < gameObjects.size(); i++) {
-        GameObject* go = gameObjects[i];
-        if (go && go->actor) {
-            PxRigidActor* actor = go->actor->is<PxRigidActor>();
-            if (actor) {
-                PxU32 nbShapes = actor->getNbShapes();
-                if (nbShapes > 0) {
-                    std::vector<PxShape*> shapes(nbShapes);
-                    actor->getShapes(shapes.data(), nbShapes);
-                    for (PxShape* shape : shapes) {
-                        PxFilterData fd = shape->getSimulationFilterData();
-
-                        // Index 2 is the large ground plane box
-                        if (i == 2)
-                            fd.word0 = 2;  // Group 2 = Ground
-                        else
-                            fd.word0 = 0;  // Group 0 = Walls/Objects
-
-                        fd.word1 = 0xffffffff;  // Collide with everything
-                        shape->setSimulationFilterData(fd);
-                    }
-                }
-            }
-        }
     }
 }
 

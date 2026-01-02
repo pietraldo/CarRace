@@ -67,7 +67,7 @@ int main() {
 
     gameEngine->CreateModels();
 
-    Physics::getInstance()->createObjects(gameEngine->GetGameObjects(), gameEngine->gameObjectsStatic);
+    Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
     if (Settings::Get().playIntroAnimation) {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
