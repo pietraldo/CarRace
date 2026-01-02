@@ -435,23 +435,34 @@ void Rendering::RenderImGui() {
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
+            
+            shared_ptr<GameObject2> cube = (*gameEngine).cube;
 
-            ImGui::DragFloat("ScaleX", &(*gameEngine).cube->scale.x, sensitivity);
-            ImGui::DragFloat("ScaleY", &(*gameEngine).cube->scale.y, sensitivity);
-            ImGui::DragFloat("ScaleZ", &(*gameEngine).cube->scale.z, sensitivity);
-            ImGui::DragFloat("PositionX", &(*gameEngine).cube->position.x, sensitivity);
-            ImGui::DragFloat("PositionY", &(*gameEngine).cube->position.y, sensitivity);
-            ImGui::DragFloat("PositionZ", &(*gameEngine).cube->position.z, sensitivity);/*
-            ImGui::DragFloat("RotationX", &(*gameEngine).cube->rotation.x, sensitivity);
-            ImGui::DragFloat("RotationY", &(*gameEngine).cube->rotation.y, sensitivity);
-            ImGui::DragFloat("RotationZ", &(*gameEngine).cube->rotation.z, sensitivity);*/
+            ImGui::DragFloat("ScaleX", &cube->scale.x, sensitivity);
+            ImGui::DragFloat("ScaleY", &cube->scale.y, sensitivity);
+            ImGui::DragFloat("ScaleZ", &cube->scale.z, sensitivity);
+            ImGui::DragFloat("PositionX", &cube->position.x, sensitivity);
+            ImGui::DragFloat("PositionY", &cube->position.y, sensitivity);
+            ImGui::DragFloat("PositionZ", &cube->position.z, sensitivity);
+
+            glm::vec3 rotation = getEulerAnglesFromQuat((*gameEngine).cube->GetRotationWithoutOffset());
+
+            if (ImGui::DragFloat("Rotation X", &rotation.x, sensitivity)) {
+                cube->SetRotation(rotation); 
+            }
+            if (ImGui::DragFloat("Rotation Y", &rotation.y, sensitivity)) {
+                cube->SetRotation(rotation); 
+            }
+            if (ImGui::DragFloat("Rotation Z", &rotation.z, sensitivity)) {
+                cube->SetRotation(rotation); 
+            }
 
             ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
                         (*gameEngine).cube->scale.z);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
                         (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
-            /*ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotation.x,
-                        (*gameEngine).cube->rotation.y, (*gameEngine).cube->rotation.z);*/
+            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y,
+                        rotation.z);
 
             ImGui::End();
         }

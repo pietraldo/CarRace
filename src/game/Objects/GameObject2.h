@@ -19,6 +19,7 @@ protected:
 
 public:
     glm::vec3 position = glm::vec3(0);
+
     // glm::vec3 rotation2 = glm::vec3(0);  // just for easier handling in degrees later in quaternions
 
     GameObject2() {};
@@ -29,6 +30,7 @@ public:
     physx::PxQuat GetRotationWithoutOffset() const { return rotation; }
     void SetPosition(const glm::vec3& pos) { position = pos; }
     void SetRotation(const physx::PxQuat& rot) { rotation = rot; }
+    void SetRotation(glm::vec3 roationGlm) { rotation = getQuatFromRotationDegrees(roationGlm);  }
 
     glm::vec3 scale = glm::vec3(1.0f);
 
