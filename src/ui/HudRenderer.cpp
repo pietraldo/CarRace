@@ -119,18 +119,22 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     float margin = (float)height * 0.04f;
     float gaugeSize = baseScale;
 
-    // Positions (Relative to viewport 0,0) - Bottom Left Layout
-    // Speed Gauge: Bottom Left
     float speedX = margin + gaugeSize / 2 + 20;
     float speedY = margin + gaugeSize / 2;
 
-    // RPM Gauge: Right of Speed Gauge
     float rpmX = speedX + gaugeSize + 10;
     float rpmY = speedY;
 
     DrawTexture(rpmDialTexture, rpmX, rpmY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
 
     DrawTexture(speedDialTexture, speedX, speedY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
+
+    float debugNeedleStartAngle = -13.458f;
+    float debugNeedleEndAngle = -168.224f;
+    float debugNeedleOffset = 0.0f;
+    float debugNeedleScale = 1.089f;
+    float debugNeedlePosX = 0.0f;
+    float debugNeedlePosY = -57.944f;
 
     float tSpeed = glm::clamp(currentSpeed / data.maxSpeed, 0.0f, 1.0f);
     float angleSpeed = glm::mix(debugNeedleStartAngle, debugNeedleEndAngle, tSpeed);
@@ -142,7 +146,6 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
 
     float needleSize = gaugeSize * debugNeedleScale;
 
-    // Apply position offsets for alignment
     float nSpeedX = speedX + debugNeedlePosX;
     float nSpeedY = speedY + debugNeedlePosY;
     float nRpmX = rpmX + debugNeedlePosX;
@@ -151,10 +154,9 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     DrawTexture(needleTexture, nSpeedX, nSpeedY, needleSize, needleSize, angleSpeed, glm::vec2(0.5f), projection);
     DrawTexture(needleTexture, nRpmX, nRpmY, needleSize, needleSize, angleRpm, glm::vec2(0.5f), projection);
 
-    // Gear (Above Speed Gauge)
     float gearSize = gaugeSize * 0.6f;
     float gearX = speedX;
-    float gearY = speedY + gaugeSize / 2 + margin + gearSize / 2 - 20;  // Slightly closer
+    float gearY = speedY + gaugeSize / 2 + margin + gearSize / 2 - 20;
 
     DrawTexture(gearFrameTexture, gearX, gearY, gearSize, gearSize, 0.0f, glm::vec2(0.5f), projection);
 
@@ -258,26 +260,4 @@ void HudRenderer::DrawText(const std::string& text, float x, float y, float scal
         cursorX += glyph->AdvanceX * currentScale;
     }
     glBindVertexArray(0);
-}
-
-void HudRenderer::DrawDebugUI() {
-    ImGui::Begin("HUD Debug");
-    ImGui::Text("Needle Calibration");
-    ImGui::SliderFloat("Start Angle", &debugNeedleStartAngle, -360.0f, 360.0f);
-    ImGui::SliderFloat("End Angle", &debugNeedleEndAngle, -360.0f, 360.0f);
-    ImGui::SliderFloat("Offset Angle", &debugNeedleOffset, -180.0f, 180.0f);
-    ImGui::SliderFloat("Scale", &debugNeedleScale, 0.1f, 2.0f);
-    ImGui::SliderFloat("Pos X", &debugNeedlePosX, -100.0f, 100.0f);
-    ImGui::SliderFloat("Pos Y", &debugNeedlePosY, -100.0f, 100.0f);
-
-    ImGui::Separator();
-    ImGui::Text("Live Values");
-    if (playerStates.find(0) != playerStates.end()) {
-        ImGui::Text("Speed: %.1f km/h", playerStates[0].displaySpeed);
-        ImGui::Text("RPM: %.1f", playerStates[0].displayRpm);
-        ImGui::Text("Gear: %d", playerStates[0].gear);
-    } else {
-        ImGui::Text("No Player 0 Data");
-    }
-    ImGui::End();
 }

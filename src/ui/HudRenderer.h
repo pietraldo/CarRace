@@ -32,16 +32,7 @@ public:
     void Init();
     void Update(float dt);
     void Render(int playerIndex, const HudPlayerData& data, int x, int y, int width, int height);
-    void DrawDebugUI();
-
     void SetFont(ImFont* font) { this->hudFont = font; }
-
-    float debugNeedleStartAngle = -13.458f;
-    float debugNeedleEndAngle = -168.224f;
-    float debugNeedleOffset = 0.0f;
-    float debugNeedleScale = 1.089f;
-    float debugNeedlePosX = 0.0f;
-    float debugNeedlePosY = -57.944f;
 
 private:
     Shader* shader;
@@ -52,10 +43,8 @@ private:
     unsigned int needleTexture;
     unsigned int gearFrameTexture;
 
-    // Smoothing state per player
     std::map<int, HudState> playerStates;
 
-    // Assets paths
     const std::string PATH_SPEED_DIAL = "../assets/ui/gauges/speedometer_dial.png";
     const std::string PATH_RPM_DIAL = "../assets/ui/gauges/rpm_dial.png";
     const std::string PATH_NEEDLE = "../assets/ui/needle.png";

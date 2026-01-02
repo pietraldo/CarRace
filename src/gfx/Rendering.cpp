@@ -227,9 +227,7 @@ bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     io.Fonts->AddFontDefault();
-    ImFont* hudFont = io.Fonts->AddFontFromFileTTF(
-        "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/fonts/Orbitron/Orbitron-VariableFont_wght.ttf",
-        64.0f);
+    ImFont* hudFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Orbitron/Orbitron-VariableFont_wght.ttf", 64.0f);
     hudRenderer.SetFont(hudFont);
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -475,47 +473,6 @@ void Rendering::RenderImGui() {
 
             ImGui::End();
         }
-        /*{
-            ImGui::Begin("Barier tester");
-
-            static float sensitivity = 1.0f;
-            ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
-
-            ImGui::DragFloat("ScaleX", &(*gameEngine).gameObjectsStatic[0]->scale.x, sensitivity);
-            ImGui::DragFloat("ScaleY", &(*gameEngine).gameObjectsStatic[0]->scale.y, sensitivity);
-            ImGui::DragFloat("ScaleZ", &(*gameEngine).gameObjectsStatic[0]->scale.z, sensitivity);
-            ImGui::DragFloat("PositionX", &(*gameEngine).gameObjectsStatic[0]->position.x, sensitivity);
-            ImGui::DragFloat("PositionY", &(*gameEngine).gameObjectsStatic[0]->position.y, sensitivity);
-            ImGui::DragFloat("PositionZ", &(*gameEngine).gameObjectsStatic[0]->position.z, sensitivity);
-            ImGui::DragFloat("RotationX", &(*gameEngine).gameObjectsStatic[0]->rotation2.x, sensitivity);
-            ImGui::DragFloat("RotationY", &(*gameEngine).gameObjectsStatic[0]->rotation2.y, sensitivity);
-            ImGui::DragFloat("RotationZ", &(*gameEngine).gameObjectsStatic[0]->rotation2.z, sensitivity);
-
-            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->scale.x,
-                        (*gameEngine).gameObjectsStatic[0]->scale.y, (*gameEngine).gameObjectsStatic[0]->scale.z);
-            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->position.x,
-                        (*gameEngine).gameObjectsStatic[0]->position.y, (*gameEngine).gameObjectsStatic[0]->position.z);
-            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->rotation2.x,
-                        (*gameEngine).gameObjectsStatic[0]->rotation2.y,
-                        (*gameEngine).gameObjectsStatic[0]->rotation2.z);
-
-            ImGui::End();
-        }*/
-        {
-            /* if (!gameEngine->modelsTex.empty()) {
-                 Model* model = gameEngine->modelsTex[0];
-                 ImGui::Begin("Model 0 settings");
-                 static float modelSensitivity = 0.1f;
-                 ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
-                 ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
-                 ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
-                 ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
-                 ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
-                 ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
-                 ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
-                 ImGui::End();
-             }*/
-        }
         {
             ImGui::Begin("Speed");
             ImGui::Text("Car speed: %.2f km/h", Physics::getInstance()->getVehicles()[0]->getSpeed());
@@ -583,9 +540,6 @@ void Rendering::RenderImGui() {
     if (showBoxColliders) {
         // ... (ShowBoxColliders logic, if any, or just place the HUD debug call here)
     }
-
-    // Always show HUD Debug for now to fix calibration
-    hudRenderer.DrawDebugUI();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
