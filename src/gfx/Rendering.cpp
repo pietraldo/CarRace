@@ -431,29 +431,29 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
         {
-            //ImGui::Begin("Box Colliders");
+            ImGui::Begin("Box Colliders");
 
-            //static float sensitivity = 1.0f;
-            //ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
+            static float sensitivity = 1.0f;
+            ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
 
-            //ImGui::DragFloat("ScaleX", &(*gameEngine).cube->scale.x, sensitivity);
-            //ImGui::DragFloat("ScaleY", &(*gameEngine).cube->scale.y, sensitivity);
-            //ImGui::DragFloat("ScaleZ", &(*gameEngine).cube->scale.z, sensitivity);
-            //ImGui::DragFloat("PositionX", &(*gameEngine).cube->position.x, sensitivity);
-            //ImGui::DragFloat("PositionY", &(*gameEngine).cube->position.y, sensitivity);
-            //ImGui::DragFloat("PositionZ", &(*gameEngine).cube->position.z, sensitivity);/*
-            //ImGui::DragFloat("RotationX", &(*gameEngine).cube->rotation.x, sensitivity);
-            //ImGui::DragFloat("RotationY", &(*gameEngine).cube->rotation.y, sensitivity);
-            //ImGui::DragFloat("RotationZ", &(*gameEngine).cube->rotation.z, sensitivity);*/
+            ImGui::DragFloat("ScaleX", &(*gameEngine).cube->scale.x, sensitivity);
+            ImGui::DragFloat("ScaleY", &(*gameEngine).cube->scale.y, sensitivity);
+            ImGui::DragFloat("ScaleZ", &(*gameEngine).cube->scale.z, sensitivity);
+            ImGui::DragFloat("PositionX", &(*gameEngine).cube->position.x, sensitivity);
+            ImGui::DragFloat("PositionY", &(*gameEngine).cube->position.y, sensitivity);
+            ImGui::DragFloat("PositionZ", &(*gameEngine).cube->position.z, sensitivity);/*
+            ImGui::DragFloat("RotationX", &(*gameEngine).cube->rotation.x, sensitivity);
+            ImGui::DragFloat("RotationY", &(*gameEngine).cube->rotation.y, sensitivity);
+            ImGui::DragFloat("RotationZ", &(*gameEngine).cube->rotation.z, sensitivity);*/
 
-            //ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
-            //            (*gameEngine).cube->scale.z);
-            //ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
-            //            (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
-            ///*ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotation.x,
-            //            (*gameEngine).cube->rotation.y, (*gameEngine).cube->rotation.z);*/
+            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
+                        (*gameEngine).cube->scale.z);
+            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
+                        (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
+            /*ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->rotation.x,
+                        (*gameEngine).cube->rotation.y, (*gameEngine).cube->rotation.z);*/
 
-            //ImGui::End();
+            ImGui::End();
         }
         /*{
             ImGui::Begin("Barier tester");

@@ -75,7 +75,7 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    GameObject2* cube;  // cube that is used for measuring distances TODO: delete in future
+    shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
 
     void StartSimulation() { startSimulation = true; }
     bool IsSimulationStarted() const { return startSimulation; }

@@ -448,7 +448,7 @@ void GameEngine::CreateCubes() {
     // cube
     glm::vec3 cubePosition(5.0f, 5.0f, 0.0f);
     glm::vec3 cubeColor(0.5f, 0.5f, 1.0f);
-    auto cube = make_shared<GameObject2>();
+    cube = make_shared<GameObject2>();
     cube->drawObject = make_shared<CubeDraw>();
     cube->drawObject->color = cubeColor;
     gameObjects2.push_back(cube);
