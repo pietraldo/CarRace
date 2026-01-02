@@ -119,11 +119,14 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     float margin = (float)height * 0.04f;
     float gaugeSize = baseScale;
 
-    float rpmX = width - gaugeSize / 2 - margin - 30;
-    float rpmY = gaugeSize / 2 + margin;
+    // Positions (Relative to viewport 0,0) - Bottom Left Layout
+    // Speed Gauge: Bottom Left
+    float speedX = margin + gaugeSize / 2 + 20;
+    float speedY = margin + gaugeSize / 2;
 
-    float speedX = margin + gaugeSize / 2 + 30;
-    float speedY = gaugeSize / 2 + margin;
+    // RPM Gauge: Right of Speed Gauge
+    float rpmX = speedX + gaugeSize + 10;
+    float rpmY = speedY;
 
     DrawTexture(rpmDialTexture, rpmX, rpmY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
 
@@ -139,6 +142,7 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
 
     float needleSize = gaugeSize * debugNeedleScale;
 
+    // Apply position offsets for alignment
     float nSpeedX = speedX + debugNeedlePosX;
     float nSpeedY = speedY + debugNeedlePosY;
     float nRpmX = rpmX + debugNeedlePosX;
@@ -147,9 +151,10 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     DrawTexture(needleTexture, nSpeedX, nSpeedY, needleSize, needleSize, angleSpeed, glm::vec2(0.5f), projection);
     DrawTexture(needleTexture, nRpmX, nRpmY, needleSize, needleSize, angleRpm, glm::vec2(0.5f), projection);
 
+    // Gear (Above Speed Gauge)
     float gearSize = gaugeSize * 0.6f;
-    float gearX = (speedX + rpmX) / 2.0f;
-    float gearY = margin + gaugeSize * 0.5f;
+    float gearX = speedX;
+    float gearY = speedY + gaugeSize / 2 + margin + gearSize / 2 - 20;  // Slightly closer
 
     DrawTexture(gearFrameTexture, gearX, gearY, gearSize, gearSize, 0.0f, glm::vec2(0.5f), projection);
 
