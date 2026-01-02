@@ -409,7 +409,7 @@ void GameEngine::CreateBuildings() {
     }
 
     auto finishLine = std::make_shared<GameObjectStatic>("../assets/models/buildings/finishLine/scene.gltf",
-                                                         glm::vec3(325.0f, 26.5f, -61.f), glm::vec3(0.0f, -21.f, 0.f),
+                                                         glm::vec3(291.0f, 24.5f, 11.0f), glm::vec3(0.0f, -21.f, 0.f),
                                                          glm::vec3(2.2f, 2.2f, 2.2f), glm::vec3(0));
     gameObjects2.push_back(finishLine);
 }
