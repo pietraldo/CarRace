@@ -56,13 +56,10 @@ private:
     std::map<int, HudState> playerStates;
 
     // Assets paths
-    const std::string PATH_SPEED_DIAL =
-        "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/ui/gauges/speedometer_dial.png";
-    const std::string PATH_RPM_DIAL =
-        "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/ui/gauges/rpm_dial.png";
-    const std::string PATH_NEEDLE = "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/ui/needle.png";
-    const std::string PATH_GEAR_FRAME =
-        "c:/Users/Grzesiu/OneDrive/Pulpit/sem7/Inzynierka/CarRace/assets/ui/frames/gear_frame.png";
+    const std::string PATH_SPEED_DIAL = "../assets/ui/gauges/speedometer_dial.png";
+    const std::string PATH_RPM_DIAL = "../assets/ui/gauges/rpm_dial.png";
+    const std::string PATH_NEEDLE = "../assets/ui/needle.png";
+    const std::string PATH_GEAR_FRAME = "../assets/ui/frames/gear_frame.png";
 
     ImFont* hudFont;
 
