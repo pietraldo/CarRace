@@ -23,22 +23,18 @@ public:
     float GetMaxSteer() const { return maxSteer; }
     float GetSteerSpeed() const { return steerSpeed; }
 
-    // const std::shared_ptr<Model>& GetBody() const noexcept { return body; }
-    // const std::shared_ptr<Model>& GetSteeringWheel() const noexcept { return steeringWheel; }
-
     void SetMaxSteer(float deg);
     void SetSteerSpeed(float degPerSec);
-    // void SetSteeringWheelOffset(const glm::vec3& offset) { steeringOffset = offset; }
     void SetWheelRotationFromPhysx(vector<float> rotations) { wheelRotationsFromPhysx = rotations; }
     void SetBraking(bool braking) { isBraking = braking; }
     void SetHeadlights(bool on) { isHeadlightsOn = on; }
+    void SetColor(glm::vec3 color) { carColor = color; }
 
     void UpdatePhysics(float deltaTime) override;
 
-    // const std::array<std::unique_ptr<Wheel>, 4>& Wheels() const noexcept { return wheels; }
-
 private:
     int carIndex = -1;
+    glm::vec3 carColor = glm::vec3(1.0f);
 
     std::array<std::shared_ptr<Wheel>, 4> wheels{};
     std::shared_ptr<GameObject2> steeringWheel;

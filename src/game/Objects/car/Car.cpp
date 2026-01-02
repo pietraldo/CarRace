@@ -114,6 +114,19 @@ void Car::Draw(Shader& shader) {
             } else {
                 shader.setBool("uIsHeadlight", false);
             }
+
+            bool isBody = false;
+            for (const auto& tex : mesh.textures) {
+                if (tex.path.find("lambert9SG_baseColor") != std::string::npos) {
+                    isBody = true;
+                    break;
+                }
+            }
+            if (isBody) {
+                shader.setVec3("objectColor", carColor);
+            } else {
+                shader.setVec3("objectColor", glm::vec3(1.0f));
+            }
         });
     }
 

@@ -173,6 +173,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
     PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
+    shaderTex.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto gameObject : gameObjects2) {
         auto drawObject = gameObject->drawObject;
@@ -187,7 +188,6 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         modelMatrix = glm::scale(modelMatrix, drawObject->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
 
-       
         drawObject->Draw(shaderTex);
     }
 
@@ -351,10 +351,10 @@ void GameEngine::CreateBuildings() {
          glm::vec3(1, 1, 1), glm::vec3(7.0f, 8.8f, 27.0f)},
 
         // medium houses
-        {"../assets/models/buildings/town/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88), glm::vec3(89.9999, -25, 180),
-         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
-        {"../assets/models/buildings/town/mediumHouse2/scene.gltf", glm::vec3(185, 20, 105), glm::vec3(89.9999f, -25, -180),
-         glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/town/mediumHouse1/scene.gltf", glm::vec3(195, 20, 88),
+         glm::vec3(89.9999, -25, 180), glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
+        {"../assets/models/buildings/town/mediumHouse2/scene.gltf", glm::vec3(185, 20, 105),
+         glm::vec3(89.9999f, -25, -180), glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/town/mediumHouse3/scene.gltf", glm::vec3(168, 19.8f, 102), glm::vec3(90, 60, 180),
          glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
         {"../assets/models/buildings/town/mediumHouse4/scene.gltf", glm::vec3(160, 19.8f, 118), glm::vec3(-90, -90, 0),
@@ -377,8 +377,8 @@ void GameEngine::CreateBuildings() {
          glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1), glm::vec3(8.5f, 10.5f, 18.0f)},
 
         // small houses
-        {"../assets/models/buildings/town/smallHouse1/scene.gltf", glm::vec3(127, 19.5f, 131), glm::vec3(-90, 89.9802f, 0),
-         glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
+        {"../assets/models/buildings/town/smallHouse1/scene.gltf", glm::vec3(127, 19.5f, 131),
+         glm::vec3(-90, 89.9802f, 0), glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/smallHouse2/scene.gltf", glm::vec3(124, 19.5f, 153), glm::vec3(-90, 45, 0),
          glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/smallHouse3/scene.gltf", glm::vec3(112.f, 19.5f, 143.f),
@@ -556,6 +556,12 @@ void GameEngine::CreateCars() {
         cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);
         cars[i]->positionOffset = glm::vec3(0.0f, 0.265f, 1.59f);
         cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));
+
+        if (i == 0) {
+            cars[i]->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+        } else {
+            cars[i]->SetColor(glm::vec3(0.5f, 0.5f, 1.0f));
+        }
     }
 }
 
