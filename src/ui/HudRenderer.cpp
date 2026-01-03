@@ -161,8 +161,8 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     DrawTexture(gearFrameTexture, gearX, gearY, gearSize, gearSize, 0.0f, glm::vec2(0.5f), projection);
 
     std::string gearText = std::to_string(data.gear - 1);
-    if (data.gear == 0) gearText = "N";
-    if (data.gear == -1) gearText = "R";
+    if (data.gear == 1) gearText = "N";
+    if (data.gear == 0) gearText = "R";
 
     DrawText(gearText, gearX, gearY, 1.0f, glm::vec3(1.0f), projection);
 
