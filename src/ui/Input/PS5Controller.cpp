@@ -18,6 +18,12 @@ bool PS5Controller::setEffectsOnInputer(EffectsOnInputer effects) {
     return true;
 }
 
+std::string PS5Controller::GetCarControllBindings() { return std::string(); }
+
+std::string PS5Controller::GetCameraControllBindings() { return std::string(); }
+
+std::string PS5Controller::GetAdditionalControllBindings() { return std::string(); }
+
 bool PS5Controller::setL2AndR2Triggers() {
     // right trigger
     outputBuf[11] = 0x0;

@@ -52,6 +52,10 @@ public:
     bool updateInput() override;
     bool setEffectsOnInputer(EffectsOnInputer effects) override;
 
+    std::string GetCarControllBindings() override;
+    std::string GetCameraControllBindings() override;
+    std::string GetAdditionalControllBindings() override;
+
     bool connect();
     bool isConnected();
 };

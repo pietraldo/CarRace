@@ -51,6 +51,7 @@ public:
     int SWITCH_HELP_KEY = GLFW_KEY_F1;
 
 
+
     enum class PlayerIndex { Player0, Player1 };
 
     explicit KeyboardController(PlayerIndex index) : playerIndex(index) {}
@@ -58,6 +59,10 @@ public:
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override;
     bool updateInput() override;
+
+    std::string GetCarControllBindings() override;
+    std::string GetCameraControllBindings() override;
+    std::string GetAdditionalControllBindings() override;
 
     static void mouseCallback(float addToDeltaMouseX, float addToDeltaMouseY);
     static void scrollCallback(float deltaOffsetY);
@@ -76,4 +81,6 @@ private:
     static double lastMouseY;
 
     static const std::unordered_map<std::string, int> keyNameToGLFWKey;
+    static const std::unordered_map<int, std::string> GlfwKeyToString;
+    static std::string KeyToString(int key);
 };

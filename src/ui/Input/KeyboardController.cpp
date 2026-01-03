@@ -112,12 +112,146 @@ AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
 }
 
 bool KeyboardController::updateInput() { return true; }
+
+std::string KeyboardController::GetCarControllBindings() {
+    std::string result;
+
+    if (playerIndex == PlayerIndex::Player0) {
+        result += "Steer Left: " + KeyToString(STEER_LEFT_P0) + "\n";
+        result += "Steer Right: " + KeyToString(STEER_RIGHT_P0) + "\n";
+        result += "Throttle: " + KeyToString(THROTTLE_P0) + "\n";
+        result += "Brake: " + KeyToString(BRAKE_P0) + "\n";
+        result += "Handbrake: " + KeyToString(HANDBRAKE_P0) + "\n";
+        result += "Gear Up: " + KeyToString(GEAR_UP_P0) + "\n";
+        result += "Gear Down: " + KeyToString(GEAR_DOWN_P0) + "\n";
+        result += "Reset: " + KeyToString(RESET_P0) + "\n";
+    } else {  // Player1
+        result += "Steer Left: " + KeyToString(STEER_LEFT_P1) + "\n";
+        result += "Steer Right: " + KeyToString(STEER_RIGHT_P1) + "\n";
+        result += "Throttle: " + KeyToString(THROTTLE_P1) + "\n";
+        result += "Brake: " + KeyToString(BRAKE_P1) + "\n";
+        result += "Handbrake: " + KeyToString(HANDBRAKE_P1) + "\n";
+        result += "Gear Up: " + KeyToString(GEAR_UP_P1) + "\n";
+        result += "Gear Down: " + KeyToString(GEAR_DOWN_P1) + "\n";
+        result += "Reset: " + KeyToString(RESET_P1) + "\n";
+    }
+
+    return result;
+}
+
+std::string KeyboardController::GetCameraControllBindings() {
+    std::string result;
+    result += "Move Forward: " + KeyToString(CAMERA_FORWARD) + "\n";
+    result += "Move Backward: " + KeyToString(CAMERA_BACKWARD) + "\n";
+    result += "Move Left: " + KeyToString(CAMERA_LEFT) + "\n";
+    result += "Move Right: " + KeyToString(CAMERA_RIGHT) + "\n";
+
+    if (playerIndex == PlayerIndex::Player0) {
+        result += "Yaw Left: " + KeyToString(LOOK_LEFT_P0) + "\n";
+        result += "Yaw Right: " + KeyToString(LOOK_RIGHT_P0) + "\n";
+    } else {
+        result += "Yaw Left: " + KeyToString(LOOK_LEFT_P1) + "\n";
+        result += "Yaw Right: " + KeyToString(LOOK_RIGHT_P1) + "\n";
+    }
+
+    return result;
+}
+
+std::string KeyboardController::GetAdditionalControllBindings() {
+    std::string result;
+    result += "Start Simulation: " + KeyToString(START_SIMULATION_KEY) + "\n";
+    result += "Exit: " + KeyToString(EXIT_KEY) + "\n";
+    result += "Reset Cars: " + KeyToString(RESET_CARS_KEY) + "\n";
+    result += "Switch ImGui: " + KeyToString(SWITCH_IMGUI_KEY) + "\n";
+    result += "Switch Help: " + KeyToString(SWITCH_HELP_KEY) + "\n";
+    return result;
+}
+
+
 bool KeyboardController::isKeyPressed(int key) { return glfwGetKey(Rendering::window, key) == GLFW_PRESS; }
 bool KeyboardController::isKeyJustPressed(int key) {
     bool currentState = isKeyPressed(key);
     bool justPressed = currentState && !lastKeyStates[key];
     lastKeyStates[key] = currentState;
     return justPressed;
+}
+
+const std::unordered_map<int, std::string> KeyboardController::GlfwKeyToString = {
+    // Letters
+    {GLFW_KEY_A, "A"},
+    {GLFW_KEY_B, "B"},
+    {GLFW_KEY_C, "C"},
+    {GLFW_KEY_D, "D"},
+    {GLFW_KEY_E, "E"},
+    {GLFW_KEY_F, "F"},
+    {GLFW_KEY_G, "G"},
+    {GLFW_KEY_H, "H"},
+    {GLFW_KEY_I, "I"},
+    {GLFW_KEY_J, "J"},
+    {GLFW_KEY_K, "K"},
+    {GLFW_KEY_L, "L"},
+    {GLFW_KEY_M, "M"},
+    {GLFW_KEY_N, "N"},
+    {GLFW_KEY_O, "O"},
+    {GLFW_KEY_P, "P"},
+    {GLFW_KEY_Q, "Q"},
+    {GLFW_KEY_R, "R"},
+    {GLFW_KEY_S, "S"},
+    {GLFW_KEY_T, "T"},
+    {GLFW_KEY_U, "U"},
+    {GLFW_KEY_V, "V"},
+    {GLFW_KEY_W, "W"},
+    {GLFW_KEY_X, "X"},
+    {GLFW_KEY_Y, "Y"},
+    {GLFW_KEY_Z, "Z"},
+
+    // Digits
+    {GLFW_KEY_0, "0"},
+    {GLFW_KEY_1, "1"},
+    {GLFW_KEY_2, "2"},
+    {GLFW_KEY_3, "3"},
+    {GLFW_KEY_4, "4"},
+    {GLFW_KEY_5, "5"},
+    {GLFW_KEY_6, "6"},
+    {GLFW_KEY_7, "7"},
+    {GLFW_KEY_8, "8"},
+    {GLFW_KEY_9, "9"},
+
+    // Arrows
+    {GLFW_KEY_LEFT, "LEFT"},
+    {GLFW_KEY_RIGHT, "RIGHT"},
+    {GLFW_KEY_UP, "UP"},
+    {GLFW_KEY_DOWN, "DOWN"},
+
+    // Modifiers
+    {GLFW_KEY_LEFT_SHIFT, "LEFT_SHIFT"},
+    {GLFW_KEY_SPACE, "SPACE"},
+
+    // Punctuation
+    {GLFW_KEY_COMMA, "COMMA"},
+    {GLFW_KEY_PERIOD, "PERIOD"},
+
+    // Escape
+    {GLFW_KEY_ESCAPE, "ESCAPE"},
+
+    // Function keys
+    {GLFW_KEY_F1, "F1"},
+    {GLFW_KEY_F2, "F2"},
+    {GLFW_KEY_F3, "F3"},
+    {GLFW_KEY_F4, "F4"},
+    {GLFW_KEY_F5, "F5"},
+    {GLFW_KEY_F6, "F6"},
+    {GLFW_KEY_F7, "F7"},
+    {GLFW_KEY_F8, "F8"},
+    {GLFW_KEY_F9, "F9"},
+    {GLFW_KEY_F10, "F10"},
+    {GLFW_KEY_F11, "F11"},
+    {GLFW_KEY_F12, "F12"},
+};
+
+std::string KeyboardController::KeyToString(int key) {
+    auto it = GlfwKeyToString.find(key);
+    return it != GlfwKeyToString.end() ? it->second : "UNKNOWN";
 }
 
 const std::unordered_map<std::string, int> KeyboardController::keyNameToGLFWKey = {
