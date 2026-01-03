@@ -90,6 +90,9 @@ copy_assets(backgroundTextures)
 copy_assets(animation)
 copy_assets(settings)
 copy_assets(terrain)
+copy_assets(ui)
+copy_assets(fonts)
+
 
 # Force copy backgroundTextures using POST_BUILD to ensure it ends up in the output directory
 add_custom_command(TARGET carrace POST_BUILD

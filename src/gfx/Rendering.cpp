@@ -49,6 +49,9 @@ GameEngine* Rendering::gameEngine = nullptr;
 
 bool Rendering::firstMouse = true;
 
+// bool Rendering::firstMouse = true;
+HudRenderer Rendering::hudRenderer;
+
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::InitializeLoading() {
@@ -95,6 +98,7 @@ int Rendering::InitializeRest() {
     LoadBuffers();
 
     player1Mirrors.Initialize();
+    hudRenderer.Init();
     return 0;
 }
 
@@ -221,6 +225,10 @@ bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    io.Fonts->AddFontDefault();
+    ImFont* hudFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Orbitron/Orbitron-VariableFont_wght.ttf", 64.0f);
+    hudRenderer.SetFont(hudFont);
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -428,7 +436,7 @@ void Rendering::RenderImGui() {
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
-            
+
             shared_ptr<GameObject2> cube = (*gameEngine).cube;
 
             ImGui::DragFloat("ScaleX", &cube->scale.x, sensitivity);
@@ -441,64 +449,22 @@ void Rendering::RenderImGui() {
             glm::vec3 rotation = getEulerAnglesFromQuat((*gameEngine).cube->GetRotationWithoutOffset());
 
             if (ImGui::DragFloat("Rotation X", &rotation.x, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Y", &rotation.y, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Z", &rotation.z, sensitivity)) {
-                cube->SetRotation(rotation); 
+                cube->SetRotation(rotation);
             }
 
             ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
                         (*gameEngine).cube->scale.z);
             ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
                         (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
-            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y,
-                        rotation.z);
+            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y, rotation.z);
 
             ImGui::End();
-        }
-        /*{
-            ImGui::Begin("Barier tester");
-
-            static float sensitivity = 1.0f;
-            ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
-
-            ImGui::DragFloat("ScaleX", &(*gameEngine).gameObjectsStatic[0]->scale.x, sensitivity);
-            ImGui::DragFloat("ScaleY", &(*gameEngine).gameObjectsStatic[0]->scale.y, sensitivity);
-            ImGui::DragFloat("ScaleZ", &(*gameEngine).gameObjectsStatic[0]->scale.z, sensitivity);
-            ImGui::DragFloat("PositionX", &(*gameEngine).gameObjectsStatic[0]->position.x, sensitivity);
-            ImGui::DragFloat("PositionY", &(*gameEngine).gameObjectsStatic[0]->position.y, sensitivity);
-            ImGui::DragFloat("PositionZ", &(*gameEngine).gameObjectsStatic[0]->position.z, sensitivity);
-            ImGui::DragFloat("RotationX", &(*gameEngine).gameObjectsStatic[0]->rotation2.x, sensitivity);
-            ImGui::DragFloat("RotationY", &(*gameEngine).gameObjectsStatic[0]->rotation2.y, sensitivity);
-            ImGui::DragFloat("RotationZ", &(*gameEngine).gameObjectsStatic[0]->rotation2.z, sensitivity);
-
-            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->scale.x,
-                        (*gameEngine).gameObjectsStatic[0]->scale.y, (*gameEngine).gameObjectsStatic[0]->scale.z);
-            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->position.x,
-                        (*gameEngine).gameObjectsStatic[0]->position.y, (*gameEngine).gameObjectsStatic[0]->position.z);
-            ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", (*gameEngine).gameObjectsStatic[0]->rotation2.x,
-                        (*gameEngine).gameObjectsStatic[0]->rotation2.y,
-                        (*gameEngine).gameObjectsStatic[0]->rotation2.z);
-
-            ImGui::End();
-        }*/
-        {
-            /* if (!gameEngine->modelsTex.empty()) {
-                 Model* model = gameEngine->modelsTex[0];
-                 ImGui::Begin("Model 0 settings");
-                 static float modelSensitivity = 0.1f;
-                 ImGui::SliderFloat("Adjust Sensitivity", &modelSensitivity, 0.001f, 10.0f);
-                 ImGui::DragFloat("ScaleX", &model->scale.x, modelSensitivity);
-                 ImGui::DragFloat("ScaleY", &model->scale.y, modelSensitivity);
-                 ImGui::DragFloat("ScaleZ", &model->scale.z, modelSensitivity);
-                 ImGui::DragFloat("PositionX", &model->position.x, modelSensitivity);
-                 ImGui::DragFloat("PositionY", &model->position.y, modelSensitivity);
-                 ImGui::DragFloat("PositionZ", &model->position.z, modelSensitivity);
-                 ImGui::End();
-             }*/
         }
         {
             ImGui::Begin("Speed");
@@ -564,6 +530,10 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
     }
+    if (showBoxColliders) {
+        // ... (ShowBoxColliders logic, if any, or just place the HUD debug call here)
+    }
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -595,7 +565,6 @@ void Rendering::RenderSceneCommon(Camera& activeCam) {
     (*Rendering::gameEngine).DrawCars(shaderTextured, activeCam);
     (*Rendering::gameEngine).DrawTerrain(*Rendering::terrainShader, Rendering::VAO_terrain, activeCam);
 }
-
 
 glm::mat4 Rendering::GetProjectionMatrix(Camera& camera) {
     if (useExternalProj) return externalProj;
@@ -656,27 +625,53 @@ void Rendering::RenderFrame() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(activeCam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 4.0f;
+            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width, window_height);
+        }
+
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(activePlayer0Cam);
 
+        auto* car1 = Physics::getInstance()->getVehicles()[1];
+        if (car1) {
+            HudPlayerData data;
+            data.speedKmh = car1->getSpeed() * 4.0f;
+            data.rpm = (float)car1->getEngineRPM() * 4.0f;
+            data.gear = car1->getCurrentGear();
+            data.maxSpeed = car1->getMaxSpeed();
+            data.maxRpm = car1->getMaxEngineRPM();
+            hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
+        }
+
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(activePlayer1Cam);
+
+        auto* car0 = Physics::getInstance()->getVehicles()[0];
+        if (car0) {
+            HudPlayerData data;
+            data.speedKmh = car0->getSpeed() * 4.0f;
+            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.gear = car0->getCurrentGear();
+            data.maxSpeed = car0->getMaxSpeed();
+            data.maxRpm = car0->getMaxEngineRPM();
+            hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
+        }
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(introCam);
     }
-
-    /*Rendering::overlayShader->use();
-    overlayShader->setMat4("projection", glm::mat4(1.0f));
-
-    glBindVertexArray(Rendering::VAO_loading);
-    glBindTexture(GL_TEXTURE_2D, Rendering::loadingTextureID);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);*/
 
     RenderImGui();
 

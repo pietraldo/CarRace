@@ -82,11 +82,11 @@ public:
         float speed = gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity().dot(forward);
         return speed;
     }
-
     PxVec3 getVelocity() const { return gVehicle.mPhysXState.physxActor.rigidBody->getLinearVelocity(); }
 
     int getEngineRPM() const { return (int)gVehicle.mEngineDriveState.engineState.rotationSpeed; }
-
+    float getMaxEngineRPM() { return gVehicle.mEngineDriveParams.engineParams.maxOmega * 60.0f / (2.0f * 3.14159f); }
+    float getMaxSpeed() { return 160.0f; }  // Hardcoded for gauge scaling
     int getCurrentGear() { return gVehicle.mEngineDriveState.gearboxState.currentGear; }
 
     vector<float> getWheelRotation() { return gVehicle.getWheelRotation(); }
