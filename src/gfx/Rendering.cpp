@@ -107,7 +107,7 @@ void Rendering::LoadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    terrainTexture.data = stbi_load("../assets/vehicledata/baseColor6.png", &terrainTexture.width,
+    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width,
                                     &terrainTexture.height, &terrainTexture.channels, 0);
     if (!terrainTexture.data) {
         std::cout << "Failed to load texture" << std::endl;

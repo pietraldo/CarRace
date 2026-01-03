@@ -1,7 +1,7 @@
 #include "terrain.h"
 
 void Terrain::LoadTerrain(const char* heightmapPath) {
-    loadRoadmap("../assets/vehicledata/road_mark.txt");
+    loadRoadmap("../assets/terrain/road_mark.txt");
     loadHeightmap(heightmapPath, rows, cols);
     CreateVerticesAndIndices();
 }

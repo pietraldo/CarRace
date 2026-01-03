@@ -12,10 +12,7 @@ GameEngine::GameEngine() {
     playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
     terrain = new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
-    terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
-
-    skyboxVBO = 0;
-    fog = false;  // Enable fog
+    terrain->LoadTerrain("../assets/terrain/terrain.txt");
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {

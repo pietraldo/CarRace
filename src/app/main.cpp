@@ -44,6 +44,9 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
+
+    Settings::Get().LoadFromFile();
+
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
 

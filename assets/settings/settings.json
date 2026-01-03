@@ -1,0 +1,23 @@
+{
+  "START_SCR_WIDTH": 1600,
+  "START_SCR_HEIGHT": 1000,
+  "CAR_COUNT": 2,
+  
+  "useDifferentMaterialsForTerrain": false,
+  "playIntroAnimation": false,
+  "showImGuiWindows": true,
+  "showHelpImGuiWindow": false,
+  
+  "night": false,
+  "fog": false,
+  "fogMinDist": 25.0,
+  "fogMaxDist": 150.0,
+  
+  "autoReturningToTrack": false,
+  "timeOutsideTrackToReset": 2000,
+  "checkpointInterval": 1000,
+  "maxSavedPositions": 100,
+  "savePositionRetrival": 1,
+  "steeringSpeed": 2.45,
+  "steeringReturnSpeed": 5.0
+}

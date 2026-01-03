@@ -27,7 +27,7 @@ def replace_files(source_folder, destination_folder, files_to_replace):
 
 # Example usage
 source_folder = "C:/Users/pietr/Desktop/Inzynierka/CarRace/scripts"
-destination_folder = "C:/Users/pietr/Desktop/Inzynierka/CarRace/assets/vehicledata"
+destination_folder = "C:/Users/pietr/Desktop/Inzynierka/CarRace/assets/terrain"
 files_to_replace = ["terrain.txt", "road_mark.txt"]
 
 replace_files(source_folder, destination_folder, files_to_replace)
