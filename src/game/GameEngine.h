@@ -52,10 +52,10 @@ private:
 
     Terrain* terrain;
 
-    std::vector<PlayerStatus> playersStatus;
     bool startSimulation = false;
 
 public:
+    std::vector<PlayerStatus> playersStatus;
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
     vector<shared_ptr<GameObjectStatic>> gameObjectsStatic = vector<shared_ptr<GameObjectStatic>>();
     vector<shared_ptr<GameObjectDynamic>> gameObjectsDynamic = vector<shared_ptr<GameObjectDynamic>>();
@@ -77,8 +77,20 @@ public:
 
     shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
 
-    void StartSimulation() { startSimulation = true; }
+    void StartSimulation() {
+        startSimulation = true;
+        isCountdownActive = true;
+        countdownTimer = 3.0f;
+        raceTime = 0.0f;
+    }
     bool IsSimulationStarted() const { return startSimulation; }
+
+    // Race State
+    bool isCountdownActive = false;
+    float countdownTimer = 0.0f;
+    float raceTime = 0.0f;
+
+    void CheckFinishLine(int carIndex);
 
     // Skybox
     unsigned int skyboxVAO = 0, skyboxVBO = 0;

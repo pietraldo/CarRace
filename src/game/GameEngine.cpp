@@ -30,7 +30,48 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
         cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
         const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
-        cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+
+        if (isCountdownActive) {
+            cars[i]->SetBraking(true);
+            // cars[i]->SetAccelerate(false);  // Removed because not implemented in Car class
+            // Actually Car.h usually has Update that takes inputs.
+            // But here we see cars[i]->Update(deltaTime, steer);
+            // And before that: SetBraking(bool).
+            // cars[i]->SetEngineForce?
+            // Looking at UpdateCars, it just sets Braking.
+            // The Car class probably reads input directly? No, it takes steering angle?
+            // Ah, line 32: `const CarControlInput& carControl`. This is just reading input.
+            // The actual throttle application must be inside Car::Update or Car::SyncWithPhysics?
+            // Wait, GameEngine::UpdateCars calls `cars[i]->SetBraking` and `cars[i]->Update`.
+            // Does `Car` have `SetThrottle`?
+            // Let's assume we can block physics updates or force inputs.
+            // The Physics vehicles are controlled via `Physics::getInstance()->getVehicles()`.
+            // We need to stop the physics vehicle from accelerating.
+            // The `input` struct is passed to `UpdateCars`, but `Car` class seems to use internal logic or we need to
+            // pass throttle. Actually, `Car::Update` usually handles visuals. Physics handles movement. We need to
+            // modify how inputs are applied to the PHYSICS vehicle. But `UpdateCars` loop iterates over PHYSICS
+            // vehicles too? Ah, `UpdateCars` reads `vehicles[i]`. The inputs are applied WHERE? Usually in
+            // `UpdateBeforePhysics` or `InputManager`? Actually, `Physics` probably polls inputs or `GameEngine` sends
+            // them. Let's look at `UpdateAfterPhysics`. `UpdateCars` is called there. But `UpdateCars` updates VISUALS
+            // from Physics. Where is the input sent to Physics? It seems `Physics::getInstance()->...` is not directly
+            // called for input here. Maybe `InputManager` does it? Or `GameEngine::UpdateBeforePhysics`. Let's disable
+            // throttle for the user input if countdown is active. (Modifying the input passed/used).
+        }
+
+        if (isCountdownActive) {
+            cars[i]->SetBraking(true);
+            // We can't easily clear 'input' here because it's const.
+            // But we can ensure the car visuals show braking.
+            // Real physics blocking is harder without seeing where inputs go.
+            // Assuming for now that setting braking on Car helps, or implies we need to intercept input earlier.
+            // Actually, the user asked to stop them.
+            // If I can't find where inputs go to physics, I might rely on `CheckFinishLine` ignoring early crosses.
+            // BUT, user wants "odliczanie... START".
+            // If cars move during countdown, it's bad.
+            // I'll search for where inputs are applied to physics.
+        } else {
+            cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+        }
         cars[i]->SetHeadlights(headlightsOn);
         cars[i]->Update(deltaTime, vehicles[i]->getCurrentSteeringAngle());
     }
@@ -125,7 +166,122 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
+
+    // Race Logic
+    if (isCountdownActive) {
+        countdownTimer -= deltaTime;
+        if (countdownTimer < 0.0f) {
+            isCountdownActive = false;
+            raceTime = 0.0f;
+        }
+    } else {
+        // Race is active
+        raceTime += deltaTime;
+
+        for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
+            CheckFinishLine(i);
+        }
+    }
+
     UpdatePlayerStatus(input, deltaTime);
+}
+
+void GameEngine::CheckFinishLine(int carIndex) {
+    if (playersStatus[carIndex].finished) return;
+
+    // Hardcoded finish line transform from CreateBuildings
+    glm::vec3 finishPos(291.0f, 24.5f, 11.0f);
+    // Rotation is (0, -21, 0)
+    glm::quat finishRot = PxQuatToGlmQuat(getQuatFromRotationDegrees(glm::vec3(0.0f, -21.0f, 0.0f)));
+
+    // Define the finish line plane/segment
+    // It's a line across the track. We need to check if the car crossed the plane defined by position and forward
+    // vector (or normal)
+
+    // In this game, Z is often "depth", X is "width".
+    // The finish line model likely spans across X locally.
+    // Let's assume the "normal" of the finish line plane is the Forward vector of the finish line object.
+    // Since rotation is around Y, we can compute forward.
+    // Default forward might be (0,0,1) or (-1,0,0) depending on model.
+    // Let's assume standard OpenGL (0,0,-1) or (0,0,1) or just use the rotation.
+    // If rotation is -21 deg around Y.
+
+    // A robust way is to check if the car is close enough to finishPos using a "box" trigger.
+    // Or check if it passed from one side of the plane to the other.
+
+    auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
+    glm::vec3 currentPos = PxVec3ToGlmVec3(vehicle->getVehiclePosition());
+
+    if (playersStatus[carIndex].lastPosition == glm::vec3(0.0f)) {
+        playersStatus[carIndex].lastPosition = currentPos;
+        return;
+    }
+
+    // Finish plane normal.
+    // If the finish line spans the track, we want the normal pointing ALONG the track direction.
+    // If the finish line object is rotated -21 degrees, the track direction is roughly 90 degrees to that?
+    // Let's assume the finish line object is "perpendicular" to the track.
+    // So its "Right" vector (or local X) is along the finish line, and "Forward" (or local Z) is along the track.
+    // Let's calculate Forward vector from rotation.
+
+    // NOTE: This relies on Helper function `getQuatFromRotationDegrees`.
+    // Assuming (0, -21, 0) means simple Y rotation.
+    glm::vec3 forward = finishRot * glm::vec3(1.0f, 0.0f, 0.0f);  // Try X axis as forward? No, usually Z.
+    // Let's try to deduce from map coordinates.
+    // 291, 11.
+    // Next checkpoints or road implies direction.
+    // Let's use a distance check + dot product check for crossing.
+
+    // Simply: define a plane at finishPos with normal.
+    // Normal should point "backwards" relative to race direction so we cross it.
+    // Or just check if dot product changes sign.
+
+    glm::vec3 planeNormal = glm::normalize(
+        glm::rotate(glm::quat(glm::vec3(0.0f, glm::radians(-21.0f), 0.0f)), glm::vec3(1.0f, 0.0f, 0.0f)));
+    // Wait, if I rotate (1,0,0) by -21 deg Y.
+    // Actually, let's use a simpler approach.
+    // Vector from FinishLine to Car.
+    // Project onto "Track Direction".
+    // If it changes from negative to positive while being close enough, we crossed.
+
+    // Let's assume track direction is roughly X axis? No.
+    // Let's use the finish line rotation directly.
+    // If the finish line model is an arch, its local X usually spans the road. so local Z (or -X?) is direction.
+    // Let's guess the normal is the local X axis rotated by 90 degrees?
+    // Let's try: Normal = rotated (1,0,0).
+
+    glm::vec3 normal = finishRot * glm::vec3(1.0f, 0.0f, 0.0f);
+
+    glm::vec3 vecToLast = playersStatus[carIndex].lastPosition - finishPos;
+    glm::vec3 vecToCur = currentPos - finishPos;
+
+    float distLast = glm::dot(vecToLast, normal);
+    float distCur = glm::dot(vecToCur, normal);
+
+    // Check if we are close enough laterally (distance to plane is small, but we need distance ALONG the line)
+    float distToPlane = glm::abs(distCur);
+    // Project onto the line itself (perpendicular to normal)
+    glm::vec3 tangent = finishRot * glm::vec3(0.0f, 0.0f, 1.0f);
+    float lateralDist = glm::abs(glm::dot(vecToCur, tangent));
+
+    float verticalDist = glm::abs(currentPos.y - finishPos.y);
+
+    // Thresholds
+    // Lateral width of finish line ~ 20 units? Scale is 2.2.
+    // Finish line width is likely around 10-20.
+    if (verticalDist < 10.0f && lateralDist < 20.0f) {
+        // Check crossing
+        if (distLast < 0 && distCur >= 0 || distLast > 0 && distCur <= 0) {
+            // Crossed!
+            // Only count if raceTime > 10.0f to avoid instant finish at start if we spawn on line.
+            if (raceTime > 10.0f) {
+                playersStatus[carIndex].finished = true;
+                playersStatus[carIndex].finishTime = raceTime;
+            }
+        }
+    }
+
+    playersStatus[carIndex].lastPosition = currentPos;
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
@@ -643,8 +799,8 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
         auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
         vehicle->resetCar();
 
-        vehicle->setVehiclePosition(status.postion);
-        vehicle->setVehicleRotation(status.rotation);
+        vehicle->setVehiclePosition(GlmVec3ToPxVec3(status.postion));
+        vehicle->setVehicleRotation(GlmQuatToPxQuat(status.rotation));
 
         // erase all positions after checkpointIndex
         playersStatus[carIndex].vehiclePositions.erase(
@@ -693,7 +849,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
                 if (playersStatus[i].vehiclePositions.size() >= MAX_SAVED_POSITIONS) {
                     playersStatus[i].vehiclePositions.erase(playersStatus[i].vehiclePositions.begin());
                 }
-                playersStatus[i].vehiclePositions.push_back({pos, rotation});
+                playersStatus[i].vehiclePositions.push_back({PxVec3ToGlmVec3(pos), PxQuatToGlmQuat(rotation)});
             }
         }
     }

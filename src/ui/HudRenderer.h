@@ -21,6 +21,13 @@ struct HudPlayerData {
 
     std::vector<glm::vec3> allCarPositions;
     std::vector<float> allCarYaws;
+
+    // Race Info
+    float raceTime = 0.0f;
+    float countdownTime = 0.0f;
+    bool isCountdownActive = false;
+    bool finished = false;
+    float finishTime = 0.0f;
 };
 
 struct HudState {

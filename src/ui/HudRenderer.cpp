@@ -1,5 +1,7 @@
 #include "HudRenderer.h"
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "stb_image.h"
@@ -198,6 +200,44 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     if (data.gear == 0) gearText = "R";
 
     DrawText(gearText, gearX, gearY, 1.0f, glm::vec3(1.0f), projection);
+
+    // Render Race Info
+    float centerX = width / 2.0f;
+    float topY = height - margin - 20.0f;
+
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    // Countdown
+    if (data.isCountdownActive) {
+        int count = (int)std::ceil(data.countdownTime);
+        if (count > 0) {
+            std::string countText = std::to_string(count);
+            DrawText(countText, centerX, height / 2.0f, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f), projection);
+        }
+    } else if (data.raceTime < 1.5f) {
+        DrawText("START", centerX, height / 2.0f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
+    }
+
+    // Timer
+    float timeToDisplay = data.finished ? data.finishTime : data.raceTime;
+
+    int minutes = (int)timeToDisplay / 60;
+    int seconds = (int)timeToDisplay % 60;
+    int millis = (int)((timeToDisplay - (int)timeToDisplay) * 100);
+
+    ss.str("");
+    ss << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":" << std::setw(2)
+       << millis;
+
+    std::string timeText = ss.str();
+    glm::vec3 timerColor = data.finished ? glm::vec3(1.0f, 1.0f, 0.0f) : glm::vec3(1.0f);
+
+    DrawText(timeText, centerX, topY, 1.0f, timerColor, projection);
+
+    if (data.finished) {
+        DrawText("FINISHED", centerX, topY - 40.0f, 1.2f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
+    }
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);

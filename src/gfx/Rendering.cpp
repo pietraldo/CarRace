@@ -5,6 +5,8 @@
 #include "Mirrors.h"
 #include "camera/FirstPersonCamera.h"
 #include <utility>
+#include <iomanip>
+#include <sstream>
 
 #include "../game/helper_functions.h"
 
@@ -247,10 +249,71 @@ void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffs
 }
 
 void Rendering::RenderImGui() {
-    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow) return;
+    bool raceFinished = false;
+    float raceTime = 0.0f;
+    if (gameEngine && !gameEngine->playersStatus.empty()) {
+        const auto& status = gameEngine->playersStatus[0];
+        if (status.finished && !status.finishScreenConfirmed) {
+            raceFinished = true;
+            raceTime = status.finishTime;
+        }
+    }
+
+    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow && !raceFinished) return;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    if (raceFinished) {
+        ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
+                                ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                 ImGuiWindowFlags_NoTitleBar;
+
+        ImGui::Begin("Race Summary", nullptr, flags);
+
+        ImGui::SetWindowFontScale(1.5f);
+        float winWidth = ImGui::GetWindowSize().x;
+        float textWidth = ImGui::CalcTextSize("RACE FINISHED!").x;
+        ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "RACE FINISHED!");
+
+        ImGui::SetWindowFontScale(1.2f);
+        ImGui::NewLine();
+
+        int minutes = (int)raceTime / 60;
+        int seconds = (int)raceTime % 60;
+        int millis = (int)((raceTime - (int)raceTime) * 100);
+
+        std::stringstream ss;
+        ss << "Your Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
+           << std::setw(2) << millis;
+
+        textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
+        ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+        ImGui::Text("%s", ss.str().c_str());
+
+        ImGui::NewLine();
+        ImGui::NewLine();
+
+        float buttonWidth = 200.0f;
+        float buttonHeight = 40.0f;
+        ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+        if (ImGui::Button("Keep Driving", ImVec2(buttonWidth, buttonHeight))) {
+            gameEngine->playersStatus[0].finishScreenConfirmed = true;
+        }
+
+        ImGui::NewLine();
+        ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+        if (ImGui::Button("Exit Game", ImVec2(buttonWidth, buttonHeight))) {
+            glfwSetWindowShouldClose(window, true);
+        }
+
+        ImGui::End();
+    }
 
     if (Settings::Get().showHelpImGuiWindow) {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
@@ -635,6 +698,13 @@ void Rendering::RenderFrame() {
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
 
+            // Race Info
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[0].finished;
+            data.finishTime = gameEngine->playersStatus[0].finishTime;
+
             auto vehicles = Physics::getInstance()->getVehicles();
             for (auto* vehicle : vehicles) {
                 data.allCarPositions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
@@ -669,6 +739,12 @@ void Rendering::RenderFrame() {
             data.maxSpeed = car1->getMaxSpeed();
             data.maxRpm = car1->getMaxEngineRPM();
 
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[1].finished;
+            data.finishTime = gameEngine->playersStatus[1].finishTime;
+
             data.allCarPositions = positions;
             data.allCarYaws = yaws;
             hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
@@ -686,6 +762,12 @@ void Rendering::RenderFrame() {
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
+
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[0].finished;
+            data.finishTime = gameEngine->playersStatus[0].finishTime;
 
             data.allCarPositions = positions;
             data.allCarYaws = yaws;
