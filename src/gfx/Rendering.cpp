@@ -723,6 +723,7 @@ void Rendering::RenderFrame() {
             data.isCountdownActive = gameEngine->isCountdownActive;
             data.finished = gameEngine->playersStatus[0].finished;
             data.finishTime = gameEngine->playersStatus[0].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
 
             auto vehicles = Physics::getInstance()->getVehicles();
             for (auto* vehicle : vehicles) {
@@ -763,6 +764,7 @@ void Rendering::RenderFrame() {
             data.isCountdownActive = gameEngine->isCountdownActive;
             data.finished = gameEngine->playersStatus[1].finished;
             data.finishTime = gameEngine->playersStatus[1].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
 
             data.allCarPositions = positions;
             data.allCarYaws = yaws;
@@ -787,6 +789,7 @@ void Rendering::RenderFrame() {
             data.isCountdownActive = gameEngine->isCountdownActive;
             data.finished = gameEngine->playersStatus[0].finished;
             data.finishTime = gameEngine->playersStatus[0].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
 
             data.allCarPositions = positions;
             data.allCarYaws = yaws;

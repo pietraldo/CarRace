@@ -28,6 +28,7 @@ struct HudPlayerData {
     bool isCountdownActive = false;
     bool finished = false;
     float finishTime = 0.0f;
+    bool isSimulationStarted = false;
 };
 
 struct HudState {

@@ -209,7 +209,10 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     ss << std::fixed << std::setprecision(2);
 
     // Countdown
-    if (data.isCountdownActive) {
+    if (!data.isSimulationStarted) {
+        // Do nothing or maybe render "PRESS =" to start?
+        // User asked to hide "START" and countdown numbers before press =.
+    } else if (data.isCountdownActive) {
         int count = (int)std::ceil(data.countdownTime);
         if (count > 0) {
             std::string countText = std::to_string(count);
