@@ -8,7 +8,6 @@ GameEngine::GameEngine() {
     lights = vector<Light*>();
     cameras = vector<Camera*>();
 
-
     playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
     terrain = new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
@@ -106,7 +105,6 @@ void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
 }
 
 void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
-
     for (auto gameObjectDynamic : gameObjectsDynamic) {
         gameObjectDynamic->SyncWithPhysics();
     }
@@ -390,7 +388,6 @@ void GameEngine::CreateBarriers() {
 }
 
 void GameEngine::CreateCubes() {
-
     // floor cube1
     glm::vec3 floorCube1Size = glm::vec3(1000, 1.0f, 1000);
     glm::vec3 floorCube1Position = glm::vec3(0, -0.5f, 0);
@@ -727,7 +724,9 @@ void GameEngine::InitializeSkybox() {
         "../assets/backgroundTextures/day/clouds1_up.bmp",    "../assets/backgroundTextures/day/clouds1_down.bmp",
         "../assets/backgroundTextures/day/clouds1_north.bmp", "../assets/backgroundTextures/day/clouds1_south.bmp"};
 
+    stbi_set_flip_vertically_on_load(false);
     skyboxCubemapDay = LoadCubemap(facesDay);
+    stbi_set_flip_vertically_on_load(true);
 
     vector<std::string> facesNight{"../assets/backgroundTextures/night/nightskyemission.png",
                                    "../assets/backgroundTextures/night/nightskyemission.png",
