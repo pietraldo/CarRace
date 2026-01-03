@@ -58,7 +58,7 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
             // throttle for the user input if countdown is active. (Modifying the input passed/used).
         }
 
-        if (isCountdownActive) {
+        if (!startSimulation || isCountdownActive) {
             cars[i]->SetBraking(true);
             // We can't easily clear 'input' here because it's const.
             // But we can ensure the car visuals show braking.
@@ -168,18 +168,20 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     UpdateFlashLight();
 
     // Race Logic
-    if (isCountdownActive) {
-        countdownTimer -= deltaTime;
-        if (countdownTimer < 0.0f) {
-            isCountdownActive = false;
-            raceTime = 0.0f;
-        }
-    } else {
-        // Race is active
-        raceTime += deltaTime;
+    if (startSimulation) {
+        if (isCountdownActive) {
+            countdownTimer -= deltaTime;
+            if (countdownTimer < 0.0f) {
+                isCountdownActive = false;
+                raceTime = 0.0f;
+            }
+        } else {
+            // Race is active
+            raceTime += deltaTime;
 
-        for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
-            CheckFinishLine(i);
+            for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
+                CheckFinishLine(i);
+            }
         }
     }
 
@@ -269,7 +271,7 @@ void GameEngine::CheckFinishLine(int carIndex) {
     // Thresholds
     // Lateral width of finish line ~ 20 units? Scale is 2.2.
     // Finish line width is likely around 10-20.
-    if (verticalDist < 10.0f && lateralDist < 20.0f) {
+    if (verticalDist < 10.0f && lateralDist < 80.0f) {
         // Check crossing
         if (distLast < 0 && distCur >= 0 || distLast > 0 && distCur <= 0) {
             // Crossed!
