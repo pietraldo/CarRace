@@ -629,8 +629,8 @@ void Rendering::RenderFrame() {
         auto* car0 = Physics::getInstance()->getVehicles()[0];
         if (car0) {
             HudPlayerData data;
-            data.speedKmh = car0->getSpeed() * 4.0f;
-            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.speedKmh = car0->getSpeed() * 3.5f;
+            data.rpm = (float)car0->getEngineRPM() * 12.0f;
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
@@ -645,8 +645,8 @@ void Rendering::RenderFrame() {
         auto* car1 = Physics::getInstance()->getVehicles()[1];
         if (car1) {
             HudPlayerData data;
-            data.speedKmh = car1->getSpeed() * 4.0f;
-            data.rpm = (float)car1->getEngineRPM() * 4.0f;
+            data.speedKmh = car1->getSpeed() * 3.5f;
+            data.rpm = (float)car1->getEngineRPM() * 12.0f;
             data.gear = car1->getCurrentGear();
             data.maxSpeed = car1->getMaxSpeed();
             data.maxRpm = car1->getMaxEngineRPM();
@@ -660,8 +660,8 @@ void Rendering::RenderFrame() {
         auto* car0 = Physics::getInstance()->getVehicles()[0];
         if (car0) {
             HudPlayerData data;
-            data.speedKmh = car0->getSpeed() * 4.0f;
-            data.rpm = (float)car0->getEngineRPM() * 4.0f;
+            data.speedKmh = car0->getSpeed() * 3.5f;
+            data.rpm = (float)car0->getEngineRPM() * 12.0f;
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
