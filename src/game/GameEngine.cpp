@@ -33,42 +33,10 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
 
         if (isCountdownActive) {
             cars[i]->SetBraking(true);
-            // cars[i]->SetAccelerate(false);  // Removed because not implemented in Car class
-            // Actually Car.h usually has Update that takes inputs.
-            // But here we see cars[i]->Update(deltaTime, steer);
-            // And before that: SetBraking(bool).
-            // cars[i]->SetEngineForce?
-            // Looking at UpdateCars, it just sets Braking.
-            // The Car class probably reads input directly? No, it takes steering angle?
-            // Ah, line 32: `const CarControlInput& carControl`. This is just reading input.
-            // The actual throttle application must be inside Car::Update or Car::SyncWithPhysics?
-            // Wait, GameEngine::UpdateCars calls `cars[i]->SetBraking` and `cars[i]->Update`.
-            // Does `Car` have `SetThrottle`?
-            // Let's assume we can block physics updates or force inputs.
-            // The Physics vehicles are controlled via `Physics::getInstance()->getVehicles()`.
-            // We need to stop the physics vehicle from accelerating.
-            // The `input` struct is passed to `UpdateCars`, but `Car` class seems to use internal logic or we need to
-            // pass throttle. Actually, `Car::Update` usually handles visuals. Physics handles movement. We need to
-            // modify how inputs are applied to the PHYSICS vehicle. But `UpdateCars` loop iterates over PHYSICS
-            // vehicles too? Ah, `UpdateCars` reads `vehicles[i]`. The inputs are applied WHERE? Usually in
-            // `UpdateBeforePhysics` or `InputManager`? Actually, `Physics` probably polls inputs or `GameEngine` sends
-            // them. Let's look at `UpdateAfterPhysics`. `UpdateCars` is called there. But `UpdateCars` updates VISUALS
-            // from Physics. Where is the input sent to Physics? It seems `Physics::getInstance()->...` is not directly
-            // called for input here. Maybe `InputManager` does it? Or `GameEngine::UpdateBeforePhysics`. Let's disable
-            // throttle for the user input if countdown is active. (Modifying the input passed/used).
         }
 
         if (!startSimulation || isCountdownActive) {
             cars[i]->SetBraking(true);
-            // We can't easily clear 'input' here because it's const.
-            // But we can ensure the car visuals show braking.
-            // Real physics blocking is harder without seeing where inputs go.
-            // Assuming for now that setting braking on Car helps, or implies we need to intercept input earlier.
-            // Actually, the user asked to stop them.
-            // If I can't find where inputs go to physics, I might rely on `CheckFinishLine` ignoring early crosses.
-            // BUT, user wants "odliczanie... START".
-            // If cars move during countdown, it's bad.
-            // I'll search for where inputs are applied to physics.
         } else {
             cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
         }
@@ -242,26 +210,6 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 
         drawObject->Draw(shaderTex);
     }
-
-    /*RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
-
-    for (Model* model : modelsCol) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
-
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 position = model->GetPosition();
-        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
-
-        modelMatrix = glm::translate(modelMatrix, position);
-        modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
-        shaderCol.setMat4("model", modelMatrix);
-        shaderCol.setVec3("objectColor", model->GetColor());
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textureID);
-        model->Draw(shaderCol);
-    }*/
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
