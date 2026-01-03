@@ -44,7 +44,6 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
-
     Settings::Get().LoadFromFile();
 
     Rendering::InitializeLoading();
@@ -95,7 +94,24 @@ int main() {
 
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
-            Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
+            if (gameEngine->isCountdownActive) {
+                // Block car movement during countdown
+                CarControlInput blockedInput0 = input.carControl0;
+                blockedInput0.throttle = 0.0f;
+                blockedInput0.brake = 1.0f;
+                blockedInput0.steer = 0.0f;
+                blockedInput0.handbrake = 1.0f;
+
+                CarControlInput blockedInput1 = input.carControl1;
+                blockedInput1.throttle = 0.0f;
+                blockedInput1.brake = 1.0f;
+                blockedInput1.steer = 0.0f;
+                blockedInput1.handbrake = 1.0f;
+
+                Physics::getInstance()->update(deltaTime, blockedInput0, blockedInput1);
+            } else {
+                Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
+            }
         }
         gameEngine->UpdateAfterPhysics(input, deltaTime);
 

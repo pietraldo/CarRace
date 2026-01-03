@@ -249,70 +249,89 @@ void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffs
 }
 
 void Rendering::RenderImGui() {
-    bool raceFinished = false;
-    float raceTime = 0.0f;
-    if (gameEngine && !gameEngine->playersStatus.empty()) {
-        const auto& status = gameEngine->playersStatus[0];
-        if (status.finished && !status.finishScreenConfirmed) {
-            raceFinished = true;
-            raceTime = status.finishTime;
+    bool anyRaceFinished = false;
+    if (gameEngine) {
+        for (const auto& status : gameEngine->playersStatus) {
+            if (status.finished && !status.finishScreenConfirmed) {
+                anyRaceFinished = true;
+                break;
+            }
         }
     }
 
-    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow && !raceFinished) return;
+    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow && !anyRaceFinished) return;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (raceFinished) {
-        ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
-                                ImVec2(0.5f, 0.5f));
-        ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                                 ImGuiWindowFlags_NoTitleBar;
+    if (gameEngine) {
+        for (int i = 0; i < gameEngine->playersStatus.size(); ++i) {
+            auto& status = gameEngine->playersStatus[i];
+            if (status.finished && !status.finishScreenConfirmed) {
+                float raceTime = status.finishTime;
 
-        ImGui::Begin("Race Summary", nullptr, flags);
+                // Unique window name for each player
+                std::string winName = "Race Summary - Player " + std::to_string(i + 1);
 
-        ImGui::SetWindowFontScale(1.5f);
-        float winWidth = ImGui::GetWindowSize().x;
-        float textWidth = ImGui::CalcTextSize("RACE FINISHED!").x;
-        ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
-        ImGui::TextColored(ImVec4(0, 1, 0, 1), "RACE FINISHED!");
+                ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
+                ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
 
-        ImGui::SetWindowFontScale(1.2f);
-        ImGui::NewLine();
+                // Position windows based on player count and index
+                if (gameEngine->playersStatus.size() > 1) {
+                    float xOffset = (i == 0) ? window_width * 0.75f : window_width * 0.25f;
+                    ImGui::SetNextWindowPos(ImVec2(xOffset, window_height / 2.0f), ImGuiCond_Always,
+                                            ImVec2(0.5f, 0.5f));
+                } else {
+                    ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
+                                            ImVec2(0.5f, 0.5f));
+                }
 
-        int minutes = (int)raceTime / 60;
-        int seconds = (int)raceTime % 60;
-        int millis = (int)((raceTime - (int)raceTime) * 100);
+                ImGui::Begin(winName.c_str(), nullptr, flags);
 
-        std::stringstream ss;
-        ss << "Your Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
-           << std::setw(2) << millis;
+                ImGui::SetWindowFontScale(1.5f);
+                float winWidth = ImGui::GetWindowSize().x;
+                std::string title = "PLAYER " + std::to_string(i + 1) + " FINISHED!";
+                float textWidth = ImGui::CalcTextSize(title.c_str()).x;
+                ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+                ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", title.c_str());
 
-        textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
-        ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
-        ImGui::Text("%s", ss.str().c_str());
+                ImGui::SetWindowFontScale(1.2f);
+                ImGui::NewLine();
 
-        ImGui::NewLine();
-        ImGui::NewLine();
+                int minutes = (int)raceTime / 60;
+                int seconds = (int)raceTime % 60;
+                int millis = (int)((raceTime - (int)raceTime) * 100);
 
-        float buttonWidth = 200.0f;
-        float buttonHeight = 40.0f;
-        ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+                std::stringstream ss;
+                ss << "Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
+                   << std::setw(2) << millis;
 
-        if (ImGui::Button("Keep Driving", ImVec2(buttonWidth, buttonHeight))) {
-            gameEngine->playersStatus[0].finishScreenConfirmed = true;
+                textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
+                ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+                ImGui::Text("%s", ss.str().c_str());
+
+                ImGui::NewLine();
+                ImGui::NewLine();
+
+                float buttonWidth = 200.0f;
+                float buttonHeight = 40.0f;
+                ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+                if (ImGui::Button(("Keep Driving##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                    status.finishScreenConfirmed = true;
+                }
+
+                ImGui::NewLine();
+                ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+                if (ImGui::Button(("Exit Game##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                    glfwSetWindowShouldClose(window, true);
+                }
+
+                ImGui::End();
+            }
         }
-
-        ImGui::NewLine();
-        ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
-
-        if (ImGui::Button("Exit Game", ImVec2(buttonWidth, buttonHeight))) {
-            glfwSetWindowShouldClose(window, true);
-        }
-
-        ImGui::End();
     }
 
     if (Settings::Get().showHelpImGuiWindow) {

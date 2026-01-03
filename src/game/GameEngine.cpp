@@ -191,26 +191,6 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
 void GameEngine::CheckFinishLine(int carIndex) {
     if (playersStatus[carIndex].finished) return;
 
-    // Hardcoded finish line transform from CreateBuildings
-    glm::vec3 finishPos(291.0f, 24.5f, 11.0f);
-    // Rotation is (0, -21, 0)
-    glm::quat finishRot = PxQuatToGlmQuat(getQuatFromRotationDegrees(glm::vec3(0.0f, -21.0f, 0.0f)));
-
-    // Define the finish line plane/segment
-    // It's a line across the track. We need to check if the car crossed the plane defined by position and forward
-    // vector (or normal)
-
-    // In this game, Z is often "depth", X is "width".
-    // The finish line model likely spans across X locally.
-    // Let's assume the "normal" of the finish line plane is the Forward vector of the finish line object.
-    // Since rotation is around Y, we can compute forward.
-    // Default forward might be (0,0,1) or (-1,0,0) depending on model.
-    // Let's assume standard OpenGL (0,0,-1) or (0,0,1) or just use the rotation.
-    // If rotation is -21 deg around Y.
-
-    // A robust way is to check if the car is close enough to finishPos using a "box" trigger.
-    // Or check if it passed from one side of the plane to the other.
-
     auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
     glm::vec3 currentPos = PxVec3ToGlmVec3(vehicle->getVehiclePosition());
 
@@ -219,67 +199,22 @@ void GameEngine::CheckFinishLine(int carIndex) {
         return;
     }
 
-    // Finish plane normal.
-    // If the finish line spans the track, we want the normal pointing ALONG the track direction.
-    // If the finish line object is rotated -21 degrees, the track direction is roughly 90 degrees to that?
-    // Let's assume the finish line object is "perpendicular" to the track.
-    // So its "Right" vector (or local X) is along the finish line, and "Forward" (or local Z) is along the track.
-    // Let's calculate Forward vector from rotation.
+    glm::vec2 p1(277.0f, 5.0f);
+    glm::vec2 p2(305.0f, 16.0f);
 
-    // NOTE: This relies on Helper function `getQuatFromRotationDegrees`.
-    // Assuming (0, -21, 0) means simple Y rotation.
-    glm::vec3 forward = finishRot * glm::vec3(1.0f, 0.0f, 0.0f);  // Try X axis as forward? No, usually Z.
-    // Let's try to deduce from map coordinates.
-    // 291, 11.
-    // Next checkpoints or road implies direction.
-    // Let's use a distance check + dot product check for crossing.
+    glm::vec2 carP1(playersStatus[carIndex].lastPosition.x, playersStatus[carIndex].lastPosition.z);
+    glm::vec2 carP2(currentPos.x, currentPos.z);
 
-    // Simply: define a plane at finishPos with normal.
-    // Normal should point "backwards" relative to race direction so we cross it.
-    // Or just check if dot product changes sign.
+    auto ccw = [](glm::vec2 A, glm::vec2 B, glm::vec2 C) {
+        return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+    };
 
-    glm::vec3 planeNormal = glm::normalize(
-        glm::rotate(glm::quat(glm::vec3(0.0f, glm::radians(-21.0f), 0.0f)), glm::vec3(1.0f, 0.0f, 0.0f)));
-    // Wait, if I rotate (1,0,0) by -21 deg Y.
-    // Actually, let's use a simpler approach.
-    // Vector from FinishLine to Car.
-    // Project onto "Track Direction".
-    // If it changes from negative to positive while being close enough, we crossed.
+    bool intersect = (ccw(p1, p2, carP1) != ccw(p1, p2, carP2)) && (ccw(carP1, carP2, p1) != ccw(carP1, carP2, p2));
 
-    // Let's assume track direction is roughly X axis? No.
-    // Let's use the finish line rotation directly.
-    // If the finish line model is an arch, its local X usually spans the road. so local Z (or -X?) is direction.
-    // Let's guess the normal is the local X axis rotated by 90 degrees?
-    // Let's try: Normal = rotated (1,0,0).
-
-    glm::vec3 normal = finishRot * glm::vec3(1.0f, 0.0f, 0.0f);
-
-    glm::vec3 vecToLast = playersStatus[carIndex].lastPosition - finishPos;
-    glm::vec3 vecToCur = currentPos - finishPos;
-
-    float distLast = glm::dot(vecToLast, normal);
-    float distCur = glm::dot(vecToCur, normal);
-
-    // Check if we are close enough laterally (distance to plane is small, but we need distance ALONG the line)
-    float distToPlane = glm::abs(distCur);
-    // Project onto the line itself (perpendicular to normal)
-    glm::vec3 tangent = finishRot * glm::vec3(0.0f, 0.0f, 1.0f);
-    float lateralDist = glm::abs(glm::dot(vecToCur, tangent));
-
-    float verticalDist = glm::abs(currentPos.y - finishPos.y);
-
-    // Thresholds
-    // Lateral width of finish line ~ 20 units? Scale is 2.2.
-    // Finish line width is likely around 10-20.
-    if (verticalDist < 10.0f && lateralDist < 80.0f) {
-        // Check crossing
-        if (distLast < 0 && distCur >= 0 || distLast > 0 && distCur <= 0) {
-            // Crossed!
-            // Only count if raceTime > 10.0f to avoid instant finish at start if we spawn on line.
-            if (raceTime > 10.0f) {
-                playersStatus[carIndex].finished = true;
-                playersStatus[carIndex].finishTime = raceTime;
-            }
+    if (intersect) {
+        if (raceTime > 10.0f) {
+            playersStatus[carIndex].finished = true;
+            playersStatus[carIndex].finishTime = raceTime;
         }
     }
 
