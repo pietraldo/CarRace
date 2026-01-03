@@ -10,11 +10,9 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     readBaseParamsFromJsonFile(gVehicleDataPath, baseParamsPath, gVehicle.mBaseParams);
     readEngineDrivetrainParamsFromJsonFile(gVehicleDataPath, driveParamsPath, gVehicle.mEngineDriveParams);
 
-    // Set the vehicle in 1st gear.
     gVehicle.mEngineDriveState.gearboxState.currentGear = 2;
     gVehicle.mEngineDriveState.gearboxState.targetGear = 2;
 
-    // gVehicle.mTransmissionCommandState.targetGear = PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
 
     // audio
     if (!engineSound.load("../assets/audio/loop_2.wav")) {
