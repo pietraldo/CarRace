@@ -26,6 +26,7 @@
 #include "imgui.h"
 #include "lights/Light.h"
 #include "Texture.h"
+#include <ui/HudRenderer.h>
 
 class GameEngine;
 class Mirrors;
@@ -93,4 +94,7 @@ private:
     static glm::mat4 externalView;
     static bool useExternalProj;
     static glm::mat4 externalProj;
+
+public:
+    static HudRenderer hudRenderer;
 };
