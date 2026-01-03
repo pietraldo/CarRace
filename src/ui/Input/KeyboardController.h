@@ -6,6 +6,9 @@
 #include <string>
 #include <algorithm>
 
+#include "rapidjson/document.h"
+#include "rapidjson/error/en.h"
+
 #include "../../gfx/Rendering.h"
 #include "InputController.h"
 #include "InputStructures.h"
@@ -53,8 +56,10 @@ public:
 
 
     enum class PlayerIndex { Player0, Player1 };
+    const std::string fileBindingsPath = "../assets/settings/keybindings.json";
 
-    explicit KeyboardController(PlayerIndex index) : playerIndex(index) {}
+    explicit KeyboardController(PlayerIndex index);
+    bool LoadKeyBindingsFromFile(const std::string& filename);
     CarControlInput getCarControlInput() override;
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override;

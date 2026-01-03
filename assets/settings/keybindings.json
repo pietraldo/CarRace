@@ -1,0 +1,39 @@
+{
+  "Player0": {
+    "STEER_RIGHT": "RIGHT",
+    "STEER_LEFT": "LEFT",
+    "THROTTLE": "UP",
+    "BRAKE": "DOWN",
+    "GEAR_UP": "M",
+    "GEAR_DOWN": "N",
+    "RESET": "B",
+    "HANDBRAKE": "SPACE",
+    "LOOK_RIGHT": "COMMA",
+    "LOOK_LEFT": "PERIOD"
+  },
+  "Player1": {
+    "STEER_RIGHT": "L",
+    "STEER_LEFT": "J",
+    "THROTTLE": "I",
+    "BRAKE": "K",
+    "GEAR_UP": "X",
+    "GEAR_DOWN": "Z",
+    "RESET": "F",
+    "HANDBRAKE": "LEFT_SHIFT",
+    "LOOK_RIGHT": "V",
+    "LOOK_LEFT": "C"
+  },
+  "Camera": {
+    "FORWARD": "W",
+    "BACKWARD": "S",
+    "RIGHT": "D",
+    "LEFT": "A"
+  },
+  "Additional": {
+    "START_SIMULATION": "EQUAL",
+    "EXIT": "ESCAPE",
+    "RESET_CARS": "R",
+    "SWITCH_IMGUI": "F2",
+    "SWITCH_HELP": "F1"
+  }
+}
