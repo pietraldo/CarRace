@@ -13,6 +13,12 @@ public:
     enum class ControllerButton { TRIANGLE, CIRCLE, CROSS, SQUARE, ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT };
 
 private:
+
+    ControllerButton GEAR_UP_BUTTON = ControllerButton::SQUARE;
+    ControllerButton GEAR_DOWN_BUTTON = ControllerButton::CIRCLE;
+    ControllerButton RESET_BUTTON = ControllerButton::ARROW_LEFT;
+    ControllerButton HAND_BRAKE_BUTTON = ControllerButton::CROSS;
+
     const int OUTPUT_REPORT_SIZE = 48;
 
     bool connected = false;

@@ -43,7 +43,7 @@ InputData InputManager::getInputData() {
         inputController1->updateInput();  // Keyboard
 
         inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController1->getCameraControlInput();
+        inputData.cameraControl0 = inputController0->getCameraControlInput();
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();

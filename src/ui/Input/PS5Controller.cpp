@@ -18,9 +18,17 @@ bool PS5Controller::setEffectsOnInputer(EffectsOnInputer effects) {
     return true;
 }
 
-std::string PS5Controller::GetCarControllBindings() { return std::string(); }
+std::string PS5Controller::GetCarControllBindings() {
+    return "Steer: Left Stick X-axis\n"
+           "Throttle: R2 Trigger\n"
+           "Brake: L2 Trigger\n"
+           "Handbrake: Cross\n"
+           "Gear Up: Circle\n"
+           "Gear Down: Square\n"
+           "Reset to Checkpoint: Arrow Left\n";
+}
 
-std::string PS5Controller::GetCameraControllBindings() { return std::string(); }
+std::string PS5Controller::GetCameraControllBindings() { return "Yaw: Right Stick X-axis\n"; }
 
 std::string PS5Controller::GetAdditionalControllBindings() { return std::string(); }
 
