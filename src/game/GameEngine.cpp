@@ -137,7 +137,6 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
     PassCommon pass = RenderPassUniforms::Build(activeCam, GetFogParams());
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
-    shaderTex.setVec3("objectColor", glm::vec3(1.0f));
 
     for (auto gameObject : gameObjects2) {
         auto drawObject = gameObject->drawObject;
