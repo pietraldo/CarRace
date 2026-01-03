@@ -42,6 +42,7 @@ private:
     unsigned int rpmDialTexture;
     unsigned int needleTexture;
     unsigned int gearFrameTexture;
+    unsigned int minimapTexture;
 
     std::map<int, HudState> playerStates;
 
@@ -49,6 +50,7 @@ private:
     const std::string PATH_RPM_DIAL = "../assets/ui/gauges/rpm_dial.png";
     const std::string PATH_NEEDLE = "../assets/ui/needle.png";
     const std::string PATH_GEAR_FRAME = "../assets/ui/frames/gear_frame.png";
+    const std::string PATH_MINIMAP = "../assets/ui/mini-map/mini-map.png";
 
     ImFont* hudFont;
 

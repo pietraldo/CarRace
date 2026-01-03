@@ -13,6 +13,7 @@ HudRenderer::HudRenderer() {
     rpmDialTexture = 0;
     needleTexture = 0;
     gearFrameTexture = 0;
+    minimapTexture = 0;
     hudFont = nullptr;
 }
 
@@ -29,6 +30,7 @@ void HudRenderer::Init() {
     rpmDialTexture = LoadTexture(PATH_RPM_DIAL);
     needleTexture = LoadTexture(PATH_NEEDLE);
     gearFrameTexture = LoadTexture(PATH_GEAR_FRAME);
+    minimapTexture = LoadTexture(PATH_MINIMAP);
 
     // Setup Quad VAO
     float vertices[] = {// pos      // tex
@@ -119,6 +121,7 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     float margin = (float)height * 0.04f;
     float gaugeSize = baseScale;
 
+    // --- Gauges (Bottom-LEFT) ---
     float speedX = margin + gaugeSize / 2 + 20;
     float speedY = margin + gaugeSize / 2;
 
@@ -126,8 +129,14 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     float rpmY = speedY;
 
     DrawTexture(rpmDialTexture, rpmX, rpmY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
-
     DrawTexture(speedDialTexture, speedX, speedY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
+
+    // --- Minimap (Bottom-RIGHT) ---
+    float mapSize = baseScale * 1.1f;
+    float mapX = width - (margin + mapSize / 2 + 20);
+    float mapY = margin + mapSize / 2;
+
+    DrawTexture(minimapTexture, mapX, mapY, mapSize, mapSize, 0.0f, glm::vec2(0.5f), projection);
 
     float debugNeedleStartAngle = -13.458f;
     float debugNeedleEndAngle = -168.224f;
