@@ -111,7 +111,7 @@ void Rendering::LoadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    terrainTexture.data = stbi_load("../assets/vehicledata/baseColor6.png", &terrainTexture.width,
+    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width,
                                     &terrainTexture.height, &terrainTexture.channels, 0);
     if (!terrainTexture.data) {
         std::cout << "Failed to load texture" << std::endl;
@@ -256,17 +256,10 @@ void Rendering::RenderImGui() {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                                  ImGuiWindowFlags_NoCollapse;
         ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-
+        ImGui::SetNextWindowSize(ImVec2(300.0f, 600.0f), ImGuiCond_Always);
         ImGui::Begin("Help", &Settings::Get().showHelpImGuiWindow, flags);
-        ImGui::Text("WASD - move car 1");
-        ImGui::Text("Arrow keys - move car 2");
-        ImGui::Text("Mouse move - rotate camera (in free camera mode)");
-        ImGui::Text("Scroll wheel - zoom in/out (in free camera mode)");
-        ImGui::Text("C - switch camera mode");
-        ImGui::Text("H - toggle this help window");
-        ImGui::Text("F1 - toggle debug info");
-        ImGui::Text("F2 - toggle box colliders");
-        ImGui::Text("ESC - exit the game");
+        ImGui::TextUnformatted(InputManager::getInstance().getInputBindingsInfo().c_str());
+
         ImGui::End();
     }
 

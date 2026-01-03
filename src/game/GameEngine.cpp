@@ -11,10 +11,7 @@ GameEngine::GameEngine() {
     playersStatus = std::vector<PlayerStatus>(Settings::Get().CAR_COUNT);
 
     terrain = new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
-    terrain->LoadTerrain("../assets/vehicledata/terrain.txt");
-
-    skyboxVBO = 0;
-    fog = false;  // Enable fog
+    terrain->LoadTerrain("../assets/terrain/terrain.txt");
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
@@ -59,7 +56,7 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber, const InputData&
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
 
         const CameraControlInput& camInput = (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
-        firstPersonCamera.SetTargetYawOffset(camInput.yaw * 50.0f);
+        firstPersonCamera.SetTargetYawOffset(-camInput.yaw * 50.0f);
 
         firstPersonCamera.Update(dt, carPos, carRot);
     } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
@@ -618,6 +615,10 @@ bool GameEngine::isVehicleOnTrack(int carNumber) {
 
     x = x / scale_x;
     z = z / scale_z;
+
+    if (x < 0 || (int)x >= roadMarks.size() || z < 0 || (int)z >= roadMarks[0].size()) {
+        return false;
+    }
 
     return roadMarks[int(z)][int(x)] == 1;
 }

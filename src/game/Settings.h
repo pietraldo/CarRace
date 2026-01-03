@@ -1,5 +1,12 @@
 #pragma once
 
+#include <iostream>
+#include <fstream>
+#include "rapidjson/document.h"
+#include <rapidjson/filereadstream.h>
+#include <cstdio>
+#include <limits>
+
 struct Settings {
     int START_SCR_WIDTH = 1600;
     int START_SCR_HEIGHT = 1000;
@@ -33,6 +40,8 @@ struct Settings {
         static Settings instance;
         return instance;
     }
+
+    void LoadFromFile(const char* filename = "../assets/settings/settings.json");
 
 private:
     Settings() = default;

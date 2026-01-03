@@ -35,6 +35,7 @@ public:
     void setInputController2(InputController* controller) { inputController1 = controller; }
 
     InputData getInputData();
+    std::string getInputBindingsInfo();
     void setEffectsOnInputer(OutputData output) {
         if (inputController0) inputController0->setEffectsOnInputer(output.effectsOnInputer0);
         if (inputController1) inputController1->setEffectsOnInputer(output.effectsOnInputer1);

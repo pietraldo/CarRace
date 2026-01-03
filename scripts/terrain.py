@@ -474,7 +474,7 @@ if __name__ == '__main__':
     #road_mark = generate_track(n, m, road_width=15)
     #road_mark = image_to_array("race_track_shape.png")
     #road_mark=np.zeros((n,m))
-    road_mark = readRoadMarkFromTexture("../assets/vehicledata/baseColor5.png", n, m)
+    road_mark = readRoadMarkFromTexture("../assets/terrain/baseColor5.png", n, m)
     #show_road_mark(road_mark)
     #generate_texture(road_mark)
     #h = generate_terrain(n,m, roughness=0.3, seed=42, smooth_sigma=0.1)

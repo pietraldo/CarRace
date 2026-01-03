@@ -43,7 +43,7 @@ InputData InputManager::getInputData() {
         inputController1->updateInput();  // Keyboard
 
         inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController1->getCameraControlInput();
+        inputData.cameraControl0 = inputController0->getCameraControlInput();
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
@@ -67,4 +67,64 @@ InputData InputManager::getInputData() {
     }
 
     return inputData;
+}
+
+std::string InputManager::getInputBindingsInfo() { 
+
+    std::string result;
+
+     // only keyboard: 1 plaeyer
+    if (currentInputType == KEYBOARD) {
+
+        result += "Player 0 (Keyboard) Controls:\n";
+        result += inputController0->GetCarControllBindings();
+        result += "\n";
+        result += "Camera Controls:\n";
+        result += inputController0->GetCameraControllBindings();
+        result += "\n";
+        result += "Additional Controls:\n";
+        result += inputController0->GetAdditionalControllBindings();
+    }
+
+    // controler + keyboard : 2 palyer:
+    //  - player 0: controller (car 0)
+    //  - player 1: keyboard (car 1)
+    if (currentInputType == CONTROLLER_AND_KEYBOARD) {
+        
+        result += "Player 0 (Controller) Controls:\n";
+        result += inputController0->GetCarControllBindings();
+        result += "\n";
+        result += "Camera Controls:\n";
+        result += inputController0->GetCameraControllBindings();
+        
+        result += "\n\n";
+        result += "Player 1 (Keyboard) Controls:\n";
+        result += inputController1->GetCarControllBindings();
+        result += "\n";
+        result += "Camera Controls:\n";
+        result += inputController1->GetCameraControllBindings();
+        result += "\n\n";
+        result += "Additional Controls:\n";
+        result += inputController1->GetAdditionalControllBindings();
+    }
+
+    // only keyboard: 2 players
+    if (currentInputType == KEYBOARD_AND_KEYBOARD) {
+        
+        result += "Player 0 (Keyboard) Controls:\n";
+        result += inputController0->GetCarControllBindings();
+        result += "\n";
+        result += "Camera Controls:\n";
+        result += inputController0->GetCameraControllBindings();
+        result += "\n\n";
+        result += "Player 1 (Keyboard) Controls:\n";
+        result += inputController1->GetCarControllBindings();
+        result += "\n";
+        result += "Camera Controls:\n";
+        result += inputController1->GetCameraControllBindings();
+        result += "\n\n";
+        result += "Additional Controls:\n";
+        result += inputController0->GetAdditionalControllBindings();
+    }
+    return result;
 }

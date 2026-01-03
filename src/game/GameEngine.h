@@ -81,7 +81,7 @@ public:
     bool IsSimulationStarted() const { return startSimulation; }
 
     // Skybox
-    unsigned int skyboxVAO, skyboxVBO;
+    unsigned int skyboxVAO = 0, skyboxVBO = 0;
     unsigned int skyboxCubemapDay, skyboxCubemapNight;
     Shader* skyboxShader;
 
