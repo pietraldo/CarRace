@@ -619,6 +619,10 @@ bool GameEngine::isVehicleOnTrack(int carNumber) {
     x = x / scale_x;
     z = z / scale_z;
 
+    if (x < 0 || (int)x >= roadMarks.size() || z < 0 || (int)z >= roadMarks[0].size()) {
+        return false;
+    }
+
     return roadMarks[int(z)][int(x)] == 1;
 }
 
