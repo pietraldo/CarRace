@@ -61,14 +61,14 @@ CameraControlInput KeyboardController::getCameraControlInput() {
     if (isKeyPressed(CAMERA_RIGHT)) input.moveRight = 1;
 
     if (playerIndex == PlayerIndex::Player1) {
-        if (isKeyPressed(LOOK_RIGHT_P1))
+        if (isKeyPressed(LOOK_LEFT_P1))
             input.yaw = 1.0f;
-        else if (isKeyPressed(LOOK_LEFT_P1))
+        else if (isKeyPressed(LOOK_RIGHT_P1))
             input.yaw = -1.0f;
     } else {  // Player 0
-        if (isKeyPressed(LOOK_RIGHT_P0))
+        if (isKeyPressed(LOOK_LEFT_P0))
             input.yaw = 1.0f;
-        else if (isKeyPressed(LOOK_LEFT_P0))
+        else if (isKeyPressed(LOOK_RIGHT_P0))
             input.yaw = -1.0f;
     }
 

@@ -22,8 +22,8 @@ public:
     int GEAR_DOWN_P0 = GLFW_KEY_N;
     int RESET_P0 = GLFW_KEY_B;
     int HANDBRAKE_P0 = GLFW_KEY_SPACE;
-    int LOOK_RIGHT_P0 = GLFW_KEY_PERIOD;
-    int LOOK_LEFT_P0 = GLFW_KEY_COMMA;
+    int LOOK_RIGHT_P0 = GLFW_KEY_COMMA;
+    int LOOK_LEFT_P0 = GLFW_KEY_PERIOD;
 
     // Player 1 key bindings
     int STEER_RIGHT_P1 = GLFW_KEY_L;
@@ -34,8 +34,8 @@ public:
     int GEAR_DOWN_P1 = GLFW_KEY_Z;
     int RESET_P1 = GLFW_KEY_F;
     int HANDBRAKE_P1 = GLFW_KEY_LEFT_SHIFT;
-    int LOOK_RIGHT_P1 = GLFW_KEY_C;
-    int LOOK_LEFT_P1 = GLFW_KEY_V;
+    int LOOK_RIGHT_P1 = GLFW_KEY_V;
+    int LOOK_LEFT_P1 = GLFW_KEY_C;
 
     // Camera key bindings
     int CAMERA_FORWARD = GLFW_KEY_W;

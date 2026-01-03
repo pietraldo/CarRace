@@ -57,7 +57,7 @@ void GameEngine::UpdatePlayerCamera(float dt, int playerNumber, const InputData&
         FirstPersonCamera& firstPersonCamera = static_cast<FirstPersonCamera&>(activeCamera);
 
         const CameraControlInput& camInput = (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
-        firstPersonCamera.SetTargetYawOffset(camInput.yaw * 50.0f);
+        firstPersonCamera.SetTargetYawOffset(-camInput.yaw * 50.0f);
 
         firstPersonCamera.Update(dt, carPos, carRot);
     } else if (activeCamera.cameraType == CameraType::FOLLOWING_CAR_CAMERA) {
