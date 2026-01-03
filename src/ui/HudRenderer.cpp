@@ -31,6 +31,8 @@ void HudRenderer::Init() {
     needleTexture = LoadTexture(PATH_NEEDLE);
     gearFrameTexture = LoadTexture(PATH_GEAR_FRAME);
     minimapTexture = LoadTexture(PATH_MINIMAP);
+    playerMarkerTextures[0] = LoadTexture(PATH_MARKER_0);
+    playerMarkerTextures[1] = LoadTexture(PATH_MARKER_1);
 
     // Setup Quad VAO
     float vertices[] = {// pos      // tex
@@ -90,8 +92,6 @@ unsigned int HudRenderer::LoadTexture(const std::string& path) {
     return textureID;
 }
 
-void HudRenderer::Update(float dt) {}
-
 void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int y, int width, int height) {
     float dt = 1.0f / 60.0f;
 
@@ -121,7 +121,6 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     float margin = (float)height * 0.04f;
     float gaugeSize = baseScale;
 
-    // --- Gauges (Bottom-LEFT) ---
     float speedX = margin + gaugeSize / 2 + 20;
     float speedY = margin + gaugeSize / 2;
 
@@ -131,12 +130,37 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     DrawTexture(rpmDialTexture, rpmX, rpmY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
     DrawTexture(speedDialTexture, speedX, speedY, gaugeSize, gaugeSize, 0.0f, glm::vec2(0.5f), projection);
 
-    // --- Minimap (Bottom-RIGHT) ---
     float mapSize = baseScale * 1.1f;
     float mapX = width - (margin + mapSize / 2 + 20);
     float mapY = margin + mapSize / 2;
 
+    // Minimap
     DrawTexture(minimapTexture, mapX, mapY, mapSize, mapSize, 0.0f, glm::vec2(0.5f), projection);
+
+    // Markers
+    float mapLeft = mapX - mapSize / 2;
+    float mapBottom = mapY - mapSize / 2;
+
+    for (int i = 0; i < data.allCarPositions.size(); ++i) {
+        if (i >= 2) break;
+
+        glm::vec3 pos = data.allCarPositions[i];
+
+        glm::vec2 uv = GetMinimapCoords(pos);
+
+        float markerX = mapLeft + uv.x * mapSize;
+        float markerY = mapBottom + uv.y * mapSize;
+
+        float markerSize = mapSize * 0.08f;
+
+        float yaw = 0.0f;
+        if (i < data.allCarYaws.size()) {
+            yaw = -data.allCarYaws[i] + 90.0f;
+        }
+
+        DrawTexture(playerMarkerTextures[i], markerX, markerY, markerSize, markerSize, yaw, glm::vec2(0.5f),
+                    projection);
+    }
 
     float debugNeedleStartAngle = -13.458f;
     float debugNeedleEndAngle = -168.224f;
@@ -269,4 +293,20 @@ void HudRenderer::DrawText(const std::string& text, float x, float y, float scal
         cursorX += glyph->AdvanceX * currentScale;
     }
     glBindVertexArray(0);
+}
+
+glm::vec2 HudRenderer::GetMinimapCoords(const glm::vec3& worldPos) {
+    const float IMG_WIDTH = 962.0f;
+    const float IMG_HEIGHT = 819.0f;
+
+    const float SCALE_X = 962.0f / 1020.0f;
+    const float SCALE_Z = 819.0f / 1020.0f;
+
+    float pixX = IMG_WIDTH / 2 + worldPos.x * SCALE_X;
+    float pixY = IMG_HEIGHT / 2 + worldPos.z * SCALE_Z;
+
+    float u = pixX / IMG_WIDTH;
+    float v_paint = pixY / IMG_HEIGHT;
+    float v = 1.0f - v_paint;
+    return glm::vec2(glm::clamp(u, 0.0f, 1.0f), glm::clamp(v, 0.0f, 1.0f));
 }

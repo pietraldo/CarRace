@@ -16,6 +16,11 @@ struct HudPlayerData {
     int gear;
     float maxSpeed = 300.0f;
     float maxRpm = 8000.0f;
+
+    // Minimap data
+
+    std::vector<glm::vec3> allCarPositions;
+    std::vector<float> allCarYaws;
 };
 
 struct HudState {
@@ -30,7 +35,7 @@ public:
     ~HudRenderer();
 
     void Init();
-    void Update(float dt);
+
     void Render(int playerIndex, const HudPlayerData& data, int x, int y, int width, int height);
     void SetFont(ImFont* font) { this->hudFont = font; }
 
@@ -43,6 +48,7 @@ private:
     unsigned int needleTexture;
     unsigned int gearFrameTexture;
     unsigned int minimapTexture;
+    unsigned int playerMarkerTextures[2];  // 0 and 1
 
     std::map<int, HudState> playerStates;
 
@@ -50,7 +56,9 @@ private:
     const std::string PATH_RPM_DIAL = "../assets/ui/gauges/rpm_dial.png";
     const std::string PATH_NEEDLE = "../assets/ui/needle.png";
     const std::string PATH_GEAR_FRAME = "../assets/ui/frames/gear_frame.png";
-    const std::string PATH_MINIMAP = "../assets/ui/mini-map/mini-map.png";
+    const std::string PATH_MINIMAP = "../assets/ui/mini-map/minimap.png";
+    const std::string PATH_MARKER_0 = "../assets/ui/mini-map/player0.png";
+    const std::string PATH_MARKER_1 = "../assets/ui/mini-map/player1.png";
 
     ImFont* hudFont;
 
@@ -59,4 +67,5 @@ private:
     void DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color, glm::mat4 projection);
 
     unsigned int LoadTexture(const std::string& path);
+    glm::vec2 GetMinimapCoords(const glm::vec3& worldPos);
 };

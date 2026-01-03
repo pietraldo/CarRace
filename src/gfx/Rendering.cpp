@@ -111,8 +111,8 @@ void Rendering::LoadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width,
-                                    &terrainTexture.height, &terrainTexture.channels, 0);
+    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width, &terrainTexture.height,
+                                    &terrainTexture.channels, 0);
     if (!terrainTexture.data) {
         std::cout << "Failed to load texture" << std::endl;
     } else {
@@ -634,10 +634,28 @@ void Rendering::RenderFrame() {
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
+
+            auto vehicles = Physics::getInstance()->getVehicles();
+            for (auto* vehicle : vehicles) {
+                data.allCarPositions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
+                // Simple yaw extraction (might need adjustment based on coord system)
+                glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
+                data.allCarYaws.push_back(glm::degrees(glm::yaw(q)));
+            }
+
             hudRenderer.Render(0, data, 0, 0, window_width, window_height);
         }
 
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
+        std::vector<glm::vec3> positions;
+        std::vector<float> yaws;
+        auto vehicles = Physics::getInstance()->getVehicles();
+        for (auto* vehicle : vehicles) {
+            positions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
+            glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
+            yaws.push_back(glm::degrees(glm::yaw(q)));
+        }
+
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(activePlayer0Cam);
@@ -650,6 +668,9 @@ void Rendering::RenderFrame() {
             data.gear = car1->getCurrentGear();
             data.maxSpeed = car1->getMaxSpeed();
             data.maxRpm = car1->getMaxEngineRPM();
+
+            data.allCarPositions = positions;
+            data.allCarYaws = yaws;
             hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
         }
 
@@ -665,6 +686,9 @@ void Rendering::RenderFrame() {
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
+
+            data.allCarPositions = positions;
+            data.allCarYaws = yaws;
             hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
         }
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
