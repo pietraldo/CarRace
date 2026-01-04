@@ -173,7 +173,6 @@ std::string KeyboardController::GetAdditionalControllBindings() {
     return result;
 }
 
-
 bool KeyboardController::isKeyPressed(int key) { return glfwGetKey(Rendering::window, key) == GLFW_PRESS; }
 bool KeyboardController::isKeyJustPressed(int key) {
     bool currentState = isKeyPressed(key);

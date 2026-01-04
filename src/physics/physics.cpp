@@ -90,9 +90,7 @@ physx::PxScene* Physics::createScene() {
 
 void Physics::createObjects(const std::vector<std::shared_ptr<GameObjectDynamic>> gameObjectsDynamic,
                             const std::vector<std::shared_ptr<GameObjectStatic>> gameObjectsStatic) {
-    
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-
 
     for (auto gameObjectDynamic : gameObjectsDynamic) {
         physx::PxVec3 positionOffsetPx =

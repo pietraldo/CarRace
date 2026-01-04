@@ -20,7 +20,6 @@ protected:
 public:
     glm::vec3 position = glm::vec3(0);
 
-
     GameObject2() {};
     virtual ~GameObject2() = default;
     GameObject2(glm::vec3 position, std::shared_ptr<Model> model) : position(position), drawObject(std::move(model)) {}
@@ -29,7 +28,7 @@ public:
     physx::PxQuat GetRotationWithoutOffset() const { return rotation; }
     void SetPosition(const glm::vec3& pos) { position = pos; }
     void SetRotation(const physx::PxQuat& rot) { rotation = rot; }
-    void SetRotation(glm::vec3 roationGlm) { rotation = getQuatFromRotationDegrees(roationGlm);  }
+    void SetRotation(glm::vec3 roationGlm) { rotation = getQuatFromRotationDegrees(roationGlm); }
 
     glm::vec3 scale = glm::vec3(1.0f);
 

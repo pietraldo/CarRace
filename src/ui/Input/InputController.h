@@ -4,7 +4,6 @@
 
 #include "InputStructures.h"
 
-
 class InputController {
 public:
     virtual CarControlInput getCarControlInput() = 0;

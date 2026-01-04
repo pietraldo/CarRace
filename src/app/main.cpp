@@ -44,7 +44,6 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
-
     Settings::Get().LoadFromFile();
 
     Rendering::InitializeLoading();
@@ -95,6 +94,10 @@ int main() {
 
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
+            if (gameEngine->isCountdownActive) {
+                input.carControl0.StopAndReset();
+                input.carControl1.StopAndReset();
+            }
             Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
         }
         gameEngine->UpdateAfterPhysics(input, deltaTime);

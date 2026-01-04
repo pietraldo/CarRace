@@ -24,7 +24,7 @@ public:
     std::vector<RigidBody> rigidBodies;  // be careful for now just one works
 
     static std::unordered_map<std::string, std::shared_ptr<Model>> modelCache;
-    std::string modelPath; // do wyjebania to, nie potrzebujemy takiego pola (grzesiu poprawia)
+    std::string modelPath;  // do wyjebania to, nie potrzebujemy takiego pola (grzesiu poprawia)
 
     void SetModel(const std::string& modelPath);
 };

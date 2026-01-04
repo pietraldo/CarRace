@@ -13,7 +13,6 @@ RaceCar::RaceCar(const char* name, const char* baseParamsPath, const char* drive
     gVehicle.mEngineDriveState.gearboxState.currentGear = 2;
     gVehicle.mEngineDriveState.gearboxState.targetGear = 2;
 
-
     // audio
     if (!engineSound.load("../assets/audio/loop_2.wav")) {
         std::cerr << "RaceCar: nie udalo sie zaladowac engine_loop.mp3\n";

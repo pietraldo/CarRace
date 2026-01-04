@@ -69,13 +69,11 @@ InputData InputManager::getInputData() {
     return inputData;
 }
 
-std::string InputManager::getInputBindingsInfo() { 
-
+std::string InputManager::getInputBindingsInfo() {
     std::string result;
 
-     // only keyboard: 1 plaeyer
+    // only keyboard: 1 plaeyer
     if (currentInputType == KEYBOARD) {
-
         result += "Player 0 (Keyboard) Controls:\n";
         result += inputController0->GetCarControllBindings();
         result += "\n";
@@ -90,13 +88,12 @@ std::string InputManager::getInputBindingsInfo() {
     //  - player 0: controller (car 0)
     //  - player 1: keyboard (car 1)
     if (currentInputType == CONTROLLER_AND_KEYBOARD) {
-        
         result += "Player 0 (Controller) Controls:\n";
         result += inputController0->GetCarControllBindings();
         result += "\n";
         result += "Camera Controls:\n";
         result += inputController0->GetCameraControllBindings();
-        
+
         result += "\n\n";
         result += "Player 1 (Keyboard) Controls:\n";
         result += inputController1->GetCarControllBindings();
@@ -110,7 +107,6 @@ std::string InputManager::getInputBindingsInfo() {
 
     // only keyboard: 2 players
     if (currentInputType == KEYBOARD_AND_KEYBOARD) {
-        
         result += "Player 0 (Keyboard) Controls:\n";
         result += inputController0->GetCarControllBindings();
         result += "\n";

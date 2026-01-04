@@ -5,6 +5,8 @@
 #include "Mirrors.h"
 #include "camera/FirstPersonCamera.h"
 #include <utility>
+#include <iomanip>
+#include <sstream>
 
 #include "../game/helper_functions.h"
 
@@ -111,8 +113,8 @@ void Rendering::LoadTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width,
-                                    &terrainTexture.height, &terrainTexture.channels, 0);
+    terrainTexture.data = stbi_load("../assets/terrain/baseColor6.png", &terrainTexture.width, &terrainTexture.height,
+                                    &terrainTexture.channels, 0);
     if (!terrainTexture.data) {
         std::cout << "Failed to load texture" << std::endl;
     } else {
@@ -247,10 +249,79 @@ void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffs
 }
 
 void Rendering::RenderImGui() {
-    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow) return;
+    bool anyRaceFinished = gameEngine->AnyRaceFinished();
+
+    if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow && !anyRaceFinished) return;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    for (int i = 0; i < gameEngine->playersStatus.size(); ++i) {
+        auto& status = gameEngine->playersStatus[i];
+        if (status.finished && !status.finishScreenConfirmed) {
+            float raceTime = status.finishTime;
+
+            // Unique window name for each player
+            std::string winName = "Race Summary - Player " + std::to_string(i + 1);
+
+            ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                     ImGuiWindowFlags_NoTitleBar;
+
+            // Position windows based on player count and index
+            if (gameEngine->playersStatus.size() > 1) {
+                float xOffset = (i == 0) ? window_width * 0.75f : window_width * 0.25f;
+                ImGui::SetNextWindowPos(ImVec2(xOffset, window_height / 2.0f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            } else {
+                ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
+                                        ImVec2(0.5f, 0.5f));
+            }
+
+            ImGui::Begin(winName.c_str(), nullptr, flags);
+
+            ImGui::SetWindowFontScale(1.5f);
+            float winWidth = ImGui::GetWindowSize().x;
+            std::string title = "PLAYER " + std::to_string(i + 1) + " FINISHED!";
+            float textWidth = ImGui::CalcTextSize(title.c_str()).x;
+            ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+            ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", title.c_str());
+
+            ImGui::SetWindowFontScale(1.2f);
+            ImGui::NewLine();
+
+            int minutes = (int)raceTime / 60;
+            int seconds = (int)raceTime % 60;
+            int millis = (int)((raceTime - (int)raceTime) * 100);
+
+            std::stringstream ss;
+            ss << "Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
+               << std::setw(2) << millis;
+
+            textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
+            ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+            ImGui::Text("%s", ss.str().c_str());
+
+            ImGui::NewLine();
+            ImGui::NewLine();
+
+            float buttonWidth = 200.0f;
+            float buttonHeight = 40.0f;
+            ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(("Keep Driving##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                status.finishScreenConfirmed = true;
+            }
+
+            ImGui::NewLine();
+            ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(("Exit Game##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                glfwSetWindowShouldClose(window, true);
+            }
+
+            ImGui::End();
+        }
+    }
 
     if (Settings::Get().showHelpImGuiWindow) {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
@@ -634,10 +705,36 @@ void Rendering::RenderFrame() {
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
+
+            // Race Info
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[0].finished;
+            data.finishTime = gameEngine->playersStatus[0].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
+
+            auto vehicles = Physics::getInstance()->getVehicles();
+            for (auto* vehicle : vehicles) {
+                data.allCarPositions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
+                // Simple yaw extraction (might need adjustment based on coord system)
+                glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
+                data.allCarYaws.push_back(glm::degrees(glm::yaw(q)));
+            }
+
             hudRenderer.Render(0, data, 0, 0, window_width, window_height);
         }
 
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
+        std::vector<glm::vec3> positions;
+        std::vector<float> yaws;
+        auto vehicles = Physics::getInstance()->getVehicles();
+        for (auto* vehicle : vehicles) {
+            positions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
+            glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
+            yaws.push_back(glm::degrees(glm::yaw(q)));
+        }
+
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(activePlayer0Cam);
@@ -650,6 +747,16 @@ void Rendering::RenderFrame() {
             data.gear = car1->getCurrentGear();
             data.maxSpeed = car1->getMaxSpeed();
             data.maxRpm = car1->getMaxEngineRPM();
+
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[1].finished;
+            data.finishTime = gameEngine->playersStatus[1].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
+
+            data.allCarPositions = positions;
+            data.allCarYaws = yaws;
             hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
         }
 
@@ -665,6 +772,16 @@ void Rendering::RenderFrame() {
             data.gear = car0->getCurrentGear();
             data.maxSpeed = car0->getMaxSpeed();
             data.maxRpm = car0->getMaxEngineRPM();
+
+            data.raceTime = gameEngine->raceTime;
+            data.countdownTime = gameEngine->countdownTimer;
+            data.isCountdownActive = gameEngine->isCountdownActive;
+            data.finished = gameEngine->playersStatus[0].finished;
+            data.finishTime = gameEngine->playersStatus[0].finishTime;
+            data.isSimulationStarted = gameEngine->IsSimulationStarted();
+
+            data.allCarPositions = positions;
+            data.allCarYaws = yaws;
             hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
         }
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {

@@ -14,7 +14,7 @@ class FirstPersonCamera : public Camera {
 private:
     glm::vec3 targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 directionFromTarget = glm::vec3(0.0f, 0.0f, 1.0f);
-    glm::vec3 localOffset = glm::vec3(0.4f, 1.36f, 1.6f);
+    glm::vec3 localOffset = glm::vec3(0.4f, 1.05f, 1.6f);
     float currentYawOffset = 0.0f;
     float targetYawOffset = 0.0f;
     const float YAW_SPEED = 80.0f;

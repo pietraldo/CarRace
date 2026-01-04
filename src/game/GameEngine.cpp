@@ -30,7 +30,12 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
         cars[i]->SetWheelRotationFromPhysx(v->getWheelRotation());
 
         const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
-        cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+
+        if (!startSimulation || isCountdownActive) {
+            cars[i]->SetBraking(true);
+        } else {
+            cars[i]->SetBraking(carControl.brake > 0.1f || carControl.handbrake > 0.1f);
+        }
         cars[i]->SetHeadlights(headlightsOn);
         cars[i]->Update(deltaTime, vehicles[i]->getCurrentSteeringAngle());
     }
@@ -125,7 +130,70 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
+    UpdateRaceLogic(deltaTime);
+
     UpdatePlayerStatus(input, deltaTime);
+}
+
+void GameEngine::UpdateRaceLogic(float deltaTime) {
+    if (startSimulation) {
+        if (isCountdownActive) {
+            countdownTimer -= deltaTime;
+            if (countdownTimer < 0.0f) {
+                isCountdownActive = false;
+                raceTime = 0.0f;
+            }
+        } else {
+            // Race is active
+            raceTime += deltaTime;
+
+            for (int i = 0; i < Settings::Get().CAR_COUNT; ++i) {
+                CheckFinishLine(i);
+            }
+        }
+    }
+}
+
+void GameEngine::CheckFinishLine(int carIndex) {
+    if (playersStatus[carIndex].finished) return;
+
+    auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
+    glm::vec3 currentPos = PxVec3ToGlmVec3(vehicle->getVehiclePosition());
+
+    if (playersStatus[carIndex].lastPosition == glm::vec3(0.0f)) {
+        playersStatus[carIndex].lastPosition = currentPos;
+        return;
+    }
+
+    glm::vec2 p1(277.0f, 5.0f);
+    glm::vec2 p2(305.0f, 16.0f);
+
+    glm::vec2 carP1(playersStatus[carIndex].lastPosition.x, playersStatus[carIndex].lastPosition.z);
+    glm::vec2 carP2(currentPos.x, currentPos.z);
+
+    auto ccw = [](glm::vec2 A, glm::vec2 B, glm::vec2 C) {
+        return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+    };
+
+    bool intersect = (ccw(p1, p2, carP1) != ccw(p1, p2, carP2)) && (ccw(carP1, carP2, p1) != ccw(carP1, carP2, p2));
+
+    if (intersect) {
+        if (raceTime > 10.0f) {
+            playersStatus[carIndex].finished = true;
+            playersStatus[carIndex].finishTime = raceTime;
+        }
+    }
+
+    playersStatus[carIndex].lastPosition = currentPos;
+}
+
+bool GameEngine::AnyRaceFinished() {
+    for (const auto& status : playersStatus) {
+        if (status.finished && !status.finishScreenConfirmed) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {
@@ -149,26 +217,6 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 
         drawObject->Draw(shaderTex);
     }
-
-    /*RenderPassUniforms::ApplyCommon(shaderCol, pass, false);
-
-    for (Model* model : modelsCol) {
-        if (!activeCam.IsSphereVisible(model->GetPosition(), model->GetRadius(), pass.viewProj)) continue;
-
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 position = model->GetPosition();
-        glm::quat rotation = PxQuatToGlmQuat(model->GetRotation());
-
-        modelMatrix = glm::translate(modelMatrix, position);
-        modelMatrix *= glm::toMat4(rotation);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1) * model->GetScale());
-        shaderCol.setMat4("model", modelMatrix);
-        shaderCol.setVec3("objectColor", model->GetColor());
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, model->textureID);
-        model->Draw(shaderCol);
-    }*/
 }
 
 void GameEngine::DrawCars(Shader& shader, Camera& activeCam) {
@@ -252,13 +300,13 @@ void GameEngine::CreateBuildings() {
     std::vector<BuildingData> buildings = {
         // special
         {"../assets/models/buildings/town/house3/scene.gltf", glm::vec3(272, 24.0f, 12), glm::vec3(-90, 60, 0),
-         glm::vec3(1, 1, 1), glm::vec3(7.0f, 19.8f, 27.0f)},
+         glm::vec3(1, 1, 1), glm::vec3(7.0f, 7.0f, 13.0f)},
         {"../assets/models/buildings/town/house4/scene.gltf", glm::vec3(210, 20.2f, 85), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(8.0f, 5.0f, 13.0f)},
         {"../assets/models/buildings/town/house7/scene.gltf", glm::vec3(248, 21.2f, 56), glm::vec3(-90, 88, 0),
          glm::vec3(1, 1, 1), glm::vec3(22.0f, 13.5f, 14.0f)},
         {"../assets/models/buildings/town/house8/scene.gltf", glm::vec3(250.0f, 21.3f, 85.0f),
-         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1), glm::vec3(25.0f, 13.0f, 23.5f)},
+         glm::vec3(-90.0f, 60.0f, 0.0f), glm::vec3(1, 1, 1), glm::vec3(23.0f, 24.3f, 23.5f)},
         {"../assets/models/buildings/town/house9/scene.gltf", glm::vec3(257.5f, 22.5f, 35), glm::vec3(-90, 60, 0),
          glm::vec3(1, 1, 1), glm::vec3(12.0f, 8.0f, 7.0f)},
         {"../assets/models/buildings/town/house11/scene.gltf", glm::vec3(65, 19.4f, 165), glm::vec3(-90, 60, 0),
@@ -311,15 +359,15 @@ void GameEngine::CreateBuildings() {
          glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/smallHouse3/scene.gltf", glm::vec3(112.f, 19.5f, 143.f),
          glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
-        {"../assets/models/buildings/town/smallHouse4/scene.gltf", glm::vec3(115.f, 19.3f, 170.f),
-         glm::vec3(-90.f, -40.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
-        {"../assets/models/buildings/town/smallHouse1/scene.gltf", glm::vec3(117.f, 19.4f, 191.f),
-         glm::vec3(-90.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
+        {"../assets/models/buildings/town/smallHouse4/scene.gltf", glm::vec3(106.f, 19.3f, 169.f),
+         glm::vec3(-90.f, -63.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
+        {"../assets/models/buildings/town/smallHouse1/scene.gltf", glm::vec3(46.0f, 19.4f, 170.f),
+         glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/smallHouse2/scene.gltf", glm::vec3(100.f, 19.3f, 159.f),
          glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/smallHouse3/scene.gltf", glm::vec3(84.f, 19.3f, 168.f),
          glm::vec3(-90.f, 89.972f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
-        {"../assets/models/buildings/town/smallHouse4/scene.gltf", glm::vec3(95.f, 19.2f, 185.f),
+        {"../assets/models/buildings/town/smallHouse4/scene.gltf", glm::vec3(75.0f, 19.2f, 176.f),
          glm::vec3(-90.f, -90.f, 0.f), glm::vec3(1.f, 1.f, 1.f), glm::vec3(5.4f, 8.0f, 9.0f)},
         {"../assets/models/buildings/town/house14/scene.gltf", glm::vec3(163, 19.5, 136), glm::vec3(-90, -75, 0),
          glm::vec3(1, 1, 1), glm::vec3(5.4f, 8.0f, 9.0f)},
@@ -385,32 +433,6 @@ void GameEngine::CreateBarriers() {
 }
 
 void GameEngine::CreateCubes() {
-    // floor cube1
-    glm::vec3 floorCube1Size = glm::vec3(1000, 1.0f, 1000);
-    glm::vec3 floorCube1Position = glm::vec3(0, -0.5f, 0);
-    glm::vec3 floorCube1Color = glm::vec3(0.7f, 0.4f, 1.0f);
-    auto floorCube1 = make_shared<GameObjectStatic>();
-    floorCube1->drawObject = make_shared<CubeDraw>();
-    floorCube1->drawObject->color = floorCube1Color;
-    floorCube1->scale = floorCube1Size;
-    floorCube1->SetPosition(floorCube1Position);
-    floorCube1->AddRigidBody(RigidBody());
-    gameObjects2.push_back(floorCube1);
-    gameObjectsStatic.push_back(floorCube1);
-
-    // floor cube2
-    glm::vec3 floorCube2Size = glm::vec3(10, 1.0f, 10);
-    glm::vec3 floorCube2Position = glm::vec3(0, 0.5f, 0);
-    glm::vec3 floorCube2Color = glm::vec3(1.0f, 0.4f, 1.0f);
-    auto floorCube2 = make_shared<GameObjectStatic>();
-    floorCube2->drawObject = make_shared<CubeDraw>();
-    floorCube2->drawObject->color = floorCube2Color;
-    floorCube2->scale = floorCube2Size;
-    floorCube2->SetPosition(floorCube2Position);
-    floorCube2->AddRigidBody(RigidBody());
-    gameObjects2.push_back(floorCube2);
-    gameObjectsStatic.push_back(floorCube2);
-
     // bridge
     glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
     glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
@@ -643,8 +665,8 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
         auto vehicle = Physics::getInstance()->getVehicles()[carIndex];
         vehicle->resetCar();
 
-        vehicle->setVehiclePosition(status.postion);
-        vehicle->setVehicleRotation(status.rotation);
+        vehicle->setVehiclePosition(GlmVec3ToPxVec3(status.postion));
+        vehicle->setVehicleRotation(GlmQuatToPxQuat(status.rotation));
 
         // erase all positions after checkpointIndex
         playersStatus[carIndex].vehiclePositions.erase(
@@ -693,7 +715,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
                 if (playersStatus[i].vehiclePositions.size() >= MAX_SAVED_POSITIONS) {
                     playersStatus[i].vehiclePositions.erase(playersStatus[i].vehiclePositions.begin());
                 }
-                playersStatus[i].vehiclePositions.push_back({pos, rotation});
+                playersStatus[i].vehiclePositions.push_back({PxVec3ToGlmVec3(pos), PxQuatToGlmQuat(rotation)});
             }
         }
     }
