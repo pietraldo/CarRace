@@ -219,6 +219,7 @@
 			Controls.Add(tableLayoutPanel2);
 			Controls.Add(tableLayoutPanel1);
 			Controls.Add(panel1);
+			Icon = (Icon)resources.GetObject("$this.Icon");
 			Name = "Form1";
 			Text = "Car Race Launcher";
 			panel1.ResumeLayout(false);
