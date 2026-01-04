@@ -95,18 +95,11 @@ int main() {
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
             if (gameEngine->isCountdownActive) {
-                // Block car movement during countdown
                 CarControlInput blockedInput0 = input.carControl0;
-                blockedInput0.throttle = 0.0f;
-                blockedInput0.brake = 1.0f;
-                blockedInput0.steer = 0.0f;
-                blockedInput0.handbrake = 1.0f;
+                blockedInput0.StopAndReset();
 
                 CarControlInput blockedInput1 = input.carControl1;
-                blockedInput1.throttle = 0.0f;
-                blockedInput1.brake = 1.0f;
-                blockedInput1.steer = 0.0f;
-                blockedInput1.handbrake = 1.0f;
+                blockedInput1.StopAndReset();
 
                 Physics::getInstance()->update(deltaTime, blockedInput0, blockedInput1);
             } else {

@@ -11,6 +11,13 @@ struct CarControlInput {
     float steer = 0;      // -1 to 1
     int gear = 0;         // 0, 1, 2, 3...
     bool resetToCheckpoint = false;
+
+    void StopAndReset() {
+        throttle = 0.0f;
+        brake = 1.0f;
+        steer = 0.0f;
+        handbrake = 1.0f;
+    }
 };
 
 struct CameraControlInput {

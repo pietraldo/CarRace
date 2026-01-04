@@ -34,7 +34,6 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
         if (isCountdownActive) {
             cars[i]->SetBraking(true);
         }
-
         if (!startSimulation || isCountdownActive) {
             cars[i]->SetBraking(true);
         } else {
@@ -134,8 +133,12 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
     }
 
     UpdateFlashLight();
+    UpdateRaceLogic(deltaTime);
 
-    // Race Logic
+    UpdatePlayerStatus(input, deltaTime);
+}
+
+void GameEngine::UpdateRaceLogic(float deltaTime) {
     if (startSimulation) {
         if (isCountdownActive) {
             countdownTimer -= deltaTime;
@@ -152,8 +155,6 @@ void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
             }
         }
     }
-
-    UpdatePlayerStatus(input, deltaTime);
 }
 
 void GameEngine::CheckFinishLine(int carIndex) {

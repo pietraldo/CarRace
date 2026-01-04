@@ -101,6 +101,7 @@ public:
     void UpdateBeforePhysics(InputData input, float deltaTime);
     void UpdateAfterPhysics(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);
+    void UpdateRaceLogic(float deltaTime);
 
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
     void UpdatePlayersCamera(float deltaTime, const InputData& input);

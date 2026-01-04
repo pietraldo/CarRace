@@ -97,7 +97,6 @@ void Settings::LoadFromFile(const char* filename) {
     loadInt("savePositionRetrival", savePositionRetrival, 0, 300);
 
     // Steering
-    // Steering
     loadFloat("steeringSpeed", steeringSpeed, 0);
     loadFloat("steeringReturnSpeed", steeringReturnSpeed, 0);
 }
