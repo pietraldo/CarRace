@@ -1,7 +1,6 @@
 #pragma once
 
 #include "InputController.h"
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -30,16 +29,11 @@ private:
     int joystickID = -1;
     bool connected = false;
 
-    // Axis mapping (based on standard mappings, editable)
-    // Adjust these based on actual device reporting if needed
+    // Axis mapping (Fixed for TMX)
     int AXIS_STEER = 0;
     int AXIS_BRAKE = 1;
     int AXIS_GAS = 2;
     int AXIS_CLUTCH = 3;
-
-    // We will try to dynamically find RZ if possible or default to a likely index.
-    // For now, based on "RZ Axis", in many standard mappings X=0, Y=1, Z=2, RX=3, RY=4, RZ=5.
-    // But sometimes it compresses. We'll start with assumed indices and I'll add a calibration note.
 
     // Values from last frame for edge detection if needed
     float lastButtonState[32] = {0.0f};

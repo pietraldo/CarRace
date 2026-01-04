@@ -1,7 +1,6 @@
 #include "ThrustmasterTMXController.h"
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
 ThrustmasterTMXController::ThrustmasterTMXController() {
     AXIS_STEER = 0;
@@ -20,25 +19,6 @@ bool ThrustmasterTMXController::connect() {
         if (nameStr.find("Thrustmaster") != std::string::npos || nameStr.find("TMX") != std::string::npos) {
             joystickID = jid;
             connected = true;
-
-            std::cout << "Thrustmaster TMX connected at Joystick ID: " << jid << " Name: " << nameStr << std::endl;
-
-            int axesCount = 0;
-            glfwGetJoystickAxes(jid, &axesCount);
-
-            int btnCount = 0;
-            glfwGetJoystickButtons(jid, &btnCount);
-
-            int hatCount = 0;
-            glfwGetJoystickHats(jid, &hatCount);
-
-            std::cout << "DEBUG: " << nameStr << " reports " << axesCount << " axes, " << btnCount << " buttons, "
-                      << hatCount << " hats." << std::endl;
-
-            std::cout << "DEBUG: Using FIXED mapping: "
-                      << "Steer=Axis0, Brake=Axis1, Gas=Axis2, Clutch=Axis3. "
-                      << "Buttons: GearDown=0, GearUp=1, Handbrake=3, HeadLeft=9, HeadRight=8." << std::endl;
-
             return true;
         }
     }

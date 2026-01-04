@@ -147,9 +147,6 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll) {
 }
 
 void RaceCar::UpdateSteer(float deltaTime, float steer, bool isAnalog) {
-    // std::cout << "PRZED Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle <<
-    // std::endl;
-
     targetSteeringAngle = steer;
 
     if (isAnalog) {
@@ -165,9 +162,6 @@ void RaceCar::UpdateSteer(float deltaTime, float steer, bool isAnalog) {
     }
 
     currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
-
-    // std::cout << "PO    Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle <<
-    // std::endl;
 }
 
 void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear) {
