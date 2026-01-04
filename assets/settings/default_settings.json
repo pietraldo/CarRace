@@ -6,9 +6,9 @@
   "developerMode": false,
   "sound": true,
   
-  "useDifferentMaterialsForTerrain": false,
-  "playIntroAnimation": false,
-  "showImGuiWindows": true,
+  "useDifferentMaterialsForTerrain": true,
+  "playIntroAnimation": true,
+  "showImGuiWindows": false,
   "showHelpImGuiWindow": false,
   
   "night": false,
