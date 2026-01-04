@@ -97,8 +97,8 @@ CarControlInput ThrustmasterTMXController::getCarControlInput() {
     bool clutchPressed = (clutch01 >= CLUTCH_THRESHOLD);
 
     if (clutchPressed) {
-        if (isButtonJustPressed(0)) input.gear = +1;
-        if (isButtonJustPressed(1)) input.gear = -1;
+        if (isButtonJustPressed(1)) input.gear = +1;
+        if (isButtonJustPressed(0)) input.gear = -1;
     } else {
         input.gear = 0;
     }
@@ -106,6 +106,7 @@ CarControlInput ThrustmasterTMXController::getCarControlInput() {
     input.handbrake = isButtonPressed(3) ? 1.0f : 0.0f;
 
     input.resetToCheckpoint = false;
+    input.isAnalogSteer = true;
 
     return input;
 }
