@@ -46,7 +46,7 @@ public:
     float steeringSpeed = Settings::Get().steeringSpeed;
     float steeringReturnSpeed = Settings::Get().steeringReturnSpeed;
 
-    void UpdateSteer(float deltaTime, float steerInput);
+    void UpdateSteer(float deltaTime, float steerInput, bool isAnalog);
     PxVec3 getVehiclePosition() {
         PxTransform t = gVehicle.mPhysXState.physxActor.rigidBody->getGlobalPose();
         return PxVec3(t.p.x, t.p.y, t.p.z);

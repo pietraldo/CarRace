@@ -4,6 +4,7 @@
 #include "InputStructures.h"
 #include "KeyboardController.h"
 #include "PS5Controller.h"
+#include "ThrustmasterTMXController.h"
 
 class InputManager {
 private:

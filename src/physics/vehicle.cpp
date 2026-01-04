@@ -121,7 +121,7 @@ std::vector<bool> RaceCar::getWheelIsGrounded() {
 }
 
 void RaceCar::Update(float deltaTime, CarControlInput carControll) {
-    UpdateSteer(deltaTime, carControll.steer);
+    UpdateSteer(deltaTime, carControll.steer, carControll.isAnalogSteer);
     gVehicle.mCommandState.brakes[0] = carControll.brake;
     gVehicle.mCommandState.brakes[1] = carControll.handbrake;
     gVehicle.mCommandState.nbBrakes = 2;
@@ -146,21 +146,22 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll) {
     UpdateTireSqueal(computeDriftFactor(), computeDriftFactor2(), getSpeed());
 }
 
-void RaceCar::UpdateSteer(float deltaTime, float steer) {
-    // std::cout << "PRZED Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle <<
-    // std::endl;
-
+void RaceCar::UpdateSteer(float deltaTime, float steer, bool isAnalog) {
     targetSteeringAngle = steer;
-    float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
-    speed /=
-        (steer == 0)
-            ? 1
-            : (1.0f + std::abs(getSpeed()) * std::abs(getSpeed()) / 50);  // im szybsza jazda tym wolniejsze skrecanie
-    currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
-    currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
 
-    // std::cout << "PO    Steering Angle: " << currentSteeringAngle << " Target Steer Angle" << targetSteeringAngle <<
-    // std::endl;
+    if (isAnalog) {
+        // Direct mapping for steering wheels to remove input lag
+        currentSteeringAngle = targetSteeringAngle;
+    } else {
+        // Smoothing for keyboard/gamepad
+        float speed = (steer == 0.0f) ? steeringReturnSpeed : steeringSpeed;
+        speed /= (steer == 0) ? 1
+                              : (1.0f + std::abs(getSpeed()) * std::abs(getSpeed()) /
+                                            50);  // im szybsza jazda tym wolniejsze skrecanie
+        currentSteeringAngle += (targetSteeringAngle - currentSteeringAngle) * speed * deltaTime;
+    }
+
+    currentSteeringAngle = glm::clamp(currentSteeringAngle, -1.0f, 1.0f);
 }
 
 void RaceCar::UpdateEngineSound(float rpm, float throttle, float speed, int gear) {
