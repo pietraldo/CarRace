@@ -15,7 +15,6 @@
 
 class KeyboardController : public InputController {
 public:
-
     // Player 0 key bindings
     int STEER_RIGHT_P0 = GLFW_KEY_RIGHT;
     int STEER_LEFT_P0 = GLFW_KEY_LEFT;
@@ -52,8 +51,6 @@ public:
     int RESET_CARS_KEY = GLFW_KEY_R;
     int SWITCH_IMGUI_KEY = GLFW_KEY_F2;
     int SWITCH_HELP_KEY = GLFW_KEY_F1;
-
-
 
     enum class PlayerIndex { Player0, Player1 };
     const std::string fileBindingsPath = "../assets/settings/keybindings.json";

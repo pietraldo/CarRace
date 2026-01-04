@@ -95,16 +95,10 @@ int main() {
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
             if (gameEngine->isCountdownActive) {
-                CarControlInput blockedInput0 = input.carControl0;
-                blockedInput0.StopAndReset();
-
-                CarControlInput blockedInput1 = input.carControl1;
-                blockedInput1.StopAndReset();
-
-                Physics::getInstance()->update(deltaTime, blockedInput0, blockedInput1);
-            } else {
-                Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
+                input.carControl0.StopAndReset();
+                input.carControl1.StopAndReset();
             }
+            Physics::getInstance()->update(deltaTime, input.carControl0, input.carControl1);
         }
         gameEngine->UpdateAfterPhysics(input, deltaTime);
 

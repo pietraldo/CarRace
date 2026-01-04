@@ -10,11 +10,11 @@
 #include "./gfx/camera/CameraManager.h"
 #include "./DrawObject.h"
 
-class CubeDraw: public DrawObject {
+class CubeDraw : public DrawObject {
 private:
 public:
     void Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback = nullptr) override;
-    
+
     static float* GetVertices() { return vertices; }
     static float vertices[216];
 };

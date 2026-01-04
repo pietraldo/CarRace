@@ -47,8 +47,7 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex) {
 }
 
 void Mirrors::RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                           const glm::vec3& right, bool renderLeft,
-                           bool renderRight) {
+                           const glm::vec3& right, bool renderLeft, bool renderRight) {
     if (renderRight) {
         MirrorData data = ComputeMirrorData(-1.0f, carPos, forward, up, right);
         glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);

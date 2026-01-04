@@ -21,7 +21,7 @@
 #include "DrawObject.h"
 using namespace std;
 
-class Model: public DrawObject {
+class Model : public DrawObject {
 public:
     vector<Texture> textures_loaded;
     vector<Mesh> meshes;

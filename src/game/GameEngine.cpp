@@ -433,32 +433,6 @@ void GameEngine::CreateBarriers() {
 }
 
 void GameEngine::CreateCubes() {
-    // floor cube1
-    glm::vec3 floorCube1Size = glm::vec3(1000, 1.0f, 1000);
-    glm::vec3 floorCube1Position = glm::vec3(0, -0.5f, 0);
-    glm::vec3 floorCube1Color = glm::vec3(0.7f, 0.4f, 1.0f);
-    auto floorCube1 = make_shared<GameObjectStatic>();
-    floorCube1->drawObject = make_shared<CubeDraw>();
-    floorCube1->drawObject->color = floorCube1Color;
-    floorCube1->scale = floorCube1Size;
-    floorCube1->SetPosition(floorCube1Position);
-    floorCube1->AddRigidBody(RigidBody());
-    gameObjects2.push_back(floorCube1);
-    gameObjectsStatic.push_back(floorCube1);
-
-    // floor cube2
-    glm::vec3 floorCube2Size = glm::vec3(10, 1.0f, 10);
-    glm::vec3 floorCube2Position = glm::vec3(0, 0.5f, 0);
-    glm::vec3 floorCube2Color = glm::vec3(1.0f, 0.4f, 1.0f);
-    auto floorCube2 = make_shared<GameObjectStatic>();
-    floorCube2->drawObject = make_shared<CubeDraw>();
-    floorCube2->drawObject->color = floorCube2Color;
-    floorCube2->scale = floorCube2Size;
-    floorCube2->SetPosition(floorCube2Position);
-    floorCube2->AddRigidBody(RigidBody());
-    gameObjects2.push_back(floorCube2);
-    gameObjectsStatic.push_back(floorCube2);
-
     // bridge
     glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
     glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
