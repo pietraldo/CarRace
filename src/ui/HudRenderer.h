@@ -7,7 +7,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include "../gfx/Shader.h"
 
-// Forward declarations
 struct ImFont;
 
 struct HudPlayerData {
@@ -22,7 +21,6 @@ struct HudPlayerData {
     std::vector<glm::vec3> allCarPositions;
     std::vector<float> allCarYaws;
 
-    // Race Info
     float raceTime = 0.0f;
     float countdownTime = 0.0f;
     bool isCountdownActive = false;

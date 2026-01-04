@@ -201,17 +201,13 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
 
     DrawText(gearText, gearX, gearY, 1.0f, glm::vec3(1.0f), projection);
 
-    // Render Race Info
     float centerX = width / 2.0f;
     float topY = height - margin - 20.0f;
 
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
 
-    // Countdown
     if (!data.isSimulationStarted) {
-        // Do nothing or maybe render "PRESS =" to start?
-        // User asked to hide "START" and countdown numbers before press =.
     } else if (data.isCountdownActive) {
         int count = (int)std::ceil(data.countdownTime);
         if (count > 0) {
@@ -222,7 +218,6 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
         DrawText("START", centerX, height / 2.0f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
     }
 
-    // Timer
     float timeToDisplay = data.finished ? data.finishTime : data.raceTime;
 
     int minutes = (int)timeToDisplay / 60;
