@@ -7,7 +7,7 @@ ThrustmasterTMXController::ThrustmasterTMXController() {
     AXIS_STEER = 0;
     AXIS_BRAKE = 1;
     AXIS_GAS = 2;
-    AXIS_CLUTCH = 3; 
+    AXIS_CLUTCH = 3;
 }
 
 bool ThrustmasterTMXController::connect() {
@@ -45,6 +45,11 @@ bool ThrustmasterTMXController::connect() {
     return false;
 }
 
+bool ThrustmasterTMXController::updateInput() {
+    if (!isConnected()) return false;
+    return true;
+}
+
 bool ThrustmasterTMXController::isConnected() const { return connected && glfwJoystickPresent(joystickID); }
 
 float ThrustmasterTMXController::getAxisValue(int axisIndex) {
@@ -72,9 +77,7 @@ bool ThrustmasterTMXController::isButtonJustPressed(int buttonIndex) {
     return justPressed;
 }
 
-static float axisMinus1ToPlus1_To_0To1_InvertedPedal(float v) {
-    return (1.0f - v) * 0.5f;
-}
+static float axisMinus1ToPlus1_To_0To1_InvertedPedal(float v) { return (1.0f - v) * 0.5f; }
 
 CarControlInput ThrustmasterTMXController::getCarControlInput() {
     CarControlInput input;
@@ -97,7 +100,7 @@ CarControlInput ThrustmasterTMXController::getCarControlInput() {
         if (isButtonJustPressed(0)) input.gear = +1;
         if (isButtonJustPressed(1)) input.gear = -1;
     } else {
-        input.gear = 0;  
+        input.gear = 0;
     }
 
     input.handbrake = isButtonPressed(3) ? 1.0f : 0.0f;
@@ -110,9 +113,10 @@ CarControlInput ThrustmasterTMXController::getCarControlInput() {
 CameraControlInput ThrustmasterTMXController::getCameraControlInput() {
     CameraControlInput input;
 
-    if (isButtonPressed(9)) input.yaw = -1.0f;  
-    if (isButtonPressed(8)) input.yaw = +1.0f; 
+    if (isButtonPressed(9)) input.yaw = -1.0f;
+    if (isButtonPressed(8)) input.yaw = +1.0f;
 
+    // POV hat support
     int hatCount = 0;
     const unsigned char* hats = glfwGetJoystickHats(joystickID, &hatCount);
     if (hatCount > 0) {
@@ -140,6 +144,7 @@ CameraControlInput ThrustmasterTMXController::getCameraControlInput() {
             float deltaX = static_cast<float>(mouseX - lastMouseX);
             float deltaY = static_cast<float>(mouseY - lastMouseY);
 
+            // Add mouse delta to existing input (allow mixing with POV hat)
             if (input.yaw == 0.0f)
                 input.yaw = deltaX;
             else
@@ -164,5 +169,21 @@ CameraControlInput ThrustmasterTMXController::getCameraControlInput() {
 }
 
 AdditionalInputInfo ThrustmasterTMXController::getAdditionalInputInfo() { return AdditionalInputInfo(); }
+
+std::string ThrustmasterTMXController::GetCarControllBindings() {
+    return "Steer: Axis 0 (Wheel)\n"
+           "Brake: Axis 1 (Pedal)\n"
+           "Throttle: Axis 2 (Pedal)\n"
+           "Clutch: Axis 3 (Pedal) required for shifting\n"
+           "Gear Down: Button 1\n"
+           "Gear Up: Button 0\n"
+           "Handbrake: Button 3";
+}
+
+std::string ThrustmasterTMXController::GetCameraControllBindings() {
+    return "Head Left: Button 9\nHead Right: Button 8\n(POV Hat also supported)";
+}
+
+std::string ThrustmasterTMXController::GetAdditionalControllBindings() { return ""; }
 
 bool ThrustmasterTMXController::setEffectsOnInputer(EffectsOnInputer effects) { return false; }
