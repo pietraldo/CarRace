@@ -32,9 +32,10 @@ private:
 
     // Axis mapping (based on standard mappings, editable)
     // Adjust these based on actual device reporting if needed
-    int AXIS_STEER = 0;  // X Axis
-    int AXIS_BRAKE = 1;  // Y Axis
-    int AXIS_GAS = 2;    // RZ Axis (Index might vary, often 2 or 5 for RZ depending on driver)
+    int AXIS_STEER = 0;
+    int AXIS_BRAKE = 1;
+    int AXIS_GAS = 2;
+    int AXIS_CLUTCH = 3;
 
     // We will try to dynamically find RZ if possible or default to a likely index.
     // For now, based on "RZ Axis", in many standard mappings X=0, Y=1, Z=2, RX=3, RY=4, RZ=5.
