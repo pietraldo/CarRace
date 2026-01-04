@@ -3,22 +3,39 @@
 InputManager* InputManager::inputManager = nullptr;
 
 void InputManager::setUp() {
-    PS5Controller* controller = new PS5Controller();
+    PS5Controller* ps5Controller = new PS5Controller();
+    ThrustmasterTMXController* tmxController = new ThrustmasterTMXController();
     auto* keyboard0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
     auto* keyboard1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
 
-    if (controller->connect()) {
-        InputManager::getInstance().setInputController1(controller);
+    if (tmxController->connect()) {
+        InputManager::getInstance().setInputController1(tmxController);
+        InputManager::getInstance().setInputController2(keyboard0);
+
+        currentInputType = CONTROLLER_AND_KEYBOARD;
+        std::cout << "Thrustmaster TMX connected. Player0: Wheel, Player1: keyboard" << std::endl;
+
+        // Clean up unused
+        delete ps5Controller;
+    } else if (ps5Controller->connect()) {
+        InputManager::getInstance().setInputController1(ps5Controller);
         InputManager::getInstance().setInputController2(keyboard0);
 
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Controller connected. Player0: pad, Player1: keyboard" << std::endl;
+
+        // Clean up unused
+        delete tmxController;
     } else {
         InputManager::getInstance().setInputController1(keyboard0);
         InputManager::getInstance().setInputController2(keyboard1);  // Player1
 
         currentInputType = KEYBOARD_AND_KEYBOARD;
         std::cout << "Controller not connected. Player0: keyboard0, Player1: keyboard1" << std::endl;
+
+        // Clean up unused
+        delete ps5Controller;
+        delete tmxController;
     }
     // TODO: add if we want to use only controller or only keyboard
 }
