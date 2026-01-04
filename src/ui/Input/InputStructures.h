@@ -19,6 +19,7 @@ struct CarControlInput {
         steer = 0.0f;
         handbrake = 1.0f;
         isAnalogSteer = false;
+
     }
 };
 
