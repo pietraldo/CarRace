@@ -13,11 +13,11 @@ struct VehicleStatus {
 
 struct PlayerStatus {
     std::vector<VehicleStatus> vehiclePositions;
-    int timeOutsideOfTrack;       // in miliseconds
-    int timeSinceLastCheckPoint;  // in miliseconds
+    int timeOutsideOfTrack = 0;       // in miliseconds
+    int timeSinceLastCheckPoint = 0;  // in miliseconds
 
     bool finished = false;
     float finishTime = 0.0f;
-    glm::vec3 lastPosition;
+    glm::vec3 lastPosition = glm::vec3(0.0f);
     bool finishScreenConfirmed = false;
 };

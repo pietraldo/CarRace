@@ -31,9 +31,6 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
 
         const CarControlInput& carControl = (i == 0) ? input.carControl0 : input.carControl1;
 
-        if (isCountdownActive) {
-            cars[i]->SetBraking(true);
-        }
         if (!startSimulation || isCountdownActive) {
             cars[i]->SetBraking(true);
         } else {
@@ -188,6 +185,15 @@ void GameEngine::CheckFinishLine(int carIndex) {
     }
 
     playersStatus[carIndex].lastPosition = currentPos;
+}
+
+bool GameEngine::AnyRaceFinished() {
+    for (const auto& status : playersStatus) {
+        if (status.finished && !status.finishScreenConfirmed) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& activeCam) {

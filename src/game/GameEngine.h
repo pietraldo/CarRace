@@ -91,6 +91,7 @@ public:
     float raceTime = 0.0f;
 
     void CheckFinishLine(int carIndex);
+    bool AnyRaceFinished();
 
     // Skybox
     unsigned int skyboxVAO = 0, skyboxVBO = 0;

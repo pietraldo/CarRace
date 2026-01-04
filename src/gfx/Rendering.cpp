@@ -249,88 +249,77 @@ void Rendering::scroll_callback(GLFWwindow* window, double xoffset, double yoffs
 }
 
 void Rendering::RenderImGui() {
-    bool anyRaceFinished = false;
-    if (gameEngine) {
-        for (const auto& status : gameEngine->playersStatus) {
-            if (status.finished && !status.finishScreenConfirmed) {
-                anyRaceFinished = true;
-                break;
-            }
-        }
-    }
+    bool anyRaceFinished = gameEngine->AnyRaceFinished();
 
     if (!Settings::Get().showImGuiWindows && !Settings::Get().showHelpImGuiWindow && !anyRaceFinished) return;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (gameEngine) {
-        for (int i = 0; i < gameEngine->playersStatus.size(); ++i) {
-            auto& status = gameEngine->playersStatus[i];
-            if (status.finished && !status.finishScreenConfirmed) {
-                float raceTime = status.finishTime;
+    for (int i = 0; i < gameEngine->playersStatus.size(); ++i) {
+        auto& status = gameEngine->playersStatus[i];
+        if (status.finished && !status.finishScreenConfirmed) {
+            float raceTime = status.finishTime;
 
-                // Unique window name for each player
-                std::string winName = "Race Summary - Player " + std::to_string(i + 1);
+            // Unique window name for each player
+            std::string winName = "Race Summary - Player " + std::to_string(i + 1);
 
-                ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
-                ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar;
+            ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Always);
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                                     ImGuiWindowFlags_NoTitleBar;
 
-                // Position windows based on player count and index
-                if (gameEngine->playersStatus.size() > 1) {
-                    float xOffset = (i == 0) ? window_width * 0.75f : window_width * 0.25f;
-                    ImGui::SetNextWindowPos(ImVec2(xOffset, window_height / 2.0f), ImGuiCond_Always,
-                                            ImVec2(0.5f, 0.5f));
-                } else {
-                    ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
-                                            ImVec2(0.5f, 0.5f));
-                }
-
-                ImGui::Begin(winName.c_str(), nullptr, flags);
-
-                ImGui::SetWindowFontScale(1.5f);
-                float winWidth = ImGui::GetWindowSize().x;
-                std::string title = "PLAYER " + std::to_string(i + 1) + " FINISHED!";
-                float textWidth = ImGui::CalcTextSize(title.c_str()).x;
-                ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
-                ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", title.c_str());
-
-                ImGui::SetWindowFontScale(1.2f);
-                ImGui::NewLine();
-
-                int minutes = (int)raceTime / 60;
-                int seconds = (int)raceTime % 60;
-                int millis = (int)((raceTime - (int)raceTime) * 100);
-
-                std::stringstream ss;
-                ss << "Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
-                   << std::setw(2) << millis;
-
-                textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
-                ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
-                ImGui::Text("%s", ss.str().c_str());
-
-                ImGui::NewLine();
-                ImGui::NewLine();
-
-                float buttonWidth = 200.0f;
-                float buttonHeight = 40.0f;
-                ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
-
-                if (ImGui::Button(("Keep Driving##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
-                    status.finishScreenConfirmed = true;
-                }
-
-                ImGui::NewLine();
-                ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
-
-                if (ImGui::Button(("Exit Game##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
-                    glfwSetWindowShouldClose(window, true);
-                }
-
-                ImGui::End();
+            // Position windows based on player count and index
+            if (gameEngine->playersStatus.size() > 1) {
+                float xOffset = (i == 0) ? window_width * 0.75f : window_width * 0.25f;
+                ImGui::SetNextWindowPos(ImVec2(xOffset, window_height / 2.0f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            } else {
+                ImGui::SetNextWindowPos(ImVec2(window_width / 2.0f, window_height / 2.0f), ImGuiCond_Always,
+                                        ImVec2(0.5f, 0.5f));
             }
+
+            ImGui::Begin(winName.c_str(), nullptr, flags);
+
+            ImGui::SetWindowFontScale(1.5f);
+            float winWidth = ImGui::GetWindowSize().x;
+            std::string title = "PLAYER " + std::to_string(i + 1) + " FINISHED!";
+            float textWidth = ImGui::CalcTextSize(title.c_str()).x;
+            ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+            ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", title.c_str());
+
+            ImGui::SetWindowFontScale(1.2f);
+            ImGui::NewLine();
+
+            int minutes = (int)raceTime / 60;
+            int seconds = (int)raceTime % 60;
+            int millis = (int)((raceTime - (int)raceTime) * 100);
+
+            std::stringstream ss;
+            ss << "Time: " << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds << ":"
+               << std::setw(2) << millis;
+
+            textWidth = ImGui::CalcTextSize(ss.str().c_str()).x;
+            ImGui::SetCursorPosX((winWidth - textWidth) * 0.5f);
+            ImGui::Text("%s", ss.str().c_str());
+
+            ImGui::NewLine();
+            ImGui::NewLine();
+
+            float buttonWidth = 200.0f;
+            float buttonHeight = 40.0f;
+            ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(("Keep Driving##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                status.finishScreenConfirmed = true;
+            }
+
+            ImGui::NewLine();
+            ImGui::SetCursorPosX((winWidth - buttonWidth) * 0.5f);
+
+            if (ImGui::Button(("Exit Game##" + std::to_string(i)).c_str(), ImVec2(buttonWidth, buttonHeight))) {
+                glfwSetWindowShouldClose(window, true);
+            }
+
+            ImGui::End();
         }
     }
 
