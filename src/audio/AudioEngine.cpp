@@ -37,3 +37,18 @@ void AudioEngine::toggleMute() {
         ma_engine_set_volume(&engine, 1.0f);
     }
 }
+
+void AudioEngine::playCountdown() {
+    if (isMuted) return;
+    ma_engine_play_sound(&engine, "../assets/audio/hud_sound/countdown_from_10.mp3", NULL);
+}
+
+void AudioEngine::playStart() {
+    if (isMuted) return;
+    ma_engine_play_sound(&engine, "../assets/audio/hud_sound/start_sound.mp3", NULL);
+}
+
+void AudioEngine::playFinish() {
+    if (isMuted) return;
+    ma_engine_play_sound(&engine, "../assets/audio/hud_sound/finish_sound.mp3", NULL);
+}

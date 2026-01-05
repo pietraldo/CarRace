@@ -14,6 +14,10 @@ public:
     void toggleMute();
     bool getIsMuted() const { return isMuted; };
 
+    void playCountdown();
+    void playStart();
+    void playFinish();
+
 private:
     AudioEngine() = default;
     ~AudioEngine() = default;

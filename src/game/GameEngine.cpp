@@ -15,6 +15,14 @@ GameEngine::GameEngine() {
     terrain->LoadTerrain("../assets/terrain/terrain.txt");
 }
 
+void GameEngine::StartSimulation() {
+    startSimulation = true;
+    isCountdownActive = true;
+    AudioEngine::instance().playCountdown();
+    countdownTimer = 10.0f;
+    raceTime = 0.0f;
+}
+
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i]->SyncWithPhysics();
@@ -146,6 +154,7 @@ void GameEngine::UpdateRaceLogic(float deltaTime) {
             if (countdownTimer < 0.0f) {
                 isCountdownActive = false;
                 raceTime = 0.0f;
+                AudioEngine::instance().playStart();
             }
         } else {
             // Race is active
@@ -185,6 +194,7 @@ void GameEngine::CheckFinishLine(int carIndex) {
         if (raceTime > 10.0f) {
             playersStatus[carIndex].finished = true;
             playersStatus[carIndex].finishTime = raceTime;
+            AudioEngine::instance().playFinish();
         }
     }
 
