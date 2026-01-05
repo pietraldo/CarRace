@@ -2,15 +2,13 @@
 
 #include "InputController.h"
 
-// Forward declaration of internal data struct to hide Windows headers
 struct XboxControllerData;
 
 class XboxController : public InputController {
 public:
     XboxController(int controllerIndex = 0);
-    ~XboxController();  // Destructor needed for PIMPL cleanup
+    ~XboxController();
 
-    // InputController interface
     CarControlInput getCarControlInput() override;
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override;
@@ -20,7 +18,6 @@ public:
     bool updateInput() override;
     bool setEffectsOnInputer(EffectsOnInputer effects) override;
 
-    // Custom
     bool connect();
     bool isConnected() const;
 
@@ -28,7 +25,6 @@ private:
     int _controllerIndex;
     bool _connected;
 
-    // Opaque pointer to implementation details (PIMPL)
     XboxControllerData* _data;
 
     // Config
@@ -36,7 +32,6 @@ private:
     const float RIGHT_STICK_DEADZONE = 0.15f;
     const float TRIGGER_THRESHOLD = 0.05f;
 
-    // Use standard types instead of Windows WORD/SHORT in header
     bool isButtonPressed(unsigned short buttonMask) const;
     bool isButtonJustPressed(unsigned short buttonMask);
 

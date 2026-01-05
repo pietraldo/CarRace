@@ -22,10 +22,6 @@ void InputManager::setUp() {
         std::cout << "Thrustmaster TMX and Xbox Controller connected. Player0: Wheel, Player1: Xbox" << std::endl;
 
         delete ps5Controller;
-        // Don't delete keyboards if we want to use them for debugging or fallback, but here we set controllers.
-        // We leak them if we don't store them. For now, delete unused.
-        delete keyboard0;
-        delete keyboard1;
     } else if (tmxConnected) {
         InputManager::getInstance().setInputController1(tmxController);
         InputManager::getInstance().setInputController2(keyboard0);
@@ -92,7 +88,6 @@ InputData InputManager::getInputData() {
 
         inputData.additionalInfo = inputController1->getAdditionalInputInfo();
 
-        // Also check controller for additional info (e.g. Xbox Start button)
         AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
         inputData.additionalInfo.startSimulation = inputData.additionalInfo.startSimulation || info0.startSimulation;
         inputData.additionalInfo.exit = inputData.additionalInfo.exit || info0.exit;

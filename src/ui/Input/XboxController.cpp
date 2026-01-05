@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <Xinput.h>
 
-// Internal struct definition
 struct XboxControllerData {
     XINPUT_STATE state;
     XINPUT_GAMEPAD lastGamepadState;
@@ -48,7 +47,6 @@ bool XboxController::isConnected() const { return _connected; }
 
 bool XboxController::updateInput() {
     if (!_connected) {
-        // Try to reconnect?
         if (connect()) {
             return true;
         }
@@ -97,34 +95,26 @@ CarControlInput XboxController::getCarControlInput() {
     CarControlInput input;
     if (!_connected) return input;
 
-    // Steering (Left Stick X)
     float steerX = applyDeadzone(_data->state.Gamepad.sThumbLX, LEFT_STICK_DEADZONE);
     input.steer = -steerX;
 
-    // Throttle (Right Trigger). Range 0-255.
     float throttle = _data->state.Gamepad.bRightTrigger / 255.0f;
     if (throttle < TRIGGER_THRESHOLD) throttle = 0.0f;
     input.throttle = throttle;
 
-    // Brake (Left Trigger)
     float brake = _data->state.Gamepad.bLeftTrigger / 255.0f;
     if (brake < TRIGGER_THRESHOLD) brake = 0.0f;
     input.brake = brake;
 
-    // Handbrake (A button)
     input.handbrake = isButtonPressed(XINPUT_GAMEPAD_A) ? 1.0f : 0.0f;
 
-    // Gear Shifting
-    // Gear Up: B
     if (isButtonJustPressed(XINPUT_GAMEPAD_B)) {
         input.gear = 1;
     }
-    // Gear Down: X
     if (isButtonJustPressed(XINPUT_GAMEPAD_X)) {
         input.gear = -1;
     }
 
-    // Reset (D-Pad Left)
     if (isButtonJustPressed(XINPUT_GAMEPAD_DPAD_LEFT)) {
         input.resetToCheckpoint = true;
     }
@@ -136,16 +126,12 @@ CameraControlInput XboxController::getCameraControlInput() {
     CameraControlInput input;
     if (!_connected) return input;
 
-    // Right Stick
-    // Yaw (Left/Right)
     float yaw = applyDeadzone(_data->state.Gamepad.sThumbRX, RIGHT_STICK_DEADZONE);
-    // Pitch (Up/Down)
     float pitch = applyDeadzone(_data->state.Gamepad.sThumbRY, RIGHT_STICK_DEADZONE);
 
     input.yaw = -yaw;
     input.pitch = pitch;
 
-    // Adjust sensitivity? PS5 uses * 10.
     input.yaw *= 2.0f;
     input.pitch *= 2.0f;
 
@@ -156,11 +142,7 @@ AdditionalInputInfo XboxController::getAdditionalInputInfo() {
     AdditionalInputInfo info;
     if (!_connected) return info;
 
-    // Start -> Start Simulation
     info.startSimulation = isButtonJustPressed(XINPUT_GAMEPAD_START);
-
-    // Back -> Reset Cars? or Exit?
-    // Let's say Back is Reset Cars
     info.resetCars = isButtonJustPressed(XINPUT_GAMEPAD_BACK);
 
     return info;
@@ -189,8 +171,6 @@ bool XboxController::setEffectsOnInputer(EffectsOnInputer effects) {
     XINPUT_VIBRATION vibration;
     ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 
-    // XInput motors: Left (Low freq), Right (High freq)
-    // Map float 0-1 to 0-65535
     WORD speed = static_cast<WORD>(std::min(effects.vibration, 1.0f) * 65535);
 
     vibration.wLeftMotorSpeed = speed;
