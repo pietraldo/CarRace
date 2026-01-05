@@ -13,6 +13,7 @@
 
 class GameObjectDynamic : public GameObject2 {
 public:
+    GameObjectDynamic() {}
     physx::PxRigidDynamic* actor = nullptr;
     RigidBody rigidBody;  // for now just one rigid body per dynamic object
     float mass = 1.0f;

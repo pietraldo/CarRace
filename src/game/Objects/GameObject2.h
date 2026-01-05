@@ -15,8 +15,8 @@
 
 class GameObject2 {
 protected:
-    physx::PxQuat rotation = physx::PxIdentity;
 
+    physx::PxQuat rotation = physx::PxIdentity;
 public:
     glm::vec3 position = glm::vec3(0);
 

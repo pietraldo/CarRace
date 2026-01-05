@@ -19,7 +19,7 @@ void GameEngine::StartSimulation() {
     startSimulation = true;
     isCountdownActive = true;
     AudioEngine::instance().playCountdown();
-    countdownTimer = 10.0f;
+    countdownTimer = 1.0f;
     raceTime = 0.0f;
 }
 
@@ -415,35 +415,56 @@ void GameEngine::CreateBarriers() {
     glm::vec3 barierPositionOffsetRigidBody = glm::vec3(0.0f, 0.0f, 8.0f);
     glm::vec3 barierSizeRigidBody = glm::vec3(46.97f, 9.00f, 15.66f);
 
-    glm::vec3 barierPosition1(363.5f, 28.0f, -144.8f);
-    glm::vec3 barierScale1(1, 0.39, 0.94);
-    glm::vec3 barierRotation1(0.49, 62.16, -0.49);
+    struct BarierData {
+        glm::vec3 position;
+        glm::vec3 rotation;
+        glm::vec3 scale;
+    };
 
-    auto barier = make_shared<GameObjectStatic>(barierPosition1, barierModel);
-    barier->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
-    barier->scale = barierScale1;
-    barier->SetRotation(getQuatFromRotationDegrees(barierRotation1));
-    gameObjects2.push_back(barier);
-    RigidBody barierRigidBody;
-    barierRigidBody.positionOffset = barierPositionOffsetRigidBody;
-    barierRigidBody.size = barierSizeRigidBody;
-    barier->AddRigidBody(barierRigidBody);
-    gameObjectsStatic.push_back(barier);
+    glm::vec3 scaleMost(0.35f, 0.2, 0.2);
+    std::vector<BarierData> barierData = {{glm::vec3(335.7, 29.71, -140.5), glm::vec3(0.49, 62.16, -0.5), scaleMost},
+        {glm::vec3(335.7, 29.71, -140.5), glm::vec3(0.49, 62.16, -0.5), scaleMost},
+        {glm::vec3(308.45,26.70, -58.66), glm::vec3(0,66,0), scaleMost},
+        {glm::vec3(317, 27.43, -84.10), glm::vec3(0,80,0), scaleMost},
+        {glm::vec3(315, 27.43, -72.54), glm::vec3(0,79,0), scaleMost},
+        {glm::vec3(317.19, 27.86, -99.5), glm::vec3(0,79,0), scaleMost},
+        {glm::vec3(322.75, 27.86, -114.92), glm::vec3(0,79,0), scaleMost},
+        {glm::vec3(341, 29.57, -154.29), glm::vec3(0,68,0), scaleMost},
+        {glm::vec3(348.86, 30.85, -165), glm::vec3(0,68,0), scaleMost},
+        {glm::vec3(326, 28.72, -126.90), glm::vec3(0,68,0), scaleMost},
+        {glm::vec3(356.57, 31.28, -184.25), glm::vec3(0, 68,0), scaleMost},
+        {glm::vec3(351.86, 30.43, -175.26), glm::vec3(0,68,0), scaleMost},   
+    };
 
-    glm::vec3 barierPosition2(356.86f, 28.0f, -218.8f);
-    glm::vec3 barierRotation2(0, 24, 0);
-    glm::vec3 barierScale2(0.49, 0.39, 0.94);
+    for (auto data: barierData)
+    {
+        auto barier = make_shared<GameObjectDynamic>();
+        barier->drawObject = barierModel;
+        barier->SetPosition(data.position);
+        barier->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
+        barier->scale = data.scale;
+        barier->SetRotation(getQuatFromRotationDegrees(data.rotation));
+        gameObjects2.push_back(barier);
+        RigidBody barierRigidBody2;
+        barierRigidBody2.positionOffset = barierPositionOffsetRigidBody;
+        barierRigidBody2.size = barierSizeRigidBody;
+        barier->AddRigidBody(barierRigidBody2);
+        gameObjectsDynamic.push_back(barier);
+        measureObject = barier;
 
-    auto barier2 = make_shared<GameObjectStatic>(barierPosition2, barierModel);
-    barier2->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
-    barier2->scale = barierScale2;
-    barier2->SetRotation(getQuatFromRotationDegrees(barierRotation2));
+    }
+}
+
+void GameEngine::AddBarier(shared_ptr<GameObject2> object) {
+    auto barier2 = make_shared<GameObjectStatic>(object->position, dynamic_pointer_cast<Model>(object->drawObject));
+    barier2->rotationOffset = object->rotationOffset;
+    barier2->scale = object->scale;
+    barier2->SetRotation(object->GetRotationWithoutOffset());
     gameObjects2.push_back(barier2);
     RigidBody barierRigidBody2;
-    barierRigidBody2.positionOffset = barierPositionOffsetRigidBody;
-    barierRigidBody2.size = barierSizeRigidBody;
-    barier2->AddRigidBody(barierRigidBody2);
+    barierRigidBody2.positionOffset = object->positionOffset;
     gameObjectsStatic.push_back(barier2);
+    bariers.push_back(barier2);
 }
 
 void GameEngine::CreateCubes() {
@@ -463,7 +484,7 @@ void GameEngine::CreateCubes() {
     gameObjectsStatic.push_back(bridge);
 
     // dynamic cube1
-    glm::vec3 cube1Size = glm::vec3(1.0f, 1.0f, 1.0f);
+    /*glm::vec3 cube1Size = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 cube1Position = glm::vec3(0, 5, 0);
     glm::vec3 cube1Color = glm::vec3(1.0f, 0.50f, 0.50f);
     auto cube1 = make_shared<GameObjectDynamic>();
@@ -473,15 +494,41 @@ void GameEngine::CreateCubes() {
     cube1->SetPosition(cube1Position);
     cube1->AddRigidBody(RigidBody());
     gameObjects2.push_back(cube1);
-    gameObjectsDynamic.push_back(cube1);
+    gameObjectsDynamic.push_back(cube1);*/
 
     // cube
     glm::vec3 cubePosition(5.0f, 5.0f, 0.0f);
     glm::vec3 cubeColor(0.5f, 0.5f, 1.0f);
-    cube = make_shared<GameObject2>();
+    auto cube = make_shared<GameObject2>();
     cube->drawObject = make_shared<CubeDraw>();
     cube->drawObject->color = cubeColor;
     gameObjects2.push_back(cube);
+
+     // floor big
+    glm::vec3 floorSize(1000, 1, 1000);
+    glm::vec3 floorPos(0, -0.5, 0);
+    glm::vec3 floorColor(0.29f, 0.27f, 0.955f);
+    auto floor = make_shared<GameObjectStatic>();
+    floor->drawObject = make_shared<CubeDraw>();
+    floor->drawObject->color = floorColor;
+    floor->scale = floorSize;
+    floor->SetPosition(floorPos);
+    floor->AddRigidBody(RigidBody());
+    gameObjects2.push_back(floor);
+    gameObjectsStatic.push_back(floor);
+
+     // floor big small
+    glm::vec3 floorSize2(10, 1, 10);
+    glm::vec3 floorPos2(0, 0.5, 0);
+    glm::vec3 floorColor2(0.29f, 0.97f, 0.255f);
+    auto floor2 = make_shared<GameObjectStatic>();
+    floor2->drawObject = make_shared<CubeDraw>();
+    floor2->drawObject->color = floorColor2;
+    floor2->scale = floorSize2;
+    floor2->SetPosition(floorPos2);
+    floor2->AddRigidBody(RigidBody());
+    gameObjects2.push_back(floor2);
+    gameObjectsStatic.push_back(floor2);
 }
 
 void GameEngine::CreateLights() {
