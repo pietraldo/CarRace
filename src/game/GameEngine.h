@@ -77,12 +77,7 @@ public:
 
     shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
 
-    void StartSimulation() {
-        startSimulation = true;
-        isCountdownActive = true;
-        countdownTimer = 3.0f;
-        raceTime = 0.0f;
-    }
+    void StartSimulation();
     bool IsSimulationStarted() const { return startSimulation; }
 
     // Race State

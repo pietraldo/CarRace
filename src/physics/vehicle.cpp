@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vehicle.h"
+#include "../audio/AudioEngine.h"
 
 #include <iostream>
 
@@ -144,6 +145,12 @@ void RaceCar::Update(float deltaTime, CarControlInput carControll) {
 
     UpdateEngineSound(static_cast<float>(getEngineRPM()), getSpeed(), carControll.throttle, getCurrentGear());
     UpdateTireSqueal(computeDriftFactor(), computeDriftFactor2(), getSpeed());
+
+    bool isInAir = isCarInAir();
+    if (wasInAir && !isInAir) {
+        AudioEngine::instance().playTerrainCollision();
+    }
+    wasInAir = isInAir;
 }
 
 void RaceCar::UpdateSteer(float deltaTime, float steer, bool isAnalog) {

@@ -11,6 +11,14 @@ public:
 
     ma_engine* getEngine() { return &engine; }
 
+    void toggleMute();
+    bool getIsMuted() const { return isMuted; };
+
+    void playCountdown();
+    void playStart();
+    void playFinish();
+    void playTerrainCollision();
+
 private:
     AudioEngine() = default;
     ~AudioEngine() = default;
@@ -20,4 +28,5 @@ private:
 
     ma_engine engine{};
     bool initialized = false;
+    bool isMuted = false;
 };

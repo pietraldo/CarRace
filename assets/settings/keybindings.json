@@ -34,6 +34,7 @@
     "EXIT": "ESCAPE",
     "RESET_CARS": "R",
     "SWITCH_IMGUI": "F2",
-    "SWITCH_HELP": "F1"
+    "SWITCH_HELP": "F1",
+    "TOGGLE_SOUND": "F9"
   }
 }

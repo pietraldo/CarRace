@@ -51,6 +51,7 @@ public:
     int RESET_CARS_KEY = GLFW_KEY_R;
     int SWITCH_IMGUI_KEY = GLFW_KEY_F2;
     int SWITCH_HELP_KEY = GLFW_KEY_F1;
+    int TOGGLE_SOUND_KEY = GLFW_KEY_F9;
 
     enum class PlayerIndex { Player0, Player1 };
     const std::string fileBindingsPath = "../assets/settings/keybindings.json";

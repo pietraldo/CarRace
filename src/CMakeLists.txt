@@ -46,6 +46,7 @@ target_link_libraries(carrace PRIVATE
 	${PHYSX_LIB}/LowLevel_static_64.lib
 	${PHYSX_LIB}/LowLevelAABB_static_64.lib
 	${PHYSX_LIB}/LowLevelDynamics_static_64.lib
+	xinput
 )
 
 

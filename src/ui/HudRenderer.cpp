@@ -1,4 +1,5 @@
 #include "HudRenderer.h"
+#include "../audio/AudioEngine.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -16,6 +17,8 @@ HudRenderer::HudRenderer() {
     needleTexture = 0;
     gearFrameTexture = 0;
     minimapTexture = 0;
+    soundOnTexture = 0;
+    soundOffTexture = 0;
     hudFont = nullptr;
 }
 
@@ -35,6 +38,8 @@ void HudRenderer::Init() {
     minimapTexture = LoadTexture(PATH_MINIMAP);
     playerMarkerTextures[0] = LoadTexture(PATH_MARKER_0);
     playerMarkerTextures[1] = LoadTexture(PATH_MARKER_1);
+    soundOnTexture = LoadTexture(PATH_SOUND_ON);
+    soundOffTexture = LoadTexture(PATH_SOUND_OFF);
 
     // Setup Quad VAO
     float vertices[] = {// pos      // tex
@@ -235,6 +240,16 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
 
     if (data.finished) {
         DrawText("FINISHED", centerX, topY - 40.0f, 1.2f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
+    }
+
+    if (playerIndex == 0) {
+        bool isMuted = AudioEngine::instance().getIsMuted();
+        unsigned int soundIcon = isMuted ? soundOffTexture : soundOnTexture;
+        float iconSize = baseScale * 0.4f;
+        float iconX = width - (margin + iconSize / 2);
+        float iconY = height - margin - iconSize / 2;
+
+        DrawTexture(soundIcon, iconX, iconY, iconSize, iconSize, 0.0f, glm::vec2(0.5f), projection);
     }
 
     glDisable(GL_BLEND);

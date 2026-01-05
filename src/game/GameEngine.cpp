@@ -3,6 +3,7 @@
 #include "../gfx/Model.h"
 #include "helper_functions.h"
 #include "RenderPassUniforms.h"
+#include "../audio/AudioEngine.h"
 
 GameEngine::GameEngine() {
     lights = vector<Light*>();
@@ -12,6 +13,14 @@ GameEngine::GameEngine() {
 
     terrain = new Terrain(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.8f, 0.3f));
     terrain->LoadTerrain("../assets/terrain/terrain.txt");
+}
+
+void GameEngine::StartSimulation() {
+    startSimulation = true;
+    isCountdownActive = true;
+    AudioEngine::instance().playCountdown();
+    countdownTimer = 10.0f;
+    raceTime = 0.0f;
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
@@ -104,6 +113,9 @@ void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     if (input.additionalInfo.switchHelp) {
         Settings::Get().showHelpImGuiWindow = !Settings::Get().showHelpImGuiWindow;
     }
+    if (input.additionalInfo.toggleSound) {
+        AudioEngine::instance().toggleMute();
+    }
 }
 
 void GameEngine::UpdateAfterPhysics(InputData input, float deltaTime) {
@@ -142,6 +154,7 @@ void GameEngine::UpdateRaceLogic(float deltaTime) {
             if (countdownTimer < 0.0f) {
                 isCountdownActive = false;
                 raceTime = 0.0f;
+                AudioEngine::instance().playStart();
             }
         } else {
             // Race is active
@@ -181,6 +194,7 @@ void GameEngine::CheckFinishLine(int carIndex) {
         if (raceTime > 10.0f) {
             playersStatus[carIndex].finished = true;
             playersStatus[carIndex].finishTime = raceTime;
+            AudioEngine::instance().playFinish();
         }
     }
 

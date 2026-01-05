@@ -55,6 +55,8 @@ private:
     unsigned int gearFrameTexture;
     unsigned int minimapTexture;
     unsigned int playerMarkerTextures[2];  // 0 and 1
+    unsigned int soundOnTexture;
+    unsigned int soundOffTexture;
 
     std::map<int, HudState> playerStates;
 
@@ -65,6 +67,9 @@ private:
     const std::string PATH_MINIMAP = "../assets/ui/mini-map/minimap.png";
     const std::string PATH_MARKER_0 = "../assets/ui/mini-map/player0.png";
     const std::string PATH_MARKER_1 = "../assets/ui/mini-map/player1.png";
+
+    const std::string PATH_SOUND_ON = "../assets/ui/sound-icons/sound_on.png";
+    const std::string PATH_SOUND_OFF = "../assets/ui/sound-icons/sound_off.png";
 
     ImFont* hudFont;
 

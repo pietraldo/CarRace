@@ -5,6 +5,7 @@
 #include "KeyboardController.h"
 #include "PS5Controller.h"
 #include "ThrustmasterTMXController.h"
+#include "XboxController.h"
 
 class InputManager {
 private:
@@ -18,7 +19,7 @@ private:
         currentInputType = KEYBOARD_AND_KEYBOARD;
     }
 
-    enum inputType { CONTROLLER, KEYBOARD, CONTROLLER_AND_KEYBOARD, KEYBOARD_AND_KEYBOARD };
+    enum inputType { CONTROLLER, KEYBOARD, CONTROLLER_AND_KEYBOARD, KEYBOARD_AND_KEYBOARD, CONTROLLER_AND_CONTROLLER };
 
     inputType currentInputType;
 
