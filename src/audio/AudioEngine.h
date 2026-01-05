@@ -17,6 +17,7 @@ public:
     void playCountdown();
     void playStart();
     void playFinish();
+    void playTerrainCollision();
 
 private:
     AudioEngine() = default;

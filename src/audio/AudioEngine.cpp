@@ -52,3 +52,8 @@ void AudioEngine::playFinish() {
     if (isMuted) return;
     ma_engine_play_sound(&engine, "../assets/audio/hud_sound/finish_sound.mp3", NULL);
 }
+
+void AudioEngine::playTerrainCollision() {
+    if (isMuted) return;
+    ma_engine_play_sound(&engine, "../assets/audio/colision/terain_colision.mp3", NULL);
+}

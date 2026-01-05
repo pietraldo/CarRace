@@ -39,6 +39,8 @@ private:
     TireSquealSound tireSquealSound;
     bool tireSquealLoaded = false;
 
+    bool wasInAir = false;
+
 public:
     RaceCar(const char* name, const char* baseParamsPath, const char* driveParamsPath,
             PxVehiclePhysXSimulationContext* simulationContext);
