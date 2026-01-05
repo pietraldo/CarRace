@@ -3,6 +3,7 @@
 #include "../gfx/Model.h"
 #include "helper_functions.h"
 #include "RenderPassUniforms.h"
+#include "../audio/AudioEngine.h"
 
 GameEngine::GameEngine() {
     lights = vector<Light*>();
@@ -103,6 +104,9 @@ void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     }
     if (input.additionalInfo.switchHelp) {
         Settings::Get().showHelpImGuiWindow = !Settings::Get().showHelpImGuiWindow;
+    }
+    if (input.additionalInfo.toggleSound) {
+        AudioEngine::instance().toggleMute();
     }
 }
 

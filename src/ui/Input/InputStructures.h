@@ -19,7 +19,6 @@ struct CarControlInput {
         steer = 0.0f;
         handbrake = 1.0f;
         isAnalogSteer = false;
-
     }
 };
 
@@ -39,6 +38,7 @@ struct AdditionalInputInfo {
     bool resetCars = false;
     bool switchImGui = false;
     bool switchHelp = false;
+    bool toggleSound = false;
 };
 
 struct OutputData {
