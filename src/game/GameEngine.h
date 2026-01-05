@@ -80,7 +80,7 @@ public:
     void StartSimulation() {
         startSimulation = true;
         isCountdownActive = true;
-        countdownTimer = 3.0f;
+        countdownTimer = 10.0f;
         raceTime = 0.0f;
     }
     bool IsSimulationStarted() const { return startSimulation; }
