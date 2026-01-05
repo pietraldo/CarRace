@@ -24,6 +24,7 @@ public:
     virtual ~GameObject2() = default;
     GameObject2(glm::vec3 position, std::shared_ptr<Model> model) : position(position), drawObject(std::move(model)) {}
     glm::vec3 GetPosition();
+    glm::vec3 GetPositionWithoutOffset() const { return position; }
     physx::PxQuat GetRotation() const { return rotation * rotationOffset; }
     physx::PxQuat GetRotationWithoutOffset() const { return rotation; }
     void SetPosition(const glm::vec3& pos) { position = pos; }

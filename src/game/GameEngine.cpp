@@ -422,18 +422,18 @@ void GameEngine::CreateBarriers() {
     };
 
     glm::vec3 scaleMost(0.35f, 0.2, 0.2);
-    std::vector<BarierData> barierData = {{glm::vec3(335.7, 29.71, -140.5), glm::vec3(0.49, 62.16, -0.5), scaleMost},
-        {glm::vec3(335.7, 29.71, -140.5), glm::vec3(0.49, 62.16, -0.5), scaleMost},
-        {glm::vec3(308.45,26.70, -58.66), glm::vec3(0,66,0), scaleMost},
-        {glm::vec3(317, 27.43, -84.10), glm::vec3(0,80,0), scaleMost},
-        {glm::vec3(315, 27.43, -72.54), glm::vec3(0,79,0), scaleMost},
-        {glm::vec3(317.19, 27.86, -99.5), glm::vec3(0,79,0), scaleMost},
-        {glm::vec3(322.75, 27.86, -114.92), glm::vec3(0,79,0), scaleMost},
-        {glm::vec3(341, 29.57, -154.29), glm::vec3(0,68,0), scaleMost},
-        {glm::vec3(348.86, 30.85, -165), glm::vec3(0,68,0), scaleMost},
-        {glm::vec3(326, 28.72, -126.90), glm::vec3(0,68,0), scaleMost},
-        {glm::vec3(356.57, 31.28, -184.25), glm::vec3(0, 68,0), scaleMost},
-        {glm::vec3(351.86, 30.43, -175.26), glm::vec3(0,68,0), scaleMost},   
+    std::vector<BarierData> barierData = {{glm::vec3(335.7, 30.71, -140.5), glm::vec3(-90.5, 62.16, -0.5), scaleMost},
+        {glm::vec3(335.7, 30.71, -140.5), glm::vec3(-90, 62.16, -0.5), scaleMost},
+        {glm::vec3(308.45, 27.70, -58.66), glm::vec3(-90, 66, 0), scaleMost},
+        {glm::vec3(317, 28.43, -84.10), glm::vec3(-90, 80, 0), scaleMost},
+        {glm::vec3(315, 28.43, -72.54), glm::vec3(-90, 79, 0), scaleMost},
+        {glm::vec3(317.19, 28.86, -99.5), glm::vec3(-90, 79, 0), scaleMost},
+        {glm::vec3(322.75, 28.86, -114.92), glm::vec3(-90, 79, 0), scaleMost},
+        {glm::vec3(341, 30.57, -154.29), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(348.86, 31.85, -165), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(326, 29.72, -126.90), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(356.57, 32.28, -184.25), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(351.86, 31.43, -175.26), glm::vec3(-90, 68, 0), scaleMost},
     };
 
     for (auto data: barierData)
@@ -441,17 +441,32 @@ void GameEngine::CreateBarriers() {
         auto barier = make_shared<GameObjectDynamic>();
         barier->drawObject = barierModel;
         barier->SetPosition(data.position);
-        barier->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
+        barier->positionOffset = -barierPositionOffsetRigidBody;
         barier->scale = data.scale;
         barier->SetRotation(getQuatFromRotationDegrees(data.rotation));
         gameObjects2.push_back(barier);
+        PhysicActor barierRigidBody2;
+        barierRigidBody2.size = barierSizeRigidBody;
+        barier->AddPhysicActor(barierRigidBody2);
+        gameObjectsDynamic.push_back(barier);
+    }
+
+    // static bariers
+    std::vector<BarierData> barierDataStatic = {
+        {glm::vec3(365.7, 28.71, -140.5), glm::vec3(0.5, 62.16, -0.5), scaleMost}
+    };
+    for (auto data : barierDataStatic) {
+        auto barier = make_shared<GameObjectStatic>(data.position, barierModel);
+        barier->positionOffset = barierPositionOffsetRigidBody;
+        barier->scale = data.scale;
+        barier->rotationOffset = getQuatFromRotationDegrees(barierRotationOffset);
+        barier->SetRotation(getQuatFromRotationDegrees(data.rotation));
+        gameObjects2.push_back(barier);
         RigidBody barierRigidBody2;
-        barierRigidBody2.positionOffset = barierPositionOffsetRigidBody;
         barierRigidBody2.size = barierSizeRigidBody;
         barier->AddRigidBody(barierRigidBody2);
-        gameObjectsDynamic.push_back(barier);
+        gameObjectsStatic.push_back(barier);
         measureObject = barier;
-
     }
 }
 
