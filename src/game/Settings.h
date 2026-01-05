@@ -31,6 +31,8 @@ struct Settings {
     int checkpointInterval = 1000;       // in miliseconds
     int maxSavedPositions = 100;
     int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
+    
+    float barrierMass = 100;
 
     // car steering settings
     float steeringSpeed = 2.45f;       // higher value means faster steering

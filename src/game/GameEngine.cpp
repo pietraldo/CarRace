@@ -422,18 +422,18 @@ void GameEngine::CreateBarriers() {
     };
 
     glm::vec3 scaleMost(0.35f, 0.2, 0.2);
-    std::vector<BarierData> barierData = {{glm::vec3(335.7, 30.71, -140.5), glm::vec3(-90.5, 62.16, -0.5), scaleMost},
-        {glm::vec3(335.7, 30.71, -140.5), glm::vec3(-90, 62.16, -0.5), scaleMost},
-        {glm::vec3(308.45, 27.70, -58.66), glm::vec3(-90, 66, 0), scaleMost},
-        {glm::vec3(317, 28.43, -84.10), glm::vec3(-90, 80, 0), scaleMost},
-        {glm::vec3(315, 28.43, -72.54), glm::vec3(-90, 79, 0), scaleMost},
-        {glm::vec3(317.19, 28.86, -99.5), glm::vec3(-90, 79, 0), scaleMost},
-        {glm::vec3(322.75, 28.86, -114.92), glm::vec3(-90, 79, 0), scaleMost},
-        {glm::vec3(341, 30.57, -154.29), glm::vec3(-90, 68, 0), scaleMost},
-        {glm::vec3(348.86, 31.85, -165), glm::vec3(-90, 68, 0), scaleMost},
-        {glm::vec3(326, 29.72, -126.90), glm::vec3(-90, 68, 0), scaleMost},
-        {glm::vec3(356.57, 32.28, -184.25), glm::vec3(-90, 68, 0), scaleMost},
-        {glm::vec3(351.86, 31.43, -175.26), glm::vec3(-90, 68, 0), scaleMost},
+    std::vector<BarierData> barierData = {
+        {glm::vec3(335.7, 31.71, -140.5), glm::vec3(-90, 62.16, -0.5), scaleMost},
+        {glm::vec3(308.45, 28.70, -58.66), glm::vec3(-90, 66, 0), scaleMost},
+        {glm::vec3(311.4, 29.43, -84.10), glm::vec3(-90, 80, 0), scaleMost},
+        {glm::vec3(315, 29.43, -72.54), glm::vec3(-90, 79, 0), scaleMost},
+        {glm::vec3(317.19, 29.86, -99.5), glm::vec3(-90, 79, 0), scaleMost},
+        {glm::vec3(325.0, 29.86, -114.92), glm::vec3(-90,68, 0), scaleMost},
+        {glm::vec3(341, 31.57, -154.29), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(348.86, 32.85, -165), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(326, 30.72, -126.90), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(357.57, 33.28, -184.25), glm::vec3(-90, 68, 0), scaleMost},
+        {glm::vec3(348.86, 32.43, -175.26), glm::vec3(-90, 68, 0), scaleMost},
     };
 
     for (auto data: barierData)
@@ -448,7 +448,9 @@ void GameEngine::CreateBarriers() {
         PhysicActor barierRigidBody2;
         barierRigidBody2.size = barierSizeRigidBody;
         barier->AddPhysicActor(barierRigidBody2);
+        barier->mass = Settings::Get().barrierMass;
         gameObjectsDynamic.push_back(barier);
+        bariers.push_back(barier);
     }
 
     // static bariers
@@ -499,7 +501,7 @@ void GameEngine::CreateCubes() {
     gameObjectsStatic.push_back(bridge);
 
     // dynamic cube1
-    /*glm::vec3 cube1Size = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 cube1Size = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 cube1Position = glm::vec3(0, 5, 0);
     glm::vec3 cube1Color = glm::vec3(1.0f, 0.50f, 0.50f);
     auto cube1 = make_shared<GameObjectDynamic>();
@@ -507,9 +509,9 @@ void GameEngine::CreateCubes() {
     cube1->drawObject->color = cube1Color;
     cube1->scale = cube1Size;
     cube1->SetPosition(cube1Position);
-    cube1->AddRigidBody(RigidBody());
+    cube1->AddPhysicActor(PhysicActor());
     gameObjects2.push_back(cube1);
-    gameObjectsDynamic.push_back(cube1);*/
+    gameObjectsDynamic.push_back(cube1);
 
     // cube
     glm::vec3 cubePosition(5.0f, 5.0f, 0.0f);
