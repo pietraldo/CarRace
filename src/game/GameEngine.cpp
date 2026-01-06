@@ -547,26 +547,6 @@ void GameEngine::CreateTrees() {
     glm::vec3 rigidbodySize(1, 1, 6);
     glm::vec3 positionOffset(0, 0, 3);
 
-    /*
-    struct TreeSector {
-        int xMin;
-        int xMax;
-        int zMin;
-        int zMax;
-        int trees;
-    };
-
-    vector<TreeSector> treeSectors = {
-        {394-512, 647-512, 6-512, 64-512, 20},
-        { 858-512, 993-512, 486-512, 606-512, 20},
-        { 642-512, 704-512, 516-512, 576-512, 20}};
-    for (auto sector: treeSectors)
-    {
-        for (int i = 0; i < sector.trees; ++i)
-        {
-            
-        }
-    }*/
     int terrainWidth = terrain->GetTerrainWidth()/2;
     int terrainDepth = terrain->GetTerrainDepth()/2;
     int density = 20;
@@ -598,25 +578,6 @@ void GameEngine::CreateTrees() {
             }
         }
     }
-
-    //float posX = static_cast<float>(rand() % (sector.xMax - sector.xMin) + sector.xMin);
-    //float posZ = static_cast<float>(rand() % (sector.zMax - sector.zMin) + sector.zMin);
-    //float scaleRand = static_cast<float>(rand() % 200 + 100) / 100;
-    //glm::vec3 scaleVec(scaleRand);
-
-    //glm::vec3 pos(posX, 0.0f, posZ);
-    //pos.y = terrain->GetHeightAtPosition(pos.x, pos.z);
-    //auto tree = make_shared<GameObjectStatic>();
-    //tree->drawObject = treeModel;
-    //tree->SetPosition(pos);
-    //tree->scale = scaleVec;
-    //tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(-90.0f, 0.0f, 0.0f));
-    //gameObjects2.push_back(tree);
-    //RigidBody treeRigidBody;
-    //treeRigidBody.size = rigidbodySize;
-    //treeRigidBody.positionOffset = positionOffset;
-    //tree->AddRigidBody(treeRigidBody);
-    //gameObjectsStatic.push_back(tree);
 }
 
 void GameEngine::CreateLights() {
