@@ -107,6 +107,7 @@ public:
     void CreateBarriers();
     void AddBarier(shared_ptr<GameObject2> object);
     void CreateCubes();
+    void CreateTrees();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();

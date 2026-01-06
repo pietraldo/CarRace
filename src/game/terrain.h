@@ -55,4 +55,6 @@ public:
     float GetScaleX() { return scalex; }
     float GetScaleY() { return scaley; }
     float GetScaleZ() { return scalez; }
+
+    float GetHeightAtPosition(float x, float z);
 };

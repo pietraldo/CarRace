@@ -26,6 +26,20 @@ float Terrain::GetMaxHeightFromHeightData() {
     return max;
 }
 
+float Terrain::GetHeightAtPosition(float x, float z) { 
+    float width = GetTerrainWidth();
+    float depth = GetTerrainDepth();
+
+    int indexX = (x + width / 2.0f) / scalex;
+    int indexZ = (z + depth / 2.0f) / scalez;
+
+    if (indexX >= 0 && indexX < cols && indexZ >= 0 && indexZ < rows) {
+        return heightData[indexZ][indexX] * scaley;
+    }
+
+    return 0.0f;
+}
+
 void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols) {
     std::ifstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Cannot open file: " + filename);

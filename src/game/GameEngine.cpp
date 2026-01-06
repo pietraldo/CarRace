@@ -302,6 +302,7 @@ void GameEngine::CreateModels() {
     gameObjects2.push_back(bridge);
 
     CreateBarriers();
+    CreateTrees();
 }
 
 void GameEngine::CreateBuildings() {
@@ -536,6 +537,39 @@ void GameEngine::CreateCubes() {
     floor2->AddRigidBody(RigidBody());
     gameObjects2.push_back(floor2);
     gameObjectsStatic.push_back(floor2);
+}
+
+void GameEngine::CreateTrees() {
+    const std::string treeModelPath = "../assets/models/tree/scene.gltf";
+    auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
+
+    glm::vec3 scaleMost(3);
+    glm::vec3 position(50.0f, 0.0f, 50.0f);
+    position.y = terrain->GetHeightAtPosition(position.x, position.z);
+
+    auto tree = make_shared<GameObject2>();
+    tree->drawObject = treeModel;
+    tree->SetPosition(position);
+    tree->scale = scaleMost;
+    tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(-90.0f, 0.0f, 0.0f));
+    gameObjects2.push_back(tree);
+
+    /*for (auto data : barierData) {
+        auto barier = make_shared<GameObjectDynamic>();
+        barier->drawObject = barierModel;
+        barier->SetPosition(data.position);
+        barier->scale = data.scale;
+        barier->SetRotation(getQuatFromRotationDegrees(data.rotation));
+        gameObjects2.push_back(barier);
+        PhysicActor barierRigidBody2;
+        barierRigidBody2.size = barierSizeRigidBody;
+        barier->AddPhysicActor(barierRigidBody2);
+        float volume = barierSizeRigidBody.x * data.scale.x * barierSizeRigidBody.y * data.scale.y *
+                       barierSizeRigidBody.z * data.scale.z;
+        barier->mass = volume * Settings::Get().barrierMass;
+        gameObjectsDynamic.push_back(barier);
+        bariers.push_back(barier);
+    }*/
 }
 
 void GameEngine::CreateLights() {
