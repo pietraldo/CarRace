@@ -25,5 +25,5 @@
   "steeringReturnSpeed": 5.0,
   
   "barrierMass": 0.5,
-  "playCountDown": true
+  "playCountDown": false
 }

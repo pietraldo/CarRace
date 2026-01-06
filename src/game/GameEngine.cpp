@@ -423,18 +423,18 @@ void GameEngine::CreateBarriers() {
 
     glm::vec3 scaleMost(0.35, 0.1, 0.2);
     std::vector<BarierData> barierData = {
-        {glm::vec3(335.7, 31.71, -140.5), glm::vec3(0, 62.16, -0.5), scaleMost},
-        {glm::vec3(308.45, 28.70, -58.66), glm::vec3(0, 66, 0), scaleMost},
-        {glm::vec3(311.4, 29.43, -84.10), glm::vec3(0, 80, 0), scaleMost},
-        {glm::vec3(315, 29.43, -72.54), glm::vec3(0, 79, 0), scaleMost},
-        {glm::vec3(317.19, 29.86, -99.5), glm::vec3(0, 79, 0), scaleMost},
-        {glm::vec3(325.0, 29.86, -114.92), glm::vec3(0,68, 0), scaleMost},
-        {glm::vec3(341, 31.57, -154.29), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(348.86, 32.85, -165), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(326, 30.72, -126.90), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(357.57, 33.28, -184.25), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(348.86, 32.43, -175.26), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0,68 , 0), glm::vec3(0.35, scaleMost.y, scaleMost.z)},
+        {glm::vec3(335.7, 30.71, -140.5), glm::vec3(0, 62.16, -0.5), scaleMost},
+        {glm::vec3(308.45, 29.70, -58.66), glm::vec3(0, 66, 0), scaleMost},
+        {glm::vec3(311.4, 28.43, -84.10), glm::vec3(0, 80, 0), scaleMost},
+        {glm::vec3(315, 28.43, -72.54), glm::vec3(0, 79, 0), scaleMost},
+        {glm::vec3(317.19, 28.86, -99.5), glm::vec3(0, 79, 0), scaleMost},
+        {glm::vec3(325.0, 28.86, -114.92), glm::vec3(0,68, 0), scaleMost},
+        {glm::vec3(341, 30.57, -154.29), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(348.86, 31.85, -165), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(326, 29.72, -126.90), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(357.57, 32.28, -184.25), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(348.86, 31.43, -175.26), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0,68 , 0), glm::vec3(0.35, 0.1, 0.2)},
         {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92,0.10, 0.20)},
         {glm::vec3(-123,23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
         {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0,59.68 , 0), glm::vec3(0.92, 0.1, 0.2)},
@@ -511,6 +511,7 @@ void GameEngine::CreateCubes() {
     cube->drawObject = make_shared<CubeDraw>();
     cube->drawObject->color = cubeColor;
     gameObjects2.push_back(cube);
+    measureObject = cube;
 
      // floor big
     glm::vec3 floorSize(1000, 1, 1000);
@@ -542,34 +543,35 @@ void GameEngine::CreateCubes() {
 void GameEngine::CreateTrees() {
     const std::string treeModelPath = "../assets/models/tree/scene.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
+    
+    glm::vec3 rigidbodySize(1, 1, 6);
+    glm::vec3 positionOffset(0, 0, 3);
 
-    glm::vec3 scaleMost(3);
-    glm::vec3 position(50.0f, 0.0f, 50.0f);
-    position.y = terrain->GetHeightAtPosition(position.x, position.z);
+    std::vector<glm::vec3> treePositions = {
+        glm::vec3(50.0f, 0.0f, 50.0f),
+        glm::vec3(70.0f, 0.0f, 80.0f),
+        glm::vec3(90.0f, 0.0f, 60.0f),
+        glm::vec3(30.0f, 0.0f, 40.0f),
+        glm::vec3(60.0f, 0.0f, 20.0f)};
 
-    auto tree = make_shared<GameObject2>();
-    tree->drawObject = treeModel;
-    tree->SetPosition(position);
-    tree->scale = scaleMost;
-    tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(-90.0f, 0.0f, 0.0f));
-    gameObjects2.push_back(tree);
+    for (auto pos : treePositions)
+    {
+        float scaleRand = static_cast<float>(rand() % 200 + 100)/100;
+        glm::vec3 scaleVec(scaleRand);
 
-    /*for (auto data : barierData) {
-        auto barier = make_shared<GameObjectDynamic>();
-        barier->drawObject = barierModel;
-        barier->SetPosition(data.position);
-        barier->scale = data.scale;
-        barier->SetRotation(getQuatFromRotationDegrees(data.rotation));
-        gameObjects2.push_back(barier);
-        PhysicActor barierRigidBody2;
-        barierRigidBody2.size = barierSizeRigidBody;
-        barier->AddPhysicActor(barierRigidBody2);
-        float volume = barierSizeRigidBody.x * data.scale.x * barierSizeRigidBody.y * data.scale.y *
-                       barierSizeRigidBody.z * data.scale.z;
-        barier->mass = volume * Settings::Get().barrierMass;
-        gameObjectsDynamic.push_back(barier);
-        bariers.push_back(barier);
-    }*/
+        pos.y = terrain->GetHeightAtPosition(pos.x, pos.z);
+        auto tree = make_shared<GameObjectStatic>();
+        tree->drawObject = treeModel;
+        tree->SetPosition(pos);
+        tree->scale = scaleVec;
+        tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(-90.0f, 0.0f, 0.0f));
+        gameObjects2.push_back(tree);
+        RigidBody treeRigidBody;
+        treeRigidBody.size = rigidbodySize;
+        treeRigidBody.positionOffset = positionOffset;
+        tree->AddRigidBody(treeRigidBody);
+        gameObjectsStatic.push_back(tree);
+    }
 }
 
 void GameEngine::CreateLights() {
