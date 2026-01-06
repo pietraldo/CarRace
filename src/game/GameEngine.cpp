@@ -579,7 +579,7 @@ void GameEngine::CreateTrees() {
                 tree->scale = scaleVec;
                 tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(0.0f, 0.0f, 0.0f));
                 tree->isVegetation = true;
-                tree->castShadow = false; // disable casting shadows for trees
+                // shadow flag removed from GameObject2
                 gameObjects2.push_back(tree);
 
             }
