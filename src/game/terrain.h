@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <vector>
+#include <cstdio>
+#include <limits>
 
 #include "../game/helper_functions.h"
 
@@ -57,4 +59,5 @@ public:
     float GetScaleZ() { return scalez; }
 
     float GetHeightAtPosition(float x, float z);
+    bool IsGrassAtPosition(float x, float z);
 };

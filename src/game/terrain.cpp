@@ -26,18 +26,41 @@ float Terrain::GetMaxHeightFromHeightData() {
     return max;
 }
 
-float Terrain::GetHeightAtPosition(float x, float z) { 
+float Terrain::GetHeightAtPosition(float x, float z) {
     float width = GetTerrainWidth();
     float depth = GetTerrainDepth();
 
-    int indexX = (x + width / 2.0f) / scalex;
-    int indexZ = (z + depth / 2.0f) / scalez;
+    int baseX = static_cast<int>((x + width * 0.5f) / scalex);
+    int baseZ = static_cast<int>((z + depth * 0.5f) / scalez);
 
-    if (indexX >= 0 && indexX < cols && indexZ >= 0 && indexZ < rows) {
-        return heightData[indexZ][indexX] * scaley;
+    float minHeight = numeric_limits<float>::max();
+
+    for (int dz = 0; dz <= 1; ++dz) {
+        for (int dx = 0; dx <= 1; ++dx) {
+            int ix = baseX + dx;
+            int iz = baseZ + dz;
+
+            if (ix >= 0 && ix < cols && iz >= 0 && iz < rows) {
+                float h = heightData[iz][ix] * scaley;
+                minHeight = std::min(minHeight, h);
+            }
+        }
     }
 
-    return 0.0f;
+    return minHeight;
+}
+
+bool Terrain::IsGrassAtPosition(float x, float z) { 
+    float width = GetTerrainWidth();
+    float depth = GetTerrainDepth();
+
+    int baseX = static_cast<int>((x + width * 0.5f) / scalex);
+    int baseZ = static_cast<int>((z + depth * 0.5f) / scalez);
+    if (baseX < 0 || baseX >= cols || baseZ < 0 || baseZ >= rows) {
+        return false;  // Out of bounds, consider as grass
+    }
+
+    return roadMark[baseZ][baseX] == 5;
 }
 
 void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols) {
