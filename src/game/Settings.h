@@ -39,6 +39,9 @@ struct Settings {
     float steeringSpeed = 2.45f;       // higher value means faster steering
     float steeringReturnSpeed = 5.0f;  // higher value means faster return to center
 
+    // vegetation distance culling (meters). Set to <= 0 to disable.
+    float vegetationCullDistance = 200.0f;
+
     static Settings& Get() {
         static Settings instance;
         return instance;

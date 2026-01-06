@@ -217,7 +217,16 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
 
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
+    float cullDist = Settings::Get().vegetationCullDistance;
+    float cullDistSq = cullDist > 0 ? (cullDist * cullDist) : -1.0f;
+
     for (auto gameObject : gameObjects2) {
+        if (cullDist > 0 && gameObject->isVegetation) {
+            glm::vec3 toCam = activeCam.Position - gameObject->GetPosition();
+            float distSq = glm::dot(toCam, toCam);
+            if (distSq > cullDistSq) continue;
+        }
+
         auto drawObject = gameObject->drawObject;
         if (!activeCam.IsSphereVisible(gameObject->GetPosition(), drawObject->GetRadius(), pass.viewProj)) continue;
 
@@ -541,7 +550,7 @@ void GameEngine::CreateCubes() {
 }
 
 void GameEngine::CreateTrees() {
-    const std::string treeModelPath = "../assets/models/tree/scene.gltf";
+    const std::string treeModelPath = "../assets/models/low_poly_tree/scene_low.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
     
     glm::vec3 rigidbodySize(1, 1, 6);
@@ -549,7 +558,7 @@ void GameEngine::CreateTrees() {
 
     int terrainWidth = terrain->GetTerrainWidth()/2;
     int terrainDepth = terrain->GetTerrainDepth()/2;
-    int density = 20;
+    int density = 8; 
     for (int i = -terrainWidth; i < terrainWidth; i += 50)
     {
         for (int j = -terrainDepth; j < terrainDepth; j += 50)
@@ -568,13 +577,11 @@ void GameEngine::CreateTrees() {
                 tree->drawObject = treeModel;
                 tree->SetPosition(pos);
                 tree->scale = scaleVec;
-                tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(-90.0f, 0.0f, 0.0f));
+                tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(0.0f, 0.0f, 0.0f));
+                tree->isVegetation = true;
+                tree->castShadow = false; // disable casting shadows for trees
                 gameObjects2.push_back(tree);
-                RigidBody treeRigidBody;
-                treeRigidBody.size = rigidbodySize;
-                treeRigidBody.positionOffset = positionOffset;
-                tree->AddRigidBody(treeRigidBody);
-                gameObjectsStatic.push_back(tree);
+
             }
         }
     }

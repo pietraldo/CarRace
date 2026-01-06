@@ -37,4 +37,7 @@ public:
     physx::PxQuat rotationOffset = physx::PxIdentity;
 
     std::shared_ptr<DrawObject> drawObject = nullptr;
+    // optimization flags
+    bool isVegetation = false; // true for trees/bushes
+    bool castShadow = true;    // whether object should cast shadows (if shadowing implemented)
 };
