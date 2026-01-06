@@ -17,9 +17,11 @@ GameEngine::GameEngine() {
 
 void GameEngine::StartSimulation() {
     startSimulation = true;
-    isCountdownActive = true;
-    AudioEngine::instance().playCountdown();
-    countdownTimer = 1.0f;
+    if (Settings::Get().playCountDown) {
+        isCountdownActive = true;
+        AudioEngine::instance().playCountdown();
+        countdownTimer = 10.0f;
+    }
     raceTime = 0.0f;
 }
 
@@ -431,6 +433,13 @@ void GameEngine::CreateBarriers() {
         {glm::vec3(326, 30.72, -126.90), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(357.57, 33.28, -184.25), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(348.86, 32.43, -175.26), glm::vec3(0, 68, 0), scaleMost},
+        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0,68 , 0), glm::vec3(0.35, scaleMost.y, scaleMost.z)},
+        {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92,0.10, 0.20)},
+        {glm::vec3(-123,23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
+        {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0,59.68 , 0), glm::vec3(0.92, 0.1, 0.2)},
+        {glm::vec3(-185.63, 23.03, 305.66), glm::vec3(0, 47.08, 0), glm::vec3(0.92, 0.1, 0.2)},
+        {glm::vec3(-190.01, 23.03, 268.70), glm::vec3(0, 59.68, 0), glm::vec3(1.45, 0.1, 0.2)},
+        {glm::vec3(-157.91, 23.03, 223.82), glm::vec3(0, 34.60, 0), glm::vec3(0.92, 0.1, 0.2)}
     };
 
     for (auto data: barierData)
@@ -444,7 +453,10 @@ void GameEngine::CreateBarriers() {
         PhysicActor barierRigidBody2;
         barierRigidBody2.size = barierSizeRigidBody;
         barier->AddPhysicActor(barierRigidBody2);
-        barier->mass = Settings::Get().barrierMass;
+        float volume = barierSizeRigidBody.x * data.scale.x *
+                       barierSizeRigidBody.y * data.scale.y *
+                       barierSizeRigidBody.z * data.scale.z;
+        barier->mass = volume * Settings::Get().barrierMass;
         gameObjectsDynamic.push_back(barier);
         bariers.push_back(barier);
     }

@@ -100,5 +100,6 @@ void Settings::LoadFromFile(const char* filename) {
     loadFloat("steeringSpeed", steeringSpeed, 0);
     loadFloat("steeringReturnSpeed", steeringReturnSpeed, 0);
     
-    loadFloat("barrierMass", barrierMass, 0.5);
+    loadFloat("barrierMass", barrierMass, 0.0000001);
+    loadBool("playCountDown", playCountDown);
 }

@@ -525,13 +525,14 @@ void Rendering::RenderImGui() {
 
             ImGui::End();
         }
+        if((*gameEngine).measureObject)
         {
             ImGui::Begin("Box Colliders");
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
 
-            shared_ptr<GameObject2> measureObject = (*gameEngine).measureObject;
+            auto measureObject = (*gameEngine).measureObject;
 
             ImGui::DragFloat("ScaleX", &measureObject->scale.x, sensitivity);
             ImGui::DragFloat("ScaleY", &measureObject->scale.y, sensitivity);
