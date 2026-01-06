@@ -553,8 +553,8 @@ void GameEngine::CreateTrees() {
     const std::string treeModelPath = "../assets/models/low_poly_tree/scene_low.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
     
-    glm::vec3 rigidbodySize(1, 1, 6);
-    glm::vec3 positionOffset(0, 0, 3);
+    glm::vec3 rigidbodySize(1, 6, 1);
+    glm::vec3 positionOffset(0, 3, 0);
 
     int terrainWidth = terrain->GetTerrainWidth()/2;
     int terrainDepth = terrain->GetTerrainDepth()/2;
@@ -579,8 +579,12 @@ void GameEngine::CreateTrees() {
                 tree->scale = scaleVec;
                 tree->rotationOffset = getQuatFromRotationDegrees(glm::vec3(0.0f, 0.0f, 0.0f));
                 tree->isVegetation = true;
-                // shadow flag removed from GameObject2
                 gameObjects2.push_back(tree);
+                RigidBody treeRigidBody;
+                treeRigidBody.size = rigidbodySize;
+                treeRigidBody.positionOffset = positionOffset;
+                tree->AddRigidBody(treeRigidBody);
+                gameObjectsStatic.push_back(tree);
 
             }
         }
