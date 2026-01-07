@@ -10,6 +10,7 @@
 struct Settings {
     int START_SCR_WIDTH = 1600;
     int START_SCR_HEIGHT = 1000;
+    bool fullscreen = false;
     bool productionMode = false;
     int CAR_COUNT = 2;
 

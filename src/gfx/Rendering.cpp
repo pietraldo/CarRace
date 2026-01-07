@@ -203,7 +203,18 @@ bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, title, NULL, NULL);
+    GLFWmonitor* monitor = nullptr;
+    if (Settings::Get().fullscreen) {
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width = mode->width;
+        height = mode->height;
+    }
+
+    Rendering::window_width = width;
+    Rendering::window_height = height;
+
+    window = glfwCreateWindow(width, height, title, monitor, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -242,6 +253,7 @@ bool Rendering::CreateGLFWWindow(int width, int height, const char* title) {
 }
 
 void Rendering::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    if (width == 0 || height == 0) return;
     Rendering::window_width = width;
     Rendering::window_height = height;
     glViewport(0, 0, width, height);

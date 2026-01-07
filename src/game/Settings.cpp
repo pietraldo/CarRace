@@ -73,6 +73,7 @@ void Settings::LoadFromFile(const char* filename) {
     // Screen
     loadInt("START_SCR_WIDTH", START_SCR_WIDTH, 50, 5000);
     loadInt("START_SCR_HEIGHT", START_SCR_HEIGHT, 50, 5000);
+    loadBool("fullscreen", fullscreen);
 
     // Gameplay
     loadInt("CAR_COUNT", CAR_COUNT, 1, 2);
