@@ -85,7 +85,12 @@ int main() {
 
         InputData input = InputManager::getInstance().getInputData();
 
-        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
+        if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
+            CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, deltaTime);
+        } else {
+            CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
+        }
+
         continueGame = !input.additionalInfo.exit;
 
         if (input.additionalInfo.resetCars) {

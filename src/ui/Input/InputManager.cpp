@@ -1,5 +1,6 @@
 #include "InputManager.h"
 #include "XboxController.h"
+#include "EditCameraInputController.h"
 
 InputManager* InputManager::inputManager = nullptr;
 
@@ -63,10 +64,20 @@ void InputManager::setUp() {
         delete tmxController;
         delete xboxController;
     }
+
+    if (!editCameraController) {
+        editCameraController = new EditCameraInputController();
+    }
 }
 
 InputData InputManager::getInputData() {
     InputData inputData;
+
+    // Process Free Camera Input (always available)
+    if (editCameraController) {
+        editCameraController->updateInput();
+        inputData.freeCameraControl = editCameraController->getCameraControlInput();
+    }
 
     if (currentInputType == KEYBOARD) {
         inputController0->updateInput();
@@ -183,6 +194,10 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCameraControllBindings();
         result += "\n\nAdditional Controls:\n";
         result += inputController0->GetAdditionalControllBindings();
+    }
+    if (editCameraController) {
+        result += "\n\nEdit Camera Controls:\n";
+        result += editCameraController->GetCameraControllBindings();
     }
     return result;
 }

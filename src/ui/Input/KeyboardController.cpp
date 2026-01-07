@@ -61,11 +61,6 @@ CarControlInput KeyboardController::getCarControlInput() {
 CameraControlInput KeyboardController::getCameraControlInput() {
     CameraControlInput input;
 
-    if (isKeyPressed(CAMERA_FORWARD)) input.moveForward = 1;
-    if (isKeyPressed(CAMERA_BACKWARD)) input.moveForward = -1;
-    if (isKeyPressed(CAMERA_LEFT)) input.moveRight = -1;
-    if (isKeyPressed(CAMERA_RIGHT)) input.moveRight = 1;
-
     if (playerIndex == PlayerIndex::Player1) {
         if (isKeyPressed(LOOK_LEFT_P1))
             input.yaw = 1.0f;
@@ -80,23 +75,6 @@ CameraControlInput KeyboardController::getCameraControlInput() {
 
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
-
-    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
-        if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-            float deltaX = static_cast<float>(mouseX - lastMouseX);
-            float deltaY = static_cast<float>(mouseY - lastMouseY);
-
-            if (input.yaw == 0.0f) input.yaw = deltaX;
-
-            input.pitch = -deltaY;
-        } else {
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
-    } else {
-        glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
 
     lastMouseX = mouseX;
     lastMouseY = mouseY;
@@ -148,10 +126,6 @@ std::string KeyboardController::GetCarControllBindings() {
 
 std::string KeyboardController::GetCameraControllBindings() {
     std::string result;
-    result += "Move Forward: " + KeyToString(CAMERA_FORWARD) + "\n";
-    result += "Move Backward: " + KeyToString(CAMERA_BACKWARD) + "\n";
-    result += "Move Left: " + KeyToString(CAMERA_LEFT) + "\n";
-    result += "Move Right: " + KeyToString(CAMERA_RIGHT) + "\n";
 
     if (playerIndex == PlayerIndex::Player0) {
         result += "Yaw Left: " + KeyToString(LOOK_LEFT_P0) + "\n";

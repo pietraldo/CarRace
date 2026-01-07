@@ -54,4 +54,6 @@ struct InputData {
 
     CarControlInput carControl1;
     CameraControlInput cameraControl1;
+
+    CameraControlInput freeCameraControl;
 };
