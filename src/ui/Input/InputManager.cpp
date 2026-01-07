@@ -16,16 +16,16 @@ void InputManager::setUp() {
     bool ps5Connected = !tmxConnected && !xboxConnected && ps5Controller->connect();  // Priority: TMX/Xbox > PS5
 
     if (tmxConnected && xboxConnected) {
-        InputManager::getInstance().setInputController1(tmxController);
-        InputManager::getInstance().setInputController2(xboxController);
+        InputManager::getInstance().setInputController0(tmxController);
+        InputManager::getInstance().setInputController1(xboxController);
 
         currentInputType = CONTROLLER_AND_CONTROLLER;
         std::cout << "Thrustmaster TMX and Xbox Controller connected. Player0: Wheel, Player1: Xbox" << std::endl;
 
         delete ps5Controller;
     } else if (tmxConnected) {
-        InputManager::getInstance().setInputController1(tmxController);
-        InputManager::getInstance().setInputController2(keyboard0);
+        InputManager::getInstance().setInputController0(tmxController);
+        InputManager::getInstance().setInputController1(keyboard0);
 
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Thrustmaster TMX connected. Player0: Wheel, Player1: keyboard" << std::endl;
@@ -34,8 +34,8 @@ void InputManager::setUp() {
         delete xboxController;
         delete keyboard1;
     } else if (xboxConnected) {
-        InputManager::getInstance().setInputController1(xboxController);
-        InputManager::getInstance().setInputController2(keyboard0);
+        InputManager::getInstance().setInputController0(xboxController);
+        InputManager::getInstance().setInputController1(keyboard0);
 
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Xbox Controller connected. Player0: Xbox, Player1: keyboard" << std::endl;
@@ -44,8 +44,8 @@ void InputManager::setUp() {
         delete tmxController;
         delete keyboard1;
     } else if (ps5Connected) {
-        InputManager::getInstance().setInputController1(ps5Controller);
-        InputManager::getInstance().setInputController2(keyboard0);
+        InputManager::getInstance().setInputController0(ps5Controller);
+        InputManager::getInstance().setInputController1(keyboard0);
 
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "PS5 Controller connected. Player0: Pad, Player1: keyboard" << std::endl;
@@ -54,8 +54,8 @@ void InputManager::setUp() {
         delete xboxController;
         delete keyboard1;
     } else {
-        InputManager::getInstance().setInputController1(keyboard0);
-        InputManager::getInstance().setInputController2(keyboard1);
+        InputManager::getInstance().setInputController0(keyboard0);
+        InputManager::getInstance().setInputController1(keyboard1);
 
         currentInputType = KEYBOARD_AND_KEYBOARD;
         std::cout << "No controllers connected. Player0: keyboard0, Player1: keyboard1" << std::endl;

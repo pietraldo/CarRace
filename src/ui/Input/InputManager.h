@@ -37,8 +37,8 @@ public:
 
     void setUp();
 
-    void setInputController1(InputController* controller) { inputController0 = controller; }
-    void setInputController2(InputController* controller) { inputController1 = controller; }
+    void setInputController0(InputController* controller) { inputController0 = controller; }
+    void setInputController1(InputController* controller) { inputController1 = controller; }
 
     InputData getInputData();
     std::string getInputBindingsInfo();
