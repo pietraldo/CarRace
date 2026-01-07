@@ -2,9 +2,9 @@
   "START_SCR_WIDTH": 1600,
   "START_SCR_HEIGHT": 1000,
   "fullscreen": true,
+  "developerMode": true,
   "CAR_COUNT": 2,
   
-  "developerMode": true,
   "sound": true,
   
   "useDifferentMaterialsForTerrain": false,

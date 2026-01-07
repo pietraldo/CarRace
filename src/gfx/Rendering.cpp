@@ -849,10 +849,21 @@ void Rendering::RenderLoadingScreen(float progress) {
     glGenTextures(1, &introTexture.textureID);
     glBindTexture(GL_TEXTURE_2D, introTexture.textureID);
 
+    std::string path = "../assets/animation/loading_screen.png";
+    if ((float)window_width / window_height > 2.0f) {
+        path = "../assets/animation/loading_ultra_screen.png";
+    }
+
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load("../assets/animation/loading_screen.png", &introTexture.width, &introTexture.height,
-                                    &introTexture.channels,
+    unsigned char* data = stbi_load(path.c_str(), &introTexture.width, &introTexture.height, &introTexture.channels,
                                     4);  // force 4 channels
+
+    if (!data && path != "../assets/animation/loading_screen.png") {
+        std::cout << "Failed to load ultrawide loading texture, falling back to default." << std::endl;
+        path = "../assets/animation/loading_screen.png";
+        data = stbi_load(path.c_str(), &introTexture.width, &introTexture.height, &introTexture.channels, 4);
+    }
+
     stbi_set_flip_vertically_on_load(false);
 
     if (data) {
