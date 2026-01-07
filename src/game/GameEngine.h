@@ -75,7 +75,7 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    shared_ptr<GameObject2> measureObject; 
+    shared_ptr<GameObject2> measureObject;
     vector<shared_ptr<GameObject2>> bariers;
 
     void StartSimulation();
