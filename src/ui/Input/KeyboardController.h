@@ -73,6 +73,8 @@ public:
     static void mouseCallback(float addToDeltaMouseX, float addToDeltaMouseY);
     static void scrollCallback(float deltaOffsetY);
 
+    static int GetKeyFromJson(const rapidjson::Value& obj, const char* key);
+
 private:
     PlayerIndex playerIndex;
     bool isKeyPressed(int key);
@@ -87,6 +89,7 @@ private:
     static double lastMouseY;
 
     static const std::unordered_map<std::string, int> keyNameToGLFWKey;
+
     static const std::unordered_map<int, std::string> GlfwKeyToString;
     static std::string KeyToString(int key);
 };

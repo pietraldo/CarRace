@@ -1,10 +1,12 @@
 #pragma once
 
 #include "InputController.h"
+#include <string>
 
 class EditCameraInputController : public InputController {
 public:
     EditCameraInputController();
+    bool LoadKeyBindingsFromFile(const std::string& filename);
 
     CarControlInput getCarControlInput() override { return {}; }
     CameraControlInput getCameraControlInput() override;

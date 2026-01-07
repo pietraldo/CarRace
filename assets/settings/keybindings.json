@@ -9,7 +9,8 @@
     "RESET": "B",
     "HANDBRAKE": "SPACE",
     "LOOK_RIGHT": "COMMA",
-    "LOOK_LEFT": "PERIOD"
+    "LOOK_LEFT": "PERIOD",
+    "CHANGE_CAMERA": "9"
   },
   "Player1": {
     "STEER_RIGHT": "L",
@@ -21,7 +22,8 @@
     "RESET": "F",
     "HANDBRAKE": "LEFT_SHIFT",
     "LOOK_RIGHT": "V",
-    "LOOK_LEFT": "C"
+    "LOOK_LEFT": "C",
+    "CHANGE_CAMERA": "1"
   },
   "Camera": {
     "FORWARD": "W",

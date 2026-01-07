@@ -136,9 +136,11 @@ std::string KeyboardController::GetCameraControllBindings() {
     if (playerIndex == PlayerIndex::Player0) {
         result += "Yaw Left: " + KeyToString(LOOK_LEFT_P0) + "\n";
         result += "Yaw Right: " + KeyToString(LOOK_RIGHT_P0) + "\n";
+        result += "Change Camera: " + KeyToString(CHANGE_CAMERA_P0) + "\n";
     } else {
         result += "Yaw Left: " + KeyToString(LOOK_LEFT_P1) + "\n";
         result += "Yaw Right: " + KeyToString(LOOK_RIGHT_P1) + "\n";
+        result += "Change Camera: " + KeyToString(CHANGE_CAMERA_P1) + "\n";
     }
 
     return result;
@@ -204,6 +206,7 @@ bool KeyboardController::LoadKeyBindingsFromFile(const std::string& filename) {
     HANDBRAKE_P0 = getKey(P0, "HANDBRAKE");
     LOOK_RIGHT_P0 = getKey(P0, "LOOK_RIGHT");
     LOOK_LEFT_P0 = getKey(P0, "LOOK_LEFT");
+    CHANGE_CAMERA_P0 = getKey(P0, "CHANGE_CAMERA");
 
     // Player 1
     const auto& P1 = doc["Player1"];
@@ -217,6 +220,7 @@ bool KeyboardController::LoadKeyBindingsFromFile(const std::string& filename) {
     HANDBRAKE_P1 = getKey(P1, "HANDBRAKE");
     LOOK_RIGHT_P1 = getKey(P1, "LOOK_RIGHT");
     LOOK_LEFT_P1 = getKey(P1, "LOOK_LEFT");
+    CHANGE_CAMERA_P1 = getKey(P1, "CHANGE_CAMERA");
 
     // Camera
     const auto& Cam = doc["Camera"];
@@ -235,6 +239,18 @@ bool KeyboardController::LoadKeyBindingsFromFile(const std::string& filename) {
     TOGGLE_SOUND_KEY = getKey(Add, "TOGGLE_SOUND");
 
     return true;
+}
+
+int KeyboardController::GetKeyFromJson(const rapidjson::Value& obj, const char* key) {
+    if (!obj.HasMember(key)) return GLFW_KEY_UNKNOWN;
+
+    std::string val = obj[key].GetString();
+    auto it = keyNameToGLFWKey.find(val);
+    if (it == keyNameToGLFWKey.end()) {
+        std::cerr << "Unknown key name: " << val << " for action: " << key << std::endl;
+        return GLFW_KEY_UNKNOWN;
+    }
+    return it->second;
 }
 
 const std::unordered_map<int, std::string> KeyboardController::GlfwKeyToString = {
