@@ -105,7 +105,7 @@ namespace CarRaceLauncher
 
 			string baseDir = AppContext.BaseDirectory;
 			string exePath = Path.Combine(baseDir, "program_files", "bin", "carrace.exe");
-			string workingDir = Path.GetDirectoryName(exePath)!;
+			string workingDir = Path.Combine(baseDir, "program_files");  // Working directory should be program_files/ not bin/
 
 			if (!File.Exists(exePath))
 			{

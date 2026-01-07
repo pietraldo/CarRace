@@ -4,7 +4,7 @@
 InputManager* InputManager::inputManager = nullptr;
 
 void InputManager::setUp() {
-    PS5Controller* ps5Controller = new PS5Controller();
+    // PS5Controller* ps5Controller = new PS5Controller();  // Disabled for Release build
     ThrustmasterTMXController* tmxController = new ThrustmasterTMXController();
     XboxController* xboxController = new XboxController(0);
     auto* keyboard0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
@@ -12,7 +12,8 @@ void InputManager::setUp() {
 
     bool tmxConnected = tmxController->connect();
     bool xboxConnected = xboxController->connect();
-    bool ps5Connected = !tmxConnected && !xboxConnected && ps5Controller->connect();  // Priority: TMX/Xbox > PS5
+    // bool ps5Connected = !tmxConnected && !xboxConnected && ps5Controller->connect();  // Disabled
+    bool ps5Connected = false;  // PS5 support disabled
 
     if (tmxConnected && xboxConnected) {
         InputManager::getInstance().setInputController1(tmxController);
@@ -21,7 +22,7 @@ void InputManager::setUp() {
         currentInputType = CONTROLLER_AND_CONTROLLER;
         std::cout << "Thrustmaster TMX and Xbox Controller connected. Player0: Wheel, Player1: Xbox" << std::endl;
 
-        delete ps5Controller;
+        // delete ps5Controller;  // Disabled
     } else if (tmxConnected) {
         InputManager::getInstance().setInputController1(tmxController);
         InputManager::getInstance().setInputController2(keyboard0);
@@ -29,7 +30,7 @@ void InputManager::setUp() {
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Thrustmaster TMX connected. Player0: Wheel, Player1: keyboard" << std::endl;
 
-        delete ps5Controller;
+        // delete ps5Controller;  // Disabled
         delete xboxController;
         delete keyboard1;
     } else if (xboxConnected) {
@@ -39,19 +40,21 @@ void InputManager::setUp() {
         currentInputType = CONTROLLER_AND_KEYBOARD;
         std::cout << "Xbox Controller connected. Player0: Xbox, Player1: keyboard" << std::endl;
 
-        delete ps5Controller;
+        // delete ps5Controller;  // Disabled
         delete tmxController;
         delete keyboard1;
-    } else if (ps5Connected) {
-        InputManager::getInstance().setInputController1(ps5Controller);
-        InputManager::getInstance().setInputController2(keyboard0);
+        /* PS5 Controller support disabled for Release build
+        } else if (ps5Connected) {
+            InputManager::getInstance().setInputController1(ps5Controller);
+            InputManager::getInstance().setInputController2(keyboard0);
 
-        currentInputType = CONTROLLER_AND_KEYBOARD;
-        std::cout << "PS5 Controller connected. Player0: Pad, Player1: keyboard" << std::endl;
+            currentInputType = CONTROLLER_AND_KEYBOARD;
+            std::cout << "PS5 Controller connected. Player0: Pad, Player1: keyboard" << std::endl;
 
-        delete tmxController;
-        delete xboxController;
-        delete keyboard1;
+            delete tmxController;
+            delete xboxController;
+            delete keyboard1;
+        */
     } else {
         InputManager::getInstance().setInputController1(keyboard0);
         InputManager::getInstance().setInputController2(keyboard1);
@@ -59,7 +62,7 @@ void InputManager::setUp() {
         currentInputType = KEYBOARD_AND_KEYBOARD;
         std::cout << "No controllers connected. Player0: keyboard0, Player1: keyboard1" << std::endl;
 
-        delete ps5Controller;
+        // delete ps5Controller;  // Disabled
         delete tmxController;
         delete xboxController;
     }

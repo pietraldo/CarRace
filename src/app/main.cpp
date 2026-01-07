@@ -1,5 +1,5 @@
 ﻿
-#include <hidapi.h>
+// #include <hidapi.h>  // Disabled for Release build without hidapi
 
 #include <cstdlib>
 #include <glm/glm.hpp>
@@ -44,32 +44,46 @@ float lastFrame = 0.0f;
 GameEngine* gameEngine = nullptr;
 
 int main() {
+    std::cout << "[MAIN] Starting application..." << std::endl;
     Settings::Get().LoadFromFile();
 
+    std::cout << "[MAIN] Initializing loading screen..." << std::endl;
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
 
+    std::cout << "[MAIN] Creating GameEngine..." << std::endl;
     gameEngine = new GameEngine();
 
+    std::cout << "[MAIN] Initializing Physics..." << std::endl;
     Physics::getInstance()->initialize(gameEngine);
 
     Rendering::gameEngine = gameEngine;
     srand(19);
 
+    std::cout << "[MAIN] Creating lights..." << std::endl;
     gameEngine->CreateLights();
     CameraManager::GetInstance()->CreateCameras();
     LightBuffer lightBuffer = gameEngine->LoadLights();
+
+    std::cout << "[MAIN] Initializing AudioEngine..." << std::endl;
     AudioEngine::instance().init();
 
+    std::cout << "[MAIN] Initializing rest of rendering..." << std::endl;
     if (Rendering::InitializeRest() == -1) return -1;
 
+    std::cout << "[MAIN] Setting up InputManager..." << std::endl;
     InputManager::getInstance().setUp();
 
+    std::cout << "[MAIN] Initializing skybox..." << std::endl;
     gameEngine->InitializeSkybox();
 
+    std::cout << "[MAIN] Creating models..." << std::endl;
     gameEngine->CreateModels();
 
+    std::cout << "[MAIN] Creating physics objects..." << std::endl;
     Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
+
+    std::cout << "[MAIN] Setup complete, starting game loop..." << std::endl;
 
     if (Settings::Get().playIntroAnimation) {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);

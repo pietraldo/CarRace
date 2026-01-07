@@ -286,8 +286,11 @@ void GameEngine::DrawTerrain(Shader& shader, unsigned int& sphereVAO, Camera& ac
 }
 
 void GameEngine::CreateModels() {
+    std::cout << "[CreateModels] Creating cubes..." << std::endl;
     CreateCubes();
+    std::cout << "[CreateModels] Creating cars..." << std::endl;
     CreateCars();
+    std::cout << "[CreateModels] Creating buildings..." << std::endl;
     CreateBuildings();
 
     const std::string bridgeModelPath = "../assets/models/bridge3/bridge.gltf";
@@ -614,15 +617,24 @@ glm::quat GameEngine::GetCarRotation() const {
 }
 
 void GameEngine::CreateCars() {
+    std::cout << "[CreateCars] Loading car models..." << std::endl;
+
     const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
 
+    std::cout << "[CreateCars] About to create body model with path: " << carModelPath << std::endl;
+    std::cout << "[CreateCars] Calling make_shared..." << std::endl;
     auto bodyModel = std::make_shared<Model>(carModelPath, glm::vec3(0.85f), glm::vec3(1.f));
+    std::cout << "[CreateCars] Body model created successfully!" << std::endl;
+    std::cout << "[CreateCars] Creating wheel model..." << std::endl;
     auto wheelModel = std::make_shared<Model>(wheelModelPath, glm::vec3(0.27f), glm::vec3(1.f));
+    std::cout << "[CreateCars] Creating steering model..." << std::endl;
     auto steeringModel = std::make_shared<Model>(steringWheelModelPath, glm::vec3(0.3f), glm::vec3(1.f));
 
+    std::cout << "[CreateCars] Creating " << Settings::Get().CAR_COUNT << " car objects..." << std::endl;
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
+        std::cout << "[CreateCars] Creating car " << i << "..." << std::endl;
         cars[i] = std::make_unique<Car>(bodyModel, wheelModel, steeringModel, i);
         cars[i]->positionOffset = glm::vec3(0.0f, 0.265f, 1.59f);
         cars[i]->rotationOffset = physx::PxQuat(glm::radians(90.0f), physx::PxVec3(0.f, 1.f, 0.f));

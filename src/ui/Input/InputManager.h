@@ -3,7 +3,7 @@
 #include "InputController.h"
 #include "InputStructures.h"
 #include "KeyboardController.h"
-#include "PS5Controller.h"
+// #include "PS5Controller.h"  // Disabled for Release build without hidapi
 #include "ThrustmasterTMXController.h"
 #include "XboxController.h"
 

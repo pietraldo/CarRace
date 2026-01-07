@@ -9,13 +9,15 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
   audio/*.cpp
 )
 
+# Exclude PS5Controller files (require hidapi which is not available in Release build)
+list(FILTER SRC_FILES EXCLUDE REGEX ".*PS5Controller\\.cpp$")
+
 add_executable(carrace ${SRC_FILES})
 
 target_include_directories(carrace PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/externals   
   ${CMAKE_SOURCE_DIR}             
-  ${CMAKE_SOURCE_DIR}/externals/hidapi/include
   ${CMAKE_SOURCE_DIR}/externals/physx/include
   ${CMAKE_SOURCE_DIR}/externals/rapidjson/include
   ${CMAKE_SOURCE_DIR}/externals/stb_image
@@ -28,7 +30,6 @@ set(PHYSX_LIB ${CMAKE_SOURCE_DIR}/externals/physx/lib)
 
 target_link_libraries(carrace PRIVATE
 	glfw glad imgui glm assimp 
-	${CMAKE_SOURCE_DIR}/externals/hidapi/lib/hidapi.lib
 	${PHYSX_LIB}/PhysX_64.lib
 	${PHYSX_LIB}/PhysXCommon_64.lib
 	${PHYSX_LIB}/PhysXCooking_64.lib
@@ -103,14 +104,6 @@ add_custom_command(TARGET carrace POST_BUILD
     COMMENT "Force copying backgroundTextures to output..."
 )
 
-# --- Copy DLLs ---
-add_custom_command(TARGET carrace POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_SOURCE_DIR}/externals/hidapi/bin/hidapi.dll
-    $<TARGET_FILE_DIR:carrace>
-)
-
-
 # --- Copy PhysX DLLs ---
 set(PHYSX_DLL_DIR "${PHYSX_DIR}/dll") # adjust to your build output
 
@@ -123,8 +116,8 @@ add_custom_target(copy_physx_dll ALL
 foreach(dll_file ${PHYSX_DLLS})
   add_custom_command(TARGET copy_physx_dll POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${dll_file}
-      $<TARGET_FILE_DIR:carrace>
+      "${dll_file}"
+      "$<TARGET_FILE_DIR:carrace>"
   )
 endforeach()
 

@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "stb_image.h"
 #include <imgui.h>
+#include <cstdint>
 
 HudRenderer::HudRenderer() {
     shader = nullptr;
@@ -42,10 +43,17 @@ void HudRenderer::Init() {
     soundOffTexture = LoadTexture(PATH_SOUND_OFF);
 
     // Setup Quad VAO
-    float vertices[] = {// pos      // tex
-                        0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    // Format: pos(x,y) , tex(u,v)  -> 6 vertices (2 triangles)
+    float vertices[] = {
+        // pos      // tex
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
 
-                        0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
+    };
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -93,7 +101,6 @@ unsigned int HudRenderer::LoadTexture(const std::string& path) {
         stbi_image_free(data);
     } else {
         std::cout << "Texture failed to load at path: " << path << std::endl;
-        if (data) stbi_image_free(data);
     }
 
     return textureID;
@@ -204,7 +211,7 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     if (data.gear == 1) gearText = "N";
     if (data.gear == 0) gearText = "R";
 
-    DrawText(gearText, gearX, gearY, 1.0f, glm::vec3(1.0f), projection);
+    //DrawText(gearText, gearX, gearY, 1.0f, glm::vec3(1.0f), projection);
 
     float centerX = width / 2.0f;
     float topY = height - margin - 20.0f;
@@ -217,10 +224,10 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
         int count = (int)std::ceil(data.countdownTime);
         if (count > 0) {
             std::string countText = std::to_string(count);
-            DrawText(countText, centerX, height / 2.0f, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f), projection);
+            //DrawText(countText, centerX, height / 2.0f, 3.0f, glm::vec3(1.0f, 0.0f, 0.0f), projection);
         }
     } else if (data.raceTime < 1.5f) {
-        DrawText("START", centerX, height / 2.0f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
+        //DrawText("START", centerX, height / 2.0f, 3.0f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
     }
 
     float timeToDisplay = data.finished ? data.finishTime : data.raceTime;
@@ -236,10 +243,10 @@ void HudRenderer::Render(int playerIndex, const HudPlayerData& data, int x, int 
     std::string timeText = ss.str();
     glm::vec3 timerColor = data.finished ? glm::vec3(1.0f, 1.0f, 0.0f) : glm::vec3(1.0f);
 
-    DrawText(timeText, centerX, topY, 1.0f, timerColor, projection);
+    //DrawText(timeText, centerX, topY, 1.0f, timerColor, projection);
 
     if (data.finished) {
-        DrawText("FINISHED", centerX, topY - 40.0f, 1.2f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
+        //DrawText("FINISHED", centerX, topY - 40.0f, 1.2f, glm::vec3(0.0f, 1.0f, 0.0f), projection);
     }
 
     if (playerIndex == 0) {
@@ -273,9 +280,16 @@ void HudRenderer::DrawTexture(unsigned int textureId, float x, float y, float w,
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    float vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    float vertices[] = {
+        // pos      // tex
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
 
-                        0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
+    };
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
@@ -284,69 +298,78 @@ void HudRenderer::DrawTexture(unsigned int textureId, float x, float y, float w,
     glBindVertexArray(0);
 }
 
-void HudRenderer::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color,
-                           glm::mat4 projection) {
-    if (!hudFont) return;
-
-    shader->use();
-    shader->setVec3("color", color);
-    shader->setMat4("projection", projection);
-    shader->setMat4("model", glm::mat4(1.0f));
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, (unsigned int)(intptr_t)hudFont->ContainerAtlas->TexID.GetTexID());
-
-    glBindVertexArray(VAO);
-
-    float fontBaseSize = hudFont->LegacySize;
-    float fontSize = 32.0f * scale;
-    float currentScale = fontSize / fontBaseSize;
-
-    ImFontBaked* bakedFont = hudFont->GetFontBaked(fontBaseSize);
-    if (!bakedFont) return;
-
-    float totalWidth = 0;
-    for (char c : text) {
-        const ImFontGlyph* glyph = bakedFont->FindGlyph(c);
-        if (glyph) {
-            totalWidth += glyph->AdvanceX * currentScale;
-        }
-    }
-
-    float cursorX = x - totalWidth / 2.0f;
-    float cursorY = y - (fontBaseSize * currentScale) / 2.0f;
-
-    for (char c : text) {
-        const ImFontGlyph* glyph = bakedFont->FindGlyph(c);
-        if (!glyph) continue;
-
-        float w = (glyph->X1 - glyph->X0) * currentScale;
-        float h = (glyph->Y1 - glyph->Y0) * currentScale;
-
-        float u0 = glyph->U0;
-        float v0 = glyph->V0;
-        float u1 = glyph->U1;
-        float v1 = glyph->V1;
-
-        float x_left = cursorX + glyph->X0 * currentScale;
-        float x_right = x_left + w;
-
-        float y_base = cursorY + 20.0f;
-        float y_top = y_base + (fontBaseSize - glyph->Y0) * currentScale;
-        float y_bot = y_base + (fontBaseSize - glyph->Y1) * currentScale;
-
-        float vertices[6][4] = {{x_left, y_top, u0, v0}, {x_right, y_bot, u1, v1}, {x_left, y_bot, u0, v1},
-
-                                {x_left, y_top, u0, v0}, {x_right, y_top, u1, v0}, {x_right, y_bot, u1, v1}};
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        cursorX += glyph->AdvanceX * currentScale;
-    }
-    glBindVertexArray(0);
-}
+//void HudRenderer::DrawText(const std::string& text, float x, float y, float scale, glm::vec3 color,
+//                           glm::mat4 projection) {
+//    if (!hudFont) return;
+//
+//    shader->use();
+//    shader->setVec3("color", color);
+//    shader->setMat4("projection", projection);
+//    shader->setMat4("model", glm::mat4(1.0f));
+//
+//    // Bezpieczne rzutowanie ID tekstury atlasu (obs³uga 64-bit)
+//    uintptr_t rawTex = reinterpret_cast<uintptr_t>(hudFont->ContainerAtlas->TexID.GetTexID());
+//    unsigned int texId = static_cast<unsigned int>(rawTex);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, texId);
+//
+//    //glBindVertexArray(VAO);
+//
+//    float fontBaseSize = hudFont->LegacySize;
+//    float fontSize = 32.0f * scale;
+//    float currentScale = fontSize / fontBaseSize;
+//
+//    ImFontBaked* bakedFont = hudFont->GetFontBaked(fontBaseSize);
+//    if (!bakedFont) return;
+//
+//    float totalWidth = 0;
+//    for (char c : text) {
+//        const ImFontGlyph* glyph = bakedFont->FindGlyph(c);
+//        if (glyph) {
+//            totalWidth += glyph->AdvanceX * currentScale;
+//        }
+//    }
+//
+//    float cursorX = x - totalWidth / 2.0f;
+//    float cursorY = y - (fontBaseSize * currentScale) / 2.0f;
+//
+//    for (char c : text) {
+//        const ImFontGlyph* glyph = bakedFont->FindGlyph(c);
+//        if (!glyph) continue;
+//
+//        float w = (glyph->X1 - glyph->X0) * currentScale;
+//        float h = (glyph->Y1 - glyph->Y0) * currentScale;
+//
+//        float u0 = glyph->U0;
+//        float v0 = glyph->V0;
+//        float u1 = glyph->U1;
+//        float v1 = glyph->V1;
+//
+//        float x_left = cursorX + glyph->X0 * currentScale;
+//        float x_right = x_left + w;
+//
+//        float y_base = cursorY + 20.0f;
+//        float y_top = y_base + (fontBaseSize - glyph->Y0) * currentScale;
+//        float y_bot = y_base + (fontBaseSize - glyph->Y1) * currentScale;
+//
+//        float vertices[6][4] = {
+//            {x_left, y_top, u0, v0},
+//            {x_right, y_bot, u1, v1},
+//            {x_left, y_bot, u0, v1},
+//
+//            {x_left, y_top, u0, v0},
+//            {x_right, y_top, u1, v0},
+//            {x_right, y_bot, u1, v1}
+//        };
+//
+//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//
+//        cursorX += glyph->AdvanceX * currentScale;
+//    }
+//    glBindVertexArray(0);
+//}
 
 glm::vec2 HudRenderer::GetMinimapCoords(const glm::vec3& worldPos) {
     const float IMG_WIDTH = 962.0f;

@@ -1,6 +1,5 @@
 #include "Rendering.h"
-#define STB_IMAGE_IMPLEMENTATION
-
+// STB_IMAGE_IMPLEMENTATION is defined in Model.cpp only
 #include "Mesh.h"
 #include "Mirrors.h"
 #include "camera/FirstPersonCamera.h"

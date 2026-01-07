@@ -16,15 +16,25 @@ void Model::Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMe
 const std::vector<Mesh>& Model::GetMeshes() const { return meshes; }
 
 void Model::loadModel(string path) {
-    Assimp::Importer import;
-    const aiScene* scene =
-        import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs /* | aiProcess_CalcTangentSpace*/);
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
-        return;
+    std::cout << "[Model] Loading model from: " << path << std::endl;
+    try {
+        Assimp::Importer import{};
+        std::cout << "[Model] Calling ReadFile..." << std::endl;
+        const aiScene* scene =
+            import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs /* | aiProcess_CalcTangentSpace*/);
+        std::cout << "[Model] ReadFile returned" << std::endl;
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+            cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
+            return;
+        }
+        directory = path.substr(0, path.find_last_of('/'));
+        std::cout << "[Model] Processing nodes..." << std::endl;
+        processNode(scene->mRootNode, scene);
+        std::cout << "[Model] Nodes processed" << std::endl;
+    } catch (const std::exception& e) {
+        std::cout << "[Model] EXCEPTION: " << e.what() << std::endl;
+        throw;
     }
-    directory = path.substr(0, path.find_last_of('/'));
-    processNode(scene->mRootNode, scene);
 
     float maxDist = 0.0f;
     for (const auto& mesh : meshes) {
