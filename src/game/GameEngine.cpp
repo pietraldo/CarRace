@@ -118,7 +118,11 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
         animationCamera.Update(dt);
         if (animationCamera.GetAnimation().HasEnded()) {
-            CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+            if (Settings::Get().CAR_COUNT == 2) {
+                CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+            } else {
+                CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+            }
             StartSimulation();
         }
     }
@@ -303,7 +307,7 @@ void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& acti
     RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     for (Light* light : lights) {
-        if (light->GetType() != LightType::POINT) continue;
+        if (light->GetType() != LightType::POINT_LIGHT) continue;
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, light->GetPosition());
         model = glm::scale(model, glm::vec3(0.2f));

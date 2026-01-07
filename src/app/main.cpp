@@ -1,6 +1,11 @@
 ﻿
 #include <hidapi.h>
 
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include <cstdlib>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,6 +50,15 @@ GameEngine* gameEngine = nullptr;
 
 int main() {
     Settings::Get().LoadFromFile();
+
+#ifdef _WIN32
+    if (Settings::Get().productionMode) {
+        HWND hwnd = GetConsoleWindow();
+        if (hwnd != NULL) {
+            ShowWindow(hwnd, SW_HIDE);
+        }
+    }
+#endif
 
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
