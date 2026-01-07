@@ -102,7 +102,6 @@ InputData InputManager::getInputData() {
         AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
         inputData.additionalInfo.startSimulation = inputData.additionalInfo.startSimulation || info0.startSimulation;
         inputData.additionalInfo.exit = inputData.additionalInfo.exit || info0.exit;
-        inputData.additionalInfo.resetCars = inputData.additionalInfo.resetCars || info0.resetCars;
         inputData.additionalInfo.switchImGui = inputData.additionalInfo.switchImGui || info0.switchImGui;
         inputData.additionalInfo.switchHelp = inputData.additionalInfo.switchHelp || info0.switchHelp;
     }
@@ -122,7 +121,6 @@ InputData InputManager::getInputData() {
 
         inputData.additionalInfo.startSimulation = info0.startSimulation || info1.startSimulation;
         inputData.additionalInfo.exit = info0.exit || info1.exit;
-        inputData.additionalInfo.resetCars = info0.resetCars || info1.resetCars;
         inputData.additionalInfo.switchImGui = info0.switchImGui || info1.switchImGui;
         inputData.additionalInfo.switchHelp = info0.switchHelp || info1.switchHelp;
     }

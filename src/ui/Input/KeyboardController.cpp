@@ -95,7 +95,6 @@ AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     AdditionalInputInfo info;
     info.startSimulation = isKeyJustPressed(START_SIMULATION_KEY);
     info.exit = isKeyJustPressed(EXIT_KEY);
-    info.resetCars = isKeyJustPressed(RESET_CARS_KEY);
     info.switchImGui = isKeyJustPressed(SWITCH_IMGUI_KEY);
     info.switchHelp = isKeyJustPressed(SWITCH_HELP_KEY);
     info.toggleSound = isKeyJustPressed(TOGGLE_SOUND_KEY);
@@ -150,7 +149,6 @@ std::string KeyboardController::GetAdditionalControllBindings() {
     std::string result;
     result += "Start Simulation: " + KeyToString(START_SIMULATION_KEY) + "\n";
     result += "Exit: " + KeyToString(EXIT_KEY) + "\n";
-    result += "Reset Cars: " + KeyToString(RESET_CARS_KEY) + "\n";
     result += "Switch ImGui: " + KeyToString(SWITCH_IMGUI_KEY) + "\n";
     result += "Switch Help: " + KeyToString(SWITCH_HELP_KEY) + "\n";
     result += "Toggle Sound: " + KeyToString(TOGGLE_SOUND_KEY) + "\n";
@@ -233,7 +231,6 @@ bool KeyboardController::LoadKeyBindingsFromFile(const std::string& filename) {
     const auto& Add = doc["Additional"];
     START_SIMULATION_KEY = getKey(Add, "START_SIMULATION");
     EXIT_KEY = getKey(Add, "EXIT");
-    RESET_CARS_KEY = getKey(Add, "RESET_CARS");
     SWITCH_IMGUI_KEY = getKey(Add, "SWITCH_IMGUI");
     SWITCH_HELP_KEY = getKey(Add, "SWITCH_HELP");
     TOGGLE_SOUND_KEY = getKey(Add, "TOGGLE_SOUND");

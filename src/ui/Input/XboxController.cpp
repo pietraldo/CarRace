@@ -147,7 +147,6 @@ AdditionalInputInfo XboxController::getAdditionalInputInfo() {
     if (!_connected) return info;
 
     info.startSimulation = isButtonJustPressed(XINPUT_GAMEPAD_START);
-    info.resetCars = isButtonJustPressed(XINPUT_GAMEPAD_BACK);
 
     return info;
 }

@@ -37,7 +37,6 @@ struct CameraControlInput {
 struct AdditionalInputInfo {
     bool startSimulation = false;
     bool exit = false;
-    bool resetCars = false;
     bool switchImGui = false;
     bool switchHelp = false;
     bool toggleSound = false;

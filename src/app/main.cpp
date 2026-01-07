@@ -93,10 +93,6 @@ int main() {
 
         continueGame = !input.additionalInfo.exit;
 
-        if (input.additionalInfo.resetCars) {
-            Physics::getInstance()->getVehicles()[0]->resetCar();
-        }
-
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {
             if (gameEngine->isCountdownActive) {

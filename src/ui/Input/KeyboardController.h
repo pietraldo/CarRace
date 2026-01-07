@@ -51,7 +51,6 @@ public:
     // Additional actions key bindings
     int START_SIMULATION_KEY = GLFW_KEY_P;
     int EXIT_KEY = GLFW_KEY_ESCAPE;
-    int RESET_CARS_KEY = GLFW_KEY_R;
     int SWITCH_IMGUI_KEY = GLFW_KEY_F2;
     int SWITCH_HELP_KEY = GLFW_KEY_F1;
     int TOGGLE_SOUND_KEY = GLFW_KEY_F9;
