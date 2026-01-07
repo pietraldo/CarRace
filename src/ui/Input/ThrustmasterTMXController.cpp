@@ -110,6 +110,9 @@ CameraControlInput ThrustmasterTMXController::getCameraControlInput() {
         }
     }
 
+    // Button 6 as switch camera (example unused button)
+    if (isButtonJustPressed(6)) input.switchCamera = true;
+
     return input;
 }
 

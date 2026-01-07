@@ -73,6 +73,12 @@ CameraControlInput KeyboardController::getCameraControlInput() {
             input.yaw = -1.0f;
     }
 
+    if (playerIndex == PlayerIndex::Player1) {
+        if (isKeyJustPressed(CHANGE_CAMERA_P1)) input.switchCamera = true;
+    } else {
+        if (isKeyJustPressed(CHANGE_CAMERA_P0)) input.switchCamera = true;
+    }
+
     double mouseX, mouseY;
     glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
 

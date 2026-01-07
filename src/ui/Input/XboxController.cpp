@@ -135,6 +135,10 @@ CameraControlInput XboxController::getCameraControlInput() {
     input.yaw *= 2.0f;
     input.pitch *= 2.0f;
 
+    if (isButtonJustPressed(XINPUT_GAMEPAD_Y)) {
+        input.switchCamera = true;
+    }
+
     return input;
 }
 

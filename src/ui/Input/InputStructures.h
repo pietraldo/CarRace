@@ -30,6 +30,8 @@ struct CameraControlInput {
     float pitch = 0;  // -1 to 1
 
     float zoom = 0;  // -1 to 1
+
+    bool switchCamera = false;
 };
 
 struct AdditionalInputInfo {

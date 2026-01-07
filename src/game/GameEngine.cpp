@@ -53,6 +53,24 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
 }
 
 void GameEngine::UpdatePlayerCamera(float dt, int playerNumber, const InputData& input) {
+    const CameraControlInput& camInput = (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
+
+    if (camInput.switchCamera) {
+        CameraType currentType = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber).cameraType;
+        CameraType nextType = CameraType::FOLLOWING_CAR_CAMERA;
+
+        if (currentType == CameraType::FOLLOWING_CAR_CAMERA)
+            nextType = CameraType::FIRST_PERSON_CAMERA;
+        else if (currentType == CameraType::FIRST_PERSON_CAMERA)
+            nextType = CameraType::OBSERVING_CAMERA;
+        else if (currentType == CameraType::OBSERVING_CAMERA)
+            nextType = CameraType::OBSERVING_CAMERA_UP;
+        else if (currentType == CameraType::OBSERVING_CAMERA_UP)
+            nextType = CameraType::FOLLOWING_CAR_CAMERA;
+
+        CameraManager::GetInstance()->SetPlayerActiveCamera(nextType, playerNumber);
+    }
+
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
     RaceCar* vehicle;
@@ -437,23 +455,21 @@ void GameEngine::CreateBarriers() {
         {glm::vec3(311.4, 28.43, -84.10), glm::vec3(0, 80, 0), scaleMost},
         {glm::vec3(315, 28.43, -72.54), glm::vec3(0, 79, 0), scaleMost},
         {glm::vec3(317.19, 28.86, -99.5), glm::vec3(0, 79, 0), scaleMost},
-        {glm::vec3(325.0, 28.86, -114.92), glm::vec3(0,68, 0), scaleMost},
+        {glm::vec3(325.0, 28.86, -114.92), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(341, 30.57, -154.29), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(348.86, 31.85, -165), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(326, 29.72, -126.90), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(357.57, 32.28, -184.25), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(348.86, 31.43, -175.26), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0,68 , 0), glm::vec3(0.35, 0.1, 0.2)},
-        {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92,0.10, 0.20)},
-        {glm::vec3(-123,23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
-        {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0,59.68 , 0), glm::vec3(0.92, 0.1, 0.2)},
+        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0, 68, 0), glm::vec3(0.35, 0.1, 0.2)},
+        {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92, 0.10, 0.20)},
+        {glm::vec3(-123, 23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
+        {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0, 59.68, 0), glm::vec3(0.92, 0.1, 0.2)},
         {glm::vec3(-185.63, 23.03, 305.66), glm::vec3(0, 47.08, 0), glm::vec3(0.92, 0.1, 0.2)},
         {glm::vec3(-190.01, 23.03, 268.70), glm::vec3(0, 59.68, 0), glm::vec3(1.45, 0.1, 0.2)},
-        {glm::vec3(-157.91, 23.03, 223.82), glm::vec3(0, 34.60, 0), glm::vec3(0.92, 0.1, 0.2)}
-    };
+        {glm::vec3(-157.91, 23.03, 223.82), glm::vec3(0, 34.60, 0), glm::vec3(0.92, 0.1, 0.2)}};
 
-    for (auto data: barierData)
-    {
+    for (auto data : barierData) {
         auto barier = make_shared<GameObjectDynamic>();
         barier->drawObject = barierModel;
         barier->SetPosition(data.position);
@@ -463,8 +479,7 @@ void GameEngine::CreateBarriers() {
         PhysicActor barierRigidBody2;
         barierRigidBody2.size = barierSizeRigidBody;
         barier->AddPhysicActor(barierRigidBody2);
-        float volume = barierSizeRigidBody.x * data.scale.x *
-                       barierSizeRigidBody.y * data.scale.y *
+        float volume = barierSizeRigidBody.x * data.scale.x * barierSizeRigidBody.y * data.scale.y *
                        barierSizeRigidBody.z * data.scale.z;
         barier->mass = volume * Settings::Get().barrierMass;
         gameObjectsDynamic.push_back(barier);
@@ -522,7 +537,7 @@ void GameEngine::CreateCubes() {
     gameObjects2.push_back(cube);
     measureObject = cube;
 
-     // floor big
+    // floor big
     glm::vec3 floorSize(1000, 1, 1000);
     glm::vec3 floorPos(0, -0.5, 0);
     glm::vec3 floorColor(0.29f, 0.27f, 0.955f);
@@ -535,7 +550,7 @@ void GameEngine::CreateCubes() {
     gameObjects2.push_back(floor);
     gameObjectsStatic.push_back(floor);
 
-     // floor big small
+    // floor big small
     glm::vec3 floorSize2(10, 1, 10);
     glm::vec3 floorPos2(0, 0.5, 0);
     glm::vec3 floorColor2(0.29f, 0.97f, 0.255f);
@@ -552,23 +567,19 @@ void GameEngine::CreateCubes() {
 void GameEngine::CreateTrees() {
     const std::string treeModelPath = "../assets/models/low_poly_tree/scene_low.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-    
+
     glm::vec3 rigidbodySize(1, 6, 1);
     glm::vec3 positionOffset(0, 3, 0);
 
-    int terrainWidth = terrain->GetTerrainWidth()/2;
-    int terrainDepth = terrain->GetTerrainDepth()/2;
-    int density = 8; 
-    for (int i = -terrainWidth; i < terrainWidth; i += 50)
-    {
-        for (int j = -terrainDepth; j < terrainDepth; j += 50)
-        {
-            for (int k = 0; k < density; k++)
-            {
+    int terrainWidth = terrain->GetTerrainWidth() / 2;
+    int terrainDepth = terrain->GetTerrainDepth() / 2;
+    int density = 8;
+    for (int i = -terrainWidth; i < terrainWidth; i += 50) {
+        for (int j = -terrainDepth; j < terrainDepth; j += 50) {
+            for (int k = 0; k < density; k++) {
                 int x = i + rand() % 50;
                 int z = j + rand() % 50;
-                if (terrain->IsGrassAtPosition(x, z) == false)
-                    continue;
+                if (terrain->IsGrassAtPosition(x, z) == false) continue;
                 float scaleRand = static_cast<float>(rand() % 200 + 100) / 100;
                 glm::vec3 scaleVec(scaleRand);
                 glm::vec3 pos(x, 0.0f, z);
@@ -585,7 +596,6 @@ void GameEngine::CreateTrees() {
                 treeRigidBody.positionOffset = positionOffset;
                 tree->AddRigidBody(treeRigidBody);
                 gameObjectsStatic.push_back(tree);
-
             }
         }
     }

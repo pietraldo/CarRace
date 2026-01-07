@@ -26,7 +26,12 @@ public:
     }
     CameraType activeType = CameraType::OBSERVING_CAMERA;
 
-    void SetActiveCamera(CameraType type) { activeType = type; }
+    void SetActiveCamera(CameraType type) {
+        activeType = type;
+        if (activeType == CameraType::OBSERVING_CAMERA_UP) {
+            static_cast<ObservingCameraUp*>(observingCameraUp.get())->Reset();
+        }
+    }
 
     Camera& GetActiveCamera() {
         switch (activeType) {

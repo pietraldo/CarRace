@@ -39,6 +39,9 @@ public:
     int LOOK_RIGHT_P1 = GLFW_KEY_V;
     int LOOK_LEFT_P1 = GLFW_KEY_C;
 
+    int CHANGE_CAMERA_P0 = GLFW_KEY_9;
+    int CHANGE_CAMERA_P1 = GLFW_KEY_1;
+
     // Camera key bindings
     int CAMERA_FORWARD = GLFW_KEY_W;
     int CAMERA_BACKWARD = GLFW_KEY_S;
