@@ -8,7 +8,7 @@
   
   "useDifferentMaterialsForTerrain": false,
   "playIntroAnimation": false,
-  "productionMode":true,
+  "productionMode":false,
   "showImGuiWindows": true,
   "showHelpImGuiWindow": false,
   

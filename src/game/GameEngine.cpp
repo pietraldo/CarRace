@@ -208,9 +208,23 @@ void GameEngine::CheckFinishLine(int carIndex) {
         return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
     };
 
+    // Check midway point
+    if (!playersStatus[carIndex].midwayPointCrossed) {
+        glm::vec2 midP1(-211.0f, -272.0f);
+        glm::vec2 midP2(-238.0f, -254.0f);
+
+        bool intersectMid = (ccw(midP1, midP2, carP1) != ccw(midP1, midP2, carP2)) &&
+                            (ccw(carP1, carP2, midP1) != ccw(carP1, carP2, midP2));
+
+        if (intersectMid) {
+            playersStatus[carIndex].midwayPointCrossed = true;
+            std::cout << "Player " << carIndex << " crossed midway point!" << std::endl;
+        }
+    }
+
     bool intersect = (ccw(p1, p2, carP1) != ccw(p1, p2, carP2)) && (ccw(carP1, carP2, p1) != ccw(carP1, carP2, p2));
 
-    if (intersect) {
+    if (intersect && playersStatus[carIndex].midwayPointCrossed) {
         if (raceTime > 10.0f) {
             playersStatus[carIndex].finished = true;
             playersStatus[carIndex].finishTime = raceTime;
