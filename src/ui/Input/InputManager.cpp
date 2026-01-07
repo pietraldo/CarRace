@@ -1,6 +1,7 @@
 #include "InputManager.h"
 #include "XboxController.h"
 #include "EditCameraInputController.h"
+#include "../../game/Settings.h"
 
 InputManager* InputManager::inputManager = nullptr;
 
@@ -136,6 +137,11 @@ InputData InputManager::getInputData() {
         inputData.cameraControl1 = inputController1->getCameraControlInput();
 
         inputData.additionalInfo = inputController0->getAdditionalInputInfo();
+    }
+
+    if (Settings::Get().productionMode) {
+        inputData.additionalInfo.switchImGui = false;
+        inputData.additionalInfo.startSimulation = false;
     }
 
     return inputData;

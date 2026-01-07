@@ -8,6 +8,7 @@
   
   "useDifferentMaterialsForTerrain": false,
   "playIntroAnimation": false,
+  "productionMode":true,
   "showImGuiWindows": true,
   "showHelpImGuiWindow": false,
   
@@ -25,5 +26,5 @@
   "steeringReturnSpeed": 5.0,
   
   "barrierMass": 0.5,
-  "playCountDown": false
+  "playCountDown": true
 }

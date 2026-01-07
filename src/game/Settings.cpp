@@ -78,6 +78,7 @@ void Settings::LoadFromFile(const char* filename) {
     loadInt("CAR_COUNT", CAR_COUNT, 1, 2);
     loadBool("useDifferentMaterialsForTerrain", useDifferentMaterialsForTerrain);
     loadBool("playIntroAnimation", playIntroAnimation);
+    loadBool("productionMode", productionMode);
 
     // UI
     loadBool("showImGuiWindows", showImGuiWindows);
@@ -99,7 +100,7 @@ void Settings::LoadFromFile(const char* filename) {
     // Steering
     loadFloat("steeringSpeed", steeringSpeed, 0);
     loadFloat("steeringReturnSpeed", steeringReturnSpeed, 0);
-    
+
     loadFloat("barrierMass", barrierMass, 0.0000001);
     loadBool("playCountDown", playCountDown);
 }

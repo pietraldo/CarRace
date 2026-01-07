@@ -71,8 +71,12 @@ int main() {
 
     Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
-    if (Settings::Get().playIntroAnimation) {
+    if (Settings::Get().playIntroAnimation || Settings::Get().productionMode) {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
+    }
+
+    if (Settings::Get().productionMode) {
+        Settings::Get().showImGuiWindows = false;
     }
 
     bool continueGame = true;
@@ -85,8 +89,23 @@ int main() {
 
         InputData input = InputManager::getInstance().getInputData();
 
-        if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
+        ViewMode currentViewMode = CameraManager::GetInstance()->GetViewMode();
+        if (currentViewMode == ViewMode::EDIT_SCREEN) {
             CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, deltaTime);
+        } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
+            CameraManager::GetInstance()->GetAnimationCamera().Update(deltaTime);
+            if (Settings::Get().productionMode &&
+                CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
+                if (Settings::Get().CAR_COUNT == 1) {
+                    CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+                } else {
+                    CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+                }
+
+                if (!gameEngine->IsSimulationStarted()) {
+                    gameEngine->StartSimulation();
+                }
+            }
         } else {
             CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         }
