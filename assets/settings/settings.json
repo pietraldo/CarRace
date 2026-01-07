@@ -2,14 +2,14 @@
   "START_SCR_WIDTH": 1600,
   "START_SCR_HEIGHT": 1000,
   "fullscreen": true,
-  "developerMode": true,
+  "productionMode":true,
   "CAR_COUNT": 2,
   
   "sound": true,
   
   "useDifferentMaterialsForTerrain": false,
   "playIntroAnimation": false,
-  "productionMode":true,
+
   "showImGuiWindows": true,
   "showHelpImGuiWindow": false,
   

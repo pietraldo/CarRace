@@ -31,8 +31,8 @@ namespace CarRaceLauncher
 		[JsonProperty("fogMaxDist")]
 		public float FogMaxDistance { get; set; } = 200;
 
-		[JsonProperty("developerMode")]
-		public bool DeveloperMode { get; set; } = false;
+		[JsonProperty("productionMode")]
+		public bool ProductionMode { get; set; } = true;
 
 		[JsonProperty("sound")]
 		public bool Sound { get; set; } = false;

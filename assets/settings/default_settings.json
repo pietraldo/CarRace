@@ -3,7 +3,7 @@
   "START_SCR_HEIGHT": 1000,
   "CAR_COUNT": 2,
   
-  "developerMode": false,
+  "productionMode":true,
   "sound": true,
   
   "useDifferentMaterialsForTerrain": true,
