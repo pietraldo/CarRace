@@ -75,7 +75,8 @@ public:
     LightSpot* lightToControl;
     glm::vec3 originlDirection;
 
-    shared_ptr<GameObject2> cube;  // cube that is used for measuring distances TODO: delete in future
+    shared_ptr<GameObject2> measureObject; 
+    vector<shared_ptr<GameObject2>> bariers;
 
     void StartSimulation();
     bool IsSimulationStarted() const { return startSimulation; }
@@ -104,7 +105,9 @@ public:
     void CreateModels();
     void CreateBuildings();
     void CreateBarriers();
+    void AddBarier(shared_ptr<GameObject2> object);
     void CreateCubes();
+    void CreateTrees();
 
     void AddLight(Light* light) { lights.push_back(light); }
     void UpdateFlashLight();

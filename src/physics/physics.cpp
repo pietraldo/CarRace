@@ -93,20 +93,16 @@ void Physics::createObjects(const std::vector<std::shared_ptr<GameObjectDynamic>
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
     for (auto gameObjectDynamic : gameObjectsDynamic) {
-        physx::PxVec3 positionOffsetPx =
-            GlmVec3ToPxVec3(gameObjectDynamic->rigidBody.positionOffset * gameObjectDynamic->scale);
-        positionOffsetPx =
-            (gameObjectDynamic->GetRotation() * gameObjectDynamic->rigidBody.rotationOffset).rotate(positionOffsetPx);
 
-        PxVec3 pos = GlmVec3ToPxVec3(gameObjectDynamic->GetPosition()) + positionOffsetPx;
-        PxQuat rotation = gameObjectDynamic->GetRotation();
-        PxVec3 size = GlmVec3ToPxVec3(gameObjectDynamic->rigidBody.size * 0.5f * gameObjectDynamic->scale);
+        PxVec3 pos = GlmVec3ToPxVec3(gameObjectDynamic->GetPositionWithoutOffset());
+        PxQuat rotation = gameObjectDynamic->GetRotationWithoutOffset();
+        PxVec3 size = GlmVec3ToPxVec3(gameObjectDynamic->physicActor.size * 0.5f * gameObjectDynamic->scale);
         physx::PxRigidDynamic* actor =
             physx::PxCreateDynamic(*gPhysics, physx::PxTransform(pos, rotation), physx::PxBoxGeometry(size), *material,
                                    gameObjectDynamic->mass);
 
         gScene->addActor(*actor);
-        gameObjectDynamic->actor = actor;
+        gameObjectDynamic->actorPx = actor;
     }
 
     for (auto gameObjectStatic : gameObjectsStatic) {

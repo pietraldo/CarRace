@@ -503,36 +503,60 @@ void Rendering::RenderImGui() {
             ImGui::End();
         }
         {
+            static int selectedIndex = -1;
+            std::vector<std::shared_ptr<GameObject2>> items = gameEngine->bariers;
+            ImGui::Begin("Items");
+
+            for (int i = 0; i < items.size(); ++i) {
+                bool isSelected = (selectedIndex == i);
+
+                std::string label = "barier_" + std::to_string(i);
+                if (ImGui::Selectable(label.c_str(), isSelected)) {
+                    selectedIndex = i;
+                    gameEngine->measureObject = items[i];
+                }
+
+                if (isSelected) ImGui::SetItemDefaultFocus();
+            }
+
+            if (ImGui::Button("Add barier")) {
+                gameEngine->AddBarier(items[selectedIndex]);
+            }
+
+            ImGui::End();
+        }
+        if((*gameEngine).measureObject)
+        {
             ImGui::Begin("Box Colliders");
 
             static float sensitivity = 1.0f;
             ImGui::SliderFloat("Adjust Sensitivity", &sensitivity, 0.001f, 10.0f);
 
-            shared_ptr<GameObject2> cube = (*gameEngine).cube;
+            auto measureObject = (*gameEngine).measureObject;
 
-            ImGui::DragFloat("ScaleX", &cube->scale.x, sensitivity);
-            ImGui::DragFloat("ScaleY", &cube->scale.y, sensitivity);
-            ImGui::DragFloat("ScaleZ", &cube->scale.z, sensitivity);
-            ImGui::DragFloat("PositionX", &cube->position.x, sensitivity);
-            ImGui::DragFloat("PositionY", &cube->position.y, sensitivity);
-            ImGui::DragFloat("PositionZ", &cube->position.z, sensitivity);
+            ImGui::DragFloat("ScaleX", &measureObject->scale.x, sensitivity);
+            ImGui::DragFloat("ScaleY", &measureObject->scale.y, sensitivity);
+            ImGui::DragFloat("ScaleZ", &measureObject->scale.z, sensitivity);
+            ImGui::DragFloat("PositionX", &measureObject->position.x, sensitivity);
+            ImGui::DragFloat("PositionY", &measureObject->position.y, sensitivity);
+            ImGui::DragFloat("PositionZ", &measureObject->position.z, sensitivity);
 
-            glm::vec3 rotation = getEulerAnglesFromQuat((*gameEngine).cube->GetRotationWithoutOffset());
+            glm::vec3 rotation = getEulerAnglesFromQuat(measureObject->GetRotationWithoutOffset());
 
             if (ImGui::DragFloat("Rotation X", &rotation.x, sensitivity)) {
-                cube->SetRotation(rotation);
+                measureObject->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Y", &rotation.y, sensitivity)) {
-                cube->SetRotation(rotation);
+                measureObject->SetRotation(rotation);
             }
             if (ImGui::DragFloat("Rotation Z", &rotation.z, sensitivity)) {
-                cube->SetRotation(rotation);
+                measureObject->SetRotation(rotation);
             }
 
-            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->scale.x, (*gameEngine).cube->scale.y,
-                        (*gameEngine).cube->scale.z);
-            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", (*gameEngine).cube->position.x,
-                        (*gameEngine).cube->position.y, (*gameEngine).cube->position.z);
+            ImGui::Text("Scale: x: %.2f y: %.2f z: %.2f", measureObject->scale.x, measureObject->scale.y,
+                        measureObject->scale.z);
+            ImGui::Text("Position: x: %.2f y: %.2f z: %.2f", measureObject->position.x, measureObject->position.y,
+                        measureObject->position.z);
             ImGui::Text("Rotation: x: %.2f y: %.2f z: %.2f", rotation.x, rotation.y, rotation.z);
 
             ImGui::End();

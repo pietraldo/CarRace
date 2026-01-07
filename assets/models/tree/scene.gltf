@@ -3,86 +3,86 @@
     {
       "bufferView": 2,
       "componentType": 5126,
-      "count": 88,
+      "count": 1598,
       "max": [
-        23.622047424316406,
-        4.294075012207031,
-        15.912391662597656
+        1.1088579893112183,
+        1.1210910081863403,
+        6.639999866485596
       ],
       "min": [
-        -23.622047424316406,
-        -4.294075012207031,
+        -1.2280210256576538,
+        -1.1335539817810059,
         0.0
       ],
       "type": "VEC3"
     },
     {
       "bufferView": 2,
-      "byteOffset": 1056,
+      "byteOffset": 19176,
       "componentType": 5126,
-      "count": 88,
+      "count": 1598,
       "max": [
+        0.9996963143348694,
         1.0,
-        1.0,
-        1.0
+        0.6288211941719055
       ],
       "min": [
+        -0.9959335923194885,
         -1.0,
-        -1.0,
-        -1.0
+        -0.8971192240715027
       ],
       "type": "VEC3"
     },
     {
       "bufferView": 1,
       "componentType": 5126,
-      "count": 88,
+      "count": 1598,
       "max": [
-        0.9892120957374573,
-        0.9827685356140137
+        0.9938269853591919,
+        0.9929749965667725
       ],
       "min": [
-        0.004444157239049673,
-        0.029389264062047005
+        0.004381000064313412,
+        0.016812000423669815
       ],
       "type": "VEC2"
     },
     {
       "bufferView": 0,
       "componentType": 5125,
-      "count": 156,
+      "count": 3072,
       "type": "SCALAR"
     }
   ],
   "asset": {
     "extras": {
-      "author": "Alastoir De Faruh (https://sketchfab.com/alfaruh)",
+      "author": "uday (https://sketchfab.com/udayjeet)",
       "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-      "source": "https://sketchfab.com/3d-models/concrete-barrier-88fe1dafe49b4237878d9d78af0cf7a8",
-      "title": "Concrete Barrier"
+      "source": "https://sketchfab.com/3d-models/stylize-tree-lowpoly-dcf20a5a86784331a34657e94442511f",
+      "title": "Stylize Tree Lowpoly"
     },
-    "generator": "Sketchfab-12.68.0",
+    "generator": "Sketchfab-14.98.0",
     "version": "2.0"
   },
   "bufferViews": [
     {
       "buffer": 0,
-      "byteLength": 624,
+      "byteLength": 12288,
       "name": "floatBufferViews",
       "target": 34963
     },
     {
       "buffer": 0,
-      "byteLength": 704,
-      "byteOffset": 624,
+      "byteLength": 12784,
+      "byteOffset": 12288,
       "byteStride": 8,
       "name": "floatBufferViews",
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteLength": 2112,
-      "byteOffset": 1328,
+      "byteLength": 38352,
+      "byteOffset": 25072,
       "byteStride": 12,
       "name": "floatBufferViews",
       "target": 34962
@@ -90,31 +90,30 @@
   ],
   "buffers": [
     {
-      "byteLength": 3440,
+      "byteLength": 63424,
       "uri": "scene.bin"
     }
   ],
   "images": [
     {
-      "uri": "textures/RootNode_baseColor.png"
+      "uri": "textures/tree_baseColor.png"
     }
   ],
   "materials": [
     {
       "doubleSided": true,
-      "name": "RootNode",
+      "name": "tree",
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 0
         },
-        "metallicFactor": 0.0,
-        "roughnessFactor": 0.8200000000000001
+        "metallicFactor": 0.0
       }
     }
   ],
   "meshes": [
     {
-      "name": "Box001__0",
+      "name": "Object_0",
       "primitives": [
         {
           "attributes": {
@@ -158,59 +157,11 @@
       "children": [
         2
       ],
-      "matrix": [
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0,
-        0.0,
-        -1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "name": "barrier01.FBX"
-    },
-    {
-      "children": [
-        3
-      ],
-      "name": "RootNode"
-    },
-    {
-      "children": [
-        4
-      ],
-      "matrix": [
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        2.220446049250313e-16,
-        -1.0,
-        0.0,
-        0.0,
-        1.0,
-        2.220446049250313e-16,
-        0.0,
-        2.8905630111694336,
-        0.0,
-        2.0940780639648438,
-        1.0
-      ],
-      "name": "Box001"
+      "name": "b7e1a2fa27ff443aa36094e9d642addd.obj.cleaner.materialmerger.gles"
     },
     {
       "mesh": 0,
-      "name": "Box001__0"
+      "name": "Object_2"
     }
   ],
   "samplers": [

@@ -16,6 +16,7 @@ struct Settings {
     bool useDifferentMaterialsForTerrain = false;
 
     bool playIntroAnimation = false;
+    bool playCountDown = false;
 
     bool showImGuiWindows = true;
     bool showHelpImGuiWindow = false;
@@ -31,10 +32,15 @@ struct Settings {
     int checkpointInterval = 1000;       // in miliseconds
     int maxSavedPositions = 100;
     int savePositionRetrival = 1;  // how many positions to go back when resetting to checkpoint
+    
+    float barrierMass = 100;
 
     // car steering settings
     float steeringSpeed = 2.45f;       // higher value means faster steering
     float steeringReturnSpeed = 5.0f;  // higher value means faster return to center
+
+    // vegetation distance culling (meters). Set to <= 0 to disable.
+    float vegetationCullDistance = 200.0f;
 
     static Settings& Get() {
         static Settings instance;

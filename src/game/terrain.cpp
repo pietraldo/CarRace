@@ -26,6 +26,43 @@ float Terrain::GetMaxHeightFromHeightData() {
     return max;
 }
 
+float Terrain::GetHeightAtPosition(float x, float z) {
+    float width = GetTerrainWidth();
+    float depth = GetTerrainDepth();
+
+    int baseX = static_cast<int>((x + width * 0.5f) / scalex);
+    int baseZ = static_cast<int>((z + depth * 0.5f) / scalez);
+
+    float minHeight = numeric_limits<float>::max();
+
+    for (int dz = 0; dz <= 1; ++dz) {
+        for (int dx = 0; dx <= 1; ++dx) {
+            int ix = baseX + dx;
+            int iz = baseZ + dz;
+
+            if (ix >= 0 && ix < cols && iz >= 0 && iz < rows) {
+                float h = heightData[iz][ix] * scaley;
+                minHeight = std::min(minHeight, h);
+            }
+        }
+    }
+
+    return minHeight;
+}
+
+bool Terrain::IsGrassAtPosition(float x, float z) { 
+    float width = GetTerrainWidth();
+    float depth = GetTerrainDepth();
+
+    int baseX = static_cast<int>((x + width * 0.5f) / scalex);
+    int baseZ = static_cast<int>((z + depth * 0.5f) / scalez);
+    if (baseX < 0 || baseX >= cols || baseZ < 0 || baseZ >= rows) {
+        return false;  // Out of bounds, consider as grass
+    }
+
+    return roadMark[baseZ][baseX] == 5;
+}
+
 void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols) {
     std::ifstream file(filename);
     if (!file.is_open()) throw std::runtime_error("Cannot open file: " + filename);

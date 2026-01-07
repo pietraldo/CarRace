@@ -9,17 +9,19 @@
 
 #include "GameObject2.h"
 #include "RigidBody.h"
+#include "PhysicActor.h"
 #include "../../gfx/Model.h"
 
 class GameObjectDynamic : public GameObject2 {
 public:
-    physx::PxRigidDynamic* actor = nullptr;
-    RigidBody rigidBody;  // for now just one rigid body per dynamic object
+    GameObjectDynamic() {}
+    physx::PxRigidDynamic* actorPx = nullptr;
+    PhysicActor physicActor;  // for now just one rigid body per dynamic object
     float mass = 1.0f;
 
-    void AddRigidBody(const RigidBody& rigidBody) { this->rigidBody = rigidBody; }
+    void AddPhysicActor(const PhysicActor& physicActor) { this->physicActor = physicActor; }
     virtual void SyncWithPhysics() {
-        position = PxVec3ToGlmVec3(actor->getGlobalPose().p);
-        rotation = actor->getGlobalPose().q;
+        position = PxVec3ToGlmVec3(actorPx->getGlobalPose().p);
+        rotation = actorPx->getGlobalPose().q;
     }
 };

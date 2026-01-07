@@ -22,5 +22,8 @@
   "maxSavedPositions": 100,
   "savePositionRetrival": 1,
   "steeringSpeed": 2.45,
-  "steeringReturnSpeed": 5.0
+  "steeringReturnSpeed": 5.0,
+  
+  "barrierMass": 0.5,
+  "playCountDown": false
 }
