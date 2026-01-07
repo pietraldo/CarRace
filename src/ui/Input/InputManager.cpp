@@ -22,7 +22,8 @@ void InputManager::setUp() {
 
         currentInputType = CONTROLLER_AND_CONTROLLER;
         std::cout << "Thrustmaster TMX and Xbox Controller connected. Player0: Wheel, Player1: Xbox" << std::endl;
-
+        delete keyboard0;
+        delete keyboard1;
         delete ps5Controller;
     } else if (tmxConnected) {
         InputManager::getInstance().setInputController0(tmxController);
