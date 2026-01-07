@@ -96,10 +96,10 @@ int main() {
             CameraManager::GetInstance()->GetAnimationCamera().Update(deltaTime);
             if (Settings::Get().productionMode &&
                 CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
-                if (Settings::Get().CAR_COUNT == 1) {
-                    CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
-                } else {
+                if (Settings::Get().CAR_COUNT == 2) {
                     CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+                } else {
+                    CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
                 }
 
                 if (!gameEngine->IsSimulationStarted()) {

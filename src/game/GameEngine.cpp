@@ -236,6 +236,11 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
     float cullDist = Settings::Get().vegetationCullDistance;
+
+    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::INTRO_SCREEN) {
+        cullDist = -1.0f;
+    }
+
     float cullDistSq = cullDist > 0 ? (cullDist * cullDist) : -1.0f;
 
     for (auto gameObject : gameObjects2) {
