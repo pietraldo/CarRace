@@ -1,12 +1,14 @@
 #include "physics_simulation_event_callback.h"
 
 #include "../audio/CollisionSound.h"
+#include "../game/GameEngine.h"
 
 using namespace physx;
 
 void PhysicsSimulationEventCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs,
                                                PxU32 nbPairs) {
     if (!mCollisionSound) return;
+    if (mGameEngine && (!mGameEngine->IsSimulationStarted() || mGameEngine->isCountdownActive)) return;
 
     for (PxU32 i = 0; i < nbPairs; i++) {
         const PxContactPair& cp = pairs[i];
