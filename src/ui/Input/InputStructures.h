@@ -40,6 +40,7 @@ struct AdditionalInputInfo {
     bool switchImGui = false;
     bool switchHelp = false;
     bool toggleSound = false;
+    bool skipIntro = false;
 };
 
 struct OutputData {

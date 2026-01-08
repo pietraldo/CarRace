@@ -99,6 +99,7 @@ AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     info.switchImGui = isKeyJustPressed(SWITCH_IMGUI_KEY);
     info.switchHelp = isKeyJustPressed(SWITCH_HELP_KEY);
     info.toggleSound = isKeyJustPressed(TOGGLE_SOUND_KEY);
+    info.skipIntro = isKeyJustPressed(GLFW_KEY_ENTER);
     return info;
 }
 

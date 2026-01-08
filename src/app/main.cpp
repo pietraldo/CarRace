@@ -86,9 +86,7 @@ int main() {
 
     Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
-    if (Settings::Get().playIntroAnimation || Settings::Get().productionMode) {
-        CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
-    }
+    CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
 
     bool continueGame = true;
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
@@ -99,8 +97,6 @@ int main() {
         lastFrame = currentFrame;
 
         InputData input = InputManager::getInstance().getInputData();
-
-        gameEngine->UpdateViewLogic(deltaTime, input);
 
         continueGame = !input.additionalInfo.exit;
 

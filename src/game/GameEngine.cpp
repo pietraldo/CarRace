@@ -33,24 +33,6 @@ void GameEngine::SetViewModeBasedOnCarCount() {
     }
 }
 
-void GameEngine::UpdateViewLogic(float deltaTime, const InputData& input) {
-    ViewMode currentViewMode = CameraManager::GetInstance()->GetViewMode();
-    if (currentViewMode == ViewMode::EDIT_SCREEN) {
-        CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, deltaTime);
-    } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
-        if (Settings::Get().productionMode &&
-            CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
-            SetViewModeBasedOnCarCount();
-
-            if (!IsSimulationStarted()) {
-                StartSimulation();
-            }
-        }
-    } else {
-        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
-    }
-}
-
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i]->SyncWithPhysics();
@@ -143,17 +125,22 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
     if (activeViewMode == ViewMode::INTRO_SCREEN) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
         animationCamera.Update(dt);
-        if (animationCamera.GetAnimation().HasEnded()) {
+        if (animationCamera.GetAnimation().HasEnded() || input.additionalInfo.skipIntro) {
             SetViewModeBasedOnCarCount();
-            StartSimulation();
+            if (Settings::Get().productionMode) {
+                StartSimulation();
+            }
         }
+    }
+    if (activeViewMode == ViewMode::EDIT_SCREEN) {
+        CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, dt);
     }
 }
 void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     if (input.additionalInfo.startSimulation) {
         StartSimulation();
     }
-    if (input.additionalInfo.switchImGui) {
+    if (input.additionalInfo.switchImGui && !Settings::Get().productionMode) {
         Settings::Get().showImGuiWindows = !Settings::Get().showImGuiWindows;
     }
     if (input.additionalInfo.switchHelp) {
