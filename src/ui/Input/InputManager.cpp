@@ -14,7 +14,7 @@ void InputManager::setUp() {
 
     bool tmxConnected = tmxController->connect();
     bool xboxConnected = xboxController->connect();
-    bool ps5Connected = !tmxConnected && !xboxConnected && ps5Controller->connect();  // Priority: TMX/Xbox > PS5
+    bool ps5Connected = ps5Controller->connect();
 
     if (tmxConnected && xboxConnected) {
         InputManager::getInstance().setInputController0(tmxController);
@@ -79,6 +79,7 @@ InputData InputManager::getInputData() {
     if (editCameraController) {
         editCameraController->updateInput();
         inputData.freeCameraControl = editCameraController->getCameraControlInput();
+        inputData.additionalInfo = editCameraController->getAdditionalInputInfo();
     }
 
     if (currentInputType == KEYBOARD) {
@@ -86,7 +87,7 @@ InputData InputManager::getInputData() {
 
         inputData.carControl0 = inputController0->getCarControlInput();
         inputData.cameraControl0 = inputController0->getCameraControlInput();
-        inputData.additionalInfo = inputController0->getAdditionalInputInfo();
+        // inputData.additionalInfo = inputController0->getAdditionalInputInfo(); // Now handled by EditCamera
     }
 
     if (currentInputType == CONTROLLER_AND_KEYBOARD) {
@@ -98,14 +99,6 @@ InputData InputManager::getInputData() {
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        inputData.additionalInfo = inputController1->getAdditionalInputInfo();
-
-        AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
-        inputData.additionalInfo.startSimulation = inputData.additionalInfo.startSimulation || info0.startSimulation;
-        inputData.additionalInfo.exit = inputData.additionalInfo.exit || info0.exit;
-        inputData.additionalInfo.switchImGui = inputData.additionalInfo.switchImGui || info0.switchImGui;
-        inputData.additionalInfo.switchHelp = inputData.additionalInfo.switchHelp || info0.switchHelp;
     }
 
     if (currentInputType == CONTROLLER_AND_CONTROLLER) {
@@ -117,14 +110,6 @@ InputData InputManager::getInputData() {
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
-        AdditionalInputInfo info1 = inputController1->getAdditionalInputInfo();
-
-        inputData.additionalInfo.startSimulation = info0.startSimulation || info1.startSimulation;
-        inputData.additionalInfo.exit = info0.exit || info1.exit;
-        inputData.additionalInfo.switchImGui = info0.switchImGui || info1.switchImGui;
-        inputData.additionalInfo.switchHelp = info0.switchHelp || info1.switchHelp;
     }
 
     if (currentInputType == KEYBOARD_AND_KEYBOARD) {
@@ -136,8 +121,6 @@ InputData InputManager::getInputData() {
 
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        inputData.additionalInfo = inputController0->getAdditionalInputInfo();
     }
 
     if (Settings::Get().productionMode) {
@@ -156,8 +139,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController0->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController0->GetCameraControllBindings();
-        result += "\nAdditional Controls:\n";
-        result += inputController0->GetAdditionalControllBindings();
     }
 
     if (currentInputType == CONTROLLER_AND_KEYBOARD) {
@@ -170,8 +151,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls:\n";
-        result += inputController1->GetAdditionalControllBindings();
     }
 
     if (currentInputType == CONTROLLER_AND_CONTROLLER) {
@@ -184,8 +163,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls (Both):\n";
-        result += inputController1->GetAdditionalControllBindings();
     }
 
     if (currentInputType == KEYBOARD_AND_KEYBOARD) {
@@ -197,10 +174,12 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls:\n";
-        result += inputController0->GetAdditionalControllBindings();
     }
+
     if (editCameraController) {
+        result += "\n\nSystem/Additional Controls:\n";
+        result += editCameraController->GetAdditionalControllBindings();
+
         result += "\n\nEdit Camera Controls:\n";
         result += editCameraController->GetCameraControllBindings();
     }
