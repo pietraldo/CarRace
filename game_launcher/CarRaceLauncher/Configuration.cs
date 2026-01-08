@@ -41,10 +41,10 @@ namespace CarRaceLauncher
 		public bool AutoReturnToTrack { get; set; } = true;
 
 		[JsonProperty("timeOutsideTrackToReset")]
-		public int TimeToReturnToTrack { get; set; } = 5;
+		public int TimeToReturnToTrack { get; set; } = 5000;
 
 		[JsonProperty("checkpointInterval")]
-		public int CheckPointTimeBonus { get; set; } = 10;
+		public int CheckPointTimeBonus { get; set; } = 10000;
 
 
 		public Configuration() { }
