@@ -54,6 +54,7 @@ public:
     int SWITCH_IMGUI_KEY = GLFW_KEY_F2;
     int SWITCH_HELP_KEY = GLFW_KEY_F1;
     int TOGGLE_SOUND_KEY = GLFW_KEY_F9;
+    int SKIP_INTRO_KEY = GLFW_KEY_ENTER;
 
     enum class PlayerIndex { Player0, Player1 };
     static const std::string fileBindingsPath;

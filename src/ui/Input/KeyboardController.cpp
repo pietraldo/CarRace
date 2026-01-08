@@ -99,7 +99,7 @@ AdditionalInputInfo KeyboardController::getAdditionalInputInfo() {
     info.switchImGui = isKeyJustPressed(SWITCH_IMGUI_KEY);
     info.switchHelp = isKeyJustPressed(SWITCH_HELP_KEY);
     info.toggleSound = isKeyJustPressed(TOGGLE_SOUND_KEY);
-    info.skipIntro = isKeyJustPressed(GLFW_KEY_ENTER);
+    info.skipIntro = isKeyJustPressed(SKIP_INTRO_KEY);
     return info;
 }
 
@@ -154,6 +154,7 @@ std::string KeyboardController::GetAdditionalControllBindings() {
     result += "Switch ImGui: " + KeyToString(SWITCH_IMGUI_KEY) + "\n";
     result += "Switch Help: " + KeyToString(SWITCH_HELP_KEY) + "\n";
     result += "Toggle Sound: " + KeyToString(TOGGLE_SOUND_KEY) + "\n";
+    result += "Skip Intro: " + KeyToString(SKIP_INTRO_KEY) + "\n";
     return result;
 }
 
@@ -236,6 +237,12 @@ bool KeyboardController::LoadKeyBindingsFromFile(const std::string& filename) {
     SWITCH_IMGUI_KEY = getKey(Add, "SWITCH_IMGUI");
     SWITCH_HELP_KEY = getKey(Add, "SWITCH_HELP");
     TOGGLE_SOUND_KEY = getKey(Add, "TOGGLE_SOUND");
+
+    if (Add.HasMember("SKIP_INTRO")) {
+        SKIP_INTRO_KEY = getKey(Add, "SKIP_INTRO");
+    } else {
+        SKIP_INTRO_KEY = GLFW_KEY_ENTER;
+    }
 
     return true;
 }

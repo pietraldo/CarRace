@@ -36,6 +36,7 @@
     "EXIT": "ESCAPE",
     "SWITCH_IMGUI": "F2",
     "SWITCH_HELP": "F1",
-    "TOGGLE_SOUND": "F9"
+    "TOGGLE_SOUND": "F9",
+    "SKIP_INTRO": "ENTER"
   }
 }
