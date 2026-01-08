@@ -49,6 +49,7 @@ struct Settings {
     }
 
     void LoadFromFile(const char* filename = "../assets/settings/settings.json");
+    void UpdateDependencies();
 
 private:
     Settings() = default;

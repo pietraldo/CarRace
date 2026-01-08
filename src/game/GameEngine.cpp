@@ -25,6 +25,28 @@ void GameEngine::StartSimulation() {
     raceTime = 0.0f;
 }
 
+void GameEngine::UpdateViewLogic(float deltaTime, const InputData& input) {
+    ViewMode currentViewMode = CameraManager::GetInstance()->GetViewMode();
+    if (currentViewMode == ViewMode::EDIT_SCREEN) {
+        CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, deltaTime);
+    } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
+        if (Settings::Get().productionMode &&
+            CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
+            if (Settings::Get().CAR_COUNT == 2) {
+                CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+            } else {
+                CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+            }
+
+            if (!IsSimulationStarted()) {
+                StartSimulation();
+            }
+        }
+    } else {
+        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
+    }
+}
+
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
     for (int i = 0; i < Settings::Get().CAR_COUNT; i++) {
         cars[i]->SyncWithPhysics();

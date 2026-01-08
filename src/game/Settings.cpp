@@ -104,4 +104,12 @@ void Settings::LoadFromFile(const char* filename) {
 
     loadFloat("barrierMass", barrierMass, 0.0000001);
     loadBool("playCountDown", playCountDown);
+
+    UpdateDependencies();
+}
+
+void Settings::UpdateDependencies() {
+    if (productionMode) {
+        showImGuiWindows = false;
+    }
 }

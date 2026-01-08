@@ -102,6 +102,7 @@ public:
 
     void UpdatePlayerCamera(float deltaTime, int playerNumber, const InputData& input);
     void UpdatePlayersCamera(float deltaTime, const InputData& input);
+    void UpdateViewLogic(float deltaTime, const InputData& input);
     void CreateModels();
     void CreateBuildings();
     void CreateBarriers();

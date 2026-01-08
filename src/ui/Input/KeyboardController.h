@@ -76,9 +76,10 @@ public:
 
     static std::string KeyToString(int key);
 
+    static bool isKeyPressed(int key);
+
 private:
     PlayerIndex playerIndex;
-    bool isKeyPressed(int key);
     bool isKeyJustPressed(int key);
     std::vector<bool> lastKeyStates = std::vector<bool>(349, false);  // GLFW_KEY_LAST is 348
 

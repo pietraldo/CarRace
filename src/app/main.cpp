@@ -51,6 +51,7 @@ GameEngine* gameEngine = nullptr;
 int main() {
     Settings::Get().LoadFromFile();
 
+    // if porduction mode -> hide console
 #ifdef _WIN32
     if (Settings::Get().productionMode) {
         HWND hwnd = GetConsoleWindow();
@@ -89,10 +90,6 @@ int main() {
         CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
     }
 
-    if (Settings::Get().productionMode) {
-        Settings::Get().showImGuiWindows = false;
-    }
-
     bool continueGame = true;
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -103,26 +100,7 @@ int main() {
 
         InputData input = InputManager::getInstance().getInputData();
 
-        ViewMode currentViewMode = CameraManager::GetInstance()->GetViewMode();
-        if (currentViewMode == ViewMode::EDIT_SCREEN) {
-            CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, deltaTime);
-        } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
-            CameraManager::GetInstance()->GetAnimationCamera().Update(deltaTime);
-            if (Settings::Get().productionMode &&
-                CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
-                if (Settings::Get().CAR_COUNT == 2) {
-                    CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
-                } else {
-                    CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
-                }
-
-                if (!gameEngine->IsSimulationStarted()) {
-                    gameEngine->StartSimulation();
-                }
-            }
-        } else {
-            CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
-        }
+        gameEngine->UpdateViewLogic(deltaTime, input);
 
         continueGame = !input.additionalInfo.exit;
 

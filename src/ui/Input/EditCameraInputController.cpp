@@ -79,10 +79,10 @@ CameraControlInput EditCameraInputController::getCameraControlInput() {
 
     // Check ViewMode to apply logic
     if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
-        if (glfwGetKey(Rendering::window, KEY_FORWARD) == GLFW_PRESS) input.moveForward = 1;
-        if (glfwGetKey(Rendering::window, KEY_BACKWARD) == GLFW_PRESS) input.moveForward = -1;
-        if (glfwGetKey(Rendering::window, KEY_LEFT) == GLFW_PRESS) input.moveRight = -1;
-        if (glfwGetKey(Rendering::window, KEY_RIGHT) == GLFW_PRESS) input.moveRight = 1;
+        if (KeyboardController::isKeyPressed(KEY_FORWARD)) input.moveForward = 1;
+        if (KeyboardController::isKeyPressed(KEY_BACKWARD)) input.moveForward = -1;
+        if (KeyboardController::isKeyPressed(KEY_LEFT)) input.moveRight = -1;
+        if (KeyboardController::isKeyPressed(KEY_RIGHT)) input.moveRight = 1;
 
         if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
             glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
