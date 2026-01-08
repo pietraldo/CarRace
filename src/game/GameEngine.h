@@ -54,6 +54,8 @@ private:
 
     bool startSimulation = false;
 
+    void SetViewModeBasedOnCarCount();
+
 public:
     std::vector<PlayerStatus> playersStatus;
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();

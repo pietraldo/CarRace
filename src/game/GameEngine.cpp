@@ -25,6 +25,14 @@ void GameEngine::StartSimulation() {
     raceTime = 0.0f;
 }
 
+void GameEngine::SetViewModeBasedOnCarCount() {
+    if (Settings::Get().CAR_COUNT == 2) {
+        CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+    } else {
+        CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+    }
+}
+
 void GameEngine::UpdateViewLogic(float deltaTime, const InputData& input) {
     ViewMode currentViewMode = CameraManager::GetInstance()->GetViewMode();
     if (currentViewMode == ViewMode::EDIT_SCREEN) {
@@ -32,11 +40,7 @@ void GameEngine::UpdateViewLogic(float deltaTime, const InputData& input) {
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         if (Settings::Get().productionMode &&
             CameraManager::GetInstance()->GetAnimationCamera().GetAnimation().HasEnded()) {
-            if (Settings::Get().CAR_COUNT == 2) {
-                CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
-            } else {
-                CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
-            }
+            SetViewModeBasedOnCarCount();
 
             if (!IsSimulationStarted()) {
                 StartSimulation();
@@ -140,11 +144,7 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
         animationCamera.Update(dt);
         if (animationCamera.GetAnimation().HasEnded()) {
-            if (Settings::Get().CAR_COUNT == 2) {
-                CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
-            } else {
-                CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
-            }
+            SetViewModeBasedOnCarCount();
             StartSimulation();
         }
     }
