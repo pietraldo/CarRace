@@ -5,6 +5,7 @@ float KeyboardController::deltataMouseY = 0.0f;
 float KeyboardController::zoomOffset = 0.0f;
 double KeyboardController::lastMouseX = 0.0;
 double KeyboardController::lastMouseY = 0.0;
+const std::string KeyboardController::fileBindingsPath = "../assets/settings/keybindings.json";
 
 KeyboardController::KeyboardController(PlayerIndex index) : playerIndex(index) {
     if (!LoadKeyBindingsFromFile(fileBindingsPath)) {

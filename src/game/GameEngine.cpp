@@ -229,11 +229,9 @@ void GameEngine::CheckFinishLine(int carIndex) {
     bool intersect = (ccw(p1, p2, carP1) != ccw(p1, p2, carP2)) && (ccw(carP1, carP2, p1) != ccw(carP1, carP2, p2));
 
     if (intersect && playersStatus[carIndex].midwayPointCrossed) {
-        if (raceTime > 10.0f) {
-            playersStatus[carIndex].finished = true;
-            playersStatus[carIndex].finishTime = raceTime;
-            AudioEngine::instance().playFinish();
-        }
+        playersStatus[carIndex].finished = true;
+        playersStatus[carIndex].finishTime = raceTime;
+        AudioEngine::instance().playFinish();
     }
 
     playersStatus[carIndex].lastPosition = currentPos;

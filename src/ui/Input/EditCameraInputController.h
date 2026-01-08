@@ -12,7 +12,7 @@ public:
     CameraControlInput getCameraControlInput() override;
     AdditionalInputInfo getAdditionalInputInfo() override { return {}; }
     std::string GetCarControllBindings() override { return ""; }
-    std::string GetCameraControllBindings() override { return "WASD + Right Mouse Button (Look)"; }
+    std::string GetCameraControllBindings() override;
     std::string GetAdditionalControllBindings() override { return ""; }
     bool updateInput() override;
 

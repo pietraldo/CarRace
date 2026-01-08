@@ -56,7 +56,7 @@ public:
     int TOGGLE_SOUND_KEY = GLFW_KEY_F9;
 
     enum class PlayerIndex { Player0, Player1 };
-    const std::string fileBindingsPath = "../assets/settings/keybindings.json";
+    static const std::string fileBindingsPath;
 
     explicit KeyboardController(PlayerIndex index);
     bool LoadKeyBindingsFromFile(const std::string& filename);
@@ -74,6 +74,8 @@ public:
 
     static int GetKeyFromJson(const rapidjson::Value& obj, const char* key);
 
+    static std::string KeyToString(int key);
+
 private:
     PlayerIndex playerIndex;
     bool isKeyPressed(int key);
@@ -90,5 +92,4 @@ private:
     static const std::unordered_map<std::string, int> keyNameToGLFWKey;
 
     static const std::unordered_map<int, std::string> GlfwKeyToString;
-    static std::string KeyToString(int key);
 };

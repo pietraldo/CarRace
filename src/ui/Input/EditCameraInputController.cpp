@@ -16,8 +16,7 @@ EditCameraInputController::EditCameraInputController() {
     KEY_LEFT = GLFW_KEY_A;
     KEY_RIGHT = GLFW_KEY_D;
 
-    std::string fileBindingsPath = "../assets/settings/keybindings.json";
-    if (!LoadKeyBindingsFromFile(fileBindingsPath)) {
+    if (!LoadKeyBindingsFromFile(KeyboardController::fileBindingsPath)) {
         std::cerr << "Failed to load EditCamera bindings. Using defaults." << std::endl;
     }
 
@@ -58,6 +57,15 @@ bool EditCameraInputController::LoadKeyBindingsFromFile(const std::string& filen
     }
 
     return true;
+}
+
+std::string EditCameraInputController::GetCameraControllBindings() {
+    std::string bindings = "";
+    bindings += KeyboardController::KeyToString(KEY_FORWARD) + ", ";
+    bindings += KeyboardController::KeyToString(KEY_LEFT) + ", ";
+    bindings += KeyboardController::KeyToString(KEY_BACKWARD) + ", ";
+    bindings += KeyboardController::KeyToString(KEY_RIGHT) + " + Right Mouse Button (Look)";
+    return bindings;
 }
 
 bool EditCameraInputController::updateInput() { return true; }
