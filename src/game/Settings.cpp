@@ -78,7 +78,6 @@ void Settings::LoadFromFile(const char* filename) {
     // Gameplay
     loadInt("CAR_COUNT", CAR_COUNT, 1, 2);
     loadBool("useDifferentMaterialsForTerrain", useDifferentMaterialsForTerrain);
-    loadBool("playIntroAnimation", playIntroAnimation);
     loadBool("productionMode", productionMode);
 
     // UI
