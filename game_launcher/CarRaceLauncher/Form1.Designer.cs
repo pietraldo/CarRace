@@ -1,24 +1,24 @@
 ﻿namespace CarRaceLauncher
 {
-    partial class Form1
-    {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class Form1
+	{
+		/// <summary>
+		///  Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		///  Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
 		#region Windows Form Designer generated code
 
@@ -35,7 +35,6 @@
 			button1 = new Button();
 			button2 = new Button();
 			button3 = new Button();
-			chBIntro = new CheckBox();
 			pictureBox2 = new PictureBox();
 			tableLayoutPanel1 = new TableLayoutPanel();
 			tableLayoutPanel2 = new TableLayoutPanel();
@@ -127,20 +126,6 @@
 			button3.UseVisualStyleBackColor = false;
 			button3.Click += button3_Click;
 			// 
-			// chBIntro
-			// 
-			chBIntro.Anchor = AnchorStyles.None;
-			chBIntro.AutoSize = true;
-			chBIntro.Checked = true;
-			chBIntro.CheckState = CheckState.Checked;
-			chBIntro.Location = new Point(282, 85);
-			chBIntro.Name = "chBIntro";
-			chBIntro.Size = new Size(79, 19);
-			chBIntro.TabIndex = 5;
-			chBIntro.Text = "Play intro ";
-			chBIntro.UseVisualStyleBackColor = true;
-			chBIntro.CheckedChanged += chBIntro_CheckedChanged;
-			// 
 			// pictureBox2
 			// 
 			pictureBox2.Anchor = AnchorStyles.None;
@@ -161,7 +146,6 @@
 			tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel1.Controls.Add(button3, 0, 2);
 			tableLayoutPanel1.Controls.Add(pictureBox2, 0, 0);
-			tableLayoutPanel1.Controls.Add(chBIntro, 0, 1);
 			tableLayoutPanel1.Dock = DockStyle.Bottom;
 			tableLayoutPanel1.Location = new Point(0, 262);
 			tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -241,7 +225,6 @@
 		private Button button2;
 		private Button button3;
 		private PictureBox pictureBox1;
-		private CheckBox chBIntro;
 		private PictureBox pictureBox2;
 		private TableLayoutPanel tableLayoutPanel1;
 		private TableLayoutPanel tableLayoutPanel2;

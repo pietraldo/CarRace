@@ -36,7 +36,6 @@ namespace CarRaceLauncher
 				configuration.IsNightMode = !configuration.IsNightMode;
 				pictureBox2_Click(null, null);
 			}
-			chBIntro.Checked = configuration.PlayIntro;
 		}
 
 		private void pictureBox1_Click(object sender, EventArgs e)
@@ -121,11 +120,6 @@ namespace CarRaceLauncher
 			};
 
 			Process.Start(psi);
-		}
-
-		private void chBIntro_CheckedChanged(object sender, EventArgs e)
-		{
-			configuration.PlayIntro = chBIntro.Checked;
 		}
 	}
 }
