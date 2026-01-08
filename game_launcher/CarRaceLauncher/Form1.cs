@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 
 
 namespace CarRaceLauncher
@@ -13,6 +14,21 @@ namespace CarRaceLauncher
 		public string configPathSource = "./program_files/assets/settings/default_settings.json";
 		public string configPathDist = "./program_files/assets/settings/settings.json";
 		public string exeFile = "./program_files/bin/carrace.exe";
+
+		[DllImport("user32.dll", EntryPoint = "ReleaseCapture")]
+		private extern static void ReleaseCapture();
+		[DllImport("user32.dll", EntryPoint = "SendMessage")]
+		private extern static void SendMessage(System.IntPtr hwnd, int wMsg, int wParam, int lParam);
+
+		private void Form_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
+				ReleaseCapture();
+				SendMessage(this.Handle, 0x112, 0xf012, 0);
+			}
+		}
+
 		public Form1()
 		{
 			configuration = new Configuration(configPathSource);
@@ -23,6 +39,10 @@ namespace CarRaceLauncher
 
 		private void InitialConfigurationOfWinForm()
 		{
+			this.MouseDown += Form_MouseDown;
+			panel1.MouseDown += Form_MouseDown;
+			label1.MouseDown += Form_MouseDown;
+
 			if (configuration.NumberOfPlayers == 1)
 			{
 				button1_Click(null, null);
@@ -42,6 +62,11 @@ namespace CarRaceLauncher
 		{
 			Settings formSettings = new Settings(configuration);
 			formSettings.ShowDialog();
+		}
+
+		private void labelClose_Click(object sender, EventArgs e)
+		{
+			Application.Exit();
 		}
 
 		private void pictureBox2_Click(object sender, EventArgs e)

@@ -32,6 +32,7 @@
 			label1 = new ModernTitleLabel();
 			panel1 = new Panel();
 			pictureBox1 = new PictureBox();
+			labelClose = new Label();
 			button1 = new ModernButton();
 			button2 = new ModernButton();
 			button3 = new ModernButton();
@@ -63,6 +64,7 @@
 			// panel1
 			// 
 			panel1.BackColor = Color.Transparent;
+			panel1.Controls.Add(labelClose);
 			panel1.Controls.Add(pictureBox1);
 			panel1.Controls.Add(label1);
 			panel1.Dock = DockStyle.Top;
@@ -75,13 +77,28 @@
 			// 
 			pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
 			pictureBox1.Image = Properties.Resources.setting;
-			pictureBox1.Location = new Point(870, 12);
+			pictureBox1.Location = new Point(885, 30);
 			pictureBox1.Name = "pictureBox1";
-			pictureBox1.Size = new Size(75, 75);
+			pictureBox1.Size = new Size(50, 50);
 			pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
 			pictureBox1.TabIndex = 5;
 			pictureBox1.TabStop = false;
 			pictureBox1.Click += pictureBox1_Click;
+			// 
+			// labelClose
+			// 
+			labelClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+			labelClose.AutoSize = true;
+			labelClose.BackColor = Color.Transparent;
+			labelClose.Cursor = Cursors.Hand;
+			labelClose.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
+			labelClose.ForeColor = Color.White;
+			labelClose.Location = new Point(935, 5);
+			labelClose.Name = "labelClose";
+			labelClose.Size = new Size(20, 20);
+			labelClose.TabIndex = 6;
+			labelClose.Text = "x";
+			labelClose.Click += labelClose_Click;
 			// 
 			// button1
 			// 
@@ -218,6 +235,7 @@
 			Name = "Form1";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "Car Race Launcher";
+			FormBorderStyle = FormBorderStyle.None;
 			panel1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
 			((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
@@ -236,6 +254,7 @@
 		private ModernButton button1;
 		private ModernButton button2;
 		private ModernButton button3;
+		private Label labelClose;
 		private PictureBox pictureBox1;
 		private PictureBox pictureBox2;
 		private TableLayoutPanel tableLayoutPanel1;
