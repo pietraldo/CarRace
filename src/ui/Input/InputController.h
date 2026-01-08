@@ -14,4 +14,5 @@ public:
     virtual std::string GetAdditionalControllBindings() = 0;
     virtual bool updateInput() = 0;
     virtual bool setEffectsOnInputer(EffectsOnInputer effects) { return true; }
+    virtual bool connect() { return true; }
 };
