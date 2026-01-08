@@ -120,13 +120,14 @@
 			// 
 			// button3
 			// 
-			button3.Anchor = AnchorStyles.None;
+			button3.Anchor = AnchorStyles.Bottom;
 			button3.BackColor = Color.LimeGreen;
 			button3.BorderRadius = 50;
 			button3.FlatAppearance.BorderSize = 0;
 			button3.FlatStyle = FlatStyle.Flat;
 			button3.Font = new Font("Segoe UI Black", 32F, FontStyle.Bold, GraphicsUnit.Point, 238);
-			button3.Location = new Point(330, 194);
+			button3.Location = new Point(330, 162);
+			button3.Margin = new Padding(3, 3, 3, 20);
 			button3.Name = "button3";
 			button3.Size = new Size(300, 100);
 			button3.TabIndex = 4;
@@ -186,7 +187,7 @@
 			panel3.BackColor = Color.Transparent;
 			panel3.Anchor = AnchorStyles.Left;
 			panel3.Controls.Add(button2);
-			panel3.Location = new Point(510, 46);
+			panel3.Location = new Point(510, 80);
 			panel3.Margin = new Padding(30, 9, 9, 9);
 			panel3.Name = "panel3";
 			panel3.Size = new Size(230, 80);
@@ -197,7 +198,7 @@
 			panel2.BackColor = Color.Transparent;
 			panel2.Anchor = AnchorStyles.Right;
 			panel2.Controls.Add(button1);
-			panel2.Location = new Point(220, 46);
+			panel2.Location = new Point(220, 80);
 			panel2.Margin = new Padding(4, 4, 30, 4);
 			panel2.Name = "panel2";
 			panel2.Size = new Size(230, 80);

@@ -9,9 +9,10 @@ namespace CarRaceLauncher
     public class ModernButton : Button
     {
         private int _borderRadius = 40;
-        private float _gradientAngle = 45F;
+        private float _gradientAngle = 90F;
         private bool _isHovered = false;
         private bool _isPressed = false;
+        private bool _isSelected = false;
         private Color _customBackColor = Color.MediumSlateBlue;
 
         public ModernButton()
@@ -47,6 +48,18 @@ namespace CarRaceLauncher
         }
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                _isSelected = value;
+                this.Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
         [DefaultValue(40)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int BorderRadius
@@ -62,81 +75,107 @@ namespace CarRaceLauncher
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
+            if (this.Width <= 0 || this.Height <= 0) return;
+
             Graphics g = pevent.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             // Defines the limits of the button
             RectangleF rectSurface = new RectangleF(0, 0, this.Width, this.Height);
 
-            // Interpret BorderRadius as the "Corner Radius". 
-            // Diameter of the corner circle = 2 * Radius.
+            // Interpret BorderRadius as the "Corner Radius" (approx).
+            // Actually usually diameter, but we can stick to diameter for GetFigurePath logic
             float diameter = _borderRadius * 2;
-
-            // Clamp diameter to height so we don't break the shape
             if (diameter > rectSurface.Height) diameter = rectSurface.Height;
 
             // Create the path for the button shape
             using (GraphicsPath path = GetFigurePath(rectSurface, diameter))
             {
-                // Set the Region to clip the control to the path.
-                // This REMOVES the "corners" from the rendering completely.
-                // The areas outside the path will not be drawn, clicked, or exist.
+                // Set the Region to clip to the path (removes corners)
                 this.Region = new Region(path);
 
-                // 1. Calculate Colors
+                // 1. Calculate Colors for Gradient
                 Color baseColor = _customBackColor;
                 if (!this.Enabled) baseColor = Color.Gray;
 
                 Color color1, color2;
-                Color textColor = this.ForeColor;
 
                 if (_isPressed)
                 {
+                    // Dark pressed look
                     color1 = ControlPaint.Dark(baseColor, 0.15f);
                     color2 = ControlPaint.Dark(baseColor, 0.45f);
                 }
+                else if (_isSelected)
+                {
+                    // Selected: Very bright/vivid gradient "Active"
+                    color1 = ControlPaint.Light(baseColor, 0.6f);
+                    color2 = ControlPaint.Light(baseColor, 0.1f);
+                }
                 else if (_isHovered)
                 {
+                    // Hover: Brighter than normal
                     color1 = ControlPaint.Light(baseColor, 0.3f);
-                    color2 = ControlPaint.Dark(baseColor, 0.1f);
+                    color2 = ControlPaint.Dark(baseColor, 0.05f);
                 }
                 else
                 {
+                    // Normal
                     color1 = ControlPaint.Light(baseColor, 0.1f);
                     color2 = ControlPaint.Dark(baseColor, 0.2f);
                 }
 
-                // 2. Draw Gradient Fill
-                using (LinearGradientBrush brush = new LinearGradientBrush(rectSurface, color1, color2, 90F))
+                // 2. Fill Background
+                using (LinearGradientBrush brush = new LinearGradientBrush(rectSurface, color1, color2, _gradientAngle))
                 {
                     g.FillPath(brush, path);
                 }
 
-                // 3. Draw Border (optional, for definition)
-                using (Pen penBorder = new Pen(ControlPaint.Dark(color2, 0.5f), 1.5F))
+                // 3. Draw Highlight Border (if Selected) or normal border
+                if (_isSelected)
                 {
-                    penBorder.Alignment = PenAlignment.Inset;
-                    g.DrawPath(penBorder, path);
+                    // Thick White Border for Selection
+                    using (Pen penHighlight = new Pen(Color.White, 4F))
+                    {
+                        penHighlight.Alignment = PenAlignment.Inset;
+                        g.DrawPath(penHighlight, path);
+                    }
+                }
+                else
+                {
+                    // Subtle dark border for definition
+                    using (Pen penBorder = new Pen(ControlPaint.Dark(color2, 0.6f), 2F))
+                    {
+                        penBorder.Alignment = PenAlignment.Inset;
+                        g.DrawPath(penBorder, path);
+                    }
+                }
+
+                // 4. Draw Text
+                SizeF textSize = g.MeasureString(this.Text, this.Font);
+                PointF textPos = new PointF(
+                    (this.Width - textSize.Width) / 2,
+                    (this.Height - textSize.Height) / 2
+                );
+
+                using (SolidBrush textBrush = new SolidBrush(this.ForeColor))
+                {
+                    g.DrawString(this.Text, this.Font, textBrush, textPos.X, textPos.Y);
                 }
             }
-
-            // 4. Draw Text
-            SizeF textSize = g.MeasureString(this.Text, this.Font);
-            PointF textPos = new PointF(
-                (this.Width - textSize.Width) / 2,
-                (this.Height - textSize.Height) / 2
-            );
-
-            using (SolidBrush textBrush = new SolidBrush(this.ForeColor))
-            {
-                g.DrawString(this.Text, this.Font, textBrush, textPos.X, textPos.Y);
-            }
+            // End of Region/Path usage
         }
 
-        private GraphicsPath GetFigurePath(RectangleF rect, float radius)
+        private GraphicsPath GetFigurePath(RectangleF rect, float diameter)
         {
             GraphicsPath path = new GraphicsPath();
-            float d = radius;
+            float d = diameter;
+
+            // Should verify positive dimensions
+            if (d <= 0.1f) d = 0.1f;
+
             path.StartFigure();
             path.AddArc(rect.X, rect.Y, d, d, 180, 90);
             path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);

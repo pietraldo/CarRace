@@ -56,24 +56,24 @@ namespace CarRaceLauncher
 		private void button1_Click(object sender, EventArgs e)
 		{
 			configuration.NumberOfPlayers = 1;
-			buttonStyleSelected(button1, panel2);
-			buttonStyleUnselected(button2, panel3);
+			buttonStyleSelected(button1);
+			buttonStyleUnselected(button2);
 		}
 
 		private void button2_Click(object sender, EventArgs e)
 		{
 			configuration.NumberOfPlayers = 2;
-			buttonStyleSelected(button2, panel3);
-			buttonStyleUnselected(button1, panel2);
+			buttonStyleSelected(button2);
+			buttonStyleUnselected(button1);
 		}
 
-		private void buttonStyleSelected(Button button, Panel panel)
+		private void buttonStyleSelected(ModernButton button)
 		{
-			panel.BackColor = Color.DarkBlue;
+			button.IsSelected = true;
 		}
-		private void buttonStyleUnselected(Button button, Panel panel)
+		private void buttonStyleUnselected(ModernButton button)
 		{
-			panel.BackColor = Color.Transparent;
+			button.IsSelected = false;
 		}
 		public void SavePartialConfig(object partialConfig)
 		{
