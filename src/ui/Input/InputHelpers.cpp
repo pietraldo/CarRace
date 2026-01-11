@@ -1,6 +1,6 @@
 #include "InputHelpers.h"
 
-const std::string InputHelpers::fileBindingsPath = "../assets/settings/keybindings.json";
+
 
 int InputHelpers::GetKeyFromJson(const rapidjson::Value& obj, const char* key) {
     if (!obj.HasMember(key)) return GLFW_KEY_UNKNOWN;

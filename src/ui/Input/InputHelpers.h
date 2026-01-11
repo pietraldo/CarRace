@@ -9,7 +9,7 @@
 
 class InputHelpers {
 public:
-    static const std::string fileBindingsPath;
+    inline static const std::string fileBindingsPath = "../assets/settings/keybindings.json";
 
     static int GetKeyFromJson(const rapidjson::Value& obj, const char* key);
     static std::string KeyToString(int key);
