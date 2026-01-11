@@ -141,6 +141,7 @@ CameraControlInput PS5Controller::getCameraControlInput() {
     cameraInput.moveForward = -leftStick[1];
     cameraInput.yaw = rightStick[0] * 10;
     cameraInput.pitch = -rightStick[1] * 10;
+    if (isButtonJustPressed(CAMERA_TOGGLE_BUTTON)) cameraInput.switchCamera = true;
 
     return cameraInput;
 }

@@ -17,6 +17,7 @@ private:
     ControllerButton GEAR_DOWN_BUTTON = ControllerButton::CIRCLE;
     ControllerButton RESET_BUTTON = ControllerButton::ARROW_LEFT;
     ControllerButton HAND_BRAKE_BUTTON = ControllerButton::CROSS;
+    ControllerButton CAMERA_TOGGLE_BUTTON = ControllerButton::TRIANGLE;
 
     const int OUTPUT_REPORT_SIZE = 48;
 

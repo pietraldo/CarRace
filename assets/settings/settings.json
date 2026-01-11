@@ -1,13 +1,14 @@
 {
   "START_SCR_WIDTH": 1600,
   "START_SCR_HEIGHT": 1000,
+  "fullscreen": false,
+  "productionMode":true,
   "CAR_COUNT": 2,
   
-  "developerMode": false,
   "sound": true,
   
   "useDifferentMaterialsForTerrain": false,
-  "playIntroAnimation": false,
+
   "showImGuiWindows": true,
   "showHelpImGuiWindow": false,
   
@@ -25,5 +26,5 @@
   "steeringReturnSpeed": 5.0,
   
   "barrierMass": 0.5,
-  "playCountDown": false
+  "playCountDown": true
 }

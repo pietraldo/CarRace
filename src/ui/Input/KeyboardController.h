@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 #include <string>
 #include <algorithm>
 
@@ -12,6 +11,7 @@
 #include "../../gfx/Rendering.h"
 #include "InputController.h"
 #include "InputStructures.h"
+#include "InputHelpers.h"
 
 class KeyboardController : public InputController {
 public:
@@ -26,6 +26,7 @@ public:
     int HANDBRAKE_P0 = GLFW_KEY_SPACE;
     int LOOK_RIGHT_P0 = GLFW_KEY_COMMA;
     int LOOK_LEFT_P0 = GLFW_KEY_PERIOD;
+    int CHANGE_CAMERA_P0 = GLFW_KEY_9;
 
     // Player 1 key bindings
     int STEER_RIGHT_P1 = GLFW_KEY_L;
@@ -38,23 +39,11 @@ public:
     int HANDBRAKE_P1 = GLFW_KEY_LEFT_SHIFT;
     int LOOK_RIGHT_P1 = GLFW_KEY_V;
     int LOOK_LEFT_P1 = GLFW_KEY_C;
-
-    // Camera key bindings
-    int CAMERA_FORWARD = GLFW_KEY_W;
-    int CAMERA_BACKWARD = GLFW_KEY_S;
-    int CAMERA_RIGHT = GLFW_KEY_D;
-    int CAMERA_LEFT = GLFW_KEY_A;
-
-    // Additional actions key bindings
-    int START_SIMULATION_KEY = GLFW_KEY_P;
-    int EXIT_KEY = GLFW_KEY_ESCAPE;
-    int RESET_CARS_KEY = GLFW_KEY_R;
-    int SWITCH_IMGUI_KEY = GLFW_KEY_F2;
-    int SWITCH_HELP_KEY = GLFW_KEY_F1;
-    int TOGGLE_SOUND_KEY = GLFW_KEY_F9;
+    int CHANGE_CAMERA_P1 = GLFW_KEY_1;
 
     enum class PlayerIndex { Player0, Player1 };
-    const std::string fileBindingsPath = "../assets/settings/keybindings.json";
+
+    static const std::string fileBindingsPath;
 
     explicit KeyboardController(PlayerIndex index);
     bool LoadKeyBindingsFromFile(const std::string& filename);
@@ -72,7 +61,6 @@ public:
 
 private:
     PlayerIndex playerIndex;
-    bool isKeyPressed(int key);
     bool isKeyJustPressed(int key);
     std::vector<bool> lastKeyStates = std::vector<bool>(349, false);  // GLFW_KEY_LAST is 348
 
@@ -82,8 +70,4 @@ private:
 
     static double lastMouseX;
     static double lastMouseY;
-
-    static const std::unordered_map<std::string, int> keyNameToGLFWKey;
-    static const std::unordered_map<int, std::string> GlfwKeyToString;
-    static std::string KeyToString(int key);
 };

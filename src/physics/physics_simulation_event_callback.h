@@ -3,12 +3,14 @@
 #include <PxPhysicsAPI.h>
 
 class CollisionSound;
+class GameEngine;
 
 class PhysicsSimulationEventCallback : public physx::PxSimulationEventCallback {
 public:
     explicit PhysicsSimulationEventCallback(CollisionSound* sound = nullptr) : mCollisionSound(sound) {}
 
     void setCollisionSound(CollisionSound* sound) { mCollisionSound = sound; }
+    void setGameEngine(GameEngine* engine) { mGameEngine = engine; }
 
     void onConstraintBreak(physx::PxConstraintInfo* /*constraints*/, physx::PxU32 /*count*/) override {}
     void onWake(physx::PxActor** /*actors*/, physx::PxU32 /*count*/) override {}
@@ -21,4 +23,5 @@ public:
 
 private:
     CollisionSound* mCollisionSound = nullptr;
+    GameEngine* mGameEngine = nullptr;
 };

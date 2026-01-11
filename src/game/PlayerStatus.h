@@ -20,4 +20,5 @@ struct PlayerStatus {
     float finishTime = 0.0f;
     glm::vec3 lastPosition = glm::vec3(0.0f);
     bool finishScreenConfirmed = false;
+    bool midwayPointCrossed = false;
 };

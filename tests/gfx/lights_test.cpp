@@ -102,8 +102,8 @@ TEST_F(LightStructuresTest, LightBuffer_MaxLimits) {
 
 TEST_F(LightStructuresTest, LightType_EnumValues) {
     EXPECT_EQ(static_cast<int>(LightType::DIRECTIONAL), 0);
-    EXPECT_NE(static_cast<int>(LightType::POINT), static_cast<int>(LightType::DIRECTIONAL));
-    EXPECT_NE(static_cast<int>(LightType::SPOT), static_cast<int>(LightType::POINT));
+    EXPECT_NE(static_cast<int>(LightType::POINT_LIGHT), static_cast<int>(LightType::DIRECTIONAL));
+    EXPECT_NE(static_cast<int>(LightType::SPOT), static_cast<int>(LightType::POINT_LIGHT));
     EXPECT_NE(static_cast<int>(LightType::UNKNOWN), static_cast<int>(LightType::SPOT));
 }
 

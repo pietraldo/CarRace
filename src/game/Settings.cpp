@@ -73,11 +73,12 @@ void Settings::LoadFromFile(const char* filename) {
     // Screen
     loadInt("START_SCR_WIDTH", START_SCR_WIDTH, 50, 5000);
     loadInt("START_SCR_HEIGHT", START_SCR_HEIGHT, 50, 5000);
+    loadBool("fullscreen", fullscreen);
 
     // Gameplay
     loadInt("CAR_COUNT", CAR_COUNT, 1, 2);
     loadBool("useDifferentMaterialsForTerrain", useDifferentMaterialsForTerrain);
-    loadBool("playIntroAnimation", playIntroAnimation);
+    loadBool("productionMode", productionMode);
 
     // UI
     loadBool("showImGuiWindows", showImGuiWindows);
@@ -99,7 +100,15 @@ void Settings::LoadFromFile(const char* filename) {
     // Steering
     loadFloat("steeringSpeed", steeringSpeed, 0);
     loadFloat("steeringReturnSpeed", steeringReturnSpeed, 0);
-    
+
     loadFloat("barrierMass", barrierMass, 0.0000001);
     loadBool("playCountDown", playCountDown);
+
+    UpdateDependencies();
+}
+
+void Settings::UpdateDependencies() {
+    if (productionMode) {
+        showImGuiWindows = false;
+    }
 }

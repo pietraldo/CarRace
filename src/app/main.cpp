@@ -1,6 +1,11 @@
 ﻿
 #include <hidapi.h>
 
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include <cstdlib>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,14 +42,20 @@
 
 using namespace std;
 
-// timing
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
 GameEngine* gameEngine = nullptr;
 
 int main() {
     Settings::Get().LoadFromFile();
+
+    // if porduction mode -> hide console
+#ifdef _WIN32
+    if (Settings::Get().productionMode) {
+        HWND hwnd = GetConsoleWindow();
+        if (hwnd != NULL) {
+            ShowWindow(hwnd, SW_HIDE);
+        }
+    }
+#endif
 
     Rendering::InitializeLoading();
     Rendering::RenderLoadingScreen(0);
@@ -71,26 +82,15 @@ int main() {
 
     Physics::getInstance()->createObjects(gameEngine->gameObjectsDynamic, gameEngine->gameObjectsStatic);
 
-    if (Settings::Get().playIntroAnimation) {
-        CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
-    }
+    CameraManager::GetInstance()->SetViewMode(ViewMode::INTRO_SCREEN);
 
     bool continueGame = true;
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
-        // deltaTime = 0.016f; // fixed timestep
-        lastFrame = currentFrame;
-
+        float deltaTime = gameEngine->updateDeltaTime();
+        
         InputData input = InputManager::getInstance().getInputData();
 
-        CameraManager::GetInstance()->ProccessInput(input.cameraControl0, deltaTime);
         continueGame = !input.additionalInfo.exit;
-
-        if (input.additionalInfo.resetCars) {
-            Physics::getInstance()->getVehicles()[0]->resetCar();
-        }
 
         gameEngine->UpdateBeforePhysics(input, deltaTime);
         if (gameEngine->IsSimulationStarted()) {

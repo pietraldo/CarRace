@@ -44,6 +44,7 @@ int Physics::initialize(GameEngine* gameEngine) {
         std::cerr << "Physics: Failed to initialize collision sounds\n";
     }
     simulationEventCallback.setCollisionSound(&collisionSound);
+    simulationEventCallback.setGameEngine(gameEngine);
 
     initMaterialFrictionTable();
     InitVehicleSystem();
@@ -93,7 +94,6 @@ void Physics::createObjects(const std::vector<std::shared_ptr<GameObjectDynamic>
     physx::PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 
     for (auto gameObjectDynamic : gameObjectsDynamic) {
-
         PxVec3 pos = GlmVec3ToPxVec3(gameObjectDynamic->GetPositionWithoutOffset());
         PxQuat rotation = gameObjectDynamic->GetRotationWithoutOffset();
         PxVec3 size = GlmVec3ToPxVec3(gameObjectDynamic->physicActor.size * 0.5f * gameObjectDynamic->scale);

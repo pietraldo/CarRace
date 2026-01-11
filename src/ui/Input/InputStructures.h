@@ -30,15 +30,17 @@ struct CameraControlInput {
     float pitch = 0;  // -1 to 1
 
     float zoom = 0;  // -1 to 1
+
+    bool switchCamera = false;
 };
 
 struct AdditionalInputInfo {
     bool startSimulation = false;
     bool exit = false;
-    bool resetCars = false;
     bool switchImGui = false;
     bool switchHelp = false;
     bool toggleSound = false;
+    bool skipIntro = false;
 };
 
 struct OutputData {
@@ -54,4 +56,6 @@ struct InputData {
 
     CarControlInput carControl1;
     CameraControlInput cameraControl1;
+
+    CameraControlInput freeCameraControl;
 };

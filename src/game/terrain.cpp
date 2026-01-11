@@ -50,7 +50,7 @@ float Terrain::GetHeightAtPosition(float x, float z) {
     return minHeight;
 }
 
-bool Terrain::IsGrassAtPosition(float x, float z) { 
+bool Terrain::IsGrassAtPosition(float x, float z) {
     float width = GetTerrainWidth();
     float depth = GetTerrainDepth();
 

@@ -15,6 +15,14 @@ GameEngine::GameEngine() {
     terrain->LoadTerrain("../assets/terrain/terrain.txt");
 }
 
+float GameEngine::updateDeltaTime() {
+    float currentFrame = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrame - lastFrameTimeStamp;
+    if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
+    lastFrameTimeStamp = currentFrame;
+    return deltaTime;
+}
+
 void GameEngine::StartSimulation() {
     startSimulation = true;
     if (Settings::Get().playCountDown) {
@@ -23,6 +31,14 @@ void GameEngine::StartSimulation() {
         countdownTimer = 10.0f;
     }
     raceTime = 0.0f;
+}
+
+void GameEngine::SetViewModeBasedOnCarCount() {
+    if (Settings::Get().CAR_COUNT == 2) {
+        CameraManager::GetInstance()->SetViewMode(ViewMode::SPLIT_SCREEN);
+    } else {
+        CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
+    }
 }
 
 void GameEngine::UpdateCars(InputData input, float deltaTime) {
@@ -53,6 +69,24 @@ void GameEngine::UpdateCars(InputData input, float deltaTime) {
 }
 
 void GameEngine::UpdatePlayerCamera(float dt, int playerNumber, const InputData& input) {
+    const CameraControlInput& camInput = (playerNumber == 0) ? input.cameraControl0 : input.cameraControl1;
+
+    if (camInput.switchCamera) {
+        CameraType currentType = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber).cameraType;
+        CameraType nextType = CameraType::FOLLOWING_CAR_CAMERA;
+
+        if (currentType == CameraType::FOLLOWING_CAR_CAMERA)
+            nextType = CameraType::FIRST_PERSON_CAMERA;
+        else if (currentType == CameraType::FIRST_PERSON_CAMERA)
+            nextType = CameraType::OBSERVING_CAMERA;
+        else if (currentType == CameraType::OBSERVING_CAMERA)
+            nextType = CameraType::OBSERVING_CAMERA_UP;
+        else if (currentType == CameraType::OBSERVING_CAMERA_UP)
+            nextType = CameraType::FOLLOWING_CAR_CAMERA;
+
+        CameraManager::GetInstance()->SetPlayerActiveCamera(nextType, playerNumber);
+    }
+
     Camera& activeCamera = CameraManager::GetInstance()->GetPlayerActiveCamera(playerNumber);
 
     RaceCar* vehicle;
@@ -99,17 +133,22 @@ void GameEngine::UpdatePlayersCamera(float dt, const InputData& input) {
     if (activeViewMode == ViewMode::INTRO_SCREEN) {
         AnimationCamera& animationCamera = CameraManager::GetInstance()->GetAnimationCamera();
         animationCamera.Update(dt);
-        if (animationCamera.GetAnimation().HasEnded()) {
-            CameraManager::GetInstance()->SetViewMode(ViewMode::SINGLE_SCREEN);
-            StartSimulation();
+        if (animationCamera.GetAnimation().HasEnded() || input.additionalInfo.skipIntro) {
+            SetViewModeBasedOnCarCount();
+            if (Settings::Get().productionMode) {
+                StartSimulation();
+            }
         }
+    }
+    if (activeViewMode == ViewMode::EDIT_SCREEN) {
+        CameraManager::GetInstance()->ProccessInput(input.freeCameraControl, dt);
     }
 }
 void GameEngine::UpdateBeforePhysics(InputData input, float deltaTime) {
     if (input.additionalInfo.startSimulation) {
         StartSimulation();
     }
-    if (input.additionalInfo.switchImGui) {
+    if (input.additionalInfo.switchImGui && !Settings::Get().productionMode) {
         Settings::Get().showImGuiWindows = !Settings::Get().showImGuiWindows;
     }
     if (input.additionalInfo.switchHelp) {
@@ -190,14 +229,26 @@ void GameEngine::CheckFinishLine(int carIndex) {
         return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
     };
 
+    // Check midway point
+    if (!playersStatus[carIndex].midwayPointCrossed) {
+        glm::vec2 midP1(-211.0f, -272.0f);
+        glm::vec2 midP2(-238.0f, -254.0f);
+
+        bool intersectMid = (ccw(midP1, midP2, carP1) != ccw(midP1, midP2, carP2)) &&
+                            (ccw(carP1, carP2, midP1) != ccw(carP1, carP2, midP2));
+
+        if (intersectMid) {
+            playersStatus[carIndex].midwayPointCrossed = true;
+            std::cout << "Player " << carIndex << " crossed midway point!" << std::endl;
+        }
+    }
+
     bool intersect = (ccw(p1, p2, carP1) != ccw(p1, p2, carP2)) && (ccw(carP1, carP2, p1) != ccw(carP1, carP2, p2));
 
-    if (intersect) {
-        if (raceTime > 10.0f) {
-            playersStatus[carIndex].finished = true;
-            playersStatus[carIndex].finishTime = raceTime;
-            AudioEngine::instance().playFinish();
-        }
+    if (intersect && playersStatus[carIndex].midwayPointCrossed) {
+        playersStatus[carIndex].finished = true;
+        playersStatus[carIndex].finishTime = raceTime;
+        AudioEngine::instance().playFinish();
     }
 
     playersStatus[carIndex].lastPosition = currentPos;
@@ -218,6 +269,11 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
     RenderPassUniforms::ApplyCommon(shaderTex, pass, false);
 
     float cullDist = Settings::Get().vegetationCullDistance;
+
+    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::INTRO_SCREEN) {
+        cullDist = -1.0f;
+    }
+
     float cullDistSq = cullDist > 0 ? (cullDist * cullDist) : -1.0f;
 
     for (auto gameObject : gameObjects2) {
@@ -266,7 +322,7 @@ void GameEngine::DrawLights(Shader& shader, unsigned int& lightVAO, Camera& acti
     RenderPassUniforms::ApplyCommon(shader, pass, false);
 
     for (Light* light : lights) {
-        if (light->GetType() != LightType::POINT) continue;
+        if (light->GetType() != LightType::POINT_LIGHT) continue;
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, light->GetPosition());
         model = glm::scale(model, glm::vec3(0.2f));
@@ -315,6 +371,8 @@ void GameEngine::CreateModels() {
 }
 
 void GameEngine::CreateBuildings() {
+    std::cout << "Creating buildings..." << std::endl;
+
     struct BuildingData {
         std::string path;
         glm::vec3 position;
@@ -414,9 +472,12 @@ void GameEngine::CreateBuildings() {
                                                          glm::vec3(291.0f, 24.5f, 11.0f), glm::vec3(0.0f, -21.f, 0.f),
                                                          glm::vec3(2.2f, 2.2f, 2.2f), glm::vec3(0));
     gameObjects2.push_back(finishLine);
+    std::cout << "Buildings created." << std::endl;
 }
 
 void GameEngine::CreateBarriers() {
+    std::cout << "Creating bariers..." << std::endl;
+
     // barier model size
     // scale 46.97 9.46 15.66
     const std::string barierModelPath = "../assets/models/barier/barier.gltf";
@@ -437,23 +498,21 @@ void GameEngine::CreateBarriers() {
         {glm::vec3(311.4, 28.43, -84.10), glm::vec3(0, 80, 0), scaleMost},
         {glm::vec3(315, 28.43, -72.54), glm::vec3(0, 79, 0), scaleMost},
         {glm::vec3(317.19, 28.86, -99.5), glm::vec3(0, 79, 0), scaleMost},
-        {glm::vec3(325.0, 28.86, -114.92), glm::vec3(0,68, 0), scaleMost},
+        {glm::vec3(325.0, 28.86, -114.92), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(341, 30.57, -154.29), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(348.86, 31.85, -165), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(326, 29.72, -126.90), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(357.57, 32.28, -184.25), glm::vec3(0, 68, 0), scaleMost},
         {glm::vec3(348.86, 31.43, -175.26), glm::vec3(0, 68, 0), scaleMost},
-        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0,68 , 0), glm::vec3(0.35, 0.1, 0.2)},
-        {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92,0.10, 0.20)},
-        {glm::vec3(-123,23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
-        {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0,59.68 , 0), glm::vec3(0.92, 0.1, 0.2)},
+        {glm::vec3(-122.14, 23.03, 257.75), glm::vec3(0, 68, 0), glm::vec3(0.35, 0.1, 0.2)},
+        {glm::vec3(-136.79, 23.03, 285.86), glm::vec3(0, 60, 0), glm::vec3(0.92, 0.10, 0.20)},
+        {glm::vec3(-123, 23.03, 236.08), glm::vec3(0, -66.38, 0), glm::vec3(0.44, 0.1, 0.2)},
+        {glm::vec3(-157.91, 23.03, 263.42), glm::vec3(0, 59.68, 0), glm::vec3(0.92, 0.1, 0.2)},
         {glm::vec3(-185.63, 23.03, 305.66), glm::vec3(0, 47.08, 0), glm::vec3(0.92, 0.1, 0.2)},
         {glm::vec3(-190.01, 23.03, 268.70), glm::vec3(0, 59.68, 0), glm::vec3(1.45, 0.1, 0.2)},
-        {glm::vec3(-157.91, 23.03, 223.82), glm::vec3(0, 34.60, 0), glm::vec3(0.92, 0.1, 0.2)}
-    };
+        {glm::vec3(-157.91, 23.03, 223.82), glm::vec3(0, 34.60, 0), glm::vec3(0.92, 0.1, 0.2)}};
 
-    for (auto data: barierData)
-    {
+    for (auto data : barierData) {
         auto barier = make_shared<GameObjectDynamic>();
         barier->drawObject = barierModel;
         barier->SetPosition(data.position);
@@ -463,13 +522,13 @@ void GameEngine::CreateBarriers() {
         PhysicActor barierRigidBody2;
         barierRigidBody2.size = barierSizeRigidBody;
         barier->AddPhysicActor(barierRigidBody2);
-        float volume = barierSizeRigidBody.x * data.scale.x *
-                       barierSizeRigidBody.y * data.scale.y *
+        float volume = barierSizeRigidBody.x * data.scale.x * barierSizeRigidBody.y * data.scale.y *
                        barierSizeRigidBody.z * data.scale.z;
         barier->mass = volume * Settings::Get().barrierMass;
         gameObjectsDynamic.push_back(barier);
         bariers.push_back(barier);
     }
+    std::cout << "Bariers created." << std::endl;
 }
 
 void GameEngine::AddBarier(shared_ptr<GameObject2> object) {
@@ -485,6 +544,8 @@ void GameEngine::AddBarier(shared_ptr<GameObject2> object) {
 }
 
 void GameEngine::CreateCubes() {
+    std::cout << "Creating cubes..." << std::endl;
+
     // bridge
     glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
     glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
@@ -522,7 +583,7 @@ void GameEngine::CreateCubes() {
     gameObjects2.push_back(cube);
     measureObject = cube;
 
-     // floor big
+    // floor big
     glm::vec3 floorSize(1000, 1, 1000);
     glm::vec3 floorPos(0, -0.5, 0);
     glm::vec3 floorColor(0.29f, 0.27f, 0.955f);
@@ -535,7 +596,7 @@ void GameEngine::CreateCubes() {
     gameObjects2.push_back(floor);
     gameObjectsStatic.push_back(floor);
 
-     // floor big small
+    // floor big small
     glm::vec3 floorSize2(10, 1, 10);
     glm::vec3 floorPos2(0, 0.5, 0);
     glm::vec3 floorColor2(0.29f, 0.97f, 0.255f);
@@ -547,28 +608,28 @@ void GameEngine::CreateCubes() {
     floor2->AddRigidBody(RigidBody());
     gameObjects2.push_back(floor2);
     gameObjectsStatic.push_back(floor2);
+
+    std::cout << "Cubes created." << std::endl;
 }
 
 void GameEngine::CreateTrees() {
+    std::cout << "Creating trees..." << std::endl;
+
     const std::string treeModelPath = "../assets/models/low_poly_tree/scene_low.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
-    
+
     glm::vec3 rigidbodySize(1, 6, 1);
     glm::vec3 positionOffset(0, 3, 0);
 
-    int terrainWidth = terrain->GetTerrainWidth()/2;
-    int terrainDepth = terrain->GetTerrainDepth()/2;
-    int density = 8; 
-    for (int i = -terrainWidth; i < terrainWidth; i += 50)
-    {
-        for (int j = -terrainDepth; j < terrainDepth; j += 50)
-        {
-            for (int k = 0; k < density; k++)
-            {
+    int terrainWidth = terrain->GetTerrainWidth() / 2;
+    int terrainDepth = terrain->GetTerrainDepth() / 2;
+    int density = 8;
+    for (int i = -terrainWidth; i < terrainWidth; i += 50) {
+        for (int j = -terrainDepth; j < terrainDepth; j += 50) {
+            for (int k = 0; k < density; k++) {
                 int x = i + rand() % 50;
                 int z = j + rand() % 50;
-                if (terrain->IsGrassAtPosition(x, z) == false)
-                    continue;
+                if (terrain->IsGrassAtPosition(x, z) == false) continue;
                 float scaleRand = static_cast<float>(rand() % 200 + 100) / 100;
                 glm::vec3 scaleVec(scaleRand);
                 glm::vec3 pos(x, 0.0f, z);
@@ -585,10 +646,11 @@ void GameEngine::CreateTrees() {
                 treeRigidBody.positionOffset = positionOffset;
                 tree->AddRigidBody(treeRigidBody);
                 gameObjectsStatic.push_back(tree);
-
             }
         }
     }
+
+    std::cout << "Trees created." << std::endl;
 }
 
 void GameEngine::CreateLights() {
@@ -721,6 +783,8 @@ glm::quat GameEngine::GetCarRotation() const {
 }
 
 void GameEngine::CreateCars() {
+    std::cout << "Creating cars..." << std::endl;
+
     const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
@@ -740,6 +804,8 @@ void GameEngine::CreateCars() {
             cars[i]->SetColor(glm::vec3(0.5, 0.5, 1));
         }
     }
+
+    std::cout << "Cars created." << std::endl;
 }
 
 bool GameEngine::isVehicleOnTrack(int carNumber) {

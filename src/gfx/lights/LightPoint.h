@@ -18,5 +18,5 @@ public:
           };
 
     void AddTo(LightBuffer& lightBuffer) override;
-    LightType GetType() override { return LightType::POINT; };
+    LightType GetType() override { return LightType::POINT_LIGHT; };
 };

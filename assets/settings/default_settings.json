@@ -1,14 +1,15 @@
 {
   "START_SCR_WIDTH": 1600,
   "START_SCR_HEIGHT": 1000,
+  "fullscreen": true,
+  "productionMode":true,
   "CAR_COUNT": 2,
   
-  "developerMode": false,
   "sound": true,
   
-  "useDifferentMaterialsForTerrain": true,
-  "playIntroAnimation": true,
-  "showImGuiWindows": false,
+  "useDifferentMaterialsForTerrain": false,
+
+  "showImGuiWindows": true,
   "showHelpImGuiWindow": false,
   
   "night": false,
@@ -22,5 +23,8 @@
   "maxSavedPositions": 100,
   "savePositionRetrival": 1,
   "steeringSpeed": 2.45,
-  "steeringReturnSpeed": 5.0
+  "steeringReturnSpeed": 5.0,
+  
+  "barrierMass": 0.5,
+  "playCountDown": true
 }

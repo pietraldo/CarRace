@@ -15,8 +15,8 @@
 
 class GameObject2 {
 protected:
-
     physx::PxQuat rotation = physx::PxIdentity;
+
 public:
     glm::vec3 position = glm::vec3(0);
 
@@ -37,7 +37,7 @@ public:
     physx::PxQuat rotationOffset = physx::PxIdentity;
 
     std::shared_ptr<DrawObject> drawObject = nullptr;
-    
+
     // optimization flags
-    bool isVegetation = false; // true for trees/bushes
+    bool isVegetation = false;  // true for trees/bushes
 };

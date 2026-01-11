@@ -49,7 +49,7 @@ struct LightBuffer {
     int NR_SPOT_LIGHTS;
 };
 
-enum LightType { DIRECTIONAL, POINT, SPOT, UNKNOWN };
+enum LightType { DIRECTIONAL, POINT_LIGHT, SPOT, UNKNOWN };
 
 class Light {
 protected:

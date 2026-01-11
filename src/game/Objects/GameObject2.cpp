@@ -5,5 +5,5 @@ glm::vec3 GameObject2::GetPosition() {
     positionOffsetPx = rotation.rotate(positionOffsetPx);
     glm::vec3 positionOffset = PxVec3ToGlmVec3(positionOffsetPx);
 
-    return position + positionOffset*scale;
+    return position + positionOffset * scale;
 }

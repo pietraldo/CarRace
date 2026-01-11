@@ -1,132 +1,99 @@
 #include "InputManager.h"
 #include "XboxController.h"
+#include "EditCameraInputController.h"
+#include "../../game/Settings.h"
 
 InputManager* InputManager::inputManager = nullptr;
 
 void InputManager::setUp() {
-    PS5Controller* ps5Controller = new PS5Controller();
-    ThrustmasterTMXController* tmxController = new ThrustmasterTMXController();
-    XboxController* xboxController = new XboxController(0);
-    auto* keyboard0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
-    auto* keyboard1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
+    if (!editCameraController) {
+        editCameraController = new EditCameraInputController();
+    }
 
-    bool tmxConnected = tmxController->connect();
-    bool xboxConnected = xboxController->connect();
-    bool ps5Connected = !tmxConnected && !xboxConnected && ps5Controller->connect();  // Priority: TMX/Xbox > PS5
+    std::vector<InputController*> connectedControllers;
 
-    if (tmxConnected && xboxConnected) {
-        InputManager::getInstance().setInputController1(tmxController);
-        InputManager::getInstance().setInputController2(xboxController);
+    auto tryAddController = [&](InputController* c) {
+        if (c->connect()) {
+            connectedControllers.push_back(c);
+            return true;
+        }
+        delete c;
+        return false;
+    };
 
-        currentInputType = CONTROLLER_AND_CONTROLLER;
-        std::cout << "Thrustmaster TMX and Xbox Controller connected. Player0: Wheel, Player1: Xbox" << std::endl;
+    // Priority 1: Wheel
+    tryAddController(new ThrustmasterTMXController());
 
-        delete ps5Controller;
-    } else if (tmxConnected) {
-        InputManager::getInstance().setInputController1(tmxController);
-        InputManager::getInstance().setInputController2(keyboard0);
+    // Priority 2: Gamepads
+    tryAddController(new XboxController(0));
+    tryAddController(new PS5Controller());
 
-        currentInputType = CONTROLLER_AND_KEYBOARD;
-        std::cout << "Thrustmaster TMX connected. Player0: Wheel, Player1: keyboard" << std::endl;
-
-        delete ps5Controller;
-        delete xboxController;
-        delete keyboard1;
-    } else if (xboxConnected) {
-        InputManager::getInstance().setInputController1(xboxController);
-        InputManager::getInstance().setInputController2(keyboard0);
-
-        currentInputType = CONTROLLER_AND_KEYBOARD;
-        std::cout << "Xbox Controller connected. Player0: Xbox, Player1: keyboard" << std::endl;
-
-        delete ps5Controller;
-        delete tmxController;
-        delete keyboard1;
-    } else if (ps5Connected) {
-        InputManager::getInstance().setInputController1(ps5Controller);
-        InputManager::getInstance().setInputController2(keyboard0);
-
-        currentInputType = CONTROLLER_AND_KEYBOARD;
-        std::cout << "PS5 Controller connected. Player0: Pad, Player1: keyboard" << std::endl;
-
-        delete tmxController;
-        delete xboxController;
-        delete keyboard1;
+    // Assign Player 1
+    if (!connectedControllers.empty()) {
+        inputController1 = connectedControllers.front();
+        connectedControllers.erase(connectedControllers.begin());
+        std::cout << "Player 1 assigned: External Controller" << std::endl;
     } else {
-        InputManager::getInstance().setInputController1(keyboard0);
-        InputManager::getInstance().setInputController2(keyboard1);
+        inputController1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
+        std::cout << "Player 1 assigned: Keyboard" << std::endl;
+    }
 
+
+    // Assign Player 0
+    if (!connectedControllers.empty()) {
+        inputController0 = connectedControllers.front();
+        connectedControllers.erase(connectedControllers.begin());
+        std::cout << "Player 0 assigned: External Controller" << std::endl;
+    } else {
+        inputController0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
+        std::cout << "Player 0 assigned: Keyboard" << std::endl;
+    }
+
+    // Cleanup any extra controllers found but not used
+    for (auto* c : connectedControllers) {
+        delete c;
+    }
+
+    // Determine Global Input Type
+    bool p0IsKeyboard = (dynamic_cast<KeyboardController*>(inputController0) != nullptr);
+    bool p1IsKeyboard = (dynamic_cast<KeyboardController*>(inputController1) != nullptr);
+
+    if (p0IsKeyboard && p1IsKeyboard) {
         currentInputType = KEYBOARD_AND_KEYBOARD;
-        std::cout << "No controllers connected. Player0: keyboard0, Player1: keyboard1" << std::endl;
-
-        delete ps5Controller;
-        delete tmxController;
-        delete xboxController;
+    } else if (!p0IsKeyboard && !p1IsKeyboard) {
+        currentInputType = CONTROLLER_AND_CONTROLLER;
+    } else {
+        currentInputType = CONTROLLER_AND_KEYBOARD;
     }
 }
 
 InputData InputManager::getInputData() {
     InputData inputData;
 
-    if (currentInputType == KEYBOARD) {
-        inputController0->updateInput();
-
-        inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController0->getCameraControlInput();
-        inputData.additionalInfo = inputController0->getAdditionalInputInfo();
+    // Process Free Camera / System Input (always available)
+    if (editCameraController) {
+        editCameraController->updateInput();
+        inputData.freeCameraControl = editCameraController->getCameraControlInput();
+        inputData.additionalInfo = editCameraController->getAdditionalInputInfo();
     }
 
-    if (currentInputType == CONTROLLER_AND_KEYBOARD) {
+    // Process Player 0
+    if (inputController0) {
         inputController0->updateInput();
-        inputController1->updateInput();
-
         inputData.carControl0 = inputController0->getCarControlInput();
         inputData.cameraControl0 = inputController0->getCameraControlInput();
-
-        inputData.carControl1 = inputController1->getCarControlInput();
-        inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        inputData.additionalInfo = inputController1->getAdditionalInputInfo();
-
-        AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
-        inputData.additionalInfo.startSimulation = inputData.additionalInfo.startSimulation || info0.startSimulation;
-        inputData.additionalInfo.exit = inputData.additionalInfo.exit || info0.exit;
-        inputData.additionalInfo.resetCars = inputData.additionalInfo.resetCars || info0.resetCars;
-        inputData.additionalInfo.switchImGui = inputData.additionalInfo.switchImGui || info0.switchImGui;
-        inputData.additionalInfo.switchHelp = inputData.additionalInfo.switchHelp || info0.switchHelp;
     }
 
-    if (currentInputType == CONTROLLER_AND_CONTROLLER) {
-        inputController0->updateInput();
+    // Process Player 1
+    if (inputController1) {
         inputController1->updateInput();
-
-        inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController0->getCameraControlInput();
-
         inputData.carControl1 = inputController1->getCarControlInput();
         inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        AdditionalInputInfo info0 = inputController0->getAdditionalInputInfo();
-        AdditionalInputInfo info1 = inputController1->getAdditionalInputInfo();
-
-        inputData.additionalInfo.startSimulation = info0.startSimulation || info1.startSimulation;
-        inputData.additionalInfo.exit = info0.exit || info1.exit;
-        inputData.additionalInfo.resetCars = info0.resetCars || info1.resetCars;
-        inputData.additionalInfo.switchImGui = info0.switchImGui || info1.switchImGui;
-        inputData.additionalInfo.switchHelp = info0.switchHelp || info1.switchHelp;
     }
 
-    if (currentInputType == KEYBOARD_AND_KEYBOARD) {
-        inputController0->updateInput();
-        inputController1->updateInput();
-
-        inputData.carControl0 = inputController0->getCarControlInput();
-        inputData.cameraControl0 = inputController0->getCameraControlInput();
-
-        inputData.carControl1 = inputController1->getCarControlInput();
-        inputData.cameraControl1 = inputController1->getCameraControlInput();
-
-        inputData.additionalInfo = inputController0->getAdditionalInputInfo();
+    if (Settings::Get().productionMode) {
+        inputData.additionalInfo.switchImGui = false;
+        inputData.additionalInfo.startSimulation = false;
     }
 
     return inputData;
@@ -140,8 +107,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController0->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController0->GetCameraControllBindings();
-        result += "\nAdditional Controls:\n";
-        result += inputController0->GetAdditionalControllBindings();
     }
 
     if (currentInputType == CONTROLLER_AND_KEYBOARD) {
@@ -154,8 +119,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls:\n";
-        result += inputController1->GetAdditionalControllBindings();
     }
 
     if (currentInputType == CONTROLLER_AND_CONTROLLER) {
@@ -168,8 +131,6 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls (Both):\n";
-        result += inputController1->GetAdditionalControllBindings();
     }
 
     if (currentInputType == KEYBOARD_AND_KEYBOARD) {
@@ -181,8 +142,14 @@ std::string InputManager::getInputBindingsInfo() {
         result += inputController1->GetCarControllBindings();
         result += "\nCamera Controls:\n";
         result += inputController1->GetCameraControllBindings();
-        result += "\n\nAdditional Controls:\n";
-        result += inputController0->GetAdditionalControllBindings();
+    }
+
+    if (editCameraController) {
+        result += "\n\nSystem/Additional Controls:\n";
+        result += editCameraController->GetAdditionalControllBindings();
+
+        result += "\n\nEdit Camera Controls:\n";
+        result += editCameraController->GetCameraControllBindings();
     }
     return result;
 }

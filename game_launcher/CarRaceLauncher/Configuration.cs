@@ -31,8 +31,8 @@ namespace CarRaceLauncher
 		[JsonProperty("fogMaxDist")]
 		public float FogMaxDistance { get; set; } = 200;
 
-		[JsonProperty("developerMode")]
-		public bool DeveloperMode { get; set; } = false;
+		[JsonProperty("productionMode")]
+		public bool ProductionMode { get; set; } = true;
 
 		[JsonProperty("sound")]
 		public bool Sound { get; set; } = false;
@@ -41,10 +41,10 @@ namespace CarRaceLauncher
 		public bool AutoReturnToTrack { get; set; } = true;
 
 		[JsonProperty("timeOutsideTrackToReset")]
-		public int TimeToReturnToTrack { get; set; } = 5;
+		public int TimeToReturnToTrack { get; set; } = 5000;
 
 		[JsonProperty("checkpointInterval")]
-		public int CheckPointTimeBonus { get; set; } = 10;
+		public int CheckPointTimeBonus { get; set; } = 10000;
 
 
 		public Configuration() { }

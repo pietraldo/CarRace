@@ -23,8 +23,11 @@ private:
 
     glm::vec3 velocity{0};
     glm::vec3 smoothedForward{0, 0, 1};
+    bool resetNextUpdate = true;
 
 public:
+    void Reset() { resetNextUpdate = true; }
+
     // constructor with vectors
     ObservingCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
                     float yaw = YAW, float pitch = PITCH)
@@ -45,17 +48,22 @@ public:
 
         glm::vec3 forward = glm::normalize(carRot * glm::vec3(0, 0, 1));
 
-        // Smooth forward (yaw lag) – prevents sharp camera snaps
+        // Smooth forward (yaw lag)  prevents sharp camera snaps
         smoothedForward = glm::mix(smoothedForward, forward, dt * yawLag);
 
         glm::vec3 idealPos = carPos - smoothedForward * followDistance + glm::vec3(0, heightOffset, 0);
 
         // Spring-damped smoothing
         glm::vec3 displacement = idealPos - Position;
-        if (glm::length(displacement) > 40.0f) {
+        if (resetNextUpdate || glm::length(displacement) > 40.0f) {
             velocity = glm::vec3(0);
             smoothedForward = forward;
+
+            idealPos = carPos - smoothedForward * followDistance + glm::vec3(0, heightOffset, 0);
+
             Position = idealPos;
+            displacement = glm::vec3(0);
+            resetNextUpdate = false;
         }
         velocity += displacement * stiffness * dt;
         velocity *= glm::exp(-damping * dt);

@@ -23,12 +23,12 @@ namespace CarRaceLauncher
 			chBoxSurfaces.Checked = configuration.UseDifferentSurfaces;
 			chBoxSound.Checked = configuration.Sound;
 			chBoxAutoReturn.Checked = configuration.AutoReturnToTrack;
-			numTimeReturn.Value = configuration.TimeToReturnToTrack;
-			numTimeCheck.Value = configuration.CheckPointTimeBonus;
+			numTimeReturn.Value = Math.Max(numTimeReturn.Minimum, Math.Min(numTimeReturn.Maximum, configuration.TimeToReturnToTrack));
+			numTimeCheck.Value = Math.Max(numTimeCheck.Minimum, Math.Min(numTimeCheck.Maximum, configuration.CheckPointTimeBonus));
 			chBoxFog.Checked = configuration.FogEffect;
-			numMinFog.Value = (int)configuration.FogMinDistance;
-			numMaxFog.Value = (int)configuration.FogMaxDistance;
-			chBoxDeveloperMode.Checked = configuration.DeveloperMode;
+			numMinFog.Value = Math.Max(numMinFog.Minimum, Math.Min(numMinFog.Maximum, (decimal)configuration.FogMinDistance));
+			numMaxFog.Value = Math.Max(numMaxFog.Minimum, Math.Min(numMaxFog.Maximum, (decimal)configuration.FogMaxDistance));
+			chBoxDeveloperMode.Checked = configuration.ProductionMode;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -41,7 +41,7 @@ namespace CarRaceLauncher
 			configuration.FogEffect = chBoxFog.Checked;
 			configuration.FogMinDistance = (float)numMinFog.Value;
 			configuration.FogMaxDistance = (float)numMaxFog.Value;
-			configuration.DeveloperMode = chBoxDeveloperMode.Checked;
+			configuration.ProductionMode = chBoxDeveloperMode.Checked;
 			this.Close();
 		}
 	}

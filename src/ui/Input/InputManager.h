@@ -7,15 +7,19 @@
 #include "ThrustmasterTMXController.h"
 #include "XboxController.h"
 
+class EditCameraInputController;
+
 class InputManager {
 private:
     InputController* inputController0;
     InputController* inputController1;
+    EditCameraInputController* editCameraController;
     static InputManager* inputManager;
 
     InputManager() {
         inputController0 = nullptr;
         inputController1 = nullptr;
+        editCameraController = nullptr;
         currentInputType = KEYBOARD_AND_KEYBOARD;
     }
 
@@ -33,8 +37,8 @@ public:
 
     void setUp();
 
-    void setInputController1(InputController* controller) { inputController0 = controller; }
-    void setInputController2(InputController* controller) { inputController1 = controller; }
+    void setInputController0(InputController* controller) { inputController0 = controller; }
+    void setInputController1(InputController* controller) { inputController1 = controller; }
 
     InputData getInputData();
     std::string getInputBindingsInfo();

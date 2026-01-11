@@ -110,41 +110,8 @@ CameraControlInput ThrustmasterTMXController::getCameraControlInput() {
         }
     }
 
-    if (glfwGetKey(Rendering::window, GLFW_KEY_W) == GLFW_PRESS) input.moveForward = 1;
-    if (glfwGetKey(Rendering::window, GLFW_KEY_S) == GLFW_PRESS) input.moveForward = -1;
-    if (glfwGetKey(Rendering::window, GLFW_KEY_A) == GLFW_PRESS) input.moveRight = -1;
-    if (glfwGetKey(Rendering::window, GLFW_KEY_D) == GLFW_PRESS) input.moveRight = 1;
-
-    double mouseX, mouseY;
-    glfwGetCursorPos(Rendering::window, &mouseX, &mouseY);
-
-    if (CameraManager::GetInstance()->GetViewMode() == ViewMode::EDIT_SCREEN) {
-        if (glfwGetMouseButton(Rendering::window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-            float deltaX = static_cast<float>(mouseX - lastMouseX);
-            float deltaY = static_cast<float>(mouseY - lastMouseY);
-
-            // Add mouse delta to existing input (allow mixing with POV hat)
-            if (input.yaw == 0.0f)
-                input.yaw = deltaX;
-            else
-                input.yaw += deltaX;
-
-            if (input.pitch == 0.0f)
-                input.pitch = -deltaY;
-            else
-                input.pitch -= deltaY;
-
-        } else {
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        }
-    } else {
-        glfwSetInputMode(Rendering::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
+    // Button 6 as switch camera (example unused button)
+    if (isButtonJustPressed(6)) input.switchCamera = true;
 
     return input;
 }
