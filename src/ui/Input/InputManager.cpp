@@ -28,17 +28,6 @@ void InputManager::setUp() {
     tryAddController(new XboxController(0));
     tryAddController(new PS5Controller());
 
-    // Assign Player 1
-    if (!connectedControllers.empty()) {
-        inputController1 = connectedControllers.front();
-        connectedControllers.erase(connectedControllers.begin());
-        std::cout << "Player 1 assigned: External Controller" << std::endl;
-    } else {
-        inputController1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
-        std::cout << "Player 1 assigned: Keyboard" << std::endl;
-    }
-
-
     // Assign Player 0
     if (!connectedControllers.empty()) {
         inputController0 = connectedControllers.front();
@@ -47,6 +36,16 @@ void InputManager::setUp() {
     } else {
         inputController0 = new KeyboardController(KeyboardController::PlayerIndex::Player0);
         std::cout << "Player 0 assigned: Keyboard" << std::endl;
+    }
+
+    // Assign Player 1
+    if (!connectedControllers.empty()) {
+        inputController1 = connectedControllers.front();
+        connectedControllers.erase(connectedControllers.begin());
+        std::cout << "Player 1 assigned: External Controller" << std::endl;
+    } else {
+        inputController1 = new KeyboardController(KeyboardController::PlayerIndex::Player1);
+        std::cout << "Player 1 assigned: Keyboard" << std::endl;
     }
 
     // Cleanup any extra controllers found but not used
