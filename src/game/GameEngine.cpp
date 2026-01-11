@@ -371,6 +371,8 @@ void GameEngine::CreateModels() {
 }
 
 void GameEngine::CreateBuildings() {
+    std::cout << "Creating buildings..." << std::endl;
+
     struct BuildingData {
         std::string path;
         glm::vec3 position;
@@ -470,9 +472,12 @@ void GameEngine::CreateBuildings() {
                                                          glm::vec3(291.0f, 24.5f, 11.0f), glm::vec3(0.0f, -21.f, 0.f),
                                                          glm::vec3(2.2f, 2.2f, 2.2f), glm::vec3(0));
     gameObjects2.push_back(finishLine);
+    std::cout << "Buildings created." << std::endl;
 }
 
 void GameEngine::CreateBarriers() {
+    std::cout << "Creating bariers..." << std::endl;
+
     // barier model size
     // scale 46.97 9.46 15.66
     const std::string barierModelPath = "../assets/models/barier/barier.gltf";
@@ -523,6 +528,7 @@ void GameEngine::CreateBarriers() {
         gameObjectsDynamic.push_back(barier);
         bariers.push_back(barier);
     }
+    std::cout << "Bariers created." << std::endl;
 }
 
 void GameEngine::AddBarier(shared_ptr<GameObject2> object) {
@@ -538,6 +544,8 @@ void GameEngine::AddBarier(shared_ptr<GameObject2> object) {
 }
 
 void GameEngine::CreateCubes() {
+    std::cout << "Creating cubes..." << std::endl;
+
     // bridge
     glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
     glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
@@ -600,9 +608,13 @@ void GameEngine::CreateCubes() {
     floor2->AddRigidBody(RigidBody());
     gameObjects2.push_back(floor2);
     gameObjectsStatic.push_back(floor2);
+
+    std::cout << "Cubes created." << std::endl;
 }
 
 void GameEngine::CreateTrees() {
+    std::cout << "Creating trees..." << std::endl;
+
     const std::string treeModelPath = "../assets/models/low_poly_tree/scene_low.gltf";
     auto treeModel = std::make_shared<Model>(treeModelPath, glm::vec3(1.0f), glm::vec3(1.f));
 
@@ -637,6 +649,8 @@ void GameEngine::CreateTrees() {
             }
         }
     }
+
+    std::cout << "Trees created." << std::endl;
 }
 
 void GameEngine::CreateLights() {
@@ -769,6 +783,8 @@ glm::quat GameEngine::GetCarRotation() const {
 }
 
 void GameEngine::CreateCars() {
+    std::cout << "Creating cars..." << std::endl;
+
     const std::string carModelPath = "../assets/models/car_low/scene_low.gltf";
     const std::string wheelModelPath = "../assets/models/car_wheel/scene.gltf";
     const std::string steringWheelModelPath = "../assets/models/stering_wheel/scene.gltf";
@@ -788,6 +804,8 @@ void GameEngine::CreateCars() {
             cars[i]->SetColor(glm::vec3(0.5, 0.5, 1));
         }
     }
+
+    std::cout << "Cars created." << std::endl;
 }
 
 bool GameEngine::isVehicleOnTrack(int carNumber) {
