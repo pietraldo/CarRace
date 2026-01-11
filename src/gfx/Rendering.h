@@ -33,6 +33,7 @@ class Mirrors;
 
 class Rendering {
 public:
+
     static GameEngine* gameEngine;
     static bool showBoxColliders;
 

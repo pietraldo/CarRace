@@ -48,7 +48,7 @@ public:
 
         glm::vec3 forward = glm::normalize(carRot * glm::vec3(0, 0, 1));
 
-        // Smooth forward (yaw lag) � prevents sharp camera snaps
+        // Smooth forward (yaw lag)  prevents sharp camera snaps
         smoothedForward = glm::mix(smoothedForward, forward, dt * yawLag);
 
         glm::vec3 idealPos = carPos - smoothedForward * followDistance + glm::vec3(0, heightOffset, 0);

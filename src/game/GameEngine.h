@@ -56,6 +56,9 @@ private:
 
     void SetViewModeBasedOnCarCount();
 
+    float lastFrameTimeStamp = 0.0f;  // for calulating delta time
+    float deltaTime = 0.0f;
+
 public:
     std::vector<PlayerStatus> playersStatus;
     vector<shared_ptr<GameObject2>> gameObjects2 = vector<shared_ptr<GameObject2>>();
@@ -97,6 +100,8 @@ public:
     Shader* skyboxShader;
 
     GameEngine();
+    float updateDeltaTime();
+    float GetDeltaTime() const { return deltaTime; }
     void UpdateBeforePhysics(InputData input, float deltaTime);
     void UpdateAfterPhysics(InputData input, float deltaTime);
     void UpdateCars(InputData input, float deltaTime);

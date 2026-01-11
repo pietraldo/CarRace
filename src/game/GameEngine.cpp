@@ -15,6 +15,14 @@ GameEngine::GameEngine() {
     terrain->LoadTerrain("../assets/terrain/terrain.txt");
 }
 
+float GameEngine::updateDeltaTime() {
+    float currentFrame = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrame - lastFrameTimeStamp;
+    if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
+    lastFrameTimeStamp = currentFrame;
+    return deltaTime;
+}
+
 void GameEngine::StartSimulation() {
     startSimulation = true;
     if (Settings::Get().playCountDown) {

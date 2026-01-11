@@ -42,10 +42,6 @@
 
 using namespace std;
 
-// timing
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
 GameEngine* gameEngine = nullptr;
 
 int main() {
@@ -90,12 +86,8 @@ int main() {
 
     bool continueGame = true;
     while (continueGame && !glfwWindowShouldClose(Rendering::window)) {
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        if (deltaTime > 0.2f) deltaTime = 0.2f;  // avoid big jumps
-        // deltaTime = 0.016f; // fixed timestep
-        lastFrame = currentFrame;
-
+        float deltaTime = gameEngine->updateDeltaTime();
+        
         InputData input = InputManager::getInstance().getInputData();
 
         continueGame = !input.additionalInfo.exit;
