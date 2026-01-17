@@ -45,6 +45,7 @@
 			button1 = new Button();
 			tableLayoutPanel1 = new TableLayoutPanel();
 			chBoxSound = new CheckBox();
+			chBoxFullScreen = new CheckBox();
 			groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)numTimeCheck).BeginInit();
 			((System.ComponentModel.ISupportInitialize)numTimeReturn).BeginInit();
@@ -69,7 +70,7 @@
 			// chBoxDeveloperMode
 			// 
 			chBoxDeveloperMode.AutoSize = true;
-			chBoxDeveloperMode.Location = new Point(12, 316);
+			chBoxDeveloperMode.Location = new Point(12, 345);
 			chBoxDeveloperMode.Name = "chBoxDeveloperMode";
 			chBoxDeveloperMode.Size = new Size(116, 19);
 			chBoxDeveloperMode.TabIndex = 1;
@@ -93,7 +94,7 @@
 			groupBox1.Controls.Add(numTimeCheck);
 			groupBox1.Controls.Add(label1);
 			groupBox1.Controls.Add(numTimeReturn);
-			groupBox1.Location = new Point(12, 62);
+			groupBox1.Location = new Point(12, 91);
 			groupBox1.Name = "groupBox1";
 			groupBox1.Size = new Size(438, 121);
 			groupBox1.TabIndex = 3;
@@ -145,7 +146,7 @@
 			groupBox2.Controls.Add(numMaxFog);
 			groupBox2.Controls.Add(label4);
 			groupBox2.Controls.Add(numMinFog);
-			groupBox2.Location = new Point(12, 189);
+			groupBox2.Location = new Point(12, 218);
 			groupBox2.Name = "groupBox2";
 			groupBox2.Size = new Size(438, 121);
 			groupBox2.TabIndex = 7;
@@ -219,7 +220,7 @@
 			tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel1.Controls.Add(button1, 0, 0);
 			tableLayoutPanel1.Dock = DockStyle.Bottom;
-			tableLayoutPanel1.Location = new Point(0, 345);
+			tableLayoutPanel1.Location = new Point(0, 385);
 			tableLayoutPanel1.Name = "tableLayoutPanel1";
 			tableLayoutPanel1.RowCount = 1;
 			tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
@@ -239,11 +240,25 @@
 			chBoxSound.Text = "Enable sound";
 			chBoxSound.UseVisualStyleBackColor = true;
 			// 
+			// chBoxFullScreen
+			// 
+			chBoxFullScreen.AutoSize = true;
+			chBoxFullScreen.Checked = true;
+			chBoxFullScreen.CheckState = CheckState.Checked;
+			chBoxFullScreen.Location = new Point(19, 62);
+			chBoxFullScreen.Name = "chBoxFullScreen";
+			chBoxFullScreen.Size = new Size(82, 19);
+			chBoxFullScreen.TabIndex = 11;
+			chBoxFullScreen.Text = "Full screen";
+			chBoxFullScreen.UseVisualStyleBackColor = true;
+			chBoxFullScreen.CheckedChanged += chBoxFullScreen_CheckedChanged;
+			// 
 			// Settings
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
-			ClientSize = new Size(493, 401);
+			ClientSize = new Size(493, 441);
+			Controls.Add(chBoxFullScreen);
 			Controls.Add(chBoxSound);
 			Controls.Add(tableLayoutPanel1);
 			Controls.Add(groupBox2);
@@ -285,5 +300,6 @@
 		private Button button1;
 		private TableLayoutPanel tableLayoutPanel1;
 		private CheckBox chBoxSound;
+		private CheckBox chBoxFullScreen;
 	}
 }

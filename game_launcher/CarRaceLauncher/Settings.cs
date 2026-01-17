@@ -28,7 +28,8 @@ namespace CarRaceLauncher
 			chBoxFog.Checked = configuration.FogEffect;
 			numMinFog.Value = Math.Max(numMinFog.Minimum, Math.Min(numMinFog.Maximum, (decimal)configuration.FogMinDistance));
 			numMaxFog.Value = Math.Max(numMaxFog.Minimum, Math.Min(numMaxFog.Maximum, (decimal)configuration.FogMaxDistance));
-			chBoxDeveloperMode.Checked = configuration.ProductionMode;
+			chBoxDeveloperMode.Checked = !configuration.ProductionMode;
+			chBoxFullScreen.Checked = configuration.FullScreen;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -41,8 +42,14 @@ namespace CarRaceLauncher
 			configuration.FogEffect = chBoxFog.Checked;
 			configuration.FogMinDistance = (float)numMinFog.Value;
 			configuration.FogMaxDistance = (float)numMaxFog.Value;
-			configuration.ProductionMode = chBoxDeveloperMode.Checked;
+			configuration.ProductionMode = !chBoxDeveloperMode.Checked;
+			configuration.FullScreen = chBoxFullScreen.Checked;
 			this.Close();
+		}
+
+		private void chBoxFullScreen_CheckedChanged(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
