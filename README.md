@@ -1,125 +1,112 @@
-﻿# rendering_3d_scene
+# CarRace
 
+**CarRace** is a 3D racing game developed using a custom-built game engine written in **C++**.  
+The project focuses on realistic vehicle physics, flexible input systems, and modern real-time rendering.
 
-```
-git clone https://github.com/pietraldo/CarRace
+The game supports **single-player** and **local two-player split-screen** modes.
+
+![Game Screenshot](game_photo_placeholder)
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Build Instructions](#build-instructions)
+- [Game Instructions](#game-instructions)
+- [Demo](#demo)
+
+---
+
+## Features
+
+- Custom terrain with integrated road system  
+- Fully interactive map objects:
+  - Trees, buildings, bridges
+  - Physics-enabled barriers and obstacles
+- Advanced car simulation:
+  - Headlights and brake lights
+  - Steering wheel and wheel rotation
+  - Side mirrors
+- Multiple camera systems:
+  - Intro cinematic camera with interpolated paths
+  - First-person camera
+  - Three third-person follow cameras
+- Realistic driving mechanics:
+  - Manual gear shifting
+  - Surface-dependent friction (grass vs. asphalt)
+  - Automatic and manual car reset to track
+- User Interface:
+  - Speedometer, RPM gauge, gear indicator
+  - Lap time and countdown at race start
+  - Mini-map with car positions
+- Audio system:
+  - Engine sound
+  - Tire slip
+  - Collisions
+  - Falling off the track
+- Visual effects:
+  - Day / night cycle
+  - Fog
+- Local split-screen multiplayer
+- Dedicated **Game Launcher** project for configuration and settings
+- Flexible input system:
+  - Xbox controller
+  - PlayStation 5 controller
+  - Thrustmaster TMX wheel and pedals
+
+---
+
+## Technologies Used
+
+- **C++** — Core language for the game engine and gameplay logic  
+- **OpenGL** — Graphics API  
+- **NVIDIA PhysX** — Physics simulation  
+- **miniaudio** — Audio playback and sound management  
+- **Assimp** — 3D model loading  
+- **GLFW** — Window creation and input handling  
+- **GLAD** — OpenGL function loader  
+- **GLM** — Mathematics library for vectors, matrices, and transformations  
+- **ImGui** — Debug tools and in-game UI windows  
+- **HIDAPI / XInput** — Input handling for controllers and steering wheels  
+- **RapidJSON** — JSON parsing and configuration loading  
+- **Google Test** — Unit testing framework  
+
+---
+
+## Build Instructions
+
+```bash
+git clone https://github.com/pietraldo/CarRace.git
 cd CarRace
 git submodule init
 git submodule update
-cmake CMakeLists.txt
+cmake -S . -B build
+cmake --build build
 ```
+## Game Instructions
 
-# Struktura projektu
+To start the game, run `CarRace/CarRaceLauncher.exe`, select the number of players and basic settings such as **day/night mode**, then click **Play**.
 
-```
-CarRace/
-  CMakeLists.txt
-  externals/
-  assets/
-    models/track/
-    models/car/
-    textures/
-    shaders/
-  src/
-    app/
-    core/
-    gfx/
-    game/
-    physics/
-    features/
-      car/
-      track/
-    ui/
-    utils/
-  include/
-  tests/
-  README.md
-```
+Advanced configuration options are available via the **gear icon** in the top-right corner of the launcher. These include surface physics, sound, fog, automatic car reset, checkpoints, and developer mode.
 
-## Co gdzie trzymamy
+Press **F1** during gameplay to display the help window with current control mappings.
 
-### `externals/`
+### Default Controls (Player 1)
 
-Zewnętrzne biblioteki: **GLFW**, **GLAD**, **GLM**, **stb\_image**, **Assimp**, **ImGui** itp.
+- **Arrow Up / Down** – Accelerate / Brake  
+- **Arrow Left / Right** – Steering  
+- **Space** – Handbrake  
+- **M / N** – Gear up / Gear down  
+- **B** – Return car to last checkpoint  
+- **9** – Change camera  
+- **, / .** – Look left / right (first-person camera)
 
-* Formy: submodule, vendored lub prebuilt (zgodnie z CMake w repo).
+The gearbox includes gears **1–5**, **Neutral (N)**, and **Reverse (R)** with realistic gear change behavior.
 
-### `assets/`
+During gameplay, the HUD displays a **minimap**, **speedometer**, **RPM gauge**, **gear indicator**, and **race time**.
 
-**Tylko dane** (żadnego C++):
+A **Developer Mode** is available (toggle with **F2**), providing debugging windows, real-time parameter changes, and a free camera controlled with **W, A, S, D**.
 
-* `models/track/` – siatki toru (np. `.obj/.fbx/.dae`, materiały `.mtl`).
-* `models/car/` – siatki auta i akcesoriów.
-* `textures/` – tekstury (`.png/.jpg`), normal/specular/roughness itp.
-* `shaders/` – shadery **GLSL** (`.vert`, `.frag`, ewentualnie `.geom`).
-  **Uwaga:** pliki `.cpp/.h` nie trafiają do `assets/`.
-
-### `src/`
-
-Kod źródłowy gry (C++). Podział „tematyczny”:
-
-* `app/` – **entrypoint i pętla gry**:
-
-  * `main.cpp`, konfiguracja czasu (`FixedTimeStep`), wczytanie sceny, bootstrap.
-* `core/` – infrastruktura **systemowa**:
-
-  * okno (GLFW), wejście (klawiatura/mysz → `InputState`), zegar (`Timer`), loger.
-* `gfx/` – **rendering i grafika**:
-
-  * `Renderer`, `Shader`, `Mesh`, `Model` (Assimp), `Texture` (`stb_image`), `Camera`,
-  * `gfx/lights/` – światła (np. `Directional`),
-  * ewentualnie `gfx/primitives/` – prymitywy/debug (linia, box).
-* `game/` – **stan gry**:
-
-  * `Scene` (lista encji), `Entity`, komponenty (`Transform`, `Tag`), ewentualnie „SceneBuilder”.
-* `physics/` – **ruch i kolizje**:
-
-  * `RigidBody`, integrator (np. semi-implicit Euler), kolizje (`Collider`, `Collision`, `raycast`),
-  * prosty model 2D dla toru (korytarz z segmentów).
-* `features/` – **logika domenowa** (konkretne „feature’y” gry):
-
-  * `features/car/` – sterowanie autem (`CarController`), parametry pojazdu (`VehicleParams`, wheelbase, maxSteer, siły), helpery trakcji.
-  * `features/track/` – wczytywanie toru (`TrackLoader`), granice (`Boundaries`), checkpointy/okrążenia.
-* `ui/` – **interfejs użytkownika**:
-
-  * HUD (prędkość, bieg, czas/okrążenie), debug overlay (np. ImGui).
-* `utils/` – **narzędzia wspólne**:
-
-  * math helpers, I/O (np. ładowanie JSON z parametrami), małe klasy pomocnicze.
-
-### `include/`
-
-Nagłówki „publiczne”, jeśli kiedyś wydzielimy biblioteki lub chcemy rozdzielić interfejs od implementacji.
-Na razie **opcjonalne** (większość nagłówków trzymamy w `src/`).
-
-### `tests/`
-
-Testy (np. GoogleTest / Catch2): testy jednostkowe helperów, prostych algorytmów kolizji itp.
-Opcjonalnie „headless” testy logiki (bez okna).
-
----
-
-## Konwencje
-
-* **Assets ≠ kod**: w `assets/` tylko dane (modele/teksty/shadery).
-* **Nazwy**: pliki shaderów `*.vert` / `*.frag`; modele i tekstury pogrupowane per obiekt.
-* **Include’y**: z `src/` includujemy względnie, np. `#include "gfx/Camera.h"`.
-* **Renderer jest read-only**: niczego nie modyfikuje – tylko czyta stan sceny.
-* **Fizyka zmienia stan**: modyfikuje `Transform`/`RigidBody`, używa stałego `dt`.
-* **Feature’y nie znają renderera**: komunikacja przez `Scene`/komponenty, nie bezpośrednio.
-* **Debug draw**: linie/OBB/segmenty – jako osobna ścieżka renderingu (łatwiej debugować kolizje).
-
----
-
-## Przepływ w czasie uruchomienia (skrót)
-
-1. `app/main.cpp` – inicjalizacja okna, ładowanie shaderów/bibliotek, budowa sceny (tor + auto).
-2. Pętla gry: `Input` → `Physics::step(dt)` → `Renderer::draw(Scene)`.
-3. `features/car` czyta `InputState`, modyfikuje `RigidBody`, fizyka integruje ruch.
-4. `features/track` dostarcza granice toru i checkpointy do kolizji/logiki okrążeń.
-5. `ui/` rysuje HUD.
-
----
-
-Jeśli chcesz, dorzucę na koniec README krótką sekcję „Build & uruchomienie” (CMake + kopiowanie `assets/` do folderu z `.exe`).
 
