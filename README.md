@@ -7,6 +7,11 @@ The game supports **single-player** and **local two-player split-screen** modes.
 
 ![Game Screenshot](docs/mountain.png)
 
+## Video
+
+Gameplay demonstration:  
+[Watch on YouTube](https://youtu.be/I1juPszePB8?si=s0wSK5RUtYWY3_u-)
+
 ---
 
 ## Table of Contents
