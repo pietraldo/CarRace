@@ -34,6 +34,9 @@ namespace CarRaceLauncher
 		[JsonProperty("productionMode")]
 		public bool ProductionMode { get; set; } = true;
 
+		[JsonProperty("fullscreen")]
+		public bool FullScreen { get; set; } = false;
+
 		[JsonProperty("sound")]
 		public bool Sound { get; set; } = false;
 
