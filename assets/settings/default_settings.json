@@ -2,21 +2,16 @@
   "START_SCR_WIDTH": 1600,
   "START_SCR_HEIGHT": 1000,
   "fullscreen": true,
-  "productionMode":true,
+  "productionMode": false,
   "CAR_COUNT": 2,
-  
   "sound": true,
-  
   "useDifferentMaterialsForTerrain": false,
-
-  "showImGuiWindows": true,
+  "showImGuiWindows": false,
   "showHelpImGuiWindow": false,
-  
   "night": false,
   "fog": false,
   "fogMinDist": 25.0,
   "fogMaxDist": 150.0,
-  
   "autoReturningToTrack": false,
   "timeOutsideTrackToReset": 2000,
   "checkpointInterval": 1000,
@@ -24,7 +19,6 @@
   "savePositionRetrival": 1,
   "steeringSpeed": 2.45,
   "steeringReturnSpeed": 5.0,
-  
   "barrierMass": 0.5,
   "playCountDown": true
 }

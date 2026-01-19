@@ -13,10 +13,10 @@
     "CHANGE_CAMERA": "9"
   },
   "Player1": {
-    "STEER_RIGHT": "L",
-    "STEER_LEFT": "J",
-    "THROTTLE": "I",
-    "BRAKE": "K",
+    "STEER_RIGHT": "D",
+    "STEER_LEFT": "A",
+    "THROTTLE": "W",
+    "BRAKE": "S",
     "GEAR_UP": "X",
     "GEAR_DOWN": "Z",
     "RESET": "F",
@@ -26,10 +26,10 @@
     "CHANGE_CAMERA": "1"
   },
   "Camera": {
-    "FORWARD": "W",
-    "BACKWARD": "S",
-    "RIGHT": "D",
-    "LEFT": "A"
+    "FORWARD": "I",
+    "BACKWARD": "K",
+    "RIGHT": "L",
+    "LEFT": "J"
   },
   "Additional": {
     "START_SIMULATION": "EQUAL",
