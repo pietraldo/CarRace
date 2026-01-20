@@ -5,6 +5,8 @@ The project focuses on physics–graphics integration, combining NVIDIA PhysX for 
 
 The game supports **single-player** and **local two-player split-screen** modes.
 
+Game is **ready to downolad** and play. Download game from github section "Releases"
+
 ![Game Screenshot](docs/mountain.png)
 
 ## Video
@@ -112,6 +114,7 @@ Press **F1** during gameplay to display the help window with current control map
 - **B** - Return car to last checkpoint  
 - **9** - Change camera  
 - **, / .** - Look left / right (first-person camera)
+Default controls for second player can be seen after clicking F1.
 
 The gearbox includes gears **1-5**, **Neutral (N)**, and **Reverse (R)** with realistic gear change behavior.
 
