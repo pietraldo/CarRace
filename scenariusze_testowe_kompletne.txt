@@ -1,0 +1,660 @@
+================================================================================
+SCENARIUSZE TESTOWE DLA TESTERA FIZYCZNEGO - GRA CARRACE
+================================================================================
+
+CEL: Weryfikacja poprawności działania mechaniki jazdy, fizyki, grafiki, 
+     sterowania, audio oraz interfejsu użytkownika w grze wyścigowej.
+
+================================================================================
+KONFIGURACJA WSTĘPNA
+================================================================================
+
+WYMAGANIA:
+- Podłączona klawiatura (oraz opcjonalnie kontroler PS5)
+- Uruchomiona aplikacja CarRace.exe
+- Sprawne połączenie audio (głośniki/słuchawki)
+
+DOMYŚLNE STEROWANIE (zgodnie z keybindings.json):
+
+Gracz 1 (Player1):
+  - W/S: Gaz/Hamulec
+  - A/D: Skręt lewo/prawo
+  - X/Z: Zmiana biegów góra/dół
+  - LEFT_SHIFT: Hamulec ręczny
+  - F: Reset pozycji
+  - C/V: Rozglądanie się lewo/prawo
+  - 1: Zmiana kamery
+
+Gracz 2 (Player0):
+  - UP/DOWN: Gaz/Hamulec
+  - LEFT/RIGHT: Skręt lewo/prawo
+  - M/N: Zmiana biegów góra/dół
+  - SPACE: Hamulec ręczny
+  - B: Reset pozycji
+  - PERIOD/COMMA: Rozglądanie się lewo/prawo
+  - 9: Zmiana kamery
+  - Kontroler PS5: Analogowe gałki i przyciski (opcjonalnie)
+
+Kamera (EDIT MODE):
+  - I/K: Przód/Tył
+  - J/L: Lewo/Prawo
+
+System:
+  - ESCAPE: Wyjście z gry
+  - F1: Pomoc/Help
+  - F2: Przełączenie ImGui (menu deweloperskie)
+  - F9: Przełączenie dźwięku (włącz/wyłącz)
+  - EQUAL (=): Start symulacji
+  - ENTER: Pomiń intro
+
+================================================================================
+1. PODSTAWOWA MECHANIKA JAZDY (GRACZ 1)
+================================================================================
+
+Test 1.1: Przyspieszanie (W)
+KROKI:
+1. Upewnij się, że samochód jest w biegu 1 lub wyższym
+2. Naciśnij i przytrzymaj klawisz W
+OCZEKIWANY REZULTAT:
+- Samochód rusza do przodu
+- Prędkość rośnie płynnie
+- Silnik zwiększa obroty (dźwięk silnika narasta)
+- Animacja wirujących kół jest widoczna
+
+Test 1.2: Hamowanie (S)
+KROKI:
+1. Rozpędź samochód do prędkości ~50 km/h
+2. Naciśnij klawisz S
+OCZEKIWANY REZULTAT:
+- Samochód zwalnia
+- Światła stopu zapalają się na mocny czerwony kolor (jaśniej niż światła pozycyjne)
+- Dźwięk hamowania jest słyszalny
+- Samochód zatrzymuje się płynnie
+
+Test 1.3: Jazda wsteczna (Zmiana biegu na R + Gaz)
+KROKI:
+1. Zatrzymaj samochód całkowicie
+2. Zmień bieg na wsteczny (klawisz Z wielokrotnie do biegu R)
+3. Naciśnij W (gaz)
+OCZEKIWANY REZULTAT:
+- Samochód cofa się
+- Światła cofania zapalają się na biało
+- Dźwięk silnika zmienia się (cofanie)
+- Prędkość wsteczna jest ograniczona
+
+Test 1.4: Skręcanie (A/D) w miejscu
+KROKI:
+1. Zatrzymaj samochód
+2. Naciśnij klawisz A lub D
+OCZEKIWANY REZULTAT:
+- Przednie koła skręcają wizualnie w odpowiednią stronę
+- Kierownica wewnątrz auta się obraca
+- Samochód nie porusza się do przodu/tyłu
+
+Test 1.5: Skręcanie podczas jazdy
+KROKI:
+1. Rozpędź samochód do prędkości ~30 km/h
+2. Naciśnij klawisz A lub D
+OCZEKIWANY REZULTAT:
+- Samochód zmienia kierunek zgodnie z wychyleniem kół
+- Skręt jest płynny i realistyczny
+- Im wyższa prędkość, tym szerszy promień skrętu
+- Przechył nadwozia jest widoczny
+
+Test 1.6: Hamulec ręczny (LEFT_SHIFT dla Gracza 1 / SPACE dla Gracza 2) w biegu
+KROKI:
+1. Rozpędź samochód do prędkości ~40 km/h
+2. Naciśnij LEFT_SHIFT (Gracz 1) lub SPACE (Gracz 2) podczas skręcania
+OCZEKIWANY REZULTAT:
+- Tylne koła blokują się (poślizg)
+- Samochód gwałtownie traci prędkość
+- Samochód wpada w drift/kontrolowany poślizg
+- Dźwięk piszczących opon
+- Widoczny efekt dymu z opon (jeśli zaimplementowany)
+
+Test 1.7: Puszczanie gazu (Wybiegu)
+KROKI:
+1. Rozpędź samochód do prędkości ~60 km/h
+2. Puść klawisz W (nie hamuj)
+3. Obserwuj przez 10 sekund
+OCZEKIWANY REZULTAT:
+- Samochód powoli wytraca prędkość (tarcie/opór powietrza)
+- Spadek prędkości jest stopniowy i realistyczny
+- Samochód nie zatrzymuje się natychmiast
+- Dźwięk silnika przechodzi na wolne obroty
+
+Test 1.8: Zmiana biegów (Z/X)
+KROKI:
+1. Uruchom samochód w biegu 1
+2. Naciśnij X, aby zmienić na bieg 2
+3. Naciśnij Z, aby wrócić do biegu 1
+4. Naciśnij Z ponownie, aby przejść do biegu R
+OCZEKIWANY REZULTAT:
+- Każde naciśnięcie X podnosi bieg o 1 (max do 6)
+- Każde naciśnięcie Z obniża bieg o 1 (min do R - wsteczny)
+- Zmiana biegu jest natychmiastowa
+- Wskaźnik biegów w HUD aktualizuje się
+- Dźwięk charakterystyczny dla zmiany biegów
+
+Test 1.9: Automatyczna zmiana biegów przy wysokich obrotach
+KROKI:
+1. Uruchom samochód w biegu 1
+2. Przytrzymaj W do momentu osiągnięcia maksymalnych obrotów
+OCZEKIWANY REZULTAT:
+- Bieg zmienia się automatycznie po osiągnięciu red line
+- Przyspieszanie jest płynne po zmianie biegu
+- Wskaźnik obrotów (RPM) wraca do niższych wartości po zmianie
+
+Test 1.10: Niezmożność zmiany biegu podczas niewłaściwych warunków
+KROKI:
+1. Rozpędź samochód do 80 km/h w biegu 4
+2. Spróbuj zmienić na bieg 1
+OCZEKIWANY REZULTAT:
+- Zmiana biegu jest zablokowana lub silnik "krztuszy się"
+- System chroni przed uszkodzeniem skrzyni biegów
+- Komunikat błędu lub brak reakcji (zgodnie z implementacją)
+
+Test 1.11: Rozglądanie się (C/V dla Gracza 1, PERIOD/COMMA dla Gracza 2)
+KROKI:
+1. Podczas jazdy naciśnij C (rozglądaj się w lewo - Gracz 1)
+2. Naciśnij V (rozglądaj się w prawo - Gracz 1)
+3. Dla Gracza 2: PERIOD (lewo) i COMMA (prawo)
+OCZEKIWANY REZULTAT:
+- Kamera obraca się w bok, pokazując widok z boku samochodu
+- Samochód nadal jedzie prosto (sterowanie nie zmienia się)
+- Po puszczeniu klawisza kamera wraca do normalnej pozycji
+- Ruch kamery jest płynny
+
+Test 1.12: Zmiana trybu kamery (1 dla Gracza 1, 9 dla Gracza 2)
+KROKI:
+1. Naciśnij klawisz 1 (Gracz 1) lub 9 (Gracz 2)
+2. Przełączaj między dostępnymi trybami kamery
+3. Testuj jazdę w każdym trybie
+OCZEKIWANY REZULTAT:
+- Kamera przełącza się między trybami (TPP, FPP, kamera kokpitu, itp.)
+- Każdy tryb oferuje dobrą widoczność
+- Przełączanie jest natychmiastowe bez przeskakiwania
+- Sterowanie działa identycznie we wszystkich trybach
+
+================================================================================
+2. FIZYKA I INTERAKCJA Z OTOCZENIEM
+================================================================================
+
+Test 2.1: Kolizja z przeszkodą statyczną (ściana/kostka)
+KROKI:
+1. Rozpędź samochód do prędkości ~50 km/h
+2. Jedź prosto w ścianę lub statyczną przeszkodę
+OCZEKIWANY REZULTAT:
+- Samochód zatrzymuje się lub odbija przy kontakcie
+- Nie przenika przez obiekt
+- Dźwięk zderzenia jest słyszalny
+- Prędkość spada do zera lub jest znacznie zredukowana
+- Samochód może lekko odbić się lub obrócić
+
+Test 2.2: Wjazd na strome zbocze
+KROKI:
+1. Znajdź strome wzniesienie na mapie
+2. Podjedź pod górkę z prędkością ~30 km/h
+3. Przytrzymuj W (gaz)
+OCZEKIWANY REZULTAT:
+- Samochód zwalnia podczas wspinaczki
+- Silnik "męczy się" (wyższe obroty, wolniejszy postęp)
+- Przy braku odpowiedniej prędkości samochód zsuwa się do tyłu
+- Dźwięk silnika pod obciążeniem
+
+Test 2.3: Zjazd ze stromego zbocza
+KROKI:
+1. Znajdź strome zbocze
+2. Jedź w dół bez hamowania
+OCZEKIWANY REZULTAT:
+- Samochód przyspiesza grawitacyjnie
+- Prędkość przekracza normalną prędkość maksymalną
+- Hamulce są mniej skuteczne na stromym spadku
+- Możliwa utrata kontroli przy zbyt dużej prędkości
+
+Test 2.4: Kolizja z drugim samochodem (tryb 2-osobowy)
+KROKI:
+1. Uruchom tryb split-screen z dwoma graczami
+2. Rozpędź oba samochody do ~40 km/h
+3. Spowoduj zderzenie czołowe lub boczne
+OCZEKIWANY REZULTAT:
+- Oba pojazdy reagują na zderzenie (przesunięcie, obrót)
+- Brak przenikania modeli
+- Dźwięk metalicznego zderzenia
+- Siła odbicia zależy od prędkości i kąta zderzenia
+- Oba samochody tracą prędkość
+
+Test 2.5: Przejazd przez światła (Light Objects)
+KROKI:
+1. Zlokalizuj źródło światła na mapie (latarnia, reflektor)
+2. Przejedź obok lub pod źródłem światła
+OCZEKIWANY REZULTAT:
+- Oświetlenie na karoserii zmienia się dynamicznie
+- Refleksy światła są widoczne na błyszczących częściach samochodu
+- Przejście przez światło jest płynne
+- Cienie samochodu zmieniają się zgodnie ze źródłem światła
+
+Test 2.6: Jazda po różnych powierzchniach (jeśli dostępne)
+KROKI:
+1. Zidentyfikuj różne typy nawierzchni (asfalt, trawa, piasek)
+2. Jedź po każdej powierzchni z prędkością ~40 km/h
+OCZEKIWANY REZULTAT:
+- Przyczepność różni się w zależności od powierzchni
+- Asfalt: najlepsza przyczepność
+- Trawa/piasek: gorsza przyczepność, łatwiejszy poślizg
+- Dźwięk opon zmienia się dla różnych nawierzchni
+- Cząsteczki pyłu/trawy przy jeździe po terenie
+
+Test 2.7: Przejazd przez mostki/wiadukty
+KROKI:
+1. Zlokalizuj most lub wiadukt na mapie
+2. Przejedź przez konstrukcję z prędkością ~50 km/h
+OCZEKIWANY REZULTAT:
+- Samochód płynnie wjeżdża na most
+- Fizyka pozostaje stabilna (brak teleportacji lub dziwnych skoków)
+- Kolizja z barierkami mostu działa prawidłowo
+- Możliwy jest zjazd z mostu (upadek), jeśli brak barierek
+
+Test 2.8: Wywrócenie samochodu
+KROKI:
+1. Rozpędź samochód do ~60 km/h
+2. Wjedź bokiem w wysoką przeszkodę lub wykonaj ostry manewr
+3. Spróbuj wywrócić samochód na bok lub dach
+OCZEKIWANY REZULTAT:
+- Samochód może się wywrócić przy odpowiednich warunkach
+- Fizyka obrotu jest realistyczna
+- Po wywróceniu samochód pozostaje w tej pozycji
+- Klawisz F/B (reset) przywraca samochód do normalnej pozycji
+- Brak możliwości jazdy po dachu (jeśli przewrócony)
+
+Test 2.9: Kolizja z barierami bezpieczeństwa
+KROKI:
+1. Zlokalizuj barierę bezpieczeństwa na trasie
+2. Jedź w barierę z prędkością ~45 km/h pod kątem 30°
+OCZEKIWANY REZULTAT:
+- Samochód zostaje odbity wzdłuż bariery
+- Bariera nie ulega zniszczeniu (obiekt statyczny)
+- Dźwięk tarcia metalu o barierę
+- Utrata prędkości proporcjonalna do kąta zderzenia
+
+Test 2.10: Interakcja z drzewami i roślinnością
+KROKI:
+1. Znajdź drzewo lub gęstą roślinność
+2. Jedź w drzewo z prędkością ~40 km/h
+OCZEKIWANY REZULTAT:
+- Zderzenie z dużym drzewem zatrzymuje samochód
+- Mała roślinność może być przejeżdżana (jeśli zaimplementowano)
+- Odpowiednie dźwięki uderzenia
+- Brak przenikania przez solidne obiekty
+
+================================================================================
+3. TRYB JEDNO- I WIELOOSOBOWY (SPLIT SCREEN)
+================================================================================
+
+Test 3.1: Sterowanie Graczem 2 (Strzałki/Pad)
+KROKI:
+1. Uruchom tryb 2-osobowy
+2. Gracz 2 używa strzałek lub pada do sterowania
+3. Przetestuj wszystkie podstawowe ruchy (gaz, hamowanie, skręt)
+OCZEKIWANY REZULTAT:
+- Drugi samochód reaguje niezależnie od pierwszego
+- Strzałki góra/dół: gaz/hamulec
+- Strzałki lewo/prawo: skręt
+- M/N: zmiana biegów (klawiatura)
+- Kontroler PS5 działa analogowo i płynnie
+
+Test 3.2: Niezależność kamer
+KROKI:
+1. Uruchom tryb split-screen
+2. Gracz 1 jedzie na północ, Gracz 2 jedzie na południe
+3. Obserwuj oba ekrany jednocześnie
+OCZEKIWANY REZULTAT:
+- Kamera górna/dolna (lub lewa/prawa) podąża tylko za swoim samochodem
+- Brak konfliktów w widokach kamer
+- Każdy gracz ma niezależną kontrolę nad kątem kamery (jeśli dostępne)
+- Podział ekranu jest wyraźny i proporcjonalny
+
+Test 3.3: Jednoczesna jazda bez input lag
+KROKI:
+1. Uruchom tryb 2-osobowy
+2. Obaj gracze jednocześnie przyspieszają, hamują i skręcają
+3. Wykonuj złożone manewry przez 2 minuty
+OCZEKIWANY REZULTAT:
+- Oba samochody reagują natychmiastowo na input
+- Brak opóźnień (input lag)
+- Brak blokowania klawiszy między graczami
+- Płynna rozgrywka dla obu graczy jednocześnie
+- FPS pozostaje stabilne
+
+Test 3.4: Reset pozycji (F dla Gracza 1 / B dla Gracza 2) w trybie wieloosobowym
+KROKI:
+1. Uruchom tryb 2-osobowy
+2. Oba samochody odjedź od punktu startowego
+3. Gracz 1 naciska F
+4. Następnie Gracz 2 naciska B (lub odpowiedni przycisk na padzie)
+OCZEKIWANY REZULTAT:
+- Samochód Gracza 1 wraca na pozycję startową
+- Samochód Gracza 2 pozostaje na miejscu, dopóki nie naciśnie swojego resetu
+- Reset zeruje prędkość i uszkodzenia (jeśli system uszkodzeń jest zaimplementowany)
+- Reset nie wpływa na drugiego gracza
+
+Test 3.5: Tryb jednoosobowy - pełny ekran
+KROKI:
+1. Uruchom grę w trybie jednoosobowym
+2. Sprawdź, czy ekran nie jest podzielony
+OCZEKIWANY REZULTAT:
+- Gracz 1 ma pełny ekran
+- Kamera działa identycznie jak w trybie split-screen
+- Wydajność jest lepsza niż w trybie 2-osobowym
+- HUD jest odpowiednio przeskalowany
+
+Test 3.6: Przełączanie między trybami
+KROKI:
+1. Uruchom tryb jednoosobowy
+2. Przejdź do menu i zmień na tryb 2-osobowy
+3. Rozpocznij jazdę, następnie wróć do menu i zmień na tryb 1-osobowy
+OCZEKIWANY REZULTAT:
+- Przełączanie jest płynne bez crashy
+- Ustawienia kamer są zachowane
+- Kontrolery/klawiatura działają poprawnie po przełączeniu
+- Brak artefaktów graficznych
+
+================================================================================
+4. GRAFIKA, OŚWIETLENIE I KAMERA
+================================================================================
+
+Test 4.1:  Dzień i Noc
+KROKI:
+1. Uruchom grę w trybie dziennym
+2. Przełącz dzień na noc(jeśli dostępny przełącznik)
+3. Zweryfikuj pory
+OCZEKIWANY REZULTAT:
+- Dzień jasno i widocznie 
+- W nocy widoczne światła reflektorów samochodu
+- W nocy ciemno słaba widoczność
+
+Test 4.2: Reflektory samochodu w nocy
+KROKI:
+1. Ustaw czas na noc
+2. Jedź samochodem w ciemnym obszarze
+3. Obserwuj światła reflektorów
+OCZEKIWANY REZULTAT:
+- Reflektory oświetlają drogę przed samochodem
+- Zasięg światła jest realistyczny (~50-100m)
+- Światła podążają za kierunkiem kół
+- Odbicia światła na obiektach są widoczne
+- Światła tylne są czerwone i widoczne
+
+Test 4.3: Mgła (Fog)
+KROKI:
+1. Włącz efekt mgły (jeśli dostępny w ustawieniach)
+2. Obserwuj obiekty w różnych odległościach
+OCZEKIWANY REZULTAT:
+- Obiekty w oddali stają się mniej widoczne/zamglone
+- Mgła ma realistyczną głębię
+- Bliskie obiekty są wyraźne
+- Efekt mgły zmienia się płynnie z odległością
+- Wydajność pozostaje stabilna
+
+Test 4.4: Obrót Kamery (Mysz) w EDIT MODE
+KROKI:
+1. Przejdź do EDIT MODE (jeśli dostępny)
+2. Użyj myszy do obrotu kamery wokół samochodu
+3. Obróć kamerę o 360 stopni
+OCZEKIWANY REZULTAT:
+- Widok orbituje wokół samochodu
+- Ruch jest płynny i responsywny
+- Samochód pozostaje w centrum widoku
+- Brak dziwnych skoków lub artefaktów kamery
+- Możliwy jest obrót we wszystkich osiach
+
+Test 4.5: Przybliżanie/Oddalanie (Scroll)
+KROKI:
+1. Użyj scroll myszy w górę
+2. Użyj scroll myszy w dół
+3. Przetestuj minimalne i maksymalne przybliżenie
+OCZEKIWANY REZULTAT:
+- Scroll w górę: kamera zbliża się do pojazdu
+- Scroll w dół: kamera oddala się od pojazdu
+- Zoom jest płynny i stopniowy
+- Istnieje limit minimalny (nie można wejść do wnętrza) i maksymalny (widok z góry)
+- Samochód pozostaje w kadrze
+
+Test 4.6: Skybox i horyzont
+KROKI:
+1. Jedź do otwartego obszaru
+2. Obserwuj niebo i horyzont
+3. Obróć kamerą 360 stopni
+OCZEKIWANY REZULTAT:
+- Skybox otacza całą scenę bez przerw
+- Horyzont jest spójny i realistyczny
+- Niebo zmienia się z porą dnia
+- Brak widocznych szwów lub artefaktów
+- Chmury lub gwiazdy (w nocy) są widoczne
+
+================================================================================
+5. SYSTEM AUDIO
+================================================================================
+
+Test 5.1: Dźwięk silnika - zmiana obrotów
+KROKI:
+1. Uruchom samochód i pozostań w miejscu
+2. Przytrzymaj gaz (W) bez zmiany biegu
+3. Puść gaz i obserwuj dźwięk
+OCZEKIWANY REZULTAT:
+- Dźwięk silnika narasta z obrotami
+- Osiągnięcie red line generuje charakterystyczny dźwięk
+- Po puszczeniu gazu dźwięk opada płynnie
+- Dźwięk jest realistyczny i zsynchronizowany z animacją
+
+Test 5.2: Dźwięk silnika - zmiana biegów
+KROKI:
+1. Rozpędź samochód w biegu 2
+2. Zmień na bieg 3 (klawisz X)
+3. Zmień z powrotem na bieg 2 (klawisz Z)
+OCZEKIWANY REZULTAT:
+- Każda zmiana biegu generuje charakterystyczny dźwięk
+- Zmiana w górę: krótki "blip" i obniżenie tonów
+- Zmiana w dół: wyższe obroty po zmianie
+- Dźwięk jest zsynchronizowany z akcją
+
+Test 5.3: Dźwięk opon - normalna jazda vs poślizg
+KROKI:
+1. Jedź normalnie z prędkością 40 km/h
+2. Wykonaj ostry skręt z hamulcem ręcznym (drift)
+3. Porównaj dźwięki
+OCZEKIWANY REZULTAT:
+- Normalna jazda: cichy/nieobecny dźwięk opon
+- Poślizg: głośne piszczenie opon
+- Intensywność dźwięku zależy od stopnia poślizgu
+- Dźwięk jest przestrzenny (stereo/surround)
+
+Test 5.4: Dźwięki kolizji
+KROKI:
+1. Zderz się z metalową barierą
+2. Zderz się z betonową ścianą
+3. Zderz się z drugim samochodem
+4. Zderz się z drewnianą przeszkodą
+OCZEKIWANY REZULTAT:
+- Każdy typ kolizji ma charakterystyczny dźwięk
+- Metal: brzęk metaliczny
+- Beton: tępy odgłos uderzenia
+- Inny samochód: głośne zderzenie metalu
+- Drewno: trzask drewna
+- Głośność zależy od siły uderzenia
+
+Test 5.5: Dźwięki HUD (interface)
+KROKI:
+1. Otwórz menu gry
+2. Nawiguj między opcjami
+3. Wybierz/odznacz opcje
+4. Wróć do gry
+OCZEKIWANY REZULTAT:
+- Hover nad opcją: subtelny dźwięk
+- Kliknięcie: wyraźny dźwięk potwierdzenia
+- Cofnięcie: odmienny dźwięk
+- Wszystkie dźwięki UI są spójne i profesjonalne
+
+
+Test 5.6: Muzyka pod czas Intra
+KROKI:
+1. odpal grę
+2. poczekaj na intro
+3. Sprawdź czy gra muzyka
+OCZEKIWANY REZULTAT:
+- Muzyka gra płynnie bez przeskoków
+- Muzyka jest dynamiczna 
+
+================================================================================
+6. INTERFEJS UŻYTKOWNIKA (HUD)
+================================================================================
+
+Test 6.1: Prędkościomierz
+KROKI:
+1. Uruchom samochód i przyspieszaj
+2. Obserwuj wskaźnik prędkości
+3. Osiągnij maksymalną prędkość
+OCZEKIWANY REZULTAT:
+- Wskaźnik prędkości aktualizuje się w czasie rzeczywistym
+- Wartość jest wyświetlana w km/h lub mph (zgodnie z ustawieniami)
+- Animacja wskazówki jest płynna
+- Wartość maksymalna jest realistyczna (180-250 km/h dla standardowych aut)
+
+Test 6.2: Obrotomierz (RPM)
+KROKI:
+1. Przytrzymaj gaz w biegu neutralnym lub 1
+2. Obserwuj wskaźnik obrotów
+3. Zmień bieg i obserwuj spadek obrotów
+OCZEKIWANY REZULTAT:
+- Wskaźnik obrotów pokazuje bieżące obroty silnika
+- Red line (strefa czerwona) jest wyraźnie zaznaczona
+- Po zmianie biegu obroty spadają/rosną odpowiednio
+- Synchronizacja z dźwiękiem silnika jest idealna
+
+Test 6.3: Wskaźnik biegów
+KROKI:
+1. Zmień wszystkie biegi od R do 6 (lub max dostępnego)
+2. Obserwuj wskaźnik na HUD
+OCZEKIWANY REZULTAT:
+- Aktualny bieg jest wyraźnie pokazany (R, N, 1, 2, 3, 4, 5, 6)
+- Zmiana jest natychmiastowa
+- Czcionka jest czytelna
+- Wskaźnik jest dobrze widoczny podczas jazdy
+
+Test 6.4: Minimapa (jeśli dostępna)
+KROKI:
+1. Sprawdź obecność minimapy na HUD
+2. Jedź w różnych kierunkach i obserwuj minimapę
+OCZEKIWANY REZULTAT:
+- Minimapa pokazuje pozycję gracza
+- Orientacja mapy obraca się wraz z kierunkiem jazdy (lub jest stała)
+- Widoczne są istotne punkty (meta, checkpointy, przeciwnicy)
+- Rozmiar i czytelność są odpowiednie
+
+
+Test 6.5: Timer/Czas okrążenia (jeśli dostępny)
+KROKI:
+1. Rozpocznij wyścig lub okrążenie
+2. Obserwuj timer
+3. Ukończ okrążenie
+OCZEKIWANY REZULTAT:
+- Timer liczy czas od startu
+- Format czasu jest czytelny (MM:SS.mmm)
+- Najlepszy czas/ostatni czas jest pokazany
+- Timer resetuje się odpowiednio
+
+Test 6.6: Widoczność HUD w różnych warunkach
+KROKI:
+1. Jedź w dzień na jasnym tle
+2. Jedź w nocy na ciemnym tle
+3. Sprawdź czytelność wszystkich elementów HUD
+OCZEKIWANY REZULTAT:
+- HUD jest czytelny w obu warunkach
+- Kontrast jest wystarczający
+- Opcjonalnie HUD ma półprzezroczyste tło dla lepszej widoczności
+- Brak elementów HUD całkowicie niewidocznych
+
+================================================================================
+7. FUNKCJE DODATKOWE I DEWELOPERSKIE
+================================================================================
+
+Test 7.1: Start symulacji (klawisz =)
+KROKI:
+1. Uruchom grę
+2. Naciśnij klawisz = (EQUAL)
+3. Obserwuj rozpoczęcie symulacji
+OCZEKIWANY REZULTAT:
+- Symulacja rozpoczyna się poprawnie
+- Wszystkie systemy są inicjalizowane
+- Samochody są gotowe do jazdy
+- HUD wyświetla się prawidłowo
+
+Test 7.2: Pomoc/Help (F1)
+KROKI:
+1. Podczas gry naciśnij F1
+2. Przeczytaj wyświetlone informacje
+3. Naciśnij ponownie F1, aby zamknąć
+OCZEKIWANY REZULTAT:
+- Pojawia się overlay z informacjami o sterowaniu
+- Wszystkie klawisze są poprawnie wymienione
+- Tekst jest czytelny i nie zasłania całego ekranu
+- Gra zatrzymuje się lub zwalnia podczas wyświetlania pomocy
+- F1 ponownie zamyka pomoc
+
+Test 7.3: Przełączenie ImGui (F2)
+KROKI:
+1. Naciśnij F2 podczas gry
+2. Obserwuj pojawienie się menu deweloperskiego
+3. Naciśnij ponownie F2
+OCZEKIWANY REZULTAT:
+- Menu deweloperskie (ImGui) pojawia się/znika
+- Dostępne są opcje debugowania (jeśli tryb dev)
+- Nie wpływa na rozgrywkę w trybie release
+- Przełączanie jest natychmiastowe
+
+Test 7.4: Przełączenie dźwięku (F9)
+KROKI:
+1. Podczas jazdy naciśnij F9
+2. Obserwuj wyciszenie wszystkich dźwięków
+3. Naciśnij ponownie F9
+OCZEKIWANY REZULTAT:
+- Wszystkie dźwięki są natychmiast wyciszone
+- Pojawia się wskaźnik/komunikat o wyciszeniu
+- F9 ponownie włącza dźwięk
+- Muzyka i efekty wznawiają się od odpowiedniego momentu
+
+Test 7.5: Pomiń intro (ENTER)
+KROKI:
+1. Uruchom grę od początku
+2. Podczas odtwarzania intro naciśnij ENTER
+OCZEKIWANY REZULTAT:
+- Intro jest natychmiast pomijane
+- Gra przechodzi do menu głównego
+- Brak artefaktów lub błędów
+- Działa za każdym razem konsystentnie
+
+================================================================================
+KONIEC SCENARIUSZY TESTOWYCH
+================================================================================
+
+UWAGI KOŃCOWE:
+- Każdy test powinien być dokumentowany (PASS/FAIL + komentarze)
+- W przypadku znalezienia buga, należy:
+  * Opisać dokładne kroki do reprodukcji
+  * Zanotować oczekiwany vs rzeczywisty rezultat
+  * Dodać screenshots/video jeśli możliwe
+  * Podać specyfikację sprzętu i wersję gry
+  
+- Priorytety testowania:
+  * P0 (Krytyczne): Crashe, game-breaking bugi - Testy 5.x, 9.2, 9.4
+  * P1 (Wysokie): Podstawowa mechanika - Testy 1.x, 2.x
+  * P2 (Średnie): Grafika, audio, UI - Testy 4.x, 6.x, 7.x
+  * P3 (Niskie): Drobne niedoskonałości, ulepszenia
+
+- Rekomendowane środowisko testowe:
+  * Windows 10/11 64-bit
+  * Intel i5/Ryzen 5 (lub lepszy)
+  * 8GB RAM (minimum)
+  * GPU: GTX 1060 / RX 580 (lub lepszy)
+  * Kontroler PS5 (opcjonalnie dla pełnych testów)
+
