@@ -57,7 +57,7 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex) {
 }
 
 void Mirrors::RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                           const glm::vec3& right) {
+                           const glm::vec3& right, int playerIndex) {
     float sideSign = (side == MirrorSide::LEFT) ? 1.0f : -1.0f;
     unsigned int fbo = (side == MirrorSide::LEFT) ? leftMirrorFBO : rightMirrorFBO;
 
@@ -76,13 +76,13 @@ void Mirrors::RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::
     data.direction = glm::vec3(rot * glm::vec4(lookBase, 0.0f));
 
     glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
-    RenderSingleMirror(view, data.position, fbo);
+    RenderSingleMirror(view, data.position, fbo, playerIndex);
 }
 
 void Mirrors::RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                           const glm::vec3& right, bool renderLeft, bool renderRight) {
-    if (renderLeft) RenderMirror(MirrorSide::LEFT, carPos, forward, up, right);
-    if (renderRight) RenderMirror(MirrorSide::RIGHT, carPos, forward, up, right);
+                           const glm::vec3& right, int playerIndex, bool renderLeft, bool renderRight) {
+    if (renderLeft) RenderMirror(MirrorSide::LEFT, carPos, forward, up, right, playerIndex);
+    if (renderRight) RenderMirror(MirrorSide::RIGHT, carPos, forward, up, right, playerIndex);
 }
 
 Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign, const glm::vec3& carPos, const glm::vec3& forward,
@@ -106,8 +106,8 @@ Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign, const glm::vec3& 
     return data;
 }
 
-void Mirrors::RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo) {
-    Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
+void Mirrors::RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo, int playerIndex) {
+    Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(playerIndex);
 
     Rendering::SetExternalView(view, pos);
     float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;

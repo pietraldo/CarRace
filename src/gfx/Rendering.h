@@ -90,8 +90,10 @@ public:
     static unsigned int GetRightMirrorTexture();
 
 private:
+    static Mirrors player0Mirrors;
     static Mirrors player1Mirrors;
-    static Mirrors player2Mirrors;
+
+    static int currentPageRendering;
 
     static bool useExternalView;
     static glm::mat4 externalView;

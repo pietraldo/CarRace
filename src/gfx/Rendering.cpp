@@ -55,8 +55,9 @@ bool Rendering::firstMouse = true;
 // bool Rendering::firstMouse = true;
 HudRenderer Rendering::hudRenderer;
 
+Mirrors Rendering::player0Mirrors;
 Mirrors Rendering::player1Mirrors;
-Mirrors Rendering::player2Mirrors;
+int Rendering::currentPageRendering = 0;
 
 int Rendering::InitializeLoading() {
     bool success;
@@ -101,8 +102,8 @@ int Rendering::InitializeRest() {
     LoadTextures();
     LoadBuffers();
 
+    player0Mirrors.Initialize();
     player1Mirrors.Initialize();
-    player2Mirrors.Initialize();
     hudRenderer.Init();
     return 0;
 }
@@ -732,9 +733,8 @@ void Rendering::RenderFrame() {
     } else if (currentViewMode == ViewMode::SINGLE_SCREEN) {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
 
-        // Mirror rendering logic
-        // Mirror rendering logic
-        RenderPlayerMirrors(0, player1Mirrors);
+        currentPageRendering = 0;
+        RenderPlayerMirrors(0, player0Mirrors);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
@@ -753,23 +753,22 @@ void Rendering::RenderFrame() {
             yaws.push_back(glm::degrees(glm::yaw(q)));
         }
 
-        // --- Render Mirrors for Player 2 (Top Screen) ---
-        RenderPlayerMirrors(1, player2Mirrors);
-
-        // --- Render Mirrors for Player 1 (Bottom Screen) ---
-        RenderPlayerMirrors(0, player1Mirrors);
+        RenderPlayerMirrors(1, player1Mirrors);
+        RenderPlayerMirrors(0, player0Mirrors);
 
         glViewport(0, 0, window_width / 2, window_height);
-        Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
-        RenderSceneCommon(activePlayer0Cam);
+        Camera& activePlayerCam1 = cameraManager->GetPlayerActiveCamera(1);
+        currentPageRendering = 1;
+        RenderSceneCommon(activePlayerCam1);
 
         HudPlayerData data1;
         PrepareHudData(1, data1, positions, yaws);
         hudRenderer.Render(1, data1, 0, 0, window_width / 2, window_height);
 
         glViewport(window_width / 2, 0, window_width / 2, window_height);
-        Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
-        RenderSceneCommon(activePlayer1Cam);
+        Camera& activePlayerCam0 = cameraManager->GetPlayerActiveCamera(0);
+        currentPageRendering = 0;
+        RenderSceneCommon(activePlayerCam0);
 
         HudPlayerData data0;
         PrepareHudData(0, data0, positions, yaws);
@@ -823,9 +822,8 @@ void Rendering::RenderLoadingScreen(float progress) {
     }
     stbi_image_free(data);
 
-    glEnable(GL_BLEND);  // WARNING : maybe it is heavy to enable/disable blending each frame (I did not check it)
-    glBlendFunc(GL_SRC_ALPHA,
-                GL_ONE_MINUS_SRC_ALPHA);  // WARNING : maybe it is heavy to enable/disable blending each frame
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Rendering::overlayShader->use();
     overlayShader->setMat4("projection", glm::mat4(1.0f));
@@ -872,6 +870,7 @@ void Rendering::PrepareHudData(int playerIndex, HudPlayerData& data, const std::
 
 void Rendering::RenderPlayerMirrors(int playerIndex, Mirrors& mirrors) {
     if (!gameEngine->renderMirrors) return;
+    currentPageRendering = playerIndex;
 
     CameraManager* cameraManager = CameraManager::GetInstance();
     if (cameraManager->GetPlayerActiveCamera(playerIndex).cameraType != CameraType::FIRST_PERSON_CAMERA) return;
@@ -899,10 +898,10 @@ void Rendering::RenderPlayerMirrors(int playerIndex, Mirrors& mirrors) {
     glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
 
     if (shouldRenderLeft) {
-        mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
+        mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right, playerIndex);
     }
     if (shouldRenderRight) {
-        mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+        mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right, playerIndex);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -926,6 +925,11 @@ void Rendering::ClearExternalView() {
     externalViewPos = glm::vec3(0.0f);
 }
 
-unsigned int Rendering::GetLeftMirrorTexture() { return player1Mirrors.GetLeftMirrorTexture(); }
+unsigned int Rendering::GetLeftMirrorTexture() {
+    return (currentPageRendering == 1) ? player1Mirrors.GetLeftMirrorTexture() : player0Mirrors.GetLeftMirrorTexture();
+}
 
-unsigned int Rendering::GetRightMirrorTexture() { return player1Mirrors.GetRightMirrorTexture(); }
+unsigned int Rendering::GetRightMirrorTexture() {
+    return (currentPageRendering == 1) ? player1Mirrors.GetRightMirrorTexture()
+                                       : player0Mirrors.GetRightMirrorTexture();
+}

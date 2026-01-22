@@ -31,10 +31,10 @@ public:
     void Initialize();
 
     void RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
-                      const glm::vec3& right);
+                      const glm::vec3& right, int playerIndex);
 
     void RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up, const glm::vec3& right,
-                      bool renderLeft = true, bool renderRight = true);
+                      int playerIndex, bool renderLeft = true, bool renderRight = true);
 
     unsigned int GetLeftMirrorTexture() const { return leftMirrorColorTex; }
     unsigned int GetRightMirrorTexture() const { return rightMirrorColorTex; }
@@ -49,7 +49,7 @@ private:
     static MirrorData ComputeMirrorData(float sideSign, const glm::vec3& carPos, const glm::vec3& forward,
                                         const glm::vec3& up, const glm::vec3& right);
 
-    void RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo);
+    void RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo, int playerIndex);
 
     void InitMirrorRenderTarget();
     void CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex);
