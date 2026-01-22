@@ -56,6 +56,7 @@ bool Rendering::firstMouse = true;
 HudRenderer Rendering::hudRenderer;
 
 Mirrors Rendering::player1Mirrors;
+Mirrors Rendering::player2Mirrors;
 
 int Rendering::InitializeLoading() {
     bool success;
@@ -101,6 +102,7 @@ int Rendering::InitializeRest() {
     LoadBuffers();
 
     player1Mirrors.Initialize();
+    player2Mirrors.Initialize();
     hudRenderer.Init();
     return 0;
 }
@@ -801,6 +803,76 @@ void Rendering::RenderFrame() {
             glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
             yaws.push_back(glm::degrees(glm::yaw(q)));
         }
+
+        // --- Render Mirrors for Player 2 (Top Screen) ---
+        if (gameEngine->renderMirrors &&
+            cameraManager->GetPlayerActiveCamera(1).cameraType == CameraType::FIRST_PERSON_CAMERA) {
+            Camera& activeCam = cameraManager->GetPlayerActiveCamera(1);
+            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
+            if (fpCam) {
+                float yaw = fpCam->GetCurrentYawOffset();
+                bool shouldRenderLeft = (yaw > 20.0f);
+                bool shouldRenderRight = (yaw < -20.0f);
+
+                if (shouldRenderLeft || shouldRenderRight) {
+                    auto vehicles = Physics::getInstance()->getVehicles();
+                    if (vehicles.size() > 1 && vehicles[1]) {
+                        physx::PxVec3 pPos = vehicles[1]->getVehiclePosition();
+                        physx::PxQuat pRot = vehicles[1]->getVehicleRotation();
+                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
+                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
+
+                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
+                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
+
+                        if (shouldRenderLeft) {
+                            player2Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
+                        }
+                        if (shouldRenderRight) {
+                            player2Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+                        }
+                    }
+                }
+            }
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // --- Render Mirrors for Player 1 (Bottom Screen) ---
+        if (gameEngine->renderMirrors &&
+            cameraManager->GetPlayerActiveCamera(0).cameraType == CameraType::FIRST_PERSON_CAMERA) {
+            Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
+            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
+            if (fpCam) {
+                float yaw = fpCam->GetCurrentYawOffset();
+                bool shouldRenderLeft = (yaw > 20.0f);
+                bool shouldRenderRight = (yaw < -20.0f);
+
+                if (shouldRenderLeft || shouldRenderRight) {
+                    auto vehicles = Physics::getInstance()->getVehicles();
+                    if (!vehicles.empty() && vehicles[0]) {
+                        physx::PxVec3 pPos = vehicles[0]->getVehiclePosition();
+                        physx::PxQuat pRot = vehicles[0]->getVehicleRotation();
+                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
+                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
+
+                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
+                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
+
+                        if (shouldRenderLeft) {
+                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
+                        }
+                        if (shouldRenderRight) {
+                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+                        }
+                    }
+                }
+            }
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);

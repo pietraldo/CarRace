@@ -91,6 +91,7 @@ public:
 
 private:
     static Mirrors player1Mirrors;
+    static Mirrors player2Mirrors;
 
     static bool useExternalView;
     static glm::mat4 externalView;
