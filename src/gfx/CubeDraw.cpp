@@ -54,6 +54,7 @@ float CubeDraw::vertices[] = {-0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.5f,  -
 //     glDrawArrays(GL_TRIANGLES, 0, 36);
 // }
 void CubeDraw::Draw(Shader& shader, std::function<void(const Mesh&, Shader&)> perMeshCallback) {
+    shader.setBool("turnOffTexture", true);
     glBindVertexArray(Rendering::VAO_cube);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }

@@ -295,6 +295,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         modelMatrix = glm::scale(modelMatrix, drawObject->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
         shaderTex.setVec3("objectColor", drawObject->GetColor());
+        shaderTex.setBool("turnOffTexture", false);
 
         drawObject->Draw(shaderTex);
     }
@@ -547,16 +548,14 @@ void GameEngine::CreateCubes() {
     std::cout << "Creating cubes..." << std::endl;
 
     // bridge
-    glm::vec3 bridgeSize(32.79f, 4.18f, 173.0f);
-    glm::vec3 bridgePosition(-228.58f, 82.31f, -269.25f);
+    
     glm::vec3 bridgeColor(0.29f, 0.27f, 0.255f);
-    glm::vec3 bridgeRotation(0.0f, 27.55f, 0.0f);
     auto bridge = make_shared<GameObjectStatic>();
     bridge->drawObject = make_shared<CubeDraw>();
     bridge->drawObject->color = bridgeColor;
-    bridge->scale = bridgeSize;
-    bridge->SetPosition(bridgePosition);
-    bridge->SetRotation(getQuatFromRotationDegrees(bridgeRotation));
+    bridge->scale = Terrain::bridgeSize;
+    bridge->SetPosition(Terrain::bridgePosition);
+    bridge->SetRotation(getQuatFromRotationDegrees(Terrain::bridgeRotation));
     bridge->AddRigidBody(RigidBody());
     gameObjects2.push_back(bridge);
     gameObjectsStatic.push_back(bridge);
@@ -817,19 +816,24 @@ bool GameEngine::isVehicleOnTrack(int carNumber) {
     float scale_x = terrain->GetScaleX();
     float scale_z = terrain->GetScaleZ();
 
-    int width = terrain->GetTerrainWidth() / 2.0f;
-    int depth = terrain->GetTerrainDepth() / 2.0f;
-    x = x + width;
-    z = z + depth;
+    int width = terrain->GetTerrainWidth();
+    int depth = terrain->GetTerrainDepth();
+    x = static_cast<int>((x + width * 0.5f) / scale_x);
+    z = static_cast<int>((z + depth * 0.5f) / scale_z);
+   
 
-    x = x / scale_x;
-    z = z / scale_z;
-
-    if (x < 0 || (int)x >= roadMarks.size() || z < 0 || (int)z >= roadMarks[0].size()) {
+    if (x < 0 || x >= roadMarks.size() || z < 0 || z >= roadMarks[0].size()) {
         return false;
     }
 
-    return roadMarks[int(z)][int(x)] == 1;
+    if (roadMarks[int(z)][int(x)] == 1) return true;
+
+    // check for bridge area
+    if (terrain->IsBridgeAtPosition(pos.x, pos.y, pos.z)) {
+        return true;
+    }
+
+    return false;
 }
 
 void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
@@ -837,6 +841,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
     const int CHECKPOINT_THRESHOLD = Settings::Get().checkpointInterval;
     const int MAX_SAVED_POSITIONS = Settings::Get().maxSavedPositions;
     const int SAVE_POSITION_RETRIVAL = Settings::Get().savePositionRetrival;
+    const int MIN_DISTANCE_BETWEEN_POSITIONS = 5;
 
     bool resetCarToCheckPoint[2];
     resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
@@ -898,6 +903,13 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
                 // save vehicle position
                 auto vehicle = Physics::getInstance()->getVehicles()[i];
                 PxVec3 pos = vehicle->getVehiclePosition();
+                
+                if (playersStatus[i].vehiclePositions.size() > 0)  // check distance from last saved position
+                {
+                    auto lastPosition = playersStatus[i].vehiclePositions.back().postion;
+                    if (glm::length(lastPosition - PxVec3ToGlmVec3(pos))<MIN_DISTANCE_BETWEEN_POSITIONS) continue;
+                }
+
                 PxQuat rotation = vehicle->getVehicleRotation();
                 if (playersStatus[i].vehiclePositions.size() >= MAX_SAVED_POSITIONS) {
                     playersStatus[i].vehiclePositions.erase(playersStatus[i].vehiclePositions.begin());

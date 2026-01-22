@@ -1,5 +1,9 @@
 #include "terrain.h"
 
+glm::vec3 Terrain::bridgeSize = glm::vec3(32.79f, 4.18f, 173.0f);
+glm::vec3 Terrain::bridgePosition = glm::vec3(-228.58f, 82.31f, -269.25f);
+glm::vec3 Terrain::bridgeRotation = glm::vec3(0.0f, 27.55f, 0.0f);
+
 void Terrain::LoadTerrain(const char* heightmapPath) {
     loadRoadmap("../assets/terrain/road_mark.txt");
     loadHeightmap(heightmapPath, rows, cols);
@@ -61,6 +65,30 @@ bool Terrain::IsGrassAtPosition(float x, float z) {
     }
 
     return roadMark[baseZ][baseX] == 5;
+}
+
+bool Terrain::IsBridgeAtPosition(float x, float y, float z) {
+
+    const float marginY = 5.0f;
+    if (y < bridgePosition.y - marginY || y > bridgePosition.y + marginY) 
+        return false;
+
+    // Convert world point to bridge-centered coordinates (XZ plane)
+    glm::vec2 point(x - bridgePosition.x, z - bridgePosition.z);
+
+    // Rotate point into bridge local space (inverse rotation)
+    float angleRad = glm::radians(bridgeRotation.y);
+    float cosA = cos(angleRad);
+    float sinA = sin(angleRad);
+
+    glm::vec2 localPoint(point.x * cosA - point.y * sinA, point.x * sinA + point.y * cosA);
+
+    // Half extents of the bridge
+    float halfWidth = bridgeSize.x * 0.5f;  
+    float halfLength = bridgeSize.z * 0.5f;  
+
+    // Check if inside bridge rectangle
+    return std::abs(localPoint.x) <= halfWidth && std::abs(localPoint.y) <= halfLength;
 }
 
 void Terrain::loadHeightmap(const std::string& filename, int& outRows, int& outCols) {

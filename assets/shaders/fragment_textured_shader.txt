@@ -54,6 +54,7 @@ uniform bool uIsBrakeLight;
 uniform bool uIsBraking;
 uniform bool uIsHeadlight;
 uniform bool uHeadlightsOn;
+uniform bool turnOffTexture;
 
 uniform sampler2D uBaseColorMap;
 
@@ -79,10 +80,10 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    vec2 screenUV = (fposition.xy / fposition.w) * 0.5 + 0.5;
-    vec2 mirrorCoords = vec2(1.0 - screenUV.x, screenUV.y);
-    
-    vec3 texColor = texture(uBaseColorMap, uIsMirror ? mirrorCoords : TexCoords).rgb * objectColor;
+    vec3 texColor = texture(uBaseColorMap, TexCoords).rgb * objectColor;
+    if (turnOffTexture) {
+        texColor = objectColor;
+    }
 
     if (uIsMirror) {
         FragColor = vec4(texColor, 1.0);
