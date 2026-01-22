@@ -71,10 +71,8 @@ layout (std140) uniform Lights
     int        NR_SPOT_LIGHTS;
 };
 
-// kolor materialu po teksturze
 vec3 surfaceColor;
 
-// deklaracje
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -82,7 +80,6 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 void main()
 {
     vec2 screenUV = (fposition.xy / fposition.w) * 0.5 + 0.5;
-    // Odwracamy X, żeby lusterko działało jak odbicie, a nie jak okno
     vec2 mirrorCoords = vec2(1.0 - screenUV.x, screenUV.y);
     
     vec3 texColor = texture(uBaseColorMap, uIsMirror ? mirrorCoords : TexCoords).rgb * objectColor;

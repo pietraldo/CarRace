@@ -15,11 +15,9 @@ public:
 
     static float mirrorFov;
 
-    // Individual offsets (local to car basis)
     static float leftX, leftY, leftZ;
     static float rightX, rightY, rightZ;
 
-    // Individual rotations
     static float leftYaw, leftPitch;
     static float rightYaw, rightPitch;
 

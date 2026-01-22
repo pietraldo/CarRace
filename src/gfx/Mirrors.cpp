@@ -63,14 +63,10 @@ void Mirrors::RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::
 
     MirrorData data = ComputeMirrorData(sideSign, carPos, forward, up, right);
 
-    // Budujemy wektor kierunku na podstawie kątów (Yaw i Pitch)
-    // Bazowo kamera patrzy w tył auta (-forward)
     glm::vec3 lookBase = -forward;
 
-    // 1. Obrót w poziomie (Yaw) wokół osi UP auta
     glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(sideSign > 0.0f ? leftYaw : rightYaw), up);
 
-    // 2. Obrót w pionie (Pitch) wokół osi bocznej (Right)
     rot = glm::rotate(rot, glm::radians(sideSign > 0.0f ? leftPitch : rightPitch), right);
 
     data.direction = glm::vec3(rot * glm::vec4(lookBase, 0.0f));
@@ -89,18 +85,16 @@ Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign, const glm::vec3& 
                                                const glm::vec3& up, const glm::vec3& right) {
     MirrorData data;
     float x, y, z;
-    if (sideSign > 0.0f) {  // Left
+    if (sideSign > 0.0f) {
         x = leftX;
         y = leftY;
         z = leftZ;
-    } else {  // Right
+    } else {
         x = rightX;
         y = rightY;
         z = rightZ;
     }
 
-    // Pozycja lokalnie względem auta:
-    // X (right), Y (up), Z (forward)
     data.position = carPos + (right * x) + (up * y) + (forward * z);
 
     return data;
