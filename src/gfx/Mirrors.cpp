@@ -23,8 +23,6 @@ float Mirrors::rightZ = 3.150f;
 float Mirrors::rightYaw = -75.040f;
 float Mirrors::rightPitch = -4.430f;
 
-bool Mirrors::tuningMode = false;
-
 void Mirrors::Initialize() { InitMirrorRenderTarget(); }
 
 void Mirrors::InitMirrorRenderTarget() {

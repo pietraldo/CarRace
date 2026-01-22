@@ -595,7 +595,6 @@ void Rendering::RenderImGui() {
             {
                 ImGui::Begin("Mirror settings");
                 ImGui::Checkbox("Render Mirrors", &(*gameEngine).renderMirrors);
-                ImGui::Checkbox("Force Render (Tuning Mode)", &Mirrors::tuningMode);
                 ImGui::SliderFloat("Global Mirror FOV", &Mirrors::mirrorFov, 10.0f, 170.0f);
 
                 if (ImGui::CollapsingHeader("Left Mirror", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -736,8 +735,8 @@ void Rendering::RenderFrame() {
             FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
             if (fpCam) {
                 float yaw = fpCam->GetCurrentYawOffset();
-                bool shouldRenderLeft = (yaw > 20.0f) || Mirrors::tuningMode;
-                bool shouldRenderRight = (yaw < -20.0f) || Mirrors::tuningMode;
+                bool shouldRenderLeft = (yaw > 20.0f);
+                bool shouldRenderRight = (yaw < -20.0f);
 
                 if (shouldRenderLeft || shouldRenderRight) {
                     auto vehicles = Physics::getInstance()->getVehicles();

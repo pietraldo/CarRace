@@ -22,7 +22,6 @@ public:
     // Individual rotations
     static float leftYaw, leftPitch;
     static float rightYaw, rightPitch;
-    static bool tuningMode;
 
     static constexpr int MIRROR_WIDTH = 1024;
     static constexpr int MIRROR_HEIGHT = 512;
