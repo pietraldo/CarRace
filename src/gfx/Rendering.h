@@ -99,6 +99,10 @@ private:
     static bool useExternalProj;
     static glm::mat4 externalProj;
 
+    static void RenderPlayerMirrors(int playerIndex, Mirrors& mirrors);
+    static void PrepareHudData(int playerIndex, HudPlayerData& data, const std::vector<glm::vec3>& positions,
+                               const std::vector<float>& yaws);
+
 public:
     static HudRenderer hudRenderer;
 };

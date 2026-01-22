@@ -733,67 +733,16 @@ void Rendering::RenderFrame() {
         Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
 
         // Mirror rendering logic
-        if (gameEngine->renderMirrors && activeCam.cameraType == CameraType::FIRST_PERSON_CAMERA) {
-            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
-            if (fpCam) {
-                float yaw = fpCam->GetCurrentYawOffset();
-                bool shouldRenderLeft = (yaw > 20.0f);
-                bool shouldRenderRight = (yaw < -20.0f);
-
-                if (shouldRenderLeft || shouldRenderRight) {
-                    auto vehicles = Physics::getInstance()->getVehicles();
-                    if (!vehicles.empty() && vehicles[0]) {
-                        physx::PxVec3 pPos = vehicles[0]->getVehiclePosition();
-                        physx::PxQuat pRot = vehicles[0]->getVehicleRotation();
-                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
-                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
-
-                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
-                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
-
-                        if (shouldRenderLeft) {
-                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
-                        }
-                        if (shouldRenderRight) {
-                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
-                        }
-                    }
-                }
-            }
-        }
+        // Mirror rendering logic
+        RenderPlayerMirrors(0, player1Mirrors);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, window_width, window_height);
         RenderSceneCommon(activeCam);
 
-        auto* car0 = Physics::getInstance()->getVehicles()[0];
-        if (car0) {
-            HudPlayerData data;
-            data.speedKmh = car0->getSpeed() * 3.5f;
-            data.rpm = (float)car0->getEngineRPM() * 12.0f;
-            data.gear = car0->getCurrentGear();
-            data.maxSpeed = car0->getMaxSpeed();
-            data.maxRpm = car0->getMaxEngineRPM();
-
-            // Race Info
-            data.raceTime = gameEngine->raceTime;
-            data.countdownTime = gameEngine->countdownTimer;
-            data.isCountdownActive = gameEngine->isCountdownActive;
-            data.finished = gameEngine->playersStatus[0].finished;
-            data.finishTime = gameEngine->playersStatus[0].finishTime;
-            data.isSimulationStarted = gameEngine->IsSimulationStarted();
-
-            auto vehicles = Physics::getInstance()->getVehicles();
-            for (auto* vehicle : vehicles) {
-                data.allCarPositions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
-                // Simple yaw extraction (might need adjustment based on coord system)
-                glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
-                data.allCarYaws.push_back(glm::degrees(glm::yaw(q)));
-            }
-
-            hudRenderer.Render(0, data, 0, 0, window_width, window_height);
-        }
+        HudPlayerData data;
+        PrepareHudData(0, data, {}, {});
+        hudRenderer.Render(0, data, 0, 0, window_width, window_height);
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         std::vector<glm::vec3> positions;
         std::vector<float> yaws;
@@ -805,124 +754,26 @@ void Rendering::RenderFrame() {
         }
 
         // --- Render Mirrors for Player 2 (Top Screen) ---
-        if (gameEngine->renderMirrors &&
-            cameraManager->GetPlayerActiveCamera(1).cameraType == CameraType::FIRST_PERSON_CAMERA) {
-            Camera& activeCam = cameraManager->GetPlayerActiveCamera(1);
-            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
-            if (fpCam) {
-                float yaw = fpCam->GetCurrentYawOffset();
-                bool shouldRenderLeft = (yaw > 20.0f);
-                bool shouldRenderRight = (yaw < -20.0f);
-
-                if (shouldRenderLeft || shouldRenderRight) {
-                    auto vehicles = Physics::getInstance()->getVehicles();
-                    if (vehicles.size() > 1 && vehicles[1]) {
-                        physx::PxVec3 pPos = vehicles[1]->getVehiclePosition();
-                        physx::PxQuat pRot = vehicles[1]->getVehicleRotation();
-                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
-                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
-
-                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
-                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
-
-                        if (shouldRenderLeft) {
-                            player2Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
-                        }
-                        if (shouldRenderRight) {
-                            player2Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
-                        }
-                    }
-                }
-            }
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        RenderPlayerMirrors(1, player2Mirrors);
 
         // --- Render Mirrors for Player 1 (Bottom Screen) ---
-        if (gameEngine->renderMirrors &&
-            cameraManager->GetPlayerActiveCamera(0).cameraType == CameraType::FIRST_PERSON_CAMERA) {
-            Camera& activeCam = cameraManager->GetPlayerActiveCamera(0);
-            FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
-            if (fpCam) {
-                float yaw = fpCam->GetCurrentYawOffset();
-                bool shouldRenderLeft = (yaw > 20.0f);
-                bool shouldRenderRight = (yaw < -20.0f);
-
-                if (shouldRenderLeft || shouldRenderRight) {
-                    auto vehicles = Physics::getInstance()->getVehicles();
-                    if (!vehicles.empty() && vehicles[0]) {
-                        physx::PxVec3 pPos = vehicles[0]->getVehiclePosition();
-                        physx::PxQuat pRot = vehicles[0]->getVehicleRotation();
-                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
-                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
-
-                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
-                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
-
-                        if (shouldRenderLeft) {
-                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
-                        }
-                        if (shouldRenderRight) {
-                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
-                        }
-                    }
-                }
-            }
-        }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        RenderPlayerMirrors(0, player1Mirrors);
 
         glViewport(0, 0, window_width / 2, window_height);
         Camera& activePlayer0Cam = cameraManager->GetPlayerActiveCamera(1);
         RenderSceneCommon(activePlayer0Cam);
 
-        auto* car1 = Physics::getInstance()->getVehicles()[1];
-        if (car1) {
-            HudPlayerData data;
-            data.speedKmh = car1->getSpeed() * 3.5f;
-            data.rpm = (float)car1->getEngineRPM() * 12.0f;
-            data.gear = car1->getCurrentGear();
-            data.maxSpeed = car1->getMaxSpeed();
-            data.maxRpm = car1->getMaxEngineRPM();
-
-            data.raceTime = gameEngine->raceTime;
-            data.countdownTime = gameEngine->countdownTimer;
-            data.isCountdownActive = gameEngine->isCountdownActive;
-            data.finished = gameEngine->playersStatus[1].finished;
-            data.finishTime = gameEngine->playersStatus[1].finishTime;
-            data.isSimulationStarted = gameEngine->IsSimulationStarted();
-
-            data.allCarPositions = positions;
-            data.allCarYaws = yaws;
-            hudRenderer.Render(1, data, 0, 0, window_width / 2, window_height);
-        }
+        HudPlayerData data1;
+        PrepareHudData(1, data1, positions, yaws);
+        hudRenderer.Render(1, data1, 0, 0, window_width / 2, window_height);
 
         glViewport(window_width / 2, 0, window_width / 2, window_height);
         Camera& activePlayer1Cam = cameraManager->GetPlayerActiveCamera(0);
         RenderSceneCommon(activePlayer1Cam);
 
-        auto* car0 = Physics::getInstance()->getVehicles()[0];
-        if (car0) {
-            HudPlayerData data;
-            data.speedKmh = car0->getSpeed() * 3.5f;
-            data.rpm = (float)car0->getEngineRPM() * 12.0f;
-            data.gear = car0->getCurrentGear();
-            data.maxSpeed = car0->getMaxSpeed();
-            data.maxRpm = car0->getMaxEngineRPM();
-
-            data.raceTime = gameEngine->raceTime;
-            data.countdownTime = gameEngine->countdownTimer;
-            data.isCountdownActive = gameEngine->isCountdownActive;
-            data.finished = gameEngine->playersStatus[0].finished;
-            data.finishTime = gameEngine->playersStatus[0].finishTime;
-            data.isSimulationStarted = gameEngine->IsSimulationStarted();
-
-            data.allCarPositions = positions;
-            data.allCarYaws = yaws;
-            hudRenderer.Render(0, data, 0, 0, window_width / 2, window_height);
-        }
+        HudPlayerData data0;
+        PrepareHudData(0, data0, positions, yaws);
+        hudRenderer.Render(0, data0, 0, 0, window_width / 2, window_height);
     } else if (currentViewMode == ViewMode::INTRO_SCREEN) {
         Camera& introCam = cameraManager->GetAnimationCamera();
         glViewport(0, 0, window_width, window_height);
@@ -986,6 +837,75 @@ void Rendering::RenderLoadingScreen(float progress) {
 
     glfwSwapBuffers(Rendering::window);
     glfwPollEvents();
+}
+
+void Rendering::PrepareHudData(int playerIndex, HudPlayerData& data, const std::vector<glm::vec3>& positions,
+                               const std::vector<float>& yaws) {
+    auto vehicles = Physics::getInstance()->getVehicles();
+    if (vehicles.size() <= playerIndex || !vehicles[playerIndex]) return;
+
+    auto* car = vehicles[playerIndex];
+    data.speedKmh = car->getSpeed() * 3.5f;
+    data.rpm = (float)car->getEngineRPM() * 12.0f;
+    data.gear = car->getCurrentGear();
+    data.maxSpeed = car->getMaxSpeed();
+    data.maxRpm = car->getMaxEngineRPM();
+
+    data.raceTime = gameEngine->raceTime;
+    data.countdownTime = gameEngine->countdownTimer;
+    data.isCountdownActive = gameEngine->isCountdownActive;
+    data.finished = gameEngine->playersStatus[playerIndex].finished;
+    data.finishTime = gameEngine->playersStatus[playerIndex].finishTime;
+    data.isSimulationStarted = gameEngine->IsSimulationStarted();
+
+    if (!positions.empty()) {
+        data.allCarPositions = positions;
+        data.allCarYaws = yaws;
+    } else {
+        for (auto* vehicle : vehicles) {
+            data.allCarPositions.push_back(PxVec3ToGlmVec3(vehicle->getVehiclePosition()));
+            glm::quat q = PxQuatToGlmQuat(vehicle->getVehicleRotation());
+            data.allCarYaws.push_back(glm::degrees(glm::yaw(q)));
+        }
+    }
+}
+
+void Rendering::RenderPlayerMirrors(int playerIndex, Mirrors& mirrors) {
+    if (!gameEngine->renderMirrors) return;
+
+    CameraManager* cameraManager = CameraManager::GetInstance();
+    if (cameraManager->GetPlayerActiveCamera(playerIndex).cameraType != CameraType::FIRST_PERSON_CAMERA) return;
+
+    Camera& activeCam = cameraManager->GetPlayerActiveCamera(playerIndex);
+    FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
+    if (!fpCam) return;
+
+    float yaw = fpCam->GetCurrentYawOffset();
+    bool shouldRenderLeft = (yaw > 20.0f);
+    bool shouldRenderRight = (yaw < -20.0f);
+
+    if (!shouldRenderLeft && !shouldRenderRight) return;
+
+    auto vehicles = Physics::getInstance()->getVehicles();
+    if (vehicles.size() <= playerIndex || !vehicles[playerIndex]) return;
+
+    physx::PxVec3 pPos = vehicles[playerIndex]->getVehiclePosition();
+    physx::PxQuat pRot = vehicles[playerIndex]->getVehicleRotation();
+    glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
+    glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
+
+    glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
+
+    if (shouldRenderLeft) {
+        mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
+    }
+    if (shouldRenderRight) {
+        mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Rendering::SetExternalView(const glm::mat4& view, const glm::vec3& pos) {
