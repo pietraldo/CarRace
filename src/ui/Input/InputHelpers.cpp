@@ -3,13 +3,13 @@
 
 
 int InputHelpers::GetKeyFromJson(const rapidjson::Value& obj, const char* key) {
-    if (!obj.HasMember(key)) return GLFW_KEY_UNKNOWN;
+    if (!obj.HasMember(key)) return GLFW_KEY_END;
 
     std::string val = obj[key].GetString();
     auto it = keyNameToGLFWKey.find(val);
     if (it == keyNameToGLFWKey.end()) {
         std::cerr << "Unknown key name: " << val << " for action: " << key << std::endl;
-        return GLFW_KEY_UNKNOWN;
+        return GLFW_KEY_END;
     }
     return it->second;
 }

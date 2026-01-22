@@ -12,8 +12,8 @@
 
 // window
 GLFWwindow* Rendering::window = nullptr;
-int Rendering::window_width = Settings::Get().START_SCR_WIDTH;
-int Rendering::window_height = Settings::Get().START_SCR_HEIGHT;
+int Rendering::window_width=0;
+int Rendering::window_height=0;
 
 // shaders
 Shader* Rendering::colorShader = nullptr;
@@ -57,6 +57,9 @@ HudRenderer Rendering::hudRenderer;
 Mirrors Rendering::player1Mirrors;
 
 int Rendering::InitializeLoading() {
+    window_width = Settings::Get().START_SCR_WIDTH;
+    window_height = Settings::Get().START_SCR_HEIGHT;
+
     bool success;
     success = CreateGLFWWindow(window_width, window_height, "CarRace");
     if (!success) return false;
