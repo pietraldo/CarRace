@@ -295,6 +295,7 @@ void GameEngine::DrawModels(Shader& shaderTex, Shader& shaderCol, Camera& active
         modelMatrix = glm::scale(modelMatrix, drawObject->GetScale() * gameObject->scale);
         shaderTex.setMat4("model", modelMatrix);
         shaderTex.setVec3("objectColor", drawObject->GetColor());
+        shaderTex.setBool("turnOffTexture", false);
 
         drawObject->Draw(shaderTex);
     }
