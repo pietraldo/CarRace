@@ -6,7 +6,7 @@ PassCommon RenderPassUniforms::Build(const Camera& cam, const FogParams& fog) {
     p.view = Rendering::GetViewMatrix(const_cast<Camera&>(cam));
     p.proj = Rendering::GetProjectionMatrix(const_cast<Camera&>(cam));
     p.viewProj = p.proj * p.view;
-    p.viewPos = cam.Position;
+    p.viewPos = Rendering::IsExternalPass() ? Rendering::GetExternalViewPos() : cam.Position;
     p.fog = fog;
     return p;
 }

@@ -3,13 +3,26 @@
 #include "Rendering.h"
 #include <glad/glad.h>
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
-float Mirrors::mirrorHeightOffset = 1.5f;
-float Mirrors::mirrorSideOffset = 0.0f;
-float Mirrors::mirrorForwardOffset = -0.72f;
-float Mirrors::mirrorLookSide = -0.42f;
-float Mirrors::mirrorLookUp = -0.03f;
-float Mirrors::mirrorFov = 90.0f;
+// Shared parameters
+float Mirrors::mirrorFov = 123.42f;
+
+// Left mirror individual params
+float Mirrors::leftX = 0.60f;
+float Mirrors::leftY = 1.02f;
+float Mirrors::leftZ = -2.35f;
+float Mirrors::leftYaw = -28.28f;
+float Mirrors::leftPitch = 3.28f;
+
+// Right mirror individual params
+float Mirrors::rightX = -0.60f;
+float Mirrors::rightY = 1.02f;
+float Mirrors::rightZ = -2.35f;
+float Mirrors::rightYaw = 28.28f;
+float Mirrors::rightPitch = 3.28f;
+bool Mirrors::tuningMode = false;
 
 void Mirrors::Initialize() { InitMirrorRenderTarget(); }
 
@@ -36,28 +49,31 @@ void Mirrors::CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
-
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mirrorDepthRBO);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Mirror FBO not complete!" << std::endl;
-    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Mirrors::RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
+                           const glm::vec3& right) {
+    float sideSign = (side == MirrorSide::LEFT) ? 1.0f : -1.0f;
+    unsigned int fbo = (side == MirrorSide::LEFT) ? leftMirrorFBO : rightMirrorFBO;
+
+    MirrorData data = ComputeMirrorData(sideSign, carPos, forward, up, right);
+    glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
+    RenderSingleMirror(view, data.position, fbo);
+}
+
 void Mirrors::RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
                            const glm::vec3& right, bool renderLeft, bool renderRight) {
-    if (renderRight) {
-        MirrorData data = ComputeMirrorData(-1.0f, carPos, forward, up, right);
-        glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
-        RenderSingleMirror(view, rightMirrorFBO);
-    }
-
     if (renderLeft) {
-        MirrorData data = ComputeMirrorData(+1.0f, carPos, forward, up, right);
-        glm::mat4 view = glm::lookAt(data.position, data.position + data.direction, up);
-        RenderSingleMirror(view, leftMirrorFBO);
+        RenderMirror(MirrorSide::LEFT, carPos, forward, up, right);
+    }
+    if (renderRight) {
+        RenderMirror(MirrorSide::RIGHT, carPos, forward, up, right);
     }
 }
 
@@ -65,24 +81,37 @@ Mirrors::MirrorData Mirrors::ComputeMirrorData(float sideSign, const glm::vec3& 
                                                const glm::vec3& up, const glm::vec3& right) {
     MirrorData data;
 
-    data.position =
-        carPos + up * mirrorHeightOffset + right * (sideSign * mirrorSideOffset) + forward * mirrorForwardOffset;
+    float x, y, z, yaw, pitch;
+    if (sideSign > 0.0f) {  // Left
+        x = leftX;
+        y = leftY;
+        z = leftZ;
+        yaw = leftYaw;
+        pitch = leftPitch;
+    } else {  // Right
+        x = rightX;
+        y = rightY;
+        z = rightZ;
+        yaw = rightYaw;
+        pitch = rightPitch;
+    }
 
-    float sideCoeff = (sideSign < 0.0f) ? mirrorLookSide : -mirrorLookSide;
+    // Pozycja: carPos + przesunięcia wzdłuż osi dostarczonych z Rendering.cpp
+    data.position = carPos + (right * x) + (up * y) + (forward * z);
 
-    data.direction = glm::normalize(-forward + right * sideCoeff + up * mirrorLookUp);
+    // Kierunek: bazowo patrzymy w tył (-forward), potem obracamy o Yaw (lewo/prawo na osi Right)
+    // i Pitch (góra/dół na osi Up)
+    data.direction = glm::normalize(-forward + (right * yaw) + (up * pitch));
 
     return data;
 }
 
-void Mirrors::RenderSingleMirror(const glm::mat4& view, unsigned int fbo) {
+void Mirrors::RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo) {
     Camera& activeCam = CameraManager::GetInstance()->GetPlayerActiveCamera(0);
-    Rendering::SetExternalView(view);
 
+    Rendering::SetExternalView(view, pos);
     float aspect = (float)MIRROR_WIDTH / (float)MIRROR_HEIGHT;
-
-    glm::mat4 proj = glm::perspective(glm::radians(mirrorFov), aspect, 0.1f, 400.0f);
-
+    glm::mat4 proj = glm::perspective(glm::radians(mirrorFov), aspect, 0.1f, 1000.0f);
     Rendering::SetExternalProj(proj);
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);

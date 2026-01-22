@@ -33,7 +33,6 @@ class Mirrors;
 
 class Rendering {
 public:
-
     static GameEngine* gameEngine;
     static bool showBoxColliders;
 
@@ -81,10 +80,12 @@ public:
     static void RenderLoadingScreen(float progress);
     static void RenderSceneCommon(Camera& activeCam);
 
-    static void SetExternalView(const glm::mat4& view);
+    static void SetExternalView(const glm::mat4& view, const glm::vec3& pos);
     static void SetExternalProj(const glm::mat4& proj);
     static void ClearExternalProj();
     static void ClearExternalView();
+    static bool IsExternalPass() { return useExternalView; }
+    static glm::vec3 GetExternalViewPos() { return externalViewPos; }
     static unsigned int GetLeftMirrorTexture();
     static unsigned int GetRightMirrorTexture();
 
@@ -93,6 +94,7 @@ private:
 
     static bool useExternalView;
     static glm::mat4 externalView;
+    static glm::vec3 externalViewPos;
     static bool useExternalProj;
     static glm::mat4 externalProj;
 

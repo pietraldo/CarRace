@@ -44,6 +44,7 @@ bool Rendering::showBoxColliders = false;
 
 bool Rendering::useExternalView = false;
 glm::mat4 Rendering::externalView = glm::mat4(1.0f);
+glm::vec3 Rendering::externalViewPos = glm::vec3(0.0f);
 bool Rendering::useExternalProj = false;
 glm::mat4 Rendering::externalProj = glm::mat4(1.0f);
 
@@ -594,41 +595,47 @@ void Rendering::RenderImGui() {
             {
                 ImGui::Begin("Mirror settings");
                 ImGui::Checkbox("Render Mirrors", &(*gameEngine).renderMirrors);
+                ImGui::Checkbox("Force Render (Tuning Mode)", &Mirrors::tuningMode);
+                ImGui::SliderFloat("Global Mirror FOV", &Mirrors::mirrorFov, 10.0f, 170.0f);
 
-                ImGui::Separator();
-                ImGui::Text("Offsets (position)");
-                ImGui::SliderFloat("Height", &Mirrors::mirrorHeightOffset, -2.0f, 4.0f);
-                ImGui::SliderFloat("Side", &Mirrors::mirrorSideOffset, -10.0f, 5.0f);
-                ImGui::SliderFloat("Forward", &Mirrors::mirrorForwardOffset, -5.0f, 5.0f);
+                if (ImGui::CollapsingHeader("Left Mirror", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::DragFloat("L Side", &Mirrors::leftX, 0.05f, -1000.0f, 1000.0f);
+                    ImGui::DragFloat("L Height", &Mirrors::leftY, 0.05f, -500.0f, 500.0f);
+                    ImGui::DragFloat("L Forward", &Mirrors::leftZ, 0.05f, -1000.0f, 1000.0f);
+                    ImGui::DragFloat("L Yaw", &Mirrors::leftYaw, 0.01f, -200.0f, 200.0f);
+                    ImGui::DragFloat("L Pitch", &Mirrors::leftPitch, 0.01f, -200.0f, 200.0f);
+                }
 
-                ImGui::Separator();
-                ImGui::Text("Direction (look)");
-                ImGui::SliderFloat("Look side", &Mirrors::mirrorLookSide, -2.0f, 2.0f);
-                ImGui::SliderFloat("Look up", &Mirrors::mirrorLookUp, -2.0f, 2.0f);
-
-                ImGui::Separator();
-                ImGui::Text("Projection");
-                ImGui::SliderFloat("Mirror FOV", &Mirrors::mirrorFov, 10.0f, 170.0f);
+                if (ImGui::CollapsingHeader("Right Mirror", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::DragFloat("R Side", &Mirrors::rightX, 0.05f, -1000.0f, 1000.0f);
+                    ImGui::DragFloat("R Height", &Mirrors::rightY, 0.05f, -500.0f, 500.0f);
+                    ImGui::DragFloat("R Forward", &Mirrors::rightZ, 0.05f, -1000.0f, 1000.0f);
+                    ImGui::DragFloat("R Yaw", &Mirrors::rightYaw, 0.01f, -200.0f, 200.0f);
+                    ImGui::DragFloat("R Pitch", &Mirrors::rightPitch, 0.01f, -200.0f, 200.0f);
+                }
 
                 ImGui::Separator();
                 auto* car = gameEngine->GetCar(0);
                 if (car) {
                     glm::vec3 carPos = gameEngine->GetCarPosition();
                     glm::quat carRot = gameEngine->GetCarRotation();
-                    glm::vec3 forward = carRot * glm::vec3(0, 0, 1);
-                    glm::vec3 up = carRot * glm::vec3(0, 1, 0);
-                    glm::vec3 right = carRot * glm::vec3(-1, 0, 0);
+                    glm::vec3 forward = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f));
+                    glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+                    glm::vec3 right = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, 1.0f));
 
-                    // Left mirror approx calculation for display
-                    float sideSign = 1.0f;
-                    glm::vec3 mirrorPos = carPos + up * Mirrors::mirrorHeightOffset +
-                                          right * (sideSign * Mirrors::mirrorSideOffset) +
-                                          forward * Mirrors::mirrorForwardOffset;
-                    float sideCoeff = (sideSign < 0.0f) ? Mirrors::mirrorLookSide : -Mirrors::mirrorLookSide;
-                    glm::vec3 mirrorDir = glm::normalize(-forward + right * sideCoeff + up * Mirrors::mirrorLookUp);
+                    glm::vec3 lPos =
+                        carPos + (right * Mirrors::leftX) + (up * Mirrors::leftY) + (forward * Mirrors::leftZ);
+                    glm::vec3 lDir = glm::normalize(-forward + (right * Mirrors::leftYaw) + (up * Mirrors::leftPitch));
+                    glm::vec3 rPos =
+                        carPos + (right * Mirrors::rightX) + (up * Mirrors::rightY) + (forward * Mirrors::rightZ);
+                    glm::vec3 rDir =
+                        glm::normalize(-forward + (right * Mirrors::rightYaw) + (up * Mirrors::rightPitch));
 
-                    ImGui::Text("Left Mirror Pos: %.2f %.2f %.2f", mirrorPos.x, mirrorPos.y, mirrorPos.z);
-                    ImGui::Text("Left Mirror Dir: %.2f %.2f %.2f", mirrorDir.x, mirrorDir.y, mirrorDir.z);
+                    ImGui::Text("Left Mirror Pos: %.2f %.2f %.2f", lPos.x, lPos.y, lPos.z);
+                    ImGui::Text("Left Mirror Dir: %.2f %.2f %.2f", lDir.x, lDir.y, lDir.z);
+                    ImGui::Separator();
+                    ImGui::Text("Right Mirror Pos: %.2f %.2f %.2f", rPos.x, rPos.y, rPos.z);
+                    ImGui::Text("Right Mirror Dir: %.2f %.2f %.2f", rDir.x, rDir.y, rDir.z);
                 }
 
                 ImGui::End();
@@ -658,8 +665,14 @@ void Rendering::RenderSceneCommon(Camera& activeCam) {
     Mesh::ResetTextureCache();
 
     LightBuffer lightBuffer = (*Rendering::gameEngine).LoadLights();
-    lightBuffer.spotLights[0].position = glm::vec3(activeCam.Position);
-    lightBuffer.spotLights[0].direction = glm::vec3(activeCam.Front);
+    glm::vec3 currentViewPos = useExternalView ? externalViewPos : activeCam.Position;
+
+    lightBuffer.spotLights[0].position = currentViewPos;
+    // For the direction, we'd ideally pass it too, but for now we'll stick to a decent approximation or just use camera
+    // front if not in mirror pass
+    if (!useExternalView) {
+        lightBuffer.spotLights[0].direction = activeCam.Front;
+    }
 
     glBindBuffer(GL_UNIFORM_BUFFER, Rendering::UBO_lights);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightBuffer), &lightBuffer);
@@ -669,8 +682,13 @@ void Rendering::RenderSceneCommon(Camera& activeCam) {
     shaderColor.setBool("uIsMirror", false);
     shaderColor.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
     shaderColor.setMat4("view", Rendering::GetViewMatrix(activeCam));
-    shaderColor.setVec3("viewPos", activeCam.Position);
+    shaderColor.setVec3("viewPos", currentViewPos);
     shaderColor.setBool("fogEnabled", false);
+
+    shaderTextured.use();
+    shaderTextured.setMat4("projection", Rendering::GetProjectionMatrix(activeCam));
+    shaderTextured.setMat4("view", Rendering::GetViewMatrix(activeCam));
+    shaderTextured.setVec3("viewPos", currentViewPos);
 
     (*Rendering::gameEngine).DrawSkybox(activeCam);
     (*Rendering::gameEngine).DrawLights(*Rendering::lightShader, Rendering::VAO_light, activeCam);
@@ -718,19 +736,26 @@ void Rendering::RenderFrame() {
             FirstPersonCamera* fpCam = dynamic_cast<FirstPersonCamera*>(&activeCam);
             if (fpCam) {
                 float yaw = fpCam->GetCurrentYawOffset();
-                bool renderLeft = (yaw > 20.0f);
-                bool renderRight = (yaw < -20.0f);
+                bool shouldRenderLeft = (yaw > 20.0f) || Mirrors::tuningMode;
+                bool shouldRenderRight = (yaw < -20.0f) || Mirrors::tuningMode;
 
-                if (renderLeft || renderRight) {
-                    auto& car = *gameEngine->GetCar(0);
-                    glm::vec3 carPos = gameEngine->GetCarPosition();
-                    glm::quat carRot = gameEngine->GetCarRotation();
+                if (shouldRenderLeft || shouldRenderRight) {
+                    auto vehicles = Physics::getInstance()->getVehicles();
+                    if (!vehicles.empty() && vehicles[0]) {
+                        physx::PxVec3 pPos = vehicles[0]->getVehiclePosition();
+                        physx::PxQuat pRot = vehicles[0]->getVehicleRotation();
+                        glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
+                        glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
 
-                    glm::vec3 forward = carRot * glm::vec3(0, 0, 1);
-                    glm::vec3 up = carRot * glm::vec3(0, 1, 0);
-                    glm::vec3 right = carRot * glm::vec3(-1, 0, 0);
+                        glm::vec3 forward = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f));
+                        glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
+                        glm::vec3 right = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, 1.0f));
 
-                    player1Mirrors.RenderForCar(carPos, forward, up, right, renderLeft, renderRight);
+                        if (shouldRenderLeft)
+                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
+                        if (shouldRenderRight)
+                            player1Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+                    }
                 }
             }
         }
@@ -891,8 +916,9 @@ void Rendering::RenderLoadingScreen(float progress) {
     glfwPollEvents();
 }
 
-void Rendering::SetExternalView(const glm::mat4& view) {
+void Rendering::SetExternalView(const glm::mat4& view, const glm::vec3& pos) {
     externalView = view;
+    externalViewPos = pos;
     useExternalView = true;
 }
 
@@ -903,7 +929,10 @@ void Rendering::SetExternalProj(const glm::mat4& proj) {
 
 void Rendering::ClearExternalProj() { useExternalProj = false; }
 
-void Rendering::ClearExternalView() { useExternalView = false; }
+void Rendering::ClearExternalView() {
+    useExternalView = false;
+    externalViewPos = glm::vec3(0.0f);
+}
 
 unsigned int Rendering::GetLeftMirrorTexture() { return player1Mirrors.GetLeftMirrorTexture(); }
 

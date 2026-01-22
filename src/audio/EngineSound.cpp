@@ -10,9 +10,6 @@ EngineSound::~EngineSound() {
     if (loaded) {
         ma_sound_uninit(&sound);
     }
-    if (idleLoaded) {
-        ma_sound_uninit(&idleSound);
-    }
 }
 
 bool EngineSound::load(const char* path) {
@@ -33,18 +30,6 @@ bool EngineSound::load(const char* path) {
 
     ma_sound_set_looping(&sound, MA_TRUE);
 
-    // Idle sound initialization
-    result =
-        ma_sound_init_from_file(eng, path, MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC, nullptr, nullptr, &idleSound);
-    if (result == MA_SUCCESS) {
-        ma_sound_set_looping(&idleSound, MA_TRUE);
-        ma_sound_set_volume(&idleSound, 0.5f);  // Constant base volume
-        ma_sound_set_pitch(&idleSound, 0.8f);   // Constant base pitch
-        idleLoaded = true;
-    } else {
-        std::cerr << "EngineSound: failed to load idle sound " << path << ", code = " << result << std::endl;
-    }
-
     rpmSmoothed = idleRPM;
     volumeSmoothed = 0.0f;
     pitchSmoothed = 1.0f;
@@ -59,17 +44,11 @@ bool EngineSound::load(const char* path) {
 void EngineSound::start() {
     if (!loaded) return;
     ma_sound_start(&sound);
-    if (idleLoaded) {
-        ma_sound_start(&idleSound);
-    }
 }
 
 void EngineSound::stop() {
     if (!loaded) return;
     ma_sound_stop(&sound);
-    if (idleLoaded) {
-        ma_sound_stop(&idleSound);
-    }
 }
 
 void EngineSound::update(float rpmRadPerSec, float throttle, float speed, int gear) {
