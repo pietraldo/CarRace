@@ -37,6 +37,11 @@ public:
     glm::vec3 color;
     glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
+    // Bridge postions and sizes
+    static glm::vec3 bridgeSize;
+    static glm::vec3 bridgePosition;
+    static glm::vec3 bridgeRotation;
+
     Terrain(glm::vec3 position, glm::vec3 color) : position(position), color(color) {};
 
     void LoadTerrain(const char* heightmapPath);
@@ -60,4 +65,5 @@ public:
 
     float GetHeightAtPosition(float x, float z);
     bool IsGrassAtPosition(float x, float z);
+    bool IsBridgeAtPosition(float x, float y, float z);
 };
