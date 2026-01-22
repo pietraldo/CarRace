@@ -840,6 +840,7 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
     const int CHECKPOINT_THRESHOLD = Settings::Get().checkpointInterval;
     const int MAX_SAVED_POSITIONS = Settings::Get().maxSavedPositions;
     const int SAVE_POSITION_RETRIVAL = Settings::Get().savePositionRetrival;
+    const int MIN_DISTANCE_BETWEEN_POSITIONS = 5;
 
     bool resetCarToCheckPoint[2];
     resetCarToCheckPoint[0] = input.carControl0.resetToCheckpoint;
@@ -901,6 +902,13 @@ void GameEngine::UpdatePlayerStatus(InputData& input, float dt) {
                 // save vehicle position
                 auto vehicle = Physics::getInstance()->getVehicles()[i];
                 PxVec3 pos = vehicle->getVehiclePosition();
+                
+                if (playersStatus[i].vehiclePositions.size() > 0)  // check distance from last saved position
+                {
+                    auto lastPosition = playersStatus[i].vehiclePositions.back().postion;
+                    if (glm::length(lastPosition - PxVec3ToGlmVec3(pos))<MIN_DISTANCE_BETWEEN_POSITIONS) continue;
+                }
+
                 PxQuat rotation = vehicle->getVehicleRotation();
                 if (playersStatus[i].vehiclePositions.size() >= MAX_SAVED_POSITIONS) {
                     playersStatus[i].vehiclePositions.erase(playersStatus[i].vehiclePositions.begin());
