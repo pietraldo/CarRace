@@ -747,14 +747,16 @@ void Rendering::RenderFrame() {
                         glm::vec3 carPos = glm::vec3(pPos.x, pPos.y, pPos.z);
                         glm::quat carRot = glm::quat(pRot.w, pRot.x, pRot.y, pRot.z);
 
-                        glm::vec3 forward = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f));
+                        glm::vec3 forward = carRot * glm::vec3(0.0f, 0.0f, 1.0f);
                         glm::vec3 up = carRot * glm::vec3(0.0f, 1.0f, 0.0f);
-                        glm::vec3 right = carRot * glm::normalize(glm::vec3(1.0f, 0.0f, 1.0f));
+                        glm::vec3 right = carRot * glm::vec3(1.0f, 0.0f, 0.0f);
 
-                        if (shouldRenderLeft)
+                        if (shouldRenderLeft) {
                             player1Mirrors.RenderMirror(Mirrors::MirrorSide::LEFT, carPos, forward, up, right);
-                        if (shouldRenderRight)
+                        }
+                        if (shouldRenderRight) {
                             player1Mirrors.RenderMirror(Mirrors::MirrorSide::RIGHT, carPos, forward, up, right);
+                        }
                     }
                 }
             }
@@ -791,7 +793,6 @@ void Rendering::RenderFrame() {
 
             hudRenderer.Render(0, data, 0, 0, window_width, window_height);
         }
-
     } else if (currentViewMode == ViewMode::SPLIT_SCREEN) {
         std::vector<glm::vec3> positions;
         std::vector<float> yaws;
