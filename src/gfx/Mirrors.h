@@ -13,20 +13,26 @@ public:
         glm::vec3 direction;
     };
 
-    static float mirrorHeightOffset;
-    static float mirrorSideOffset;
-    static float mirrorForwardOffset;
-    static float mirrorLookSide;
-    static float mirrorLookUp;
     static float mirrorFov;
 
-    static constexpr int MIRROR_WIDTH = 2048;
-    static constexpr int MIRROR_HEIGHT = 1024;
+    static float leftX, leftY, leftZ;
+    static float rightX, rightY, rightZ;
+
+    static float leftYaw, leftPitch;
+    static float rightYaw, rightPitch;
+
+    static constexpr int MIRROR_WIDTH = 1024;
+    static constexpr int MIRROR_HEIGHT = 512;
+
+    enum class MirrorSide { LEFT, RIGHT };
 
     void Initialize();
 
+    void RenderMirror(MirrorSide side, const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up,
+                      const glm::vec3& right, int playerIndex);
+
     void RenderForCar(const glm::vec3& carPos, const glm::vec3& forward, const glm::vec3& up, const glm::vec3& right,
-                      bool renderLeft = true, bool renderRight = true);
+                      int playerIndex, bool renderLeft = true, bool renderRight = true);
 
     unsigned int GetLeftMirrorTexture() const { return leftMirrorColorTex; }
     unsigned int GetRightMirrorTexture() const { return rightMirrorColorTex; }
@@ -41,7 +47,7 @@ private:
     static MirrorData ComputeMirrorData(float sideSign, const glm::vec3& carPos, const glm::vec3& forward,
                                         const glm::vec3& up, const glm::vec3& right);
 
-    void RenderSingleMirror(const glm::mat4& view, unsigned int fbo);
+    void RenderSingleMirror(const glm::mat4& view, const glm::vec3& pos, unsigned int fbo, int playerIndex);
 
     void InitMirrorRenderTarget();
     void CreateMirrorTarget(unsigned int& fbo, unsigned int& colorTex);

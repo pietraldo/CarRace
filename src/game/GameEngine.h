@@ -72,7 +72,7 @@ public:
 
     bool userFlashlight = false;
     bool headlightsOn = true;
-    bool renderMirrors = false;
+    bool renderMirrors = true;
 
     LightSpot* flashlight;
     std::vector<LightSpot*> headlightLeft{static_cast<std::size_t>(Settings::Get().CAR_COUNT)};

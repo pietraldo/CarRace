@@ -7,14 +7,12 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
     this->textures = textures;
     this->name = name;
 
-    if (name.find("MirrorGlass") != std::string::npos) {
+    if (name == "MirrorGlass_L") {
         isMirror = true;
-
-        if (name.find("Right") != std::string::npos) {
-            mirrorSide = MirrorSide::Right;
-        } else {
-            mirrorSide = MirrorSide::Left;
-        }
+        mirrorSide = MirrorSide::Left;
+    } else if (name == "MirrorGlass_R") {
+        isMirror = true;
+        mirrorSide = MirrorSide::Right;
     }
     setupMesh();
 }
@@ -56,6 +54,8 @@ void Mesh::ResetTextureCache() { lastBoundTexture = 0; }
 
 void Mesh::Draw(Shader& shader) {
     if (isMirror) {
+        if (Rendering::IsExternalPass()) return;
+
         shader.setBool("uIsMirror", true);
         shader.setBool("uHasBaseColorMap", true);
 
@@ -67,6 +67,7 @@ void Mesh::Draw(Shader& shader) {
         }
 
         if (lastBoundTexture != mirrorTex) {
+            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, mirrorTex);
             lastBoundTexture = mirrorTex;
         }
